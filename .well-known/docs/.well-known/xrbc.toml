@@ -1,0 +1,18 @@
+[[ISSUERS]]
+address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+name = "XRBitcoinCash"
+
+[[TOKENS]]
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+currency = "XRBC"
+name = "XRBitcoinCash"
+desc = "XRBitcoinCash (XRBC) was founded on January 5th, 2022, with a vision to innovate and lead in its industry."
+icon = "https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
+
+[[TOKENS.WEBLINKS]]
+url = "https://www.xrbitcoincash.com/"
+type = "website"
+title = "Official Website"
+
+
+
