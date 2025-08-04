@@ -1,24 +1,28 @@
-[[ISSUERS]]
+[account]
 address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+desc = "XRBitcoinCash Issuer"
+
+[meta]
 domain = "xrbitcoincash.com"
+website = "https://www.xrbitcoincash.com/"
+logo = "https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
+description = "XRBitcoinCash (XRBC) was founded on January 5th, 2022, with a vision to innovate and lead in its industry."
 
+[social]
+twitter = "@XRBitcoinCash"
+email = "xrbitcoincash@gmail.com"
 
-[[TOKENS]]
-issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+[[currencies]]
 currency = "XRBC"
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 name = "XRBitcoinCash"
 desc = "XRBitcoinCash (XRBC) was founded on January 5th, 2022, with a vision to innovate and lead in its industry."
 icon = "https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
 
-[[TOKENS.WEBLINKS]]
+[[currencies.links]]
 url = "https://www.xrbitcoincash.com/"
-type = "website"
 title = "Official Website"
-
-[[ISSUERS.SOCIAL]]
-twitter = "@XRBitcoinCash"
-email = "xrbitcoincash@gmail.com"
-
+type = "website"
 
 
 
