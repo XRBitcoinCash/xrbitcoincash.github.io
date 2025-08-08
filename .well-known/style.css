@@ -70,3 +70,23 @@ footer{border-top:1px solid var(--soft);background:var(--bg-soft)}
 .small{font-size:13px;color:var(--muted)}
 .footer-links a{display:block;color:var(--muted);padding:4px 0}
 .footer-links a:hover{color:var(--text)}
+<script>
+  (function(){
+    const btn = document.getElementById('navToggle');
+    const menu = document.getElementById('primary-menu');
+    if(btn && menu){
+      btn.addEventListener('click', function(){
+        const open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    // Set active nav link
+    const path = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('#primary-menu a[href]').forEach(a=>{
+      const href = a.getAttribute('href');
+      if(href === path || (path==='index.html' && href==='index.html')){
+        a.setAttribute('aria-current','page');
+      }
+    });
+  })();
+</script>
