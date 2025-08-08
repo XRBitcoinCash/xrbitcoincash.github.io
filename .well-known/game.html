@@ -2,52 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>XRBC Click Game</title>
-  <meta name="description" content="Play the XRBitcoinCash mini game and earn points.">
+  <title>XRBitcoinCash Game | Collect XRBC Tokens</title>
+  <meta name="description" content="Play the XRBitcoinCash minigame and collect XRBC tokens. Built for fun and community engagement on the XRP Ledger.">
+  <meta name="keywords" content="XRBitcoinCash, XRBC, crypto game, XRP Ledger, token collector, minigame">
+  <meta name="author" content="XRBitcoinCash Team">
+  <meta property="og:title" content="XRBitcoinCash Game | Collect XRBC Tokens">
+  <meta property="og:description" content="Play the XRBitcoinCash minigame and collect XRBC tokens. Built for fun and community engagement on the XRP Ledger.">
+  <meta property="og:image" content="https://meta.xrbitcoincash.com/logo.png">
+  <meta property="og:url" content="https://www.xrbitcoincash.com/game.html">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png">
   <style>
-    .game-container {
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121721;
+      color: #e0f7fa;
       text-align: center;
-      margin-top: 50px;
     }
-    .coin {
-      width: 100px;
-      cursor: pointer;
+    header {
+      background-color: #1c2331;
+      padding: 20px;
     }
-    .score {
-      font-size: 2em;
-      margin-top: 20px;
+    header img {
+      height: 60px;
     }
-  </style>
-</head>
-<body>
-  <header>
-    <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBC Logo" class="logo">
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="nfts.html">NFTs</a>
-      <a href="trade.html">Trade</a>
-      <a href="roadmap.html">Roadmap</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="game.html">Game</a>
-      <a href="community.html">Community</a>
-    </nav>
-  </header>
-
-  <main class="game-container">
-    <h1>Click the XRBC Coin!</h1>
-    <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBC Coin" class="coin" onclick="score++ ; document.getElementById('score').textContent = score;">
-    <div class="score">Score: <span id="score">0</span></div>
-  </main>
-
-  <footer>
-    &copy; 2025 XRBitcoinCash. All rights reserved.
-  </footer>
-
-  <script>
-    let score = 0;
-  </script>
-</body>
-</html>
+    nav a {
+      margin: 0 12px;
+      color: #00bcd4;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover
