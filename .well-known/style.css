@@ -1,63 +1,260 @@
-/* Basic resets and layout */
+/* ========== Base reset & theme ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #fff;
+  color: #222;
+  line-height: 1.5;
 }
 
-/* Top banner container */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:root {
+  --bg: #ffffff;
+  --muted: #f7f7f7;
+  --border: #dcdcdc;
+  --text: #222222;
+  --text-muted: #555555;
+  --accent: #0f66ff; /* subtle, professional blue */
+  --radius: 8px;
+  --shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+/* ========== Header / top nav ========== */
 .header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;              /* allows wrapping when space is tight */
+  gap: 12px 20px;               /* vertical/horizontal gaps prevent overlap */
   padding: 12px 20px;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ccc;
+  background-color: var(--muted);
+  border-bottom: 1px solid var(--border);
 }
 
-/* Logo styling */
-.header img {
-  height: 50px;
-  margin-right: 15px;
+.branding {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;                 /* prevents flex overflow */
+}
+
+.branding img {
+  height: 48px;                 /* controlled logo height prevents overlap */
+  width: auto;
+  object-fit: contain;
+}
+
+.branding .site-name {
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Navigation links */
 .nav-links {
   display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  flex-wrap: wrap;              /* wrap to a new line on small screens */
+  margin-left: auto;            /* push nav to the right on wide screens */
+  min-width: 0;
 }
 
 .nav-links a {
-  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 6px;
   color: #333;
   font-weight: 600;
-  padding: 8px;
+  white-space: nowrap;
 }
 
-.nav-links a:hover {
-  color: #007bff;
+.nav-links a:hover,
+.nav-links a:focus {
+  color: var(--accent);
 }
 
-/* Main content spacing */
+.nav-links a[aria-current="page"] {
+  color: var(--accent);
+  background: #eaf2ff;
+}
+
+/* Optional: if you had “boxes” at the very top, flatten them to simple links */
+.top-links,
+.top-actions,
+.top-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 12px 0;
+}
+
+.top-links > * ,
+.top-actions > * ,
+.top-boxes > * {
+  /* strip cardy styles so they render like normal inline items */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ========== Page container / main ========== */
 .main-content {
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Prevent overlapping by improving layout stacking */
-section, .card, .grid {
+/* Vertical rhythm across sections */
+section {
   position: relative;
   z-index: 1;
-  overflow: hidden;
+  overflow: hidden;             /* guards against child overflow */
+  margin-block: 20px;
 }
 
-/* Simplified card boxes */
+section > * + * {
+  margin-top: 12px;
+}
+
+/* Headings spacing */
+h1, h2, h3 {
+  line-height: 1.2;
+  margin: 0 0 10px 0;
+}
+
+/* ========== Grids & cards ========== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
 .card {
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 16px;
-  box-shadow: none;
-  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  background: var(--bg);
 }
+
+/* Content that previously overlapped (defensive rules) */
+.row {
+  display: flex;
+  flex-wrap: wrap;              /* wrapping avoids collision on small screens */
+  gap: 16px;
+}
+
+.row > * {
+  min-width: 0;                 /* allow shrinking inside flex */
+}
+
+/* Tables and wide elements don’t break layout */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.responsive-media {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ========== Buttons (neutral, non-boxy) ========== */
+.button, .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: #fafafa;
+}
+
+.button:hover, .btn:hover {
+  border-color: #c9c9c9;
+}
+
+/* ========== Utilities ========== */
+.muted { color: var(--text-muted); }
+.hide-overflow { overflow: hidden; }
+.mt-0 { margin-top: 0 !important; }
+.mt-1 { margin-top: 6px !important; }
+.mt-2 { margin-top: 12px !important; }
+.mt-3 { margin-top: 18px !important; }
+.mt-4 { margin-top: 24px !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mb-2 { margin-bottom: 12px !important; }
+
+/* ========== Responsive tweaks ========== */
+@media (max-width: 900px) {
+  .branding img { height: 44px; }
+
+  .nav-links {
+    margin-left: 0;             /* stop pushing to the right when narrow */
+    width: 100%;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding: 18px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr; /* single column to avoid crowding */
+    gap: 14px;
+  }
+
+  .nav-links a {
+    padding: 6px 8px;
+  }
+}
+<header class="header">
+  <a class="branding" href="index.html">
+    <img
+      src="https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
+      alt="XRBitcoin.com logo">
+    <span class="site-name">XRBitcoin.com</span>
+  </a>
+
+  <nav class="nav-links" id="primary-menu">
+    <a href="index.html" aria-current="page">Home</a>
+    <a href="about.html">About</a>
+    <a href="markets.html">Markets</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
 
