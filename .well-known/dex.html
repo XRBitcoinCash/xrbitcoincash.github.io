@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBC DEX | XRBitcoinCash</title>
+  <meta name="description" content="Decentralized exchange UI for XRBitcoinCash (XRBC) on the XRP Ledger. View order books and trade XRBC pairs." />
+  <link rel="canonical" href="https://xrbitcoincash.github.io/dex.html" />
+  <meta name="theme-color" content="#0B1220" />
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
+
+  <!-- Keep the site theme consistent -->
+  <style>
+    :root{
+      --bg:#0B1220; --bg-soft:#0E1A2E; --panel:#111C33; --text:#EAF2FF; --muted:#9FB3CE;
+      --accent:#00D4FF; --accent-2:#7CFF6B; --cta:#FFB703; --cta-text:#0B1220;
+      --radius:14px; --border:rgba(255,255,255,.08); --soft:rgba(255,255,255,.06);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, Roboto, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(0,212,255,.10), transparent 60%),
+        radial-gradient(1000px 700px at 80% -10%, rgba(124,255,107,.08), transparent 60%),
+        var(--bg);
+      color:var(--text); line-height:1.6;
+    }
+    a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+    .container{max-width:1200px;margin:0 auto;padding:0 20px}
+    header{position:sticky;top:0;z-index:1000;background:rgba(11,18,32,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--soft)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand img{width:40px;height:40px;border-radius:10px;box-shadow:var(--shadow)}
+    .brand .name{font-weight:800}
+    .menu{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+    .menu a{color:var(--text);opacity:.92;padding:8px 10px;border-radius:9px}
+    .menu a:hover,.menu a[aria-current=page]{background:var(--soft)}
+    .cta{background:linear-gradient(135deg,var(--cta),#FFD166);color:var(--cta-text);font-weight:800;padding:10px 14px;border-radius:10px;border:0}
+    .hamburger{display:none;background:none;border:0;color:var(--text);font-size:1rem}
+    @media (max-width:980px){
+      .menu{display:none;width:100%}
+      .menu.open{display:flex;flex-direction:column;align-items:flex-start;padding:10px 0}
+      .hamburger{display:inline-flex;align-items:center;gap:8px}
+    }
+
+    main{padding:42px 0}
+    .title{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:16px}
+    .badge{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(124,255,107,.12);color:var(--accent-2);border:1px solid rgba(124,255,107,.28)}
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+    @media (max-width:1100px){.grid{grid-template-columns:1fr}}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .meta{color:var(--muted);font-size:14px}
+    .select{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px}
+    .inputs{display:flex;flex-wrap:wrap;gap:10px}
+    label{font-size:13px;color:var(--muted)}
+    input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text)}
+    button.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;font-weight:800;border:1px solid transparent;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),#6AE2FF);color:#07121F}
+    .btn.secondary{background:rgba(255,255,255,.06);border-color:var(--border);color:var(--text)}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px;font-size:14px}
+    th{color:var(--muted);text-align:left;font-weight:600}
+    td{padding:8px 6px;background:rgba(255,255,255,.03);border-top:1px solid var(--soft);border-bottom:1px solid var(--soft)}
+    tr td:first-child{border-left:1px solid var(--soft);border-top-left-radius:8px;border-bottom-left-radius:8px}
+    tr td:last-child{border-right:1px solid var(--soft);border-top-right-radius:8px;border-bottom-right-radius:8px}
+    footer{border-top:1px solid var(--soft);background:var(--bg-soft)}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:22px;padding:30px 0}
+    @media (max-width:980px){.footer-grid{grid-template-columns:1fr}}
+    .footer-links a{display:block;color:var(--muted);padding:4px 0}
+    .footer-links a:hover{color:var(--text)}
+    .small{font-size:13px;color:var(--muted)}
+    .hint{font-size:12px;color:var(--muted)}
+  </style>
+
+  <!-- xrpl.js (client-side, read-only) -->
+  <script src="https://unpkg.com/xrpl@2.12.0/build/xrpl-latest-min.js" defer></script>
+</head>
+<body>
+  <!-- Header (same structure as your site) -->
+  <header role="banner">
+    <div class="container nav" aria-label="Primary">
+      <a class="brand" href="index.html" aria-label="XRBitcoinCash Home">
+        <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash logo" />
+        <span class="name">XRBitcoinCash</span>
+      </a>
+
+      <button class="hamburger" aria-expanded="false" aria-controls="primary-menu" id="navToggle">☰ Menu</button>
+
+      <nav id="primary-menu" class="menu" role="navigation" aria-label="Main navigation">
+        <a href="about.html">About</a>
+        <a href="dex.html" aria-current="page">Trade</a>
+        <a href="nfts.html">NFTs</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="community.html">Community</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="game.html">Game</a>
+        <a href="metadata.html">Metadata</a>
+        <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
+        <a class="cta" href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" role="main" id="main">
+    <div class="title">
+      <h1 style="margin:0">XRBC DEX</h1>
+      <span class="badge">XRPL • On-ledger order books • XRBC default pair</span>
+    </div>
+    <p class="meta" style="margin-top:-6px">View live bids/asks and mid price for XRBC pairs. Order placement requires wallet integration (optional).</p>
+
+    <section class="panel" style="margin-top:16px">
+      <div class="row">
+        <div>
+          <label>Base (locked)</label>
+          <div class="inputs">
+            <input id="base-asset" value="XRBC:ISSUER_PLACEHOLDER" disabled />
+          </div>
+        </div>
+        <div>
+          <label>Counter</label>
+          <select id="counter-select" class="select">
+            <!-- Populate on load -->
+          </select>
+          <div class="hint">Choose the market to view: XRBC / Counter</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px">
+        <div class="panel">
+          <h3 style="margin:0 0 8px">Asks (sell XRBC)</h3>
+          <table id="asks-table">
+            <thead><tr><th>Price (Counter/XRBC)</th><th>XRBC</th><th>Counter</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h3 style="margin:0 0 8px">Bids (buy XRBC)</h3>
+          <table id="bids-table">
+            <thead><tr><th>Price (Counter/XRBC)</th><th>XRBC</th><th>Counter</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:16px">
+        <h3 style="margin:0 0 8px">Market summary</h3>
+        <p class="meta" id="summary">Pair: — • Best bid: — • Best ask: — • Mid: —</p>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <h3 style="margin:0 0 8px">Place order (optional)</h3>
+      <p class="hint">For safety, signing is disabled by default. Enable Xaman/XUMM or your preferred wallet integration before using.</p>
+      <div class="row">
+        <div>
+          <label>Side</label>
+          <div class="inputs">
+            <select id="side" class="select">
+              <option value="buy">Buy XRBC</option>
+              <option value="sell">Sell XRBC</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Price (Counter/XRBC)</label>
+          <input id="price" inputmode="decimal" placeholder="0.000000" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div>
+          <label>Amount (XRBC)</label>
+          <input id="amount" inputmode="decimal" placeholder="0.0" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn primary" id="submitOrder" disabled>Connect wallet to trade</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo" style="margin-top:32px">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:8px">
+          <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash logo" />
+          <span class="name">XRBitcoinCash</span>
+        </div>
+        <p class="small">Built on the XRP Ledger. © 2025 XRBitcoinCash. All rights reserved.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Explore</h4>
+        <a href="about.html">About</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="community.html">Community</a>
+        <a href="game.html">Game</a>
+      </div>
+      <div class="footer-links">
+        <h4>Build</h4>
+        <a href="metadata.html">Token Metadata</a>
+        <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="nfts.html">NFTs</a>
+      </div>
+      <div class="footer-links">
+        <h4>Trade</h4>
+        <a href="dex.html">Trade (DEX)</a>
+        <a href="https://xpmarket.io" target="_blank" rel="noopener">XP Marketplace</a>
+        <a href="https://sologenic.org" target="_blank" rel="noopener">Sologenic</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile nav toggle
+    (function(){
+      const btn = document.getElementById('navToggle');
+      const menu = document.getElementById('primary-menu');
+      if(!btn || !menu) return;
+      btn.addEventListener('click', function(){
+        const open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+
+    // --- Configure your asset(s) and network here ---
+    const RIPPLED_URL = 'wss://xrplcluster.com'; // mainnet cluster. Change if needed.
+    const XRBC = { code: 'XRBC', issuer: 'ISSUER_PLACEHOLDER' }; // TODO: put the correct issuer here
+    const COUNTERS = [
+      { code: 'XRP' }, // native
+      // Examples (replace with your real counter choices/issuers)
+      // { code: 'USD', issuer: 'r...' },
+      // { code: 'SOLO', issuer: 'r...' },
+      // { code: 'USDC', issuer: 'r...' },
+    ];
+    // -------------------------------------------------
+
+    const asksTBody = () => document.querySelector('#asks-table tbody');
+    const bidsTBody = () => document.querySelector('#bids-table tbody');
+    const summaryEl = () => document.getElementById('summary');
+    const counterSelect = () => document.getElementById('counter-select');
+    const baseAssetInput = () => document.getElementById('base-asset');
+
+    // Utility: formatters
+    const fmt = (n, d=6) => {
+      if (n === undefined || n === null || isNaN(n)) return '—';
+      return Number(n).toLocaleString(undefined, { maximumFractionDigits: d });
+    };
+
+    // XRPL connection and book loading
+    let client;
+    let currentCounter = COUNTERS[0];
+
+    async function connect() {
+      client = new xrpl.Client(RIPPLED_URL);
+      await client.connect();
+      console.log('Connected to', RIPPLED_URL);
+    }
+
+    function xrpCurrency() { return { currency: 'XRP' }; }
+    function issuedCurrency(asset) { return { currency: asset.code, issuer: asset.issuer }; }
+    function toBookSpec(base, counter) {
+      // Base = what is being bought/sold; XRPL uses taker_gets/taker_pays in "book_offers"
+      const taker_gets = counter.code === 'XRP' ? xrpCurrency() : issuedCurrency(counter);
+      const taker_pays = issuedCurrency(base); // XRBC is issued
+      return { taker_gets, taker_pays };
+    }
+
+    // Convert book_offers rows to price/amounts (Counter/XRBC)
+    function normalizeOffers(offers, base, counter, side) {
+      // side: 'asks' means people selling XRBC (taker_pays XRBC, taker_gets Counter)
+      // Price = Counter per 1 XRBC; Amount = XRBC size
+      return offers.map(o => {
+        // XRPL amounts can be strings (drops) for XRP or objects for issued currencies
+        const gets = o.TakerGets;
+        const pays = o.TakerPays;
+        let counterAmt, xrbcAmt;
+
+        if (typeof gets === 'string') { // XRP in drops for gets
+          counterAmt = Number(gets) / 1_000_000;
+        } else if (gets && gets.currency) {
+          counterAmt = Number(gets.value);
+        }
+
+        if (typeof pays === 'string') { // XRP drops for pays (shouldn't happen for XRBC pays)
+          xrbcAmt = Number(pays) / 1_000_000;
+        } else if (pays && pays.currency) {
+          xrbcAmt = Number(pays.value);
+        }
+
+        const price = xrbcAmt ? counterAmt / xrbcAmt : NaN;
+        return { price, xrbc: xrbcAmt, counter: counterAmt };
+      }).filter(r => isFinite(r.price) && r.xrbc > 0 && r.counter > 0);
+    }
+
+    function renderTable(tbody, rows, limit=20) {
+      tbody.innerHTML = rows.slice(0, limit).map(r => `
+        <tr>
+          <td>${fmt(r.price, 8)}</td>
+          <td>${fmt(r.xrbc, 4)}</td>
+          <td>${fmt(r.counter, 4)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="meta">No orders</td></tr>`;
+    }
+
+    function updateSummary(bids, asks, pairLabel) {
+      const bestBid = bids[0]?.price;
+      const bestAsk = asks[0]?.price;
+      const mid = (bestBid && bestAsk) ? (bestBid + bestAsk) / 2 : undefined;
+      summaryEl().textContent =
+        `Pair: ${pairLabel} • Best bid: ${fmt(bestBid,8)} • Best ask: ${fmt(bestAsk,8)} • Mid: ${fmt(mid,8)}`;
+    }
+
+    async function loadOrderBooks() {
+      if (!client || !client.isConnected()) await connect();
+
+      const base = XRBC;
+      const counter = currentCounter;
+
+      // Prepare book queries in both sides for clarity
+      // Asks: people selling XRBC (you'd buy XRBC)
+      const asksSpec = {
+        taker_gets: counter.code === 'XRP' ? xrpCurrency() : issuedCurrency(counter),
+        taker_pays: issuedCurrency(base)
+      };
+      // Bids: people buying XRBC (you'd sell XRBC)
+      const bidsSpec = {
+        taker_gets: issuedCurrency(base),
+        taker_pays: counter.code === 'XRP' ? xrpCurrency() : issuedCurrency(counter)
+      };
+
+      const [asksRes, bidsRes] = await Promise.all([
+        client.request({ command: 'book_offers', limit: 50, ...asksSpec }),
+        client.request({ command: 'book_offers', limit: 50, ...bidsSpec })
+      ]);
+
+      const asks = normalizeOffers(asksRes.result.offers || [], base, counter, 'asks')
+        .sort((a,b)=> a.price - b.price); // lowest ask first
+      const bids = normalizeOffers(bidsRes.result.offers || [], base, counter, 'bids')
+        .sort((a,b)=> b.price - a.price); // highest bid first
+
+      renderTable(asksTBody(), asks);
+      renderTable(bidsTBody(), bids);
+      const pairLabel = `${base.code}/${counter.code}${counter.issuer ? ':'+counter.issuer.slice(0,6)+'…' : ''}`;
+      updateSummary(bids, asks, pairLabel);
+    }
+
+    function populateUI() {
+      // Lock base input label
+      baseAssetInput().value = `${XRBC.code}:${XRBC.issuer || '—'}`;
+
+      // Populate counters
+      const sel = counterSelect();
+      sel.innerHTML = COUNTERS.map((c,i) => {
+        const label = c.code === 'XRP' ? 'XRP (native)' : `${c.code}:${(c.issuer||'').slice(0,6)}…`;
+        return `<option value="${i}">${label}</option>`;
+      }).join('');
+      sel.addEventListener('change', async (e) => {
+        currentCounter = COUNTERS[Number(e.target.value)];
+        await loadOrderBooks();
+      });
+    }
+
+    async function main(){
+      populateUI();
+      currentCounter = COUNTERS[0];
+      await loadOrderBooks();
+
+      // Refresh periodically
+      setInterval(loadOrderBooks, 15_000);
+    }
+
+    // Start after xrpl script is loaded
+    window.addEventListener('load', main);
+  </script>
+</body>
+</html>
