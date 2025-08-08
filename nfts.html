@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NFTs | XRBitcoinCash</title>
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" /><link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header><div class="container nav">
+    <a class="brand" href="index.html"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></a>
+    <button class="hamburger" aria-expanded="false" aria-controls="primary-menu" id="navToggle">☰ Menu</button>
+    <nav id="primary-menu" class="menu">
+      <a href="index.html">Home</a><a href="about.html">About</a><a href="trade.html">Trade</a><a href="dex.html">DEX</a><a href="nfts.html">NFTs</a><a href="dashboard.html">Dashboard</a><a href="community.html">Community</a><a href="roadmap.html">Roadmap</a><a href="game.html">Game</a><a href="metadata.html">Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a class="cta" href="contact.html">Contact</a>
+    </nav></div></header>
+
+  <main class="container" id="main">
+    <section style="padding-top:32px">
+      <h1 class="h1">NFT ecosystem</h1>
+      <p class="lead">Explore creator drops, collections, and community art tied to XRBC.</p>
+    </section>
+
+    <section>
+      <div class="grid-3">
+        <div class="panel"><h3>Featured collection</h3><p class="meta">Showcase a flagship collection here.</p></div>
+        <div class="panel"><h3>Creator spotlight</h3><p class="meta">Highlight artists and utility tie-ins.</p></div>
+        <div class="panel"><h3>How to mint</h3><p class="meta">Link to your minting guide or platform of choice.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="container footer-grid">
+    <div><div class="brand" style="margin-bottom:8px"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></div><p class="small">© 2025 XRBitcoinCash.</p></div>
+    <div class="footer-links"><h4>Explore</h4><a href="about.html">About</a><a href="roadmap.html">Roadmap</a><a href="community.html">Community</a><a href="game.html">Game</a></div>
+    <div class="footer-links"><h4>Build</h4><a href="metadata.html">Token Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a href="dashboard.html">Dashboard</a><a href="nfts.html">NFTs</a></div>
+    <div class="footer-links"><h4>Trade</h4><a href="trade.html">Guide</a><a href="dex.html">DEX</a><a href="https://xpmarket.io" target="_blank" rel="noopener">XP Marketplace</a><a href="https://sologenic.org" target="_blank" rel="noopener">Sologenic</a></div>
+  </div></footer>
+
+  <script>(function(){const b=document.getElementById('navToggle'),m=document.getElementById('primary-menu');if(b&&m){b.addEventListener('click',()=>{const o=m.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false');});}const p='nfts.html';document.querySelectorAll('#primary-menu a[href]').forEach(a=>{if(a.getAttribute('href')===p){a.setAttribute('aria-current','page');}});})();</script>
+</body>
+</html>
+<script>
+  (function(){
+    const btn = document.getElementById('navToggle');
+    const menu = document.getElementById('primary-menu');
+    if(btn && menu){
+      btn.addEventListener('click', function(){
+        const open = menu.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+    // Set active nav link
+    const path = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('#primary-menu a[href]').forEach(a=>{
+      const href = a.getAttribute('href');
+      if(href === path || (path==='index.html' && href==='index.html')){
+        a.setAttribute('aria-current','page');
+      }
+    });
+  })();
+</script>
