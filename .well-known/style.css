@@ -1,0 +1,77 @@
+/* XRBitcoinCash - Fresh Styling */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
+:root {
+  --primary-color: #00d4ff;
+  --background-gradient: linear-gradient(135deg, #1e1e2f, #3a3a5f, #5f5fa0);
+  --text-color: #ffffff;
+  --accent-color: #ccc;
+}
+
+body {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  background: var(--background-gradient);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  max-width: 80px;
+}
+
+nav a {
+  margin: 0 15px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding: 60px 40px;
+  max-width: 900px;
+  margin: auto;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  margin-bottom: 10px;
+}
+
+a {
+  color: var(--primary-color);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  text-align: center;
+  padding: 30px;
+  font-size: 0.9em;
+  color: var(--accent-color);
+  background-color: rgba(0, 0, 0, 0.2);
+}
