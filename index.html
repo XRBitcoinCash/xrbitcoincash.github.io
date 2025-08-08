@@ -1,43 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>XRBitcoinCash (XRBC) | Trade, NFTs, Dashboard, Community</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html" class="logo">
+        <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash logo" />
+        <span>XRBitcoinCash</span>
+      </a>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="trade.html">Trade</a></li>
+        <li><a href="dex.html">DEX</a></li>
+        <li><a href="nfts.html">NFTs</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="community.html">Community</a></li>
+        <li><a href="roadmap.html">Roadmap</a></li>
+        <li><a href="game.html">Game</a></li>
+        <li><a href="metadata.html">Metadata</a></li>
+        <li><a href=".well-known/xrp-ledger.toml">XRPL .toml</a></li>
+        <li><a href="contact.html" class="cta">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>XRBitcoinCash (XRBC) on the XRP Ledger</h1>
+      <p>Set your trust line, trade XRBC, explore NFTs, and join the community.</p>
+      <div class="buttons">
+        <a href="trade.html" class="primary">Start Trading</a>
+        <a href="community.html" class="secondary">Join Community</a>
+        <a href="dashboard.html" class="secondary">Open Dashboard</a>
+      </div>
+    </section>
+
+    <section class="grid-section">
+      <div class="grid-box">
+        <h2>Trust Line & Guide</h2>
+        <p>Add XRBC to your wallet and start trading securely.</p>
+        <a href="trade.html">Trust Line & Trading Guide</a>
+      </div>
+      <div class="grid-box">
+        <h2>XRPL Tools</h2>
+        <p>Check issuer status and balances using official XRPL resources.</p>
+        <a href=".well-known/xrp-ledger.toml">View XRPL .toml</a>
+      </div>
+      <div class="grid-box">
+        <h2>NFT Ecosystem</h2>
+        <p>Browse community drops, creator collections, and more.</p>
+        <a href="nfts.html">Explore NFTs</a>
+      </div>
+      <div class="grid-box">
+        <h2>Roadmap</h2>
+        <p>Milestones, progress, and what's next for XRBitcoinCash.</p>
+        <a href="roadmap.html">See Roadmap</a>
+      </div>
+      <div class="grid-box">
+        <h2>Community</h2>
+        <p>Join discussions, vote on proposals, and grow together.</p>
+        <a href="community.html">Visit Community</a>
+      </div>
+      <div class="grid-box">
+        <h2>Dashboard</h2>
+        <p>Analytics, wallets, and price insights for XRBC on XRPL.</p>
+        <a href="dashboard.html">Open Dashboard</a>
+      </div>
+    </section>
+  </main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <!-- Meta -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash (XRBC) | XRP Ledger Token | Trade, NFTs, Dashboard, Community</title>
-  <meta name="description" content="XRBitcoinCash (XRBC) on the XRP Ledger. Set your trust line, trade, explore NFTs, view dashboard, and join the community." />
+  <meta name="description" content="XRBitcoinCash (XRBC) on the XRP Ledger. Set your trust line, start trading, explore NFTs, view the dashboard, and join the community." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
   <link rel="canonical" href="https://xrbitcoincash.github.io/" />
-  <meta name="theme-color" content="#0B1220" />
 
   <!-- Social -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBitcoinCash (XRBC) | XRP Ledger Token" />
-  <meta property="og:description" content="Set your trust line, start trading, explore NFTs, dashboard, roadmap, and community." />
+  <meta property="og:description" content="Set your trust line, start trading XRBC, explore NFTs, view the dashboard, and join the community." />
   <meta property="og:url" content="https://xrbitcoincash.github.io/" />
   <meta property="og:image" content="https://meta.xrbitcoincash.com/logo.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="XRBitcoinCash (XRBC) | XRP Ledger Token" />
-  <meta name="twitter:description" content="Trade XRBC, browse NFTs, and view live insights on the XRPL dashboard." />
+  <meta name="twitter:description" content="Trade XRBC on XRPL DEX frontends, browse NFTs, and view live insights." />
   <meta name="twitter:image" content="https://meta.xrbitcoincash.com/logo.png" />
-  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
+  <meta name="theme-color" content="#0B1220" />
 
-  <!-- Theme (kept similar) -->
+  <!-- Theme (kept consistent, high-contrast, mobile-friendly) -->
   <style>
     :root{
       --bg:#0B1220; --bg-soft:#0E1A2E; --panel:#111C33; --text:#EAF2FF; --muted:#9FB3CE;
       --accent:#00D4FF; --accent-2:#7CFF6B; --cta:#FFB703; --cta-text:#0B1220;
-      --radius:14px; --border:rgba(255,255,255,.08); --soft:rgba(255,255,255,.06);
-      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --border:rgba(255,255,255,.08); --soft:rgba(255,255,255,.06);
+      --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family:Inter, Roboto, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      margin:0;
+      font-family:Inter, Roboto, "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
       background:
         radial-gradient(1200px 800px at 20% -10%, rgba(0,212,255,.10), transparent 60%),
         radial-gradient(1000px 700px at 80% -10%, rgba(124,255,107,.08), transparent 60%),
         var(--bg);
-      color:var(--text); line-height:1.6;
+      color:var(--text);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
     a{color:var(--accent);text-decoration:none}
     a:hover{text-decoration:underline}
@@ -45,7 +125,12 @@
     .container{max-width:1200px;margin:0 auto;padding:0 20px}
 
     /* Header / Nav */
-    header{position:sticky;top:0;z-index:1000;background:rgba(11,18,32,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--soft)}
+    header{
+      position:sticky;top:0;z-index:1000;
+      background:rgba(11,18,32,.85);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--soft);
+    }
     .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
     .brand{display:flex;align-items:center;gap:10px}
     .brand img{width:40px;height:40px;border-radius:10px;box-shadow:var(--shadow)}
@@ -82,8 +167,8 @@
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
     @media (max-width:980px){.grid-3{grid-template-columns:1fr}}
 
-    .list{display:grid;gap:8px;padding-left:18px}
-    .list li{margin-left:10px}
+    .ordered{padding-left:20px}
+    .ordered li{margin:6px 0}
 
     /* CTA band */
     .cta-band{background:linear-gradient(135deg, rgba(0,212,255,.12), rgba(124,255,107,.10));border:1px solid var(--border);border-radius:18px;padding:22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
@@ -98,7 +183,7 @@
   </style>
 </head>
 <body>
-  <a href="#main" class="skip-link" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden">Skip to content</a>
+  <a href="#main" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden">Skip to content</a>
 
   <!-- Header -->
   <header role="banner">
@@ -113,14 +198,13 @@
       <nav id="primary-menu" class="menu" role="navigation" aria-label="Main navigation">
         <a href="about.html">About</a>
         <a href="trade.html">Trade</a>
+        <a href="dex.html">DEX</a>
         <a href="nfts.html">NFTs</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="community.html">Community</a>
         <a href="roadmap.html">Roadmap</a>
         <a href="game.html">Game</a>
-        <a href="metadata.html">Metadata</a>
         <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
-        <a class="cta" href="contact.html">Contact</a>
       </nav>
     </div>
   </header>
@@ -136,7 +220,7 @@
           <div class="actions">
             <a class="btn primary" href="trade.html">Start Trading</a>
             <a class="btn secondary" href="trade.html">Trust line &amp; Trading Guide</a>
-            <a class="btn secondary" href="metadata.html">Token Metadata</a>
+            <a class="btn secondary" href="dashboard.html">Open Dashboard</a>
           </div>
         </div>
 
@@ -157,19 +241,18 @@
       </div>
     </section>
 
-    <!-- Get started: Set your trust line -->
+    <!-- Get started: Trust line -->
     <section>
       <div class="container">
         <h2 class="section-title">Get started: Set your trust line</h2>
-        <p class="meta">A trust line enables your wallet to hold XRBC on the XRP Ledger.</p>
-        <ol class="list">
-          <li><strong>Choose a compatible wallet</strong> — Use Xaman/XUMM or another XRPL wallet that supports trust lines and DEX trading.</li>
-          <li><strong>Add the XRBC trust line</strong> — Follow your wallet’s prompts to add XRBC with the correct currency code and issuer, then sign the transaction.</li>
-          <li><strong>Trade on DEX</strong> — Once your trust line is active, visit a DEX to place orders or swap for XRBC.</li>
+        <p class="meta">A trust line enables your wallet to hold XRBC on the XRPL.</p>
+        <ol class="ordered">
+          <li><strong>Choose a compatible wallet</strong> — Use Xaman/XUMM or another XRPL wallet supporting trust lines and DEX trading.</li>
+          <li><strong>Add the XRBC trust line</strong> — Enter the correct currency code and issuer, then sign the transaction.</li>
+          <li><strong>Trade on DEX</strong> — With the trust line active, place orders or swap for XRBC.</li>
         </ol>
         <div class="actions" style="margin-top:16px">
-          <a class="btn secondary" href="trade.html">Trust Line &amp; Trading Guide</a>
-          <a class="btn secondary" href="metadata.html">Token Metadata</a>
+          <a class="btn secondary" href="trade.html">Trust line &amp; Trading Guide</a>
         </div>
       </div>
     </section>
@@ -181,7 +264,7 @@
         <div class="grid-3">
           <div class="panel">
             <h3>XPMarket</h3>
-            <p class="meta">Trade XRBC pairs on the decentralized exchange and swaps.</p>
+            <p class="meta">Trade XRBC pairs via a popular XRPL DEX frontend.</p>
             <p><a class="btn secondary" href="https://xpmarket.io" target="_blank" rel="noopener noreferrer">Open XPMarket →</a></p>
           </div>
           <div class="panel">
@@ -190,9 +273,9 @@
             <p><a class="btn secondary" href="https://sologenic.org" target="_blank" rel="noopener noreferrer">Visit Sologenic →</a></p>
           </div>
           <div class="panel">
-            <h3>Trust line</h3>
-            <p class="meta">Enable your wallet to hold XRBC on the XRPL.</p>
-            <p><a class="btn secondary" href="trade.html">Trust line &amp; Trading Guide</a></p>
+            <h3>XRBC DEX</h3>
+            <p class="meta">View XRBC order books and markets in-app.</p>
+            <p><a class="btn secondary" href="dex.html">Go to DEX →</a></p>
           </div>
         </div>
       </div>
@@ -213,7 +296,7 @@
           </div>
           <div class="panel">
             <h3>Community focus</h3>
-            <p class="meta">Active involvement through dashboards, NFTs, governance discussions, and ongoing ecosystem collaborations.</p>
+            <p class="meta">Active involvement through dashboards, NFTs, and ecosystem collaborations.</p>
           </div>
         </div>
       </div>
@@ -239,12 +322,12 @@
         <h2 class="section-title">Insights &amp; updates</h2>
         <div class="grid-3">
           <article class="panel">
-            <h3>Market dashboard</h3>
+            <h3>Market Dashboard</h3>
             <p class="meta">Charts, volumes, and wallet analytics for XRBC and XRPL markets.</p>
             <a class="btn secondary" href="dashboard.html">Open Dashboard</a>
           </article>
           <article class="panel">
-            <h3>NFT ecosystem</h3>
+            <h3>NFT Ecosystem</h3>
             <p class="meta">Explore creator drops, collections, and utility within the XRBC community.</p>
             <a class="btn secondary" href="nfts.html">Browse NFTs</a>
           </article>
@@ -257,22 +340,22 @@
       </div>
     </section>
 
-    <!-- FAQ (kept for functional parity) -->
+    <!-- FAQ -->
     <section>
       <div class="container">
         <h2 class="section-title">FAQ</h2>
         <div class="grid-3">
           <div class="panel">
             <h3>What is a trust line on the XRPL?</h3>
-            <p class="meta">A trust line is a ledger object that allows your XRPL account to hold a specific issued asset like XRBC.</p>
+            <p class="meta">A trust line allows your XRPL account to hold a specific issued asset like XRBC. Set it once to receive and trade.</p>
           </div>
           <div class="panel">
             <h3>Is the XRBC issuer blackholed?</h3>
-            <p class="meta">Yes. Blackholing disables the issuer’s ability to mint or freeze, reinforcing supply immutability.</p>
+            <p class="meta">Yes. Blackholing disables the issuer’s ability to mint or change critical settings, reinforcing supply immutability.</p>
           </div>
           <div class="panel">
             <h3>Where can I trade XRBC?</h3>
-            <p class="meta">Community-favorite venues include XPMarket and Sologenic after your trust line is set.</p>
+            <p class="meta">Use XRPL DEX frontends such as XPMarket and Sologenic, or the built-in DEX page here.</p>
           </div>
         </div>
       </div>
@@ -293,14 +376,13 @@
       <div class="footer-links">
         <h4>Explore</h4>
         <a href="about.html">About</a>
-        <a href="roadmap.html">Road Map</a>
+        <a href="roadmap.html">Roadmap</a>
         <a href="community.html">Community</a>
         <a href="game.html">Game</a>
       </div>
 
       <div class="footer-links">
         <h4>Build</h4>
-        <a href="metadata.html">Token Metadata</a>
         <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
         <a href="dashboard.html">Dashboard</a>
         <a href="nfts.html">NFTs</a>
@@ -309,9 +391,9 @@
       <div class="footer-links">
         <h4>Trade</h4>
         <a href="trade.html">Guide</a>
+        <a href="dex.html">DEX</a>
         <a href="https://xpmarket.io" target="_blank" rel="noopener noreferrer">XP Marketplace</a>
         <a href="https://sologenic.org" target="_blank" rel="noopener noreferrer">Sologenic</a>
-        <a href="contact.html">Contact</a>
       </div>
     </div>
   </footer>
@@ -330,4 +412,4 @@
   </script>
 </body>
 </html>
-
+```
