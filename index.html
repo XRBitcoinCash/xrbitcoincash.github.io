@@ -3,128 +3,142 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoin.com — Trade XRBC on XRPL</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <title>XRBitcoinCash — XRBC on the XRP Ledger</title>
+  <meta name="description" content="Trade XRBC on XRPL DEX frontends, set your trustline, explore NFTs, dashboards, and community updates." />
+  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="icon" href="https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png" />
 </head>
 <body>
-  <header class="header">
-    <a class="branding" href="index.html">
-      <img
-        src="https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
-        alt="XRBitcoin.com logo" />
+  <!-- Header -->
+  <header class="header" role="banner">
+    <a class="branding" href="index.html" aria-label="XRBitcoin.com home">
+      <img src="https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png" alt="XRBitcoin.com logo" />
       <span class="site-name">XRBitcoin.com</span>
     </a>
 
-    <nav class="nav-links" id="primary-menu" aria-label="Primary">
+    <nav class="nav-links" id="primary-menu" aria-label="Primary navigation">
       <a href="index.html" aria-current="page">Home</a>
-      <a href="markets.html">Markets</a>
-      <a href="wallets.html">Wallets</a>
-      <a href="learn.html">Learn</a>
-      <a href="contact.html">Contact</a>
+      <a href="about.html">About</a>
+      <a href="trade.html">Trade</a>
+      <a href="dex.html">DEX</a>
+      <a href="nfts.html">NFTs</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="community.html">Community</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="game.html">Game</a>
+      <a href="metadata.html">Metadata</a>
+      <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
     </nav>
   </header>
 
-  <main class="main-content">
+  <main class="main-content" id="main" role="main">
     <!-- Hero -->
     <section class="hero">
       <div class="hero-inner">
-        <h1>Fast, low‑fee XRBC trading on XRPL</h1>
-        <p class="lead">
-          Clean tools. Clear info. No clutter. Built for speed, simplicity, and control.
-        </p>
-        <div class="actions">
-          <a class="btn btn-primary" href="https://www.sologenic.org/" target="_blank" rel="noopener">Trade XRBC</a>
-          <a class="btn btn-outline" href="trustline.html">Set trustline</a>
+        <div class="hero-copy">
+          <h1 class="hero-title">Trade XRBC fast on XRPL</h1>
+          <p class="lead">Low fees. 3s finality. Simple flows. Set your trustline and start trading XRBC in minutes.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://sologenic.org" target="_blank" rel="noopener">Trade on Sologenic</a>
+            <a class="btn btn-outline" href="https://xpmarket.io" target="_blank" rel="noopener">Open XPMarket</a>
+            <a class="btn btn-ghost" href="trade.html">Set trustline</a>
+          </div>
+          <ul class="stats">
+            <li><span class="stat">XRPL</span><span class="label">Network</span></li>
+            <li><span class="stat">21M</span><span class="label">Total supply</span></li>
+            <li><span class="stat">3s</span><span class="label">TX time</span></li>
+            <li><span class="stat">Low</span><span class="label">Fees</span></li>
+          </ul>
         </div>
-        <ul class="stats">
-          <li><span class="stat">21M</span><span class="label">Total supply</span></li>
-          <li><span class="stat">~3s</span><span class="label">TX time</span></li>
-          <li><span class="stat">Low</span><span class="label">Fees</span></li>
-        </ul>
+
+        <aside class="panel hero-panel" aria-label="XRBC quick links">
+          <h3>Quick actions</h3>
+          <div class="panel-actions">
+            <a class="btn btn-block" href=".well-known/xrp-ledger.toml">View XRPL .toml</a>
+            <a class="btn btn-block" href="dashboard.html">Open dashboard</a>
+            <a class="btn btn-block" href="metadata.html">Token metadata</a>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <!-- Featured sections -->
+    <!-- Internal quick links -->
     <section>
-      <h2>Featured markets</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>XRBC/XRP</h3>
-          <p class="muted">Top pair on DEX with tight spreads.</p>
-          <a class="btn btn-text" href="markets.html">View chart →</a>
-        </article>
-
-        <article class="card">
-          <h3>Liquidity</h3>
-          <p class="muted">XRP‑backed pools for smooth execution.</p>
-          <a class="btn btn-text" href="markets.html#liquidity">See pools →</a>
-        </article>
-
-        <article class="card">
-          <h3>Wallets</h3>
-          <p class="muted">Xaman and other XRPL‑compatible wallets.</p>
-          <a class="btn btn-text" href="wallets.html">Get a wallet →</a>
-        </article>
+      <h2>Explore XRBitcoinCash</h2>
+      <div class="grid tiles">
+        <a class="tile" href="about.html"><h3>About</h3><p class="muted">Mission and token fundamentals.</p></a>
+        <a class="tile" href="trade.html"><h3>Trade</h3><p class="muted">Trustline and trading guide.</p></a>
+        <a class="tile" href="dex.html"><h3>DEX</h3><p class="muted">Markets and pairs.</p></a>
+        <a class="tile" href="nfts.html"><h3>NFTs</h3><p class="muted">Collections and drops.</p></a>
+        <a class="tile" href="dashboard.html"><h3>Dashboard</h3><p class="muted">Charts and on-ledger data.</p></a>
+        <a class="tile" href="community.html"><h3>Community</h3><p class="muted">Join and participate.</p></a>
+        <a class="tile" href="roadmap.html"><h3>Roadmap</h3><p class="muted">Milestones and plans.</p></a>
+        <a class="tile" href="game.html"><h3>Game</h3><p class="muted">Interactive and fun.</p></a>
+        <a class="tile" href="metadata.html"><h3>Metadata</h3><p class="muted">Token details for builders.</p></a>
       </div>
     </section>
 
+    <!-- External resources -->
     <section>
-      <h2>Why XRBitcoin</h2>
-      <div class="grid">
-        <article class="card">
-          <h3>Speed & cost</h3>
-          <p>Near‑instant settlement and minimal fees via XRPL.</p>
-        </article>
-        <article class="card">
-          <h3>Simplicity</h3>
-          <p>Clean layout, sane defaults, and obvious calls to action.</p>
-        </article>
-        <article class="card">
-          <h3>Community</h3>
-          <p>Transparent communications and community‑driven growth.</p>
-        </article>
+      <h2>Trade and tools</h2>
+      <div class="grid tiles">
+        <a class="tile" href="https://sologenic.org" target="_blank" rel="noopener">
+          <h3>Sologenic</h3><p class="muted">Trade XRBC on XRPL DEX frontend.</p>
+        </a>
+        <a class="tile" href="https://xpmarket.io" target="_blank" rel="noopener">
+          <h3>XPMarket</h3><p class="muted">Explore markets and liquidity.</p>
+        </a>
+        <a class="tile" href="https://xaman.app" target="_blank" rel="noopener">
+          <h3>Xaman Wallet</h3><p class="muted">XRPL wallet to hold and trade.</p>
+        </a>
+        <a class="tile" href=".well-known/xrp-ledger.toml">
+          <h3>XRPL .toml</h3><p class="muted">Issuer and token records.</p>
+        </a>
       </div>
     </section>
 
-    <!-- CTA strip -->
+    <!-- Callout -->
     <section class="cta-strip">
       <div class="cta-inner">
-        <h2>Join the community</h2>
-        <p>Get updates on listings, releases, and market activity.</p>
+        <h2>Ready to dive in?</h2>
+        <p class="muted">Set your trustline and start trading XRBC today.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="#" target="_blank" rel="noopener">Discord</a>
-          <a class="btn btn-outline" href="#" target="_blank" rel="noopener">Twitter</a>
+          <a class="btn btn-primary" href="trade.html">Get started</a>
+          <a class="btn btn-outline" href="community.html">Join community</a>
         </div>
-      </div>
-    </section>
-
-    <!-- Latest updates (placeholder) -->
-    <section>
-      <h2>Latest updates</h2>
-      <div class="grid posts">
-        <article class="card post">
-          <h3>Roadmap</h3>
-          <p>What’s next for XRBC and the platform.</p>
-          <a class="btn btn-text" href="roadmap.html">Read roadmap →</a>
-        </article>
-        <article class="card post">
-          <h3>Guides</h3>
-          <p>Trustlines, DEX trading, and wallet setup.</p>
-          <a class="btn btn-text" href="learn.html">Explore guides →</a>
-        </article>
-        <article class="card post">
-          <h3>Listings</h3>
-          <p>Where to trade XRBC today.</p>
-          <a class="btn btn-text" href="markets.html">See markets →</a>
-        </article>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
     <div class="container">
-      <small>© 2025 XRBitcoin.com — Built on XRPL</small>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="about.html">About</a>
+        <a href="trade.html">Trade</a>
+        <a href="dex.html">DEX</a>
+        <a href="nfts.html">NFTs</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="community.html">Community</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="game.html">Game</a>
+        <a href="metadata.html">Metadata</a>
+        <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
+      </nav>
+      <small>© 2025 XRBitcoinCash — Built on XRPL</small>
     </div>
   </footer>
+
+  <!-- Progressive enhancement: highlight active link on this page -->
+  <script>
+    (function(){
+      const current = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      document.querySelectorAll('.nav-links a').forEach(a=>{
+        if(a.getAttribute('href').toLowerCase() === current){
+          a.setAttribute('aria-current','page');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
