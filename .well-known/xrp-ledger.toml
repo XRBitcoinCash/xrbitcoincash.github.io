@@ -1,45 +1,31 @@
 [account]
 address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-desc = "XRBitcoinCash Issuer (blackholed as of 2022-02-08)"
+desc = "XRBitcoinCash Issuer (blackholed)"
 
 [meta]
 domain = "xrbitcoincash.com"
 website = "https://www.xrbitcoincash.com/"
 logo = "https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
-description = "XRBitcoinCash (XRBC) is a digital asset launched on January 5th, 2022, committed to innovation, transparency, and stewardship within the XRP Ledger ecosystem."
+description = "XRBitcoinCash (XRBC) launched on January 5, 2022, committed to innovation, transparency, and stewardship on the XRPL."
 
 [social]
 twitter = "@XRBitcoinCash"
 email = "xrbitcoincash@gmail.com"
-discord = "https://discord.gg/JtGC8a4jYM"
-github = "https://github.com/XRBitcoinCash"
 
 [DID]
 id = "did:xrpl:rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 url = "https://www.xrbitcoincash.com/"
 
 [[currencies]]
-currency = "XRBC"
+
+currency = "5852626974636F696E6361736800000000000000"
 issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 name = "XRBitcoinCash"
-desc = "XRBitcoinCash (XRBC) is a spiritually inspired digital token on XRPL designed to promote transparency, value, and community support."
+desc = "XRBitcoinCash (XRBC) is a community-focused asset on XRPL built for transparency and utility."
 icon = "https://static.wixstatic.com/media/050027_272dc31314284e9f98781353dea30230~mv2.png"
 
 [[currencies.links]]
 url = "https://www.xrbitcoincash.com/"
 title = "Official Website"
 type = "website"
-
-[[currencies.links]]
-url = "https://bithomp.com/en/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-title = "Explorer Listing on Bithomp"
-type = "explorer"
-
-[[currencies.links]]
-url = "https://x.com/XRBitcoinCash"
-title = "Official Twitter/X Profile"
-type = "social"
-
-
-
 
