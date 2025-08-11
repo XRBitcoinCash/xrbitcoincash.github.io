@@ -96,6 +96,23 @@
     .hero h2{font-size:2rem;margin:0 0 10px}
     .hero p{color:var(--muted);max-width:780px;margin:0 auto}
 
+    /* NFT image in hero */
+    .nft-display {
+      margin: 24px auto 8px;
+      display: flex;
+      justify-content: center;
+    }
+    .nft-display img {
+      border-radius: 16px;
+      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      width: 256px; height: 256px; max-width: 90vw; height: auto;
+    }
+    .nft-display img:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 18px rgba(0,229,255,0.3);
+    }
+
     /* Core grid: evenly spaced cards at center */
     .grid{
       display:grid;
@@ -157,7 +174,6 @@
       />
       <span class="site-name">XRBitcoinCash</span>
     </div>
-    <!-- Top nav removed to avoid duplicate links with mid-page buttons -->
   </header>
 
   <!-- Main -->
@@ -168,7 +184,20 @@
       <section class="hero" aria-label="Hero">
         <h2>Trade XRBC fast on XRPL</h2>
         <p>Low fees. 3s finality. Simple flows.</p>
-        <!-- No hero buttons per request -->
+
+        <!-- Clickable NFT image linking to NFTs page -->
+        <div class="nft-display">
+          <a href="nfts.html" aria-label="Explore XRBC NFTs">
+            <img
+              src="xrbc-nft.png"
+              alt="XRBitcoinCash NFT"
+              width="256"
+              height="256"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='https://meta.xrbitcoincash.com/logo.png';"
+            />
+          </a>
+        </div>
       </section>
 
       <!-- Four core sections (evenly spaced in the middle) -->
@@ -199,4 +228,3 @@
   </footer>
 </body>
 </html>
-
