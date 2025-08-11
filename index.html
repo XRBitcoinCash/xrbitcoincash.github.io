@@ -28,6 +28,14 @@ radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
 radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
 filter:blur(28px);animation:blob 22s linear infinite;}
 @keyframes blob {0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
+.bg-logo {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('/xrbc-nft.png') center/300px no-repeat;
+  opacity: 0.04;
+  z-index: 0;
+  pointer-events: none;
+}
 .page-frame {position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,0.10);pointer-events:none;z-index:5;}
 header {position:sticky;top:12px;z-index:10;background:transparent;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;}
 .brand {display:flex;gap:12px;align-items:center;}
@@ -44,14 +52,11 @@ main {position:relative;z-index:2;max-width:1000px;margin:36px auto;padding:24px
 .btn {display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-weight:700;text-decoration:none;cursor:pointer;transition:box-shadow 0.3s;}
 .btn.primary {background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;animation:pulse 10s infinite;}
 .btn.ghost {background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--ink);}
-@keyframes pulse {
-  0% {box-shadow:0 0 0px var(--accent);}
-  50% {box-shadow:0 0 12px var(--accent);}
-  100% {box-shadow:0 0 0px var(--accent);}
-}
-.card {background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);}
+@keyframes pulse {0% {box-shadow:0 0 0px var(--accent);}50% {box-shadow:0 0 12px var(--accent);}100% {box-shadow:0 0 0px var(--accent);}}
+.card {background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);min-height:200px;}
+.card p {word-break:break-word;}
 .nft img {width:100%;border-radius:12px;}
-.grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:26px;}
+.grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:26px;align-items:start;}
 .feature {opacity:0;transform:translateY(20px);transition:all 0.6s ease;}
 .feature.visible {opacity:1;transform:translateY(0);}
 .stats {display:flex;gap:20px;justify-content:space-around;margin-top:20px;}
@@ -67,7 +72,9 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
 </head>
 <body>
 <div class="bg-blob"></div>
+<div class="bg-logo"></div>
 <div class="page-frame"></div>
+
 <header>
   <div class="brand">
     <img src="/xrbc-nft.png" alt="XRBC logo" />
@@ -77,6 +84,7 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
     <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Sologenic Liquidity Pool</a>
   </nav>
 </header>
+
 <main>
   <section class="hero">
     <div class="particles">
@@ -96,18 +104,9 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
         <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
       </div>
       <div class="stats card">
-        <div class="stat">
-          <div class="stat-number" data-target="20999999">0</div>
-          <div class="muted small">Max Supply</div>
-        </div>
-        <div class="stat">
-          <div class="stat-number" data-target="3500000">0</div>
-          <div class="muted small">Circulating</div>
-        </div>
-        <div class="stat">
-          <div class="stat-number" data-target="500">0</div>
-          <div class="muted small">Holders</div>
-        </div>
+        <div class="stat"><div class="stat-number" data-target="20999999">0</div><div class="muted small">Max Supply</div></div>
+        <div class="stat"><div class="stat-number" data-target="3500000">0</div><div class="muted small">Circulating</div></div>
+        <div class="stat"><div class="stat-number" data-target="500">0</div><div class="muted small">Holders</div></div>
       </div>
     </div>
     <aside class="card nft">
@@ -115,6 +114,7 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
       <p class="muted small" style="margin-top:10px"><a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a></p>
     </aside>
   </section>
+
   <section class="grid">
     <div class="feature card">
       <h3>About XRBC</h3>
@@ -129,29 +129,34 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
       <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
     </div>
   </section>
+
   <section style="margin-top:28px" class="card">
     <h3>Market Analytics</h3>
     <div style="height:400px;">
-      <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_e2d6f&symbol=XRPL%3AXRBCXRP&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&hideideas=1&theme=dark" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
+      <iframe src="https://xpmarket.com/embed/chart?asset=XRBC" width="100%" height="100%" frameborder="0" allowtransparency="true" scrolling="no"></iframe>
     </div>
   </section>
 </main>
+
 <div class="social-bar">
   <a href="https://x.com/XRbitcoincash" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" width="24" /></a>
-  <a href="https://discord.gg/sehqAy3Z" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Discord_logo.svg" width="24" /></a>
+  <a href="discord://discord.com/invite/sehqAy3Z" onclick="setTimeout(() => { window.open('https://discord.gg/sehqAy3Z','_blank'); }, 500); return true;">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/98/Discord_logo.svg" width="24" />
+  </a>
 </div>
+
 <footer>
   <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
 </footer>
+
 <script>
 // Scroll fade-in
 const features = document.querySelectorAll('.feature');
 const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if(entry.isIntersecting){ entry.target.classList.add('visible'); }
-  });
+  entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('visible'); } });
 },{threshold:0.2});
 features.forEach(f => observer.observe(f));
+
 // Count-up stats
 function animateCount(el){
   const target = +el.dataset.target;
