@@ -1,44 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash — XRBC on XRPL</title>
 
-  <!-- Favicon / icons -->
-  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <!-- Icons -->
+  <link rel="icon" href="/xrbc-nft.png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-  <!-- SEO basics -->
-  <meta name="description" content="XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger — transparent, non‑custodial, and community‑driven." />
+  <!-- SEO & discovery -->
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade on XPMarket. Transparent, non-custodial flows." />
+  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool" />
   <link rel="canonical" href="https://xrbitcoincash.github.io/" />
-  <meta name="robots" content="index, follow" />
-  <meta name="keywords" content="XRBC, XRPL, cryptocurrency, token, XRP Ledger, liquidity pool, XRBitcoinCash" />
-  <meta name="theme-color" content="#0B1020" />
-
-  <!-- Open Graph / social previews -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://xrbitcoincash.github.io/" />
-  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality. Simple flows." />
-  <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
-  <meta property="og:image:alt" content="XRBitcoinCash logo" />
-  <meta property="og:site_name" content="XRBitcoinCash" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta name="twitter:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality. Simple flows." />
-  <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
-
-  <!-- Site manifest & sitemap (improves discoverability) -->
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="sitemap" href="/sitemap.xml" />
 
-  <!-- Basic security: CSP (tweak to fit your CDN / third-party scripts). For best results configure headers on the server side. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; connect-src 'self' https:;"> 
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
+  <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/" />
 
-  <!-- Structured data: Organization + Website -->
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Basic CSP placeholder (configure server headers for production) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; connect-src 'self' https:;">
+
+  <!-- Structured data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -46,223 +37,129 @@
     "name": "XRBitcoinCash",
     "url": "https://xrbitcoincash.github.io/",
     "logo": "https://xrbitcoincash.github.io/xrbc-nft.png",
-    "description": "XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger with transparent, non-custodial flows.",
-    "sameAs": [
-      "https://twitter.com/yourhandle"
-    ]
+    "description": "XRBitcoinCash (XRBC) — fast, low-fee token on the XRP Ledger."
   }
   </script>
 
   <style>
-    :root{
-      --bg:#0B1020;
-      --ink:#ECF3FF;
-      --muted:#9EB2D0;
-      --chip-bg:rgba(255,255,255,0.08);
-      --chip-stroke:rgba(255,255,255,0.12);
-      --card-bg:rgba(255,255,255,0.05);
-      --card-hover:rgba(255,255,255,0.08);
-      --accent:rgba(0,229,255,1);
-      --accent-2:rgba(0,180,255,0.9);
-    }
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-      background:var(--bg);
-      color:var(--ink);
-      line-height:1.6;
-      display:flex;flex-direction:column;min-height:100vh;
-      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-      text-rendering:optimizeLegibility;
-      overflow-x:hidden;
-    }
+    :root{--bg:#0B1020;--card:#0F1724;--ink:#ECF3FF;--muted:#9EB2D0;--accent:#00E5FF}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
 
-    /* Animated dynamic background (subtle moving gradient) */
-    .animated-bg{
-      position:fixed;inset:0;z-index:0;pointer-events:none;mix-blend-mode:screen;opacity:0.32;
-      background: radial-gradient(800px 400px at 10% 20%, rgba(0,229,255,0.12), transparent),
-                  radial-gradient(600px 300px at 80% 80%, rgba(0,180,255,0.10), transparent);
-      animation:bg-move 18s linear infinite;
-      filter:blur(24px);
-    }
-    @keyframes bg-move{
-      0%{transform:translate(0,0) scale(1)}
-      50%{transform:translate(-6%,4%) scale(1.04)}
-      100%{transform:translate(0,0) scale(1)}
-    }
+    /* Dynamic background + frame */
+    .bg-blob{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);filter:blur(28px);animation:blob 22s linear infinite}
+    @keyframes blob{0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
+    .page-frame{position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,0.10);pointer-events:none;z-index:5}
 
-    /* Subtle page frame / border */
-    .page-frame{
-      position:fixed;inset:14px;pointer-events:none;border-radius:18px;border:2px solid rgba(0,229,255,0.12);box-shadow:0 8px 30px rgba(2,16,30,0.6);z-index:9998;
-    }
+    header{position:sticky;top:12px;z-index:10;background:transparent;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand img{width:44px;height:44px;border-radius:8px}
+    .brand h1{font-size:1.05rem;margin:0}
 
-    /* Header (branding only) */
-    header{background:#0F1724;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);position:relative;z-index:2}
-    .branding{display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
-    .branding img{height:48px;width:48px;border-radius:8px}
-    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
+    nav a{color:var(--muted);text-decoration:none;margin-left:16px;font-weight:600}
+    nav a.cta{background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;padding:8px 12px;border-radius:10px}
 
-    /* Main */
-    main{flex:1;position:relative;z-index:2}
-    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
+    main{position:relative;z-index:2;max-width:1200px;margin:36px auto;padding:24px}
+    .hero{display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:center;padding:28px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03)}
+    @media (max-width:880px){.hero{grid-template-columns:1fr}}
 
-    /* Page title */
-    h1{margin:6px 0 8px;text-align:center;font-size:2rem;font-weight:800;letter-spacing:-0.02em}
+    .hero h2{font-size:1.9rem;margin:0}
+    .hero p{color:var(--muted);margin-top:6px}
+    .hero .actions{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-weight:700;text-decoration:none;cursor:pointer}
+    .btn.primary{background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--ink)}
 
-    /* Hero */
-    .hero{
-      padding:32px 16px;text-align:center;
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-      border-top:1px solid rgba(255,255,255,0.04);
-      border-bottom:1px solid rgba(255,255,255,0.04);
-      border-radius:12px;
-    }
-    .hero h2{font-size:2rem;margin:0 0 10px}
-    .hero p{color:var(--muted);max-width:780px;margin:0 auto}
+    .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .nft img{width:100%;border-radius:12px}
 
-    /* Unified link and button styles (all links consistent) */
-    a{color:var(--accent);text-decoration:none}
-    a:hover,a:focus{text-decoration:underline}
-    .btn{
-      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#00121a;font-weight:700;border:none;cursor:pointer;text-decoration:none;box-shadow:0 6px 18px rgba(0,229,255,0.12);
-    }
-    .btn:focus{outline:3px solid rgba(0,229,255,0.18);outline-offset:4px}
-    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(0,229,255,0.14);font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}}
+    .feature h3{margin:0 0 6px}
+    .muted{color:var(--muted)}
 
-    /* NFT image in hero */
-    .nft-display{margin:24px auto 8px;display:flex;justify-content:center}
-    .nft-display img{
-      border-radius:16px;
-      box-shadow:0 0 12px rgba(0,229,255,0.12);
-      transition:transform .2s ease, box-shadow .2s ease;
-      width:240px;max-width:90vw;height:auto
-    }
-    .nft-display img:hover{transform:scale(1.04);box-shadow:0 0 18px rgba(0,229,255,0.18)}
+    footer{max-width:1200px;margin:28px auto 60px;padding:18px;text-align:center;color:var(--muted)}
 
-    /* Core grid */
-    .grid{display:grid;gap:22px;padding:32px 0 10px;grid-template-columns:repeat(4,minmax(0,1fr))}
-    @media (max-width:980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:540px){.grid{grid-template-columns:1fr}}
-    .card{
-      background:var(--card-bg);
-      border:1px solid var(--chip-stroke);
-      border-radius:14px;
-      padding:18px;
-      text-align:left;
-      transition:background .15s ease, transform .15s ease, border-color .15s ease;
-    }
-    .card:hover{background:var(--card-hover);border-color:rgba(255,255,255,0.12);transform:translateY(-2px)}
-    .card h3{margin:0 0 6px;font-size:1.05rem}
-    .card h3 a{color:var(--ink);text-decoration:none;outline:none}
-    .card h3 a:hover,.card h3 a:focus{text-decoration:underline;outline:2px solid rgba(0,229,255,0.18);outline-offset:2px;border-radius:4px}
-    .card .muted{color:var(--muted);margin:0}
-
-    /* Footer */
-    footer{background:#0F1724;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.04);position:relative;z-index:2}
-    footer small{color:#9EB2D0}
-
-    /* Utility */
-    .spacer{height:8px}
-
+    /* utility */
+    .small{font-size:0.9rem}
   </style>
 </head>
 <body>
-  <!-- animated background element -->
-  <div class="animated-bg" aria-hidden="true"></div>
-  <!-- page frame border -->
+  <div class="bg-blob" aria-hidden="true"></div>
   <div class="page-frame" aria-hidden="true"></div>
 
-  <!-- Header (branding only) -->
   <header>
-    <div class="branding">
-      <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" loading="eager" fetchpriority="high" />
-      <span class="site-name">XRBitcoinCash</span>
+    <div class="brand">
+      <img src="/xrbc-nft.png" alt="XRBC logo" />
+      <h1>XRBitcoinCash <span class="small muted">— XRBC on XRPL</span></h1>
     </div>
+    <nav aria-label="Primary navigation">
+      <a href="/about.html">About</a>
+      <a href="/dex.html">DEX</a>
+      <a href="/nfts.html">NFTs</a>
+      <a class="cta" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener noreferrer">Liquidity pool</a>
+    </nav>
   </header>
 
-  <!-- Main -->
   <main>
-    <div class="wrap">
-      <h1>XRBitcoinCash</h1>
-
-      <section class="hero" aria-label="Hero">
+    <section class="hero">
+      <div>
         <h2>Trade XRBC fast on XRPL</h2>
-        <p>Low fees. 3s finality. Simple flows.</p>
+        <p class="muted">Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on‑ledger trading.</p>
 
-        <div class="nft-display">
-          <a href="nfts.html" aria-label="Explore XRBC NFTs">
-            <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" width="256" height="256" loading="lazy" />
-          </a>
+        <div class="actions">
+          <!-- single unique CTA to external liquidity pool -->
+          <a class="btn primary" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener noreferrer">View liquidity pool</a>
+
+          <!-- Wallet connect placeholder (safe: does not handle secrets) -->
+          <button class="btn ghost" id="connectWallet">Connect wallet</button>
         </div>
 
-        <!-- Liquidity pool button (opens in new tab, safe rel attributes) -->
-        <p style="margin-top:12px">
-          <a class="btn" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener noreferrer" aria-label="Open XRBC liquidity pool on XPMarket">View liquidity pool</a>
-          <a class="btn secondary" href="trade.html" aria-label="Trade XRBC">Trade XRBC</a>
-        </p>
+        <div class="grid" style="margin-top:18px">
+          <div class="feature card">
+            <h3>About</h3>
+            <p class="muted">Transparent token economics and community governance.</p>
+          </div>
+          <div class="feature card">
+            <h3>Trade</h3>
+            <p class="muted">Guide to trustlines and DEX flows on XRPL.</p>
+          </div>
+          <div class="feature card">
+            <h3>NFTs</h3>
+            <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
+          </div>
+        </div>
+      </div>
 
-      </section>
+      <aside class="card nft" aria-label="XRBC artwork">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
+        <p class="muted small" style="margin-top:10px">Official XRBitcoinCash artwork. Click to open the collection.</p>
+        <p style="margin-top:10px"><a class="btn ghost" href="/nfts.html">Open collection</a></p>
+      </aside>
+    </section>
 
-      <!-- Four core sections -->
-      <section class="grid" aria-label="Core sections">
-        <div class="card">
-          <h3><a href="about.html">About</a></h3>
-          <p class="muted">Mission and token fundamentals.</p>
-        </div>
-        <div class="card">
-          <h3><a href="trade.html">Trade</a></h3>
-          <p class="muted">Trustline and trading guide.</p>
-        </div>
-        <div class="card">
-          <h3><a href="dex.html">DEX</a></h3>
-          <p class="muted">Markets and pairs.</p>
-        </div>
-        <div class="card">
-          <h3><a href="nfts.html">NFTs</a></h3>
-          <p class="muted">Collections and drops.</p>
-        </div>
-      </section>
-    </div>
+    <!-- Token stats / quick info (placeholders) -->
+    <section style="margin-top:28px">
+      <div class="card">
+        <h3>Token quick info</h3>
+        <p class="muted">Issuer: <strong>r... (replace with your issuer address)</strong></p>
+        <p class="muted">Market: <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener noreferrer">XPMarket — XRBC</a></p>
+        <p class="muted">Documentation: <a href="/about.html">About & guides</a></p>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Footer -->
-  <footer role="contentinfo">
-    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
+  <footer>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL · <a href="/sitemap.xml">Sitemap</a></small>
   </footer>
 
-  <!-- Wallet/connect guidance & lightweight placeholder script
-       IMPORTANT: do NOT handle private keys client-side. Use vendor SDKs (XUMM, WalletConnect-like adapters, or xrpl.js with your backend) and always verify origin and signatures on the server side.
-
-       Example: this stub shows a safe pattern for opening an external wallet connection flow in a new window.
-       Replace with the official SDK you choose and host required scripts over HTTPS. Do not include secret keys here.
-  -->
   <script>
-    // Example placeholder (non-functional) — replace with XUMM / xrpl.js SDK from vendor docs
-    function openLiquidityPool(){
-      const url = 'https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw';
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
+    // Lightweight wallet connect placeholder. DO NOT implement private-key handling in client.
+    document.getElementById('connectWallet').addEventListener('click', function(){
+      alert('To connect a wallet, integrate an approved XRPL wallet provider (e.g. XUMM).
 
-    // Example safe flow outline for wallet connect (pseudocode):
-    /*
-    async function connectWallet(){
-      // 1) Redirect or open your chosen wallet provider (e.g. XUMM) using their SDK or deeplink
-      // 2) Wallet will prompt user to connect/approve
-      // 3) Wallet returns a signed challenge or an account address
-      // 4) Verify signature server-side before associating any on-chain action
-      // 5) Never accept raw secret keys; only accept signed messages / confirmations
-    }
-    */
-
-    // Add subtle analytics-free event for the pool button for simple click tracking (no external trackers)
-    document.addEventListener('DOMContentLoaded', function(){
-      const poolBtn = document.querySelector('a[href*="xpmarket.com/token/XRbitcoincash"]');
-      if(poolBtn){
-        poolBtn.addEventListener('click', function(){
-          try{localStorage.setItem('xrbc.pool.clicked', new Date().toISOString());}catch(e){}
-        });
-      }
+I can add an example integration for XUMM or xrpl.js if you tell me which you prefer.');
     });
   </script>
 </body>
