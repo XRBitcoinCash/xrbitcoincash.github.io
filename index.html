@@ -10,11 +10,9 @@
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- SEO -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade on XPMarket. Transparent, non-custodial flows." />
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade on Sologenic AMM. Transparent, non-custodial flows." />
   <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool" />
   <link rel="canonical" href="https://xrbitcoincash.github.io/" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <link rel="sitemap" href="/sitemap.xml" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
@@ -25,21 +23,6 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-
-  <!-- Basic CSP placeholder -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; connect-src 'self' https:;">
-
-  <!-- Structured data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "XRBitcoinCash",
-    "url": "https://xrbitcoincash.github.io/",
-    "logo": "https://xrbitcoincash.github.io/xrbc-nft.png",
-    "description": "XRBitcoinCash (XRBC) — fast, low-fee token on the XRP Ledger."
-  }
-  </script>
 
   <style>
     :root{--bg:#0B1020;--card:#0F1724;--ink:#ECF3FF;--muted:#9EB2D0;--accent:#00E5FF}
@@ -83,7 +66,7 @@
       <h1>XRBitcoinCash <span class="small muted">— XRBC on XRPL</span></h1>
     </div>
     <nav>
-      <a class="cta" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Liquidity pool</a>
+      <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Sologenic Liquidity Pool</a>
     </nav>
   </header>
 
@@ -93,17 +76,17 @@
         <h2>Trade XRBC fast on XRPL</h2>
         <p class="muted">Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
         <div class="actions">
-          <a class="btn primary" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">View liquidity pool</a>
+          <a class="btn primary" href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" target="_blank">Open a TrustLine</a>
           <button class="btn ghost" id="connectWallet">Connect wallet</button>
         </div>
         <div class="grid" style="margin-top:18px">
           <div class="feature card">
             <h3>About XRBC</h3>
-            <p class="muted">Transparent token economics and community governance.</p>
+            <p class="muted">XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance. Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>. With a trustline cap of <strong>20,999,999.999999996</strong>, XRBC is designed for sustainable liquidity and long-term growth, as detailed in our white paper.</p>
           </div>
           <div class="feature card">
             <h3>Trading</h3>
-            <p class="muted">Guide to trustlines and DEX flows on XRPL.</p>
+            <p class="muted">Trading on XRPL means you can exchange assets directly on-ledger without intermediaries. Using the built-in decentralized exchange (DEX), you can place limit orders, swap instantly through liquidity pools, or trade via automated market makers like Sologenic AMM. All transactions finalize in seconds with minimal fees.</p>
           </div>
           <div class="feature card">
             <h3>NFTs</h3>
@@ -113,14 +96,16 @@
       </div>
       <aside class="card nft">
         <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
-        <p class="muted small" style="margin-top:10px">Official XRBitcoinCash artwork.</p>
+        <p class="muted small" style="margin-top:10px"><a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork.</a></p>
       </aside>
     </section>
 
     <section style="margin-top:28px">
       <div class="card">
         <h3>Token quick info</h3>
-        <p class="muted">Issuer: <strong>r... (replace with your issuer address)</strong></p>
+        <p class="muted">Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong></p>
+        <p class="muted">Currency code: <strong>XRbitcoincash</strong></p>
+        <p class="muted">TrustLine limit: <strong>20,999,999.999999996</strong></p>
         <p class="muted">Market: XPMarket — XRBC</p>
         <p class="muted">Documentation available upon request.</p>
       </div>
@@ -128,7 +113,7 @@
   </main>
 
   <footer>
-    <small>© 2025 XRBitcoinCash™ — Built on XRPL · <a href="/sitemap.xml">Sitemap</a></small>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
   </footer>
 
   <script>
@@ -137,6 +122,4 @@
     });
   </script>
 </body>
-</html>
-
 </html>
