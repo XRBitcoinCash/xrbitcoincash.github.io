@@ -66,7 +66,7 @@
     .content {
       width: 100%;
       display: grid;
-      gap: 28px;               /* increased vertical rhythm to fill page cleanly */
+      gap: 28px;
       justify-items: center;
     }
     h1 {
@@ -112,12 +112,7 @@
       box-shadow: 0 10px 25px rgba(20, 30, 60, 0.25);
     }
 
-    /* Charts (kept, though not used below) */
-    .charts {
-      width: 100%;
-      display: grid;
-      gap: 20px;
-    }
+    /* (Charts removed) keep base iframe style for consistency */
     iframe.chart {
       display: block;
       width: 100%;
@@ -159,19 +154,9 @@
       font-weight: 600;
       cursor: pointer;
     }
-    .explorer-controls select {
-      background: rgba(255,255,255,0.06);
-      color: var(--ink);
-      border: 1px solid var(--stroke);
-      border-radius: 6px;
-      padding: 4px 6px;
-    }
     @media (max-width: 640px) {
       .explorer-frame { height: 1120px; } /* doubled mobile height */
     }
-
-    /* Footer spacing to keep air at bottom on short pages */
-    .page-end-space { height: 8px; }
   </style>
 </head>
 <body>
@@ -182,13 +167,12 @@
     </div>
   </header>
 
-  <!-- Main content: evenly spaced, centered, dark background with contrasting text -->
+  <!-- Main content ends after metrics box -->
   <main>
     <div class="wrap content">
       <h1>Trade XRBitcoinCash</h1>
-      <p class="lead">Use the buttons below to access live markets. Charts are provided for quick reference. For full depth and order flow, open the trading links.</p>
+      <p class="lead">Use the buttons below to access live markets. The explorer provides live token metrics and deep links to active projects.</p>
 
-      <!-- Two button boxes -->
       <div class="button-grid">
         <div class="button-box">
           <a
@@ -228,11 +212,11 @@
           <span class="last-updated" id="explorer-last">Last updated: —</span>
         </div>
       </div>
-      <!-- Page ends after metrics box as requested -->
+      <!-- Page ends after metrics box -->
     </div>
   </main>
 
-  <!-- XRPL Tokens Explorer manual refresh script -->
+  <!-- XRPL Tokens Explorer manual refresh script (auto-refresh removed) -->
   <script>
     (function () {
       const frame = document.getElementById('xrpl-explorer');
