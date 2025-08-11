@@ -13,6 +13,7 @@
   <meta name="description" content="XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger — transparent, non‑custodial, and community‑driven." />
   <link rel="canonical" href="https://xrbitcoincash.github.io/" />
   <meta name="robots" content="index, follow" />
+  <meta name="keywords" content="XRBC, XRPL, cryptocurrency, token, XRP Ledger, liquidity pool, XRBitcoinCash" />
   <meta name="theme-color" content="#0B1020" />
 
   <!-- Open Graph / social previews -->
@@ -30,7 +31,14 @@
   <meta name="twitter:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality. Simple flows." />
   <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
 
-  <!-- Structured data -->
+  <!-- Site manifest & sitemap (improves discoverability) -->
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="sitemap" href="/sitemap.xml" />
+
+  <!-- Basic security: CSP (tweak to fit your CDN / third-party scripts). For best results configure headers on the server side. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; script-src 'self' https:; connect-src 'self' https:;"> 
+
+  <!-- Structured data: Organization + Website -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -38,7 +46,10 @@
     "name": "XRBitcoinCash",
     "url": "https://xrbitcoincash.github.io/",
     "logo": "https://xrbitcoincash.github.io/xrbc-nft.png",
-    "description": "XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger with transparent, non-custodial flows."
+    "description": "XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger with transparent, non-custodial flows.",
+    "sameAs": [
+      "https://twitter.com/yourhandle"
+    ]
   }
   </script>
 
@@ -52,6 +63,7 @@
       --card-bg:rgba(255,255,255,0.05);
       --card-hover:rgba(255,255,255,0.08);
       --accent:rgba(0,229,255,1);
+      --accent-2:rgba(0,180,255,0.9);
     }
     html,body{height:100%}
     body{
@@ -63,28 +75,36 @@
       display:flex;flex-direction:column;min-height:100vh;
       -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
       text-rendering:optimizeLegibility;
+      overflow-x:hidden;
     }
 
-    /* Non-intrusive dynamic border */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      border:2px solid rgba(0,229,255,0.15);
-      border-radius:16px;
-      z-index:9999;
-      box-shadow:0 0 8px rgba(0,229,255,0.25), inset 0 0 4px rgba(0,229,255,0.10);
+    /* Animated dynamic background (subtle moving gradient) */
+    .animated-bg{
+      position:fixed;inset:0;z-index:0;pointer-events:none;mix-blend-mode:screen;opacity:0.32;
+      background: radial-gradient(800px 400px at 10% 20%, rgba(0,229,255,0.12), transparent),
+                  radial-gradient(600px 300px at 80% 80%, rgba(0,180,255,0.10), transparent);
+      animation:bg-move 18s linear infinite;
+      filter:blur(24px);
+    }
+    @keyframes bg-move{
+      0%{transform:translate(0,0) scale(1)}
+      50%{transform:translate(-6%,4%) scale(1.04)}
+      100%{transform:translate(0,0) scale(1)}
+    }
+
+    /* Subtle page frame / border */
+    .page-frame{
+      position:fixed;inset:14px;pointer-events:none;border-radius:18px;border:2px solid rgba(0,229,255,0.12);box-shadow:0 8px 30px rgba(2,16,30,0.6);z-index:9998;
     }
 
     /* Header (branding only) */
-    header{background:#111827;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+    header{background:#0F1724;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.04);position:relative;z-index:2}
     .branding{display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
     .branding img{height:48px;width:48px;border-radius:8px}
     .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
 
     /* Main */
-    main{flex:1}
+    main{flex:1;position:relative;z-index:2}
     .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
 
     /* Page title */
@@ -93,22 +113,32 @@
     /* Hero */
     .hero{
       padding:32px 16px;text-align:center;
-      background: radial-gradient(circle at top left, rgba(0,229,255,0.12), transparent), var(--bg);
-      border-top:1px solid rgba(255,255,255,0.06);
-      border-bottom:1px solid rgba(255,255,255,0.06);
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+      border-top:1px solid rgba(255,255,255,0.04);
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      border-radius:12px;
     }
     .hero h2{font-size:2rem;margin:0 0 10px}
     .hero p{color:var(--muted);max-width:780px;margin:0 auto}
+
+    /* Unified link and button styles (all links consistent) */
+    a{color:var(--accent);text-decoration:none}
+    a:hover,a:focus{text-decoration:underline}
+    .btn{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#00121a;font-weight:700;border:none;cursor:pointer;text-decoration:none;box-shadow:0 6px 18px rgba(0,229,255,0.12);
+    }
+    .btn:focus{outline:3px solid rgba(0,229,255,0.18);outline-offset:4px}
+    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(0,229,255,0.14);font-weight:600}
 
     /* NFT image in hero */
     .nft-display{margin:24px auto 8px;display:flex;justify-content:center}
     .nft-display img{
       border-radius:16px;
-      box-shadow:0 0 12px rgba(0,229,255,0.2);
+      box-shadow:0 0 12px rgba(0,229,255,0.12);
       transition:transform .2s ease, box-shadow .2s ease;
-      width:256px;max-width:90vw;height:auto
+      width:240px;max-width:90vw;height:auto
     }
-    .nft-display img:hover{transform:scale(1.04);box-shadow:0 0 18px rgba(0,229,255,0.3)}
+    .nft-display img:hover{transform:scale(1.04);box-shadow:0 0 18px rgba(0,229,255,0.18)}
 
     /* Core grid */
     .grid{display:grid;gap:22px;padding:32px 0 10px;grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -122,18 +152,27 @@
       text-align:left;
       transition:background .15s ease, transform .15s ease, border-color .15s ease;
     }
-    .card:hover{background:var(--card-hover);border-color:rgba(255,255,255,0.2);transform:translateY(-2px)}
+    .card:hover{background:var(--card-hover);border-color:rgba(255,255,255,0.12);transform:translateY(-2px)}
     .card h3{margin:0 0 6px;font-size:1.05rem}
     .card h3 a{color:var(--ink);text-decoration:none;outline:none}
-    .card h3 a:hover,.card h3 a:focus{text-decoration:underline;outline:2px solid rgba(0,229,255,0.35);outline-offset:2px;border-radius:4px}
+    .card h3 a:hover,.card h3 a:focus{text-decoration:underline;outline:2px solid rgba(0,229,255,0.18);outline-offset:2px;border-radius:4px}
     .card .muted{color:var(--muted);margin:0}
 
     /* Footer */
-    footer{background:#111827;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.08)}
+    footer{background:#0F1724;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.04);position:relative;z-index:2}
     footer small{color:#9EB2D0}
+
+    /* Utility */
+    .spacer{height:8px}
+
   </style>
 </head>
 <body>
+  <!-- animated background element -->
+  <div class="animated-bg" aria-hidden="true"></div>
+  <!-- page frame border -->
+  <div class="page-frame" aria-hidden="true"></div>
+
   <!-- Header (branding only) -->
   <header>
     <div class="branding">
@@ -150,11 +189,19 @@
       <section class="hero" aria-label="Hero">
         <h2>Trade XRBC fast on XRPL</h2>
         <p>Low fees. 3s finality. Simple flows.</p>
+
         <div class="nft-display">
           <a href="nfts.html" aria-label="Explore XRBC NFTs">
             <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" width="256" height="256" loading="lazy" />
           </a>
         </div>
+
+        <!-- Liquidity pool button (opens in new tab, safe rel attributes) -->
+        <p style="margin-top:12px">
+          <a class="btn" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener noreferrer" aria-label="Open XRBC liquidity pool on XPMarket">View liquidity pool</a>
+          <a class="btn secondary" href="trade.html" aria-label="Trade XRBC">Trade XRBC</a>
+        </p>
+
       </section>
 
       <!-- Four core sections -->
@@ -183,6 +230,40 @@
   <footer role="contentinfo">
     <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
   </footer>
+
+  <!-- Wallet/connect guidance & lightweight placeholder script
+       IMPORTANT: do NOT handle private keys client-side. Use vendor SDKs (XUMM, WalletConnect-like adapters, or xrpl.js with your backend) and always verify origin and signatures on the server side.
+
+       Example: this stub shows a safe pattern for opening an external wallet connection flow in a new window.
+       Replace with the official SDK you choose and host required scripts over HTTPS. Do not include secret keys here.
+  -->
+  <script>
+    // Example placeholder (non-functional) — replace with XUMM / xrpl.js SDK from vendor docs
+    function openLiquidityPool(){
+      const url = 'https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw';
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    // Example safe flow outline for wallet connect (pseudocode):
+    /*
+    async function connectWallet(){
+      // 1) Redirect or open your chosen wallet provider (e.g. XUMM) using their SDK or deeplink
+      // 2) Wallet will prompt user to connect/approve
+      // 3) Wallet returns a signed challenge or an account address
+      // 4) Verify signature server-side before associating any on-chain action
+      // 5) Never accept raw secret keys; only accept signed messages / confirmations
+    }
+    */
+
+    // Add subtle analytics-free event for the pool button for simple click tracking (no external trackers)
+    document.addEventListener('DOMContentLoaded', function(){
+      const poolBtn = document.querySelector('a[href*="xpmarket.com/token/XRbitcoincash"]');
+      if(poolBtn){
+        poolBtn.addEventListener('click', function(){
+          try{localStorage.setItem('xrbc.pool.clicked', new Date().toISOString());}catch(e){}
+        });
+      }
+    });
+  </script>
 </body>
 </html>
-
