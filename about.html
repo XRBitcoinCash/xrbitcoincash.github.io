@@ -5,47 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About XRBitcoinCash</title>
   <style>
+    :root {
+      --bg: #0f1c2e;
+      --ink: #eaf2ff;
+      --panel: #f0f4f8;
+      --panel-ink: #0f1c2e;
+      --accent: #ffd166;
+      --accent-ink: #1a2433;
+    }
+    /* Layout */
+    html, body { height: 100%; }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #0f1c2e;
-      color: #eaf2ff;
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
       text-align: center;
-      padding: 40px 20px;
+    }
+    header, main, footer { width: 100%; }
+    header {
+      padding: 32px 20px 12px;
+    }
+    .home-btn {
+      display: inline-block;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* Content spacing */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;        /* center vertically within remaining space */
+      justify-content: center;
+    }
+    .content {
+      display: grid;
+      gap: 28px;                  /* more space between blocks */
+      padding: 24px 0 8px;
     }
     h1 {
       font-size: 2.8rem;
-      margin-bottom: 20px;
+      margin: 0;
     }
     p {
       font-size: 1.2rem;
       max-width: 800px;
-      margin: 0 auto 20px;
-      line-height: 1.6;
+      margin: 0 auto;
+      line-height: 1.75;          /* a bit more line-height for readability */
     }
-    .highlight {
-      background: #f0f4f8;
-      color: #0f1c2e;
-      padding: 20px;
-      margin-top: 40px;
+
+    /* Bottom TOML panel */
+    footer {
+      background: var(--panel);
+      color: var(--panel-ink);
+      padding: 28px 20px 36px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .toml-inner {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+    .toml-link {
+      display: inline-block;
+      padding: 10px 16px;
       border-radius: 8px;
-    }
-    .highlight a {
-      color: #0f1c2e;
-      font-weight: bold;
+      background: #e9eef3;
+      color: #0b1220;
       text-decoration: none;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <h1>XRBitcoinCash</h1>
-  <p>XRBitcoinCash (XRBC) is a decentralized token built on the XRP Ledger, designed for fast, low-cost transactions and global reach. It supports micropayments, cross-border transfers, and NFT meta galleries.</p>
-  <p>We prioritize transparency, faith-based stewardship, and verifiable identity. Our mission is to provide a clean, discoverable presence on the XRPL with clear disclosures and structured data.</p>
-  <p>All digital assets come with significant risk. Please do your research before completing any trades.</p>
+  <!-- Top: Home button (normal flow; won’t overlap content) -->
+  <header>
+    <div class="wrap">
+      <a class="home-btn" href="index.html" aria-label="Go to Home">Home</a>
+    </div>
+  </header>
 
-  <div class="highlight">
-    <p>Verify our identity and metadata:</p>
-    <a href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
-  </div>
+  <!-- Middle: evenly spaced content, centered -->
+  <main>
+    <div class="wrap content">
+      <h1>XRBitcoinCash</h1>
+      <p>XRBitcoinCash (XRBC) is a decentralized token built on the XRP Ledger, designed for fast, low-cost transactions and global reach. It supports micropayments, cross-border transfers, and NFT meta galleries.</p>
+      <p>We prioritize transparency, faith-based stewardship, and verifiable identity. Our mission is to provide a clean, discoverable presence on the XRPL with clear disclosures and structured data.</p>
+      <p>All digital assets come with significant risk. Please do your research before completing any trades.</p>
+    </div>
+  </main>
+
+  <!-- Bottom: TOML link panel with light background for contrast -->
+  <footer>
+    <div class="wrap toml-inner">
+      <p>Verify our identity and metadata:</p>
+      <a class="toml-link" href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
+    </div>
+  </footer>
 </body>
 </html>
