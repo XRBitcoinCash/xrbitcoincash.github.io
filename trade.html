@@ -127,6 +127,49 @@
       background: var(--frame-bg);
     }
 
+    /* XRPL Tokens Explorer */
+    .explorer-box {
+      width: 100%;
+      max-width: 1100px;
+      margin: 16px auto;
+    }
+    .explorer-frame {
+      display: block;
+      width: 100%;
+      height: 680px;
+      background: #0b1524;
+      border-radius: 12px;
+      border: 1px solid var(--stroke);
+    }
+    .explorer-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-end;
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .explorer-controls button {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: 0;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .explorer-controls select {
+      background: rgba(255,255,255,0.06);
+      color: var(--ink);
+      border: 1px solid var(--stroke);
+      border-radius: 6px;
+      padding: 4px 6px;
+    }
+    @media (max-width: 640px) {
+      .explorer-frame { height: 560px; }
+    }
+
     /* Footer spacing to keep air at bottom on short pages */
     .page-end-space { height: 8px; }
   </style>
@@ -167,6 +210,35 @@
         </div>
       </div>
 
+      <!-- XRPL Tokens Explorer (auto-refresh) -->
+      <div id="xrpl-explorer-box" class="explorer-box">
+        <iframe
+          id="xrpl-explorer"
+          class="chart explorer-frame"
+          title="XRPL Tokens Explorer"
+          data-src="https://xrpl.to/?embed=1"
+          src="https://xrpl.to/?embed=1"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          sandbox="allow-scripts allow-same-origin allow-popups"
+        ></iframe>
+
+        <div class="explorer-controls">
+          <button id="explorer-refresh" type="button">Refresh now</button>
+          <label>
+            Auto refresh:
+            <select id="explorer-interval">
+              <option value="0">Off</option>
+              <option value="30">30s</option>
+              <option value="60" selected>60s</option>
+              <option value="120">2m</option>
+              <option value="300">5m</option>
+            </select>
+          </label>
+          <span class="last-updated" id="explorer-last">Last updated: —</span>
+        </div>
+      </div>
+
       <!-- Keep working charts; removed XPMarket embed and any cookie-heavy frame -->
       <div class="charts">
         <!-- XRP Price Chart -->
@@ -187,5 +259,59 @@
       <div class="page-end-space" aria-hidden="true"></div>
     </div>
   </main>
+
+  <!-- XRPL Tokens Explorer auto-refresh -->
+  <script>
+    (function () {
+      const frame = document.getElementById('xrpl-explorer');
+      const btn = document.getElementById('explorer-refresh');
+      const sel = document.getElementById('explorer-interval');
+      const last = document.getElementById('explorer-last');
+
+      let timer = null;
+      const base = frame?.dataset?.src || frame?.src || '';
+
+      function stamp() {
+        if (!last) return;
+        const t = new Date();
+        last.textContent = 'Last updated: ' + t.toLocaleTimeString();
+      }
+
+      function reload() {
+        if (!frame || !base) return;
+        const sep = base.includes('?') ? '&' : '?';
+        frame.src = base + sep + 't=' + Date.now();
+        stamp();
+      }
+
+      function start(intervalSec) {
+        stop();
+        if (intervalSec > 0) {
+          timer = setInterval(reload, intervalSec * 1000);
+        }
+      }
+
+      function stop() {
+        if (timer) clearInterval(timer);
+        timer = null;
+      }
+
+      if (btn) btn.addEventListener('click', reload);
+      if (sel) sel.addEventListener('change', () => start(parseInt(sel.value, 10) || 0));
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          stop();
+        } else {
+          reload();
+          start(parseInt(sel?.value, 10) || 0);
+        }
+      });
+
+      stamp();
+      start(parseInt(sel?.value, 10) || 0);
+    })();
+  </script>
 </body>
 </html>
+
