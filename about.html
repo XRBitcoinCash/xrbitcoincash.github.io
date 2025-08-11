@@ -1,99 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="stylesheet" href="style.css?v=4">
-
+<head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>About XRBitcoinCash (XRBC)</title>
-  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About | Jesus Christ Saves Token (JCS)</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --ink: #eaf2ff;
+      --muted: #9fb3c8;
+      --accent: #ffd166;
+      --accent-ink: #17202a;
+      --panel: #f6f8fa;
+      --panel-ink: #0b1220;
+    }
+
+    /* Page reset and typography */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 50% -200px, #1b2a41 0%, #0b1220 45%, #0b1220 100%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-align: center; /* center all text as requested */
+    }
+
+    /* Hero (Home feature) */
+    .hero {
+      padding: clamp(48px, 6vw, 96px) 16px;
+    }
+    .hero h1 {
+      margin: 0 0 12px 0;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: clamp(2.2rem, 4vw + 1rem, 3.5rem); /* larger feature */
+      line-height: 1.1;
+    }
+    .hero p {
+      margin: 0 auto;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: clamp(1rem, 1vw + 0.7rem, 1.25rem);
+    }
+    .home-cta {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 22px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      text-decoration: none; /* one of only two links on the page */
+      font-weight: 700;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(255, 209, 102, 0.25);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .home-cta:active { transform: translateY(1px); }
+
+    /* About content */
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 60px;
+    }
+    .section {
+      margin: 28px auto;
+      padding: 0 8px;
+    }
+    .section h2 {
+      margin: 0 0 10px 0;
+      font-size: clamp(1.4rem, 1.3vw + 1rem, 2rem);
+      letter-spacing: -0.01em;
+    }
+    .section p, .section ul {
+      margin: 10px auto;
+      max-width: 880px;
+      color: var(--ink);
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+    .section ul {
+      list-style: none; /* keep centered and clean */
+      padding: 0;
+    }
+    .section li {
+      margin: 6px 0;
+      color: var(--muted);
+    }
+
+    /* XRPL TOML section (light background for contrast) */
+    .toml {
+      background: var(--panel);
+      color: var(--panel-ink);
+      padding: 28px 16px 40px;
+      border-top: 1px solid rgba(27, 42, 65, 0.12);
+    }
+    .toml h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+    }
+    .toml p { margin: 6px auto 16px; color: #3a4a5a; }
+    .toml a {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #e9eef3;
+      color: #0b1220;
+      text-decoration: none; /* the second and only other link */
+      font-weight: 600;
+    }
+
+    /* Prevent any accidental link styles elsewhere (we only have two allowed) */
+    main a:not(.home-cta):not(.toml a) { pointer-events: none; color: inherit; text-decoration: none; }
+  </style>
 </head>
 <body>
-  <header role="banner">
-    <div class="container nav">
-      <a class="brand" href="index.html"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></a>
-      <button class="hamburger" aria-expanded="false" aria-controls="primary-menu" id="navToggle">☰ Menu</button>
-      <nav id="primary-menu" class="menu">
-        <a href="index.html">Home</a><a href="about.html">About</a><a href="trade.html">Trade</a><a href="dex.html">DEX</a><a href="nfts.html">NFTs</a><a href="dashboard.html">Dashboard</a><a href="community.html">Community</a><a href="roadmap.html">Roadmap</a><a href="game.html">Game</a><a href="metadata.html">Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a class="cta" href="contact.html">Contact</a>
-      </nav>
-    </div>
+
+  <!-- Top feature: keep larger and at the top; only link here is Home -->
+  <header class="hero">
+    <h1>About Jesus Christ Saves Token (JCS)</h1>
+    <p>Faith‑anchored transparency on the XRP Ledger. We steward this project with clarity, accountability, and verifiable identity so anyone can inspect, learn, and build with confidence.</p>
+    <a class="home-cta" href="index.html" aria-label="Go to Home">Home</a>
   </header>
 
-  <main class="container" id="main">
-    <section style="padding-top:32px">
-      <span class="badge">XRPL • Community-first • Transparent</span>
-      <h1 class="h1">About XRBitcoinCash (XRBC)</h1>
-      <p class="lead">XRBitcoinCash is a community-driven token on the XRP Ledger with a fixed supply and blackholed issuer. Built for resilience, transparency, and accessible on-ledger utility.</p>
+  <main class="wrap">
+    <section class="section">
+      <h2>Who we are</h2>
+      <p>JCS is a community‑stewarded project dedicated to honest communication, open documentation, and practical utility. We keep the surface simple so the substance can be audited and trusted.</p>
     </section>
 
-    <section>
-      <div class="grid-2">
-        <div class="panel">
-          <h2>Mission</h2>
-          <p class="meta">Empower traders and builders on the XRPL with a transparent asset and an open ecosystem.</p>
-          <ul class="ordered">
-            <li>Predictable supply and immutability</li>
-            <li>Low fees and fast finality on XRPL</li>
-            <li>Community collaboration and tools</li>
-          </ul>
-        </div>
-        <div class="panel">
-          <h2>Token fundamentals</h2>
-          <div class="stat-grid">
-            <div class="stat"><div class="label">Total Supply</div><div class="value">21,000,000 XRBC</div></div>
-            <div class="stat"><div class="label">Issuer</div><div class="value">Blackholed</div></div>
-            <div class="stat"><div class="label">Network</div><div class="value">XRP Ledger</div></div>
-            <div class="stat"><div class="label">Launched</div><div class="value">Jan 5, 2022</div></div>
-          </div>
-          <div class="actions" style="margin-top:12px">
-            <a class="btn secondary" href=".well-known/xrp-ledger.toml">View XRPL .toml</a>
-            <a class="btn secondary" href="metadata.html">Token Metadata</a>
-          </div>
-        </div>
-      </div>
+    <section class="section">
+      <h2>What we stand for</h2>
+      <ul>
+        <li>Integrity over hype: clear disclosures and straightforward language.</li>
+        <li>Transparency: machine‑readable identity and public verification.</li>
+        <li>Stewardship: build what’s useful, maintain what’s promised, and remove what’s not essential.</li>
+      </ul>
     </section>
 
-    <section>
-      <h2 class="section-title">Milestones</h2>
-      <div class="grid-3">
-        <div class="panel"><h3>Launch</h3><p class="meta">Activation on XRPL with defined supply parameters.</p></div>
-        <div class="panel"><h3>Blackhole</h3><p class="meta">Issuer account blackholed to enforce immutability.</p></div>
-        <div class="panel"><h3>Listings</h3><p class="meta">Presence on XRPL DEX frontends and community tools.</p></div>
-      </div>
+    <section class="section">
+      <h2>How we operate</h2>
+      <p>We favor minimalism, live data where it matters, and structures that can be independently verified. Our pages are designed for both people and crawlers to understand who we are and how to validate what we say.</p>
+    </section>
+
+    <section class="section">
+      <h2>What you can expect</h2>
+      <ul>
+        <li>Clean pages that load fast and communicate the essentials.</li>
+        <li>Clear paths to verify identity and project details.</li>
+        <li>Iterative improvements that prioritize stability and discoverability.</li>
+      </ul>
     </section>
   </main>
 
-  <footer role="contentinfo">
-    <div class="container footer-grid">
-      <div><div class="brand" style="margin-bottom:8px"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></div><p class="small">Built on the XRP Ledger. © 2025 XRBitcoinCash.</p></div>
-      <div class="footer-links"><h4>Explore</h4><a href="about.html">About</a><a href="roadmap.html">Roadmap</a><a href="community.html">Community</a><a href="game.html">Game</a></div>
-      <div class="footer-links"><h4>Build</h4><a href="metadata.html">Token Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a href="dashboard.html">Dashboard</a><a href="nfts.html">NFTs</a></div>
-      <div class="footer-links"><h4>Trade</h4><a href="trade.html">Guide</a><a href="dex.html">DEX</a><a href="https://xpmarket.io" target="_blank" rel="noopener">XP Marketplace</a><a href="https://sologenic.org" target="_blank" rel="noopener">Sologenic</a></div>
-    </div>
+  <!-- Bottom: XRPL TOML link moved here with a lightly colored background -->
+  <footer class="toml" role="contentinfo">
+    <h3>Verify project identity</h3>
+    <p>For explorers and automated services, you can verify our domain and metadata here:</p>
+    <a href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
   </footer>
 
-  <script>
-    (function(){const b=document.getElementById('navToggle'),m=document.getElementById('primary-menu');if(b&&m){b.addEventListener('click',()=>{const o=m.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false');});}const p=location.pathname.split('/').pop()||'about.html';document.querySelectorAll('#primary-menu a[href]').forEach(a=>{const h=a.getAttribute('href');if(h===p){a.setAttribute('aria-current','page');}});})();
-  </script>
 </body>
 </html>
-<script>
-  (function(){
-    const btn = document.getElementById('navToggle');
-    const menu = document.getElementById('primary-menu');
-    if(btn && menu){
-      btn.addEventListener('click', function(){
-        const open = menu.classList.toggle('open');
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-    // Set active nav link
-    const path = location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('#primary-menu a[href]').forEach(a=>{
-      const href = a.getAttribute('href');
-      if(href === path || (path==='index.html' && href==='index.html')){
-        a.setAttribute('aria-current','page');
-      }
-    });
-  })();
-</script>
+
