@@ -3,8 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>XRBitcoinCash — XRBC on XRPL</title>
-  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
+
+  <!-- Favicon / icons -->
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="https://meta.xrbitcoincash.com/logo.png" />
+
+  <!-- SEO basics -->
+  <meta name="description" content="XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger — transparent, non‑custodial, and community‑driven." />
+  <link rel="canonical" href="https://xrbitcoincash.github.io/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/" />
+  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality. Simple flows." />
+  <meta property="og:image" content="https://meta.xrbitcoincash.com/logo.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash logo" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta name="twitter:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality. Simple flows." />
+  <meta name="twitter:image" content="https://meta.xrbitcoincash.com/logo.png" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "XRBitcoinCash",
+    "url": "https://xrbitcoincash.github.io/",
+    "logo": "https://meta.xrbitcoincash.com/logo.png",
+    "description": "XRBitcoinCash (XRBC) is a fast, low-fee token on the XRP Ledger with transparent, non-custodial flows."
+  }
+  </script>
+
   <style>
     :root{
       --bg:#0B1020;
@@ -13,31 +51,31 @@
       --chip-bg:rgba(255,255,255,0.08);
       --chip-stroke:rgba(255,255,255,0.12);
       --card-bg:rgba(255,255,255,0.05);
+      --card-hover:rgba(255,255,255,0.08);
     }
     html,body{height:100%}
     body{
       margin:0;
-      font-family:'Segoe UI', Roboto, sans-serif;
-      background:#0B1020;
+      font-family:'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      background:var(--bg);
       color:var(--ink);
       line-height:1.6;
       display:flex;flex-direction:column;min-height:100vh;
       -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
     }
 
-    /* Header */
+    /* Header (branding only; nav removed to eliminate duplicate links) */
     header{background:#111827;padding:16px 16px 12px;text-align:center}
     .branding{
-      display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:10px
+      display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px
     }
-    .branding img{height:48px;border-radius:8px}
-    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
-    nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:8px}
-    nav a{
-      color:var(--ink);text-decoration:none;padding:8px 14px;border-radius:999px;
-      background:var(--chip-bg);border:1px solid var(--chip-stroke);font-weight:600
+    .branding img{
+      height:48px;width:48px;border-radius:8px;
     }
-    nav a:hover{background:rgba(255,255,255,0.15)}
+    .branding .site-name{
+      font-size:1.5rem;font-weight:800;letter-spacing:-0.01em
+    }
 
     /* Main */
     main{flex:1}
@@ -58,18 +96,46 @@
     .hero h2{font-size:2rem;margin:0 0 10px}
     .hero p{color:var(--muted);max-width:780px;margin:0 auto}
 
-    /* Core grid */
+    /* Core grid: evenly spaced cards at center */
     .grid{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:20px;padding:32px 0 10px
+      display:grid;
+      gap:22px;
+      padding:32px 0 10px;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
     }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+    }
+    @media (max-width: 540px){
+      .grid{grid-template-columns:1fr}
+    }
+
     .card{
-      background:var(--card-bg);border:1px solid var(--chip-stroke);
-      border-radius:14px;padding:18px;text-align:left
+      background:var(--card-bg);
+      border:1px solid var(--chip-stroke);
+      border-radius:14px;
+      padding:18px;
+      text-align:left;
+      transition:background .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .card:hover{
+      background:var(--card-hover);
+      border-color:rgba(255,255,255,0.2);
+      transform:translateY(-2px);
     }
     .card h3{margin:0 0 6px;font-size:1.05rem}
-    .card h3 a{color:var(--ink);text-decoration:none}
-    .card h3 a:hover{text-decoration:underline}
+    .card h3 a{
+      color:var(--ink);
+      text-decoration:none;
+      outline: none;
+    }
+    .card h3 a:hover,
+    .card h3 a:focus{
+      text-decoration:underline;
+      outline:2px solid rgba(0,229,255,0.35);
+      outline-offset:2px;
+      border-radius:4px;
+    }
     .card .muted{color:var(--muted);margin:0}
 
     /* Footer */
@@ -80,18 +146,18 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
+  <!-- Header (branding only) -->
   <header>
     <div class="branding">
-      <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash logo" />
+      <img
+        src="https://meta.xrbitcoincash.com/logo.png"
+        alt="XRBitcoinCash logo"
+        width="48" height="48"
+        loading="eager" fetchpriority="high"
+      />
       <span class="site-name">XRBitcoinCash</span>
     </div>
-    <nav aria-label="Primary">
-      <a href="about.html">About</a>
-      <a href="trade.html">Trade</a>
-      <a href="dex.html">DEX</a>
-      <a href="nfts.html">NFTs</a>
-    </nav>
+    <!-- Top nav removed to avoid duplicate links with mid-page buttons -->
   </header>
 
   <!-- Main -->
@@ -102,10 +168,10 @@
       <section class="hero" aria-label="Hero">
         <h2>Trade XRBC fast on XRPL</h2>
         <p>Low fees. 3s finality. Simple flows.</p>
-        <!-- Buttons removed per request -->
+        <!-- No hero buttons per request -->
       </section>
 
-      <!-- Only the four core sections kept -->
+      <!-- Four core sections (evenly spaced in the middle) -->
       <section class="grid" aria-label="Core sections">
         <div class="card">
           <h3><a href="about.html">About</a></h3>
@@ -133,4 +199,4 @@
   </footer>
 </body>
 </html>
-```
+
