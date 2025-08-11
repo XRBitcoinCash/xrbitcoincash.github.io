@@ -6,89 +6,185 @@
 <title>XRBitcoinCash — Whitepaper</title>
 <link rel="icon" href="/xrbc-nft.png" />
 <link rel="apple-touch-icon" href="/xrbc-nft.png" />
-
 <style>
-  :root {--bg:#0B1020;--card:#0F1724;--ink:#ECF3FF;--muted:#9EB2D0;--accent:#00E5FF}
-  * {box-sizing:border-box}
-  html,body {height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.6;}
-  
-  /* Glowing orb background */
-  .bg-blob {position:fixed;inset:0;z-index:0;pointer-events:none;
-    background:radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.15), transparent),
-               radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.10), transparent);
-    filter:blur(28px);animation:blob 22s linear infinite}
-  @keyframes blob {0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
-  
-  .page-frame {position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,0.10);pointer-events:none;z-index:5}
-  
-  header {position:sticky;top:0;z-index:10;background:rgba(11,16,32,0.9);padding:10px 18px;display:flex;justify-content:center;transition:opacity 0.5s ease;}
-  header.hidden {opacity:0;}
-  
-  main {position:relative;z-index:2;max-width:1000px;margin:24px auto;padding:24px}
-  .card {background:var(--card);padding:24px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
-  
-  .logo-btn {display:block;margin:0 auto 20px;max-width:100px;transition:transform 0.2s ease;}
-  .logo-btn:hover {transform:scale(1.05);}
-  
-  .muted {color:var(--muted)}
-  h2 {margin-top:0}
-  
-  footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;color:var(--muted)}
+:root {
+  --bg:#0B1020;
+  --card:#0F1724;
+  --ink:#ECF3FF;
+  --muted:#9EB2D0;
+  --accent:#00E5FF;
+}
+* {box-sizing:border-box}
+html,body {
+  height:100%;
+  margin:0;
+  font-family:Inter,Segoe UI,Roboto,system-ui,Arial;
+  color:var(--ink);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+
+/* Glowing particle background */
+.bg-blob {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
+             radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
+  filter:blur(28px);
+  animation:blob 22s linear infinite;
+}
+@keyframes blob {
+  0%{transform:translate(0,0)}
+  50%{transform:translate(-5%,4%)}
+  100%{transform:translate(0,0)}
+}
+
+.page-frame {
+  position:fixed; inset:12px;
+  border-radius:16px;
+  border:2px solid rgba(0,229,255,0.10);
+  pointer-events:none;
+  z-index:5;
+}
+
+/* Progress bar */
+.progress-bar {
+  position:fixed; top:0; left:0;
+  height:4px; background:var(--accent);
+  box-shadow:0 0 12px var(--accent);
+  z-index:999;
+  width:0%;
+  transition:width 0.15s linear;
+}
+
+header {
+  position:sticky; top:12px;
+  z-index:10; background:transparent;
+  padding:10px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:1200px; margin:0 auto;
+}
+.brand {display:flex; gap:12px; align-items:center}
+.brand img {
+  width:44px; height:44px; border-radius:8px;
+  animation:glowPulse 2.5s infinite alternate;
+}
+@keyframes glowPulse {
+  from {box-shadow:0 0 4px var(--accent);}
+  to {box-shadow:0 0 14px var(--accent);}
+}
+.brand h1 {font-size:1.05rem; margin:0}
+nav a {
+  color:var(--muted); text-decoration:none; margin-left:16px; font-weight:600
+}
+nav a.cta {
+  background:linear-gradient(180deg,var(--accent),#00b6d0);
+  color:#00121a; padding:8px 12px; border-radius:10px
+}
+
+main {position:relative; z-index:2; max-width:1000px; margin:36px auto; padding:24px}
+.card {
+  background:var(--card);
+  padding:18px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.03);
+  max-width:95%; margin:0 auto;
+}
+
+/* Paragraph fade-in */
+.fade-in {
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.fade-in.visible {
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Highlight key terms */
+.highlight {color:var(--accent); font-weight:600}
+
+footer {
+  max-width:1000px; margin:28px auto 60px; padding:18px;
+  text-align:center; color:var(--muted)
+}
+.small {font-size:0.9rem}
+
+/* Floating back-to-top button */
+#backToTop {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--accent); color:#00121a;
+  border:none; border-radius:50%;
+  width:44px; height:44px; font-size:18px;
+  cursor:pointer; display:none;
+  box-shadow:0 0 10px var(--accent);
+}
+#backToTop:hover {background:#00b6d0}
 </style>
 </head>
 <body>
 
 <div class="bg-blob"></div>
 <div class="page-frame"></div>
+<div class="progress-bar" id="progressBar"></div>
 
-<header id="pageHeader">
-  <h1>XRBitcoinCash Whitepaper</h1>
+<header>
+  <div class="brand">
+    <a href="/"><img src="/xrbc-nft.png" alt="XRBC logo" /></a>
+    <h1>XRBitcoinCash <span class="small muted">Whitepaper</span></h1>
+  </div>
 </header>
 
 <main>
-  <!-- Back to Home as Logo -->
-  <a href="/" title="Back to Home">
-    <img src="/xrbc-nft.png" alt="Back to Home" class="logo-btn" />
-  </a>
-
   <section class="card">
-    <h2>XRBitcoinCash Whitepaper</h2>
-    <p class="muted">Version 2 — Date: September 3, 2022 — Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Yp</strong></p>
-    
-    <p><strong>1. Introduction</strong> — XRBitcoinCash (XRBC) is a unique digital asset on the XRP Ledger (XRPL), designed to integrate the principles of decentralization, speed, and low-cost transactions. Listed on <a href="https://xpmarket.com" target="_blank">XPMarket</a>, XRBC empowers global users with seamless cross-border exchange. Our mission is to build transparent partnerships, foster informed participation, and promote an open, borderless economy aligned with the XRPL ecosystem’s core values.</p>
-    
-    <p><strong>2. Vision & Collaboration</strong> — We recognize that true progress in digital finance requires collaboration. XRBitcoinCash actively partners with other XRPL projects, encouraging interoperability and liquidity sharing. By leveraging Ripple Labs’ technical foundation and XRPL’s decentralized exchange (DEX) capabilities, XRBC aims to bridge the gap between the banked and unbanked, fostering inclusion in the global digital economy.</p>
-    
-    <p><strong>3. Compliance & Governance</strong> — In alignment with evolving regulations, XRBitcoinCash maintains flexible governance policies. As clarity in cryptocurrency regulation emerges, the project will adapt its framework to remain compliant while preserving decentralization and user sovereignty. All supply and trustline parameters are verifiable on-chain for maximum transparency.</p>
-    
-    <p><strong>4. Token Utility</strong> — XRBC functions as a transferable, tradable XRPL-issued asset, accessible via the XRPL DEX and supported swap platforms. The token facilitates peer-to-peer payments, liquidity provision, and value storage within the XRPL ecosystem. The trustline limit is set at <strong>20,999,999.999999996 XRBC</strong>, reflecting a fixed issuance model.</p>
-    
-    <p><strong>5. Participation</strong> — To acquire XRBC, users must set a trustline to the issuing account and engage with XRPL-compatible wallets. Our official resources ensure users have access to correct trustline details and active markets, helping prevent fraud and misinformation.</p>
-    
-    <p><strong>6. Commitment to Community</strong> — We commit to ongoing dialogue with our community, welcoming constructive feedback and proposals for ecosystem improvement. By empowering holders and collaborators alike, XRBitcoinCash aims to remain a relevant, valuable participant in the expanding XRP Ledger network.</p>
-    
-    <p class="muted">For the most up-to-date details on XRBC, including live markets, trustline setup, and liquidity pools, please refer to our verified XRPL and XPMarket listings.</p>
+    <h2 class="fade-in">XRBC Whitepaper</h2>
+    <p class="fade-in">This document outlines the mission, vision, and operational framework of the <span class="highlight">XRBitcoinCash</span> token, built on the <span class="highlight">XRP Ledger</span>. It is designed for transparency and accessibility.</p>
+
+    <p class="fade-in"><strong>1. Introduction</strong> — The <span class="highlight">XRBC</span> token is a unique digital asset leveraging the speed, efficiency, and low transaction costs of the <span class="highlight">XRPL</span>. Our team is committed to community engagement and forming partnerships that foster a free, transparent global market.</p>
+
+    <p class="fade-in"><strong>2. Collaboration</strong> — We seek alliances with other <span class="highlight">XRPL</span> projects to establish a borderless economic ecosystem. By integrating <span class="highlight">Trustlines</span> and decentralized trading via <span class="highlight">DEX</span> platforms, we aim to bridge the gap between banked and unbanked communities worldwide.</p>
+
+    <p class="fade-in"><strong>3. Access</strong> — Collectors can acquire XRBC via the <span class="highlight">XPMarket</span> DEX and AMM pools after setting the appropriate <span class="highlight">Trustline</span>. Details and requirements are clearly outlined on our official portals to ensure informed participation.</p>
+
+    <p class="fade-in"><strong>4. Compliance & Growth</strong> — As regulations evolve, XRBitcoinCash remains adaptable, ensuring compliance while driving innovation. Our goal is to remain a leader within the <span class="highlight">XRPL</span> ecosystem by prioritizing user trust and global accessibility.</p>
   </section>
 </main>
 
 <footer>
-  <small>© 2025 XRBitcoinCash™ — Built on the XRP Ledger</small>
+  <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
 </footer>
 
+<button id="backToTop">↑</button>
+
 <script>
-  // Hide header on scroll down
-  let lastScroll = 0;
-  const header = document.getElementById('pageHeader');
-  window.addEventListener('scroll', () => {
-    let currentScroll = window.pageYOffset;
-    if (currentScroll > lastScroll && currentScroll > 50) {
-      header.classList.add('hidden');
-    } else {
-      header.classList.remove('hidden');
+// Fade-in animation on scroll
+const faders = document.querySelectorAll('.fade-in');
+const appearOptions = { threshold: 0.15 };
+const appearOnScroll = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
     }
-    lastScroll = currentScroll;
   });
+}, appearOptions);
+faders.forEach(fader => { appearOnScroll.observe(fader); });
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
+  const scrollPercent = (scrollTop / docHeight) * 100;
+  document.getElementById('progressBar').style.width = scrollPercent + '%';
+  document.getElementById('backToTop').style.display = scrollTop > 300 ? 'block' : 'none';
+});
+
+// Back to top
+document.getElementById('backToTop').addEventListener('click', () => {
+  window.scrollTo({top:0, behavior:'smooth'});
+});
 </script>
 
 </body>
 </html>
+
