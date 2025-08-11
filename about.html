@@ -2,119 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About XRBitcoinCash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — XRBitcoinCash</title>
+
+  <!-- Favicon / icons -->
+  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- SEO basics -->
+  <meta name="description" content="Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger." />
+  <link rel="canonical" href="https://xrbitcoincash.github.io/about.html" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/about.html" />
+  <meta property="og:title" content="About — XRBitcoinCash" />
+  <meta property="og:description" content="XRBC is a transparent, low‑fee asset on XRPL with simple, auditable flows." />
+  <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash logo" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="About — XRBitcoinCash" />
+  <meta name="twitter:description" content="XRBC is a transparent, low‑fee asset on XRPL with simple, auditable flows." />
+  <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"XRBitcoinCash",
+    "url":"https://xrbitcoincash.github.io/about.html",
+    "logo":"https://xrbitcoincash.github.io/xrbc-nft.png",
+    "description":"Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger."
+  }
+  </script>
+
   <style>
-    :root {
-      --bg: #0f1c2e;
-      --ink: #eaf2ff;
-      --panel: #f0f4f8;
-      --panel-ink: #0f1c2e;
-      --accent: #ffd166;
-      --accent-ink: #1a2433;
-    }
-    /* Layout */
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      text-align: center;
-    }
-    header, main, footer { width: 100%; }
-    header {
-      padding: 32px 20px 12px;
-    }
-    .home-btn {
-      display: inline-block;
-      padding: 12px 18px;
-      background: var(--accent);
-      color: var(--accent-ink);
-      text-decoration: none;
-      font-weight: 700;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
-    }
-    .wrap {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 24px 20px;
-    }
-
-    /* Content spacing */
-    main {
-      flex: 1;
-      display: flex;
-      align-items: center;        /* center vertically within remaining space */
-      justify-content: center;
-    }
-    .content {
-      display: grid;
-      gap: 28px;                  /* more space between blocks */
-      padding: 24px 0 8px;
-    }
-    h1 {
-      font-size: 2.8rem;
-      margin: 0;
-    }
-    p {
-      font-size: 1.2rem;
-      max-width: 800px;
-      margin: 0 auto;
-      line-height: 1.75;          /* a bit more line-height for readability */
-    }
-
-    /* Bottom TOML panel */
-    footer {
-      background: var(--panel);
-      color: var(--panel-ink);
-      padding: 28px 20px 36px;
-      border-top: 1px solid rgba(0,0,0,0.06);
-    }
-    .toml-inner {
-      display: grid;
-      gap: 12px;
-      justify-items: center;
-    }
-    .toml-link {
-      display: inline-block;
-      padding: 10px 16px;
-      border-radius: 8px;
-      background: #e9eef3;
-      color: #0b1220;
-      text-decoration: none;
-      font-weight: 600;
-    }
+    :root{--bg:#0B1020;--ink:#ECF3FF;--muted:#9EB2D0;--card-bg:rgba(255,255,255,0.05);--chip-stroke:rgba(255,255,255,0.12)}
+    html,body{height:100%}
+    body{margin:0;font-family:'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;display:flex;flex-direction:column;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;border:2px solid rgba(0,229,255,0.15);border-radius:16px;z-index:9999;box-shadow:0 0 8px rgba(0,229,255,0.25), inset 0 0 4px rgba(0,229,255,0.10)}
+    header{background:#111827;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .branding{display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
+    .branding img{height:48px;width:48px;border-radius:8px}
+    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
+    main{flex:1}
+    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
+    h1{text-align:center;margin:8px 0 18px;font-size:2rem;font-weight:800;letter-spacing:-0.02em}
+    .content{background:var(--card-bg);border:1px solid var(--chip-stroke);border-radius:14px;padding:20px}
+    .content h2{margin:0 0 10px}
+    footer{background:#111827;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.08)}
+    footer small{color:#9EB2D0}
   </style>
 </head>
 <body>
-  <!-- Top: Home button (normal flow; won’t overlap content) -->
   <header>
-    <div class="wrap">
-      <a class="home-btn" href="index.html" aria-label="Go to Home">Home</a>
+    <div class="branding">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" />
+      <span class="site-name">XRBitcoinCash</span>
     </div>
   </header>
 
-  <!-- Middle: evenly spaced content, centered -->
   <main>
-    <div class="wrap content">
-      <h1>XRBitcoinCash</h1>
-      <p>XRBitcoinCash (XRBC) is a decentralized token built on the XRP Ledger, designed for fast, low-cost transactions and global reach. It supports micropayments, cross-border transfers, and NFT meta galleries.</p>
-      <p>We prioritize transparency, faith-based stewardship, and verifiable identity. Our mission is to provide a clean, discoverable presence on the XRPL with clear disclosures and structured data.</p>
-      <p>All digital assets come with significant risk. Please do your research before completing any trades.</p>
+    <div class="wrap">
+      <h1>About XRBitcoinCash</h1>
+      <div class="content">
+        <h2>Mission</h2>
+        <p>Deliver a simple, transparent asset on XRPL with low fees, fast settlement, and clear, auditable flows.</p>
+        <h2>Principles</h2>
+        <ul>
+          <li>Clarity over complexity</li>
+          <li>Non-custodial by default</li>
+          <li>Consistent branding and metadata</li>
+        </ul>
+      </div>
     </div>
   </main>
 
-  <!-- Bottom: TOML link panel with light background for contrast -->
-  <footer>
-    <div class="wrap toml-inner">
-      <p>Verify our identity and metadata:</p>
-      <a class="toml-link" href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
-    </div>
+  <footer role="contentinfo">
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
   </footer>
 </body>
 </html>
