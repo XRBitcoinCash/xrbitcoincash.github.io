@@ -16,7 +16,8 @@
       --stroke: rgba(255,255,255,0.12);
       --frame-bg: #0b1524;
     }
-    /* Layout + background to match About */
+
+    /* Layout + background */
     html, body { height: 100%; }
     body {
       margin: 0;
@@ -37,9 +38,9 @@
       width: 100%;
     }
 
-    /* Header with breathing room */
+    /* Header */
     header {
-      padding-top: 40px;   /* pushes button down from top */
+      padding-top: 40px;
       padding-bottom: 16px;
     }
     .home-btn {
@@ -54,13 +55,12 @@
       letter-spacing: 0.2px;
     }
 
-    /* Main content spacing */
+    /* Main */
     main {
       flex: 1;
       padding-top: 20px;
-      padding-bottom: 72px; /* bottom breathing room */
+      padding-bottom: 72px;
     }
-
     h1 {
       font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
       margin: 18px 0 16px;
@@ -73,9 +73,6 @@
       font-size: 1.15rem;
       color: var(--muted);
       line-height: 1.7;
-    }
-
- 
     }
 
     /* Primary link button */
@@ -99,7 +96,10 @@
       margin: 0 auto 56px;
     }
     @media (min-width: 720px) {
-      .grid { grid-template-columns: 1fr 1fr; }
+      .grid {
+        /* Flexible, balanced columns that center nicely */
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
     }
     .panel {
       background: var(--card);
@@ -135,7 +135,7 @@
       .gallery { height: 820px; }
     }
 
-    /* Footer verification block */
+    /* Footer */
     footer {
       background: #f4f6fa;
       color: #0f1c2e;
@@ -170,13 +170,6 @@
         It’s non‑custodial, transparent, and aligned with the project’s mission of accountable creativity.
       </p>
 
-      <!-- Project thumbnail (Sologenic asset) -->
-      <img
-        class="nft-img"
-        loading="lazy"
-        src="https://assets.sologenic.org/images/nft-marketplace/thumbnail/metadata?metadataId=ZGVjbGluZUVuZGVyLVRodW1ibmFpbC1lYWZhQWpWZkdCRmhzRGVoWUNGRTZrWA==&timestamp=1754877540"
-        alt="XRBitcoinCash NFT project thumbnail from Sologenic" />
-
       <!-- Primary marketplace profile -->
       <p>
         <a class="link"
@@ -201,7 +194,7 @@
           <h3>🛠️ How to mint</h3>
           <p class="meta">Use Sologenic’s XRPL launchpad or your preferred tool. Keep mints non‑custodial and include descriptive on‑chain metadata.</p>
         </div>
-        
+      </div>
 
       <!-- Live gallery (read-only, sandboxed) -->
       <section aria-label="Live NFT gallery">
@@ -220,13 +213,10 @@
     </div>
   </main>
 
-  <!-- Footer -->
+  <!-- Minimal footer -->
   <footer role="contentinfo">
-    <div class="wrap">
-      <p><strong>XRBitcoinCash Metadata Verification</strong></p>
-      <p>Verify our accounts and assets via the public TOML record and independent explorers.</p>
-      <a class="link" href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
-    </div>
+    <div class="wrap"></div>
   </footer>
 </body>
 </html>
+
