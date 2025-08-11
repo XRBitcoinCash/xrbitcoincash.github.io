@@ -82,7 +82,7 @@
       font-size: 1.1rem;
     }
 
-    /* Button boxes replacing “access denied” iframes */
+    /* Button boxes */
     .button-grid {
       width: 100%;
       display: grid;
@@ -112,7 +112,7 @@
       box-shadow: 0 10px 25px rgba(20, 30, 60, 0.25);
     }
 
-    /* Charts (kept lightweight and high-contrast) */
+    /* Charts (kept, though not used below) */
     .charts {
       width: 100%;
       display: grid;
@@ -136,7 +136,7 @@
     .explorer-frame {
       display: block;
       width: 100%;
-      height: 680px;
+      height: 1360px; /* doubled height */
       background: #0b1524;
       border-radius: 12px;
       border: 1px solid var(--stroke);
@@ -167,7 +167,7 @@
       padding: 4px 6px;
     }
     @media (max-width: 640px) {
-      .explorer-frame { height: 560px; }
+      .explorer-frame { height: 1120px; } /* doubled mobile height */
     }
 
     /* Footer spacing to keep air at bottom on short pages */
@@ -188,7 +188,7 @@
       <h1>Trade XRBitcoinCash</h1>
       <p class="lead">Use the buttons below to access live markets. Charts are provided for quick reference. For full depth and order flow, open the trading links.</p>
 
-      <!-- Two button boxes replacing any “access denied” embeds -->
+      <!-- Two button boxes -->
       <div class="button-grid">
         <div class="button-box">
           <a
@@ -210,7 +210,7 @@
         </div>
       </div>
 
-      <!-- XRPL Tokens Explorer (auto-refresh) -->
+      <!-- XRPL Tokens Explorer (manual refresh only) -->
       <div id="xrpl-explorer-box" class="explorer-box">
         <iframe
           id="xrpl-explorer"
@@ -225,50 +225,19 @@
 
         <div class="explorer-controls">
           <button id="explorer-refresh" type="button">Refresh now</button>
-          <label>
-            Auto refresh:
-            <select id="explorer-interval">
-              <option value="0">Off</option>
-              <option value="30">30s</option>
-              <option value="60" selected>60s</option>
-              <option value="120">2m</option>
-              <option value="300">5m</option>
-            </select>
-          </label>
           <span class="last-updated" id="explorer-last">Last updated: —</span>
         </div>
       </div>
-
-      <!-- Keep working charts; removed XPMarket embed and any cookie-heavy frame -->
-      <div class="charts">
-        <!-- XRP Price Chart -->
-        <iframe
-          class="chart"
-          title="XRP/USD Chart"
-          src="https://widgets.coingecko.com/coingecko-coin-price-chart-widget?coin_id=ripple&currency=usd">
-        </iframe>
-
-        <!-- SOLO Price Chart -->
-        <iframe
-          class="chart"
-          title="SOLO/XRP Chart"
-          src="https://widgets.coingecko.com/coingecko-coin-price-chart-widget?coin_id=sologenic&currency=xrp">
-        </iframe>
-      </div>
-
-      <div class="page-end-space" aria-hidden="true"></div>
+      <!-- Page ends after metrics box as requested -->
     </div>
   </main>
 
-  <!-- XRPL Tokens Explorer auto-refresh -->
+  <!-- XRPL Tokens Explorer manual refresh script -->
   <script>
     (function () {
       const frame = document.getElementById('xrpl-explorer');
       const btn = document.getElementById('explorer-refresh');
-      const sel = document.getElementById('explorer-interval');
       const last = document.getElementById('explorer-last');
-
-      let timer = null;
       const base = frame?.dataset?.src || frame?.src || '';
 
       function stamp() {
@@ -284,34 +253,10 @@
         stamp();
       }
 
-      function start(intervalSec) {
-        stop();
-        if (intervalSec > 0) {
-          timer = setInterval(reload, intervalSec * 1000);
-        }
-      }
-
-      function stop() {
-        if (timer) clearInterval(timer);
-        timer = null;
-      }
-
       if (btn) btn.addEventListener('click', reload);
-      if (sel) sel.addEventListener('change', () => start(parseInt(sel.value, 10) || 0));
-
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          stop();
-        } else {
-          reload();
-          start(parseInt(sel?.value, 10) || 0);
-        }
-      });
-
-      stamp();
-      start(parseInt(sel?.value, 10) || 0);
     })();
   </script>
 </body>
 </html>
+
 
