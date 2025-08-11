@@ -1,191 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-
-  <div class="branding">
-  <img src="https://static.wixstatic.com/media/050027_272dc313…o/050027_272dc31314284e9f98781353dea30230~mv2.png" alt="XRBitcoinCash logo" style="height:48px; border-radius:8px;" />
-  <span class="site-name" style="font-size:1.5rem; font-weight:800; margin-left:12px;">XRBitcoinCash</span>
-</div>
-
+<head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>XRBitcoinCash — XRBC on XRPL</title>
+  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: #0B1020;
-      color: #ECF3FF;
-      line-height: 1.6;
+    :root{
+      --bg:#0B1020;
+      --ink:#ECF3FF;
+      --muted:#9EB2D0;
+      --chip-bg:rgba(255,255,255,0.08);
+      --chip-stroke:rgba(255,255,255,0.12);
+      --card-bg:rgba(255,255,255,0.05);
     }
-    header, footer {
-      background: #111827;
-      padding: 20px;
-      text-align: center;
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Roboto, sans-serif;
+      background:#0B1020;
+      color:var(--ink);
+      line-height:1.6;
+      display:flex;flex-direction:column;min-height:100vh;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
+
+    /* Header */
+    header{background:#111827;padding:16px 16px 12px;text-align:center}
+    .branding{
+      display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:10px
     }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 10px;
+    .branding img{height:48px;border-radius:8px}
+    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
+    nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:8px}
+    nav a{
+      color:var(--ink);text-decoration:none;padding:8px 14px;border-radius:999px;
+      background:var(--chip-bg);border:1px solid var(--chip-stroke);font-weight:600
     }
-    nav a {
-      color: #ECF3FF;
-      text-decoration: none;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+    nav a:hover{background:rgba(255,255,255,0.15)}
+
+    /* Main */
+    main{flex:1}
+    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
+
+    /* Page title visible in body */
+    h1{
+      margin:6px 0 8px;text-align:center;font-size:2rem;font-weight:800;letter-spacing:-0.02em
     }
-    nav a:hover {
-      background: rgba(255,255,255,0.15);
+
+    /* Hero */
+    .hero{
+      padding:32px 16px;text-align:center;
+      background: radial-gradient(circle at top left, rgba(0,229,255,0.12), transparent), var(--bg);
+      border-top:1px solid rgba(255,255,255,0.06);
+      border-bottom:1px solid rgba(255,255,255,0.06);
     }
-    .hero {
-      padding: 40px 20px;
-      text-align: center;
-      background: radial-gradient(circle at top left, rgba(0,229,255,0.12), transparent), #0B1020;
+    .hero h2{font-size:2rem;margin:0 0 10px}
+    .hero p{color:var(--muted);max-width:780px;margin:0 auto}
+
+    /* Core grid */
+    .grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:20px;padding:32px 0 10px
     }
-    .hero h2 {
-      font-size: 2rem;
-      margin-bottom: 10px;
+    .card{
+      background:var(--card-bg);border:1px solid var(--chip-stroke);
+      border-radius:14px;padding:18px;text-align:left
     }
-    .hero p {
-      color: #9EB2D0;
-      max-width: 600px;
-      margin: 0 auto 20px;
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card h3 a{color:var(--ink);text-decoration:none}
+    .card h3 a:hover{text-decoration:underline}
+    .card .muted{color:var(--muted);margin:0}
+
+    /* Footer */
+    footer{
+      background:#111827;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.08)
     }
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-    }
-    .btn {
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-weight: bold;
-      text-decoration: none;
-      color: #06111D;
-      background: linear-gradient(135deg, #00E5FF, #6AE2FF);
-    }
-    .btn-outline {
-      background: transparent;
-      border: 2px solid #00E5FF;
-      color: #00E5FF;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      padding: 40px 20px;
-    }
-    .card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 20px;
-    }
-    .card h3 {
-      margin-top: 0;
-    }
-    .muted {
-      color: #9EB2D0;
-    }
-    footer small {
-      color: #9EB2D0;
-    }
+    footer small{color:#9EB2D0}
   </style>
 </head>
 <body>
-
+  <!-- Header -->
   <header>
-    <h1>XRBitcoinCash</h1>
-    <nav>
+    <div class="branding">
+      <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash logo" />
+      <span class="site-name">XRBitcoinCash</span>
+    </div>
+    <nav aria-label="Primary">
       <a href="about.html">About</a>
       <a href="trade.html">Trade</a>
       <a href="dex.html">DEX</a>
       <a href="nfts.html">NFTs</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="community.html">Community</a>
-      <a href="roadmap.html">Roadmap</a>
-      <a href="game.html">Game</a>
-      <a href="metadata.html">Metadata</a>
-      <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
     </nav>
   </header>
 
-  <section class="hero">
-    <h2>Trade XRBC fast on XRPL</h2>
-    <p>Low fees. 3s finality. Simple flows. Set your trustline and start trading XRBC in minutes.</p>
-    <div class="buttons">
-      <a class="btn" href="https://sologenic.org" target="_blank">Trade on Sologenic</a>
-      <a class="btn-outline" href="https://xpmarket.io" target="_blank">Open XPMarket</a>
-      <a class="btn-outline" href="trade.html">Set trustline</a>
-    </div>
-  </section>
+  <!-- Main -->
+  <main>
+    <div class="wrap">
+      <h1>XRBitcoinCash</h1>
 
-  <section class="grid">
-    <div class="card">
-      <h3><a href="about.html">About</a></h3>
-      <p class="muted">Mission and token fundamentals.</p>
-    </div>
-    <div class="card">
-      <h3><a href="trade.html">Trade</a></h3>
-      <p class="muted">Trustline and trading guide.</p>
-    </div>
-    <div class="card">
-      <h3><a href="dex.html">DEX</a></h3>
-      <p class="muted">Markets and pairs.</p>
-    </div>
-    <div class="card">
-      <h3><a href="nfts.html">NFTs</a></h3>
-      <p class="muted">Collections and drops.</p>
-    </div>
-    <div class="card">
-      <h3><a href="dashboard.html">Dashboard</a></h3>
-      <p class="muted">Charts and on-ledger data.</p>
-    </div>
-    <div class="card">
-      <h3><a href="community.html">Community</a></h3>
-      <p class="muted">Join and participate.</p>
-    </div>
-    <div class="card">
-      <h3><a href="roadmap.html">Roadmap</a></h3>
-      <p class="muted">Milestones and plans.</p>
-    </div>
-    <div class="card">
-      <h3><a href="game.html">Game</a></h3>
-      <p class="muted">Interactive and fun.</p>
-    </div>
-    <div class="card">
-      <h3><a href="metadata.html">Metadata</a></h3>
-      <p class="muted">Token details for builders.</p>
-    </div>
-    <div class="card">
-      <h3><a href=".well-known/xrp-ledger.toml">XRPL .toml</a></h3>
-      <p class="muted">Issuer and token records.</p>
-    </div>
-  </section>
+      <section class="hero" aria-label="Hero">
+        <h2>Trade XRBC fast on XRPL</h2>
+        <p>Low fees. 3s finality. Simple flows.</p>
+        <!-- Buttons removed per request -->
+      </section>
 
-  <footer>
-    <nav>
-      <a href="about.html">About</a>
-      <a href="trade.html">Trade</a>
-      <a href="dex.html">DEX</a>
-      <a href="nfts.html">NFTs</a>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="community.html">Community</a>
-      <a href="roadmap.html">Roadmap</a>
-      <a href="game.html">Game</a>
-      <a href="metadata.html">Metadata</a>
-      <a href=".well-known/xrp-ledger.toml">XRPL .toml</a>
-    </nav>
-    <small>© 2025 XRBitcoinCash — Built on XRPL</small>
+      <!-- Only the four core sections kept -->
+      <section class="grid" aria-label="Core sections">
+        <div class="card">
+          <h3><a href="about.html">About</a></h3>
+          <p class="muted">Mission and token fundamentals.</p>
+        </div>
+        <div class="card">
+          <h3><a href="trade.html">Trade</a></h3>
+          <p class="muted">Trustline and trading guide.</p>
+        </div>
+        <div class="card">
+          <h3><a href="dex.html">DEX</a></h3>
+          <p class="muted">Markets and pairs.</p>
+        </div>
+        <div class="card">
+          <h3><a href="nfts.html">NFTs</a></h3>
+          <p class="muted">Collections and drops.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
   </footer>
-
 </body>
 </html>
+```
