@@ -1,60 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBC DEX | Markets</title>
-  <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" /><link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+  <title>DEX | XRBitcoinCash (XRBC) on XRPL</title>
+  <meta name="description" content="Trusted XRPL DEX portal for XRBitcoinCash (XRBC). View markets, inspect order books, and verify project identity. No keys collected." />
+  <meta name="robots" content="index,follow" />
+
+  <!-- Security headers (as meta, best-effort on static hosting) -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self' wss://s1.ripple.com wss://s2.ripple.com;
+                 frame-src https://xrpl.to;
+                 object-src 'none';
+                 base-uri 'none';
+                 form-action 'none';
+                 upgrade-insecure-requests;">
+  <meta http-equiv="Referrer-Policy" content="no-referrer" />
+  <meta http-equiv="Permissions-Policy"
+        content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()" />
+
+  <style>
+    :root {
+      --bg: #0f1c2e;
+      --ink: #eaf2ff;
+      --muted: #9fb3c8;
+      --accent: #ffd166;
+      --accent-ink: #17202a;
+      --panel: #f6f8fa;
+      --panel-ink: #0b1220;
+      --stroke: rgba(255,255,255,0.12);
+      --card: rgba(255,255,255,0.06);
+      --frame-bg: #0b1524;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 50% -200px, #1b2a41 0%, #0f1c2e 45%, #0f1c2e 100%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top area with Home button (same layout feel as your About page) */
+    header {
+      padding: 32px 16px 12px;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .home-cta {
+      display: inline-block;
+      padding: 12px 18px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      text-decoration: none;
+      font-weight: 800;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
+      letter-spacing: 0.2px;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px 0 48px;
+    }
+    .section {
+      margin: 22px auto;
+    }
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
+      letter-spacing: -0.02em;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .lead {
+      margin: 0 auto;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: clamp(1rem, 1vw + 0.7rem, 1.2rem);
+      line-height: 1.7;
+    }
+
+    /* Action buttons */
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin: 24px auto 8px;
+      max-width: 700px;
+    }
+    @media (min-width: 720px) {
+      .btn-row { grid-template-columns: 1fr 1fr; }
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 22px;
+      border-radius: 10px;
+      background: #e9eef3;
+      color: #0b1220;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(20, 30, 60, 0.25);
+    }
+
+    /* Embedded XRPL explorer (trusted read-only, sandboxed) */
+    .explorer {
+      margin: 26px auto 10px;
+      max-width: 1100px;
+    }
+    iframe.explorer-frame {
+      display: block;
+      width: 100%;
+      height: 900px;
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      background: var(--frame-bg);
+    }
+
+    /* Read-only order book panel (live from XRPL public nodes) */
+    .panel {
+      margin: 24px auto;
+      max-width: 1100px;
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+    }
+    .panel h2 {
+      margin: 6px 0 4px;
+      text-align: center;
+      font-size: 1.4rem;
+    }
+    .panel .subtle { color: var(--muted); text-align: center; margin: 0 0 12px; }
+    .flex {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 720px) {
+      .flex { grid-template-columns: 1fr 1fr; }
+    }
+    .table {
+      border: 1px solid var(--stroke);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      color: var(--ink);
+    }
+    .table thead th {
+      text-align: left;
+      background: rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+    .table tbody td {
+      padding: 8px 12px;
+      border-top: 1px solid var(--stroke);
+    }
+    .controls {
+      display: grid;
+      gap: 10px;
+      margin: 10px 0 16px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 720px) {
+      .controls { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    }
+    .controls input, .controls button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.06);
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+    .controls button {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Bottom TOML verification block */
+    .toml {
+      background: var(--panel);
+      color: var(--panel-ink);
+      padding: 28px 16px 40px;
+      border-top: 1px solid rgba(27, 42, 65, 0.12);
+    }
+    .toml .wrap { text-align: center; }
+    .toml .link {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #e9eef3;
+      color: #0b1220;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-  <header><div class="container nav">
-    <a class="brand" href="index.html"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></a>
-    <button class="hamburger" aria-expanded="false" aria-controls="primary-menu" id="navToggle">☰ Menu</button>
-    <nav id="primary-menu" class="menu">
-      <a href="index.html">Home</a><a href="about.html">About</a><a href="trade.html">Trade</a><a href="dex.html">DEX</a><a href="nfts.html">NFTs</a><a href="dashboard.html">Dashboard</a><a href="community.html">Community</a><a href="roadmap.html">Roadmap</a><a href="game.html">Game</a><a href="metadata.html">Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a class="cta" href="contact.html">Contact</a>
-    </nav></div></header>
+  <!-- Top: Home button -->
+  <header>
+    <div class="wrap">
+      <a class="home-cta" href="index.html" aria-label="Go to Home">Home</a>
+    </div>
+  </header>
 
-  <main class="container" id="main">
-    <section style="padding-top:32px">
-      <h1 class="h1">XRBC markets</h1>
-      <p class="lead">Choose a venue to trade XRBC pairs. Ensure your trust line is set before trading.</p>
-    </section>
+  <main>
+    <div class="wrap section">
+      <h1>XRPL DEX portal</h1>
+      <p class="lead">
+        Trusted, read‑only market access for XRBitcoinCash (XRBC) on the XRP Ledger.
+        No private keys are ever requested or stored. Use reputable front‑ends to trade.
+      </p>
 
-    <section>
-      <div class="grid-3">
-        <div class="panel"><h3>XPMarket</h3><p class="meta">Trade XRBC on a popular XRPL DEX frontend.</p><a class="btn secondary" href="https://xpmarket.io" target="_blank" rel="noopener">Open XPMarket →</a></div>
-        <div class="panel"><h3>Sologenic</h3><p class="meta">Charts, markets, and XRPL liquidity.</p><a class="btn secondary" href="https://sologenic.org" target="_blank" rel="noopener">Visit Sologenic →</a></div>
-        <div class="panel"><h3>Guide</h3><p class="meta">Steps to set your trust line and start trading.</p><a class="btn secondary" href="trade.html">Trust line &amp; Trading Guide</a></div>
+      <!-- Primary venues (open in new tab with security attributes) -->
+      <div class="btn-row" role="navigation" aria-label="Trading venues">
+        <a class="btn" href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
+           target="_blank" rel="noopener noreferrer" aria-label="Open Sologenic XRBC/XRP market">
+          Trade on Sologenic →
+        </a>
+        <a class="btn" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+           target="_blank" rel="noopener noreferrer" aria-label="Open XPMarket XRBC page">
+          View on XPMarket →
+        </a>
+      </div>
+    </div>
+
+    <!-- Safe, sandboxed XRPL tokens explorer (navigable, metadata-friendly) -->
+    <div class="explorer" aria-label="XRPL tokens explorer">
+      <iframe
+        class="explorer-frame"
+        title="XRPL Tokens Explorer"
+        src="https://xrpl.to/?embed=1"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        sandbox="allow-scripts allow-same-origin allow-popups">
+      </iframe>
+    </div>
+
+    <!-- Read-only order book pulled directly from XRPL public nodes -->
+    <section class="panel" aria-labelledby="orderbook-title">
+      <h2 id="orderbook-title">Live order book (read‑only)</h2>
+      <p class="subtle">Data from public XRPL nodes. No wallet connection required.</p>
+
+      <div class="controls">
+        <!-- Base asset (you are selling base to get counter on asks; buying base with counter on bids) -->
+        <input id="base-currency" type="text" placeholder="Base currency (e.g., XRP or 40‑hex)" value="5852626974636F696E6361736800000000000000" aria-label="Base currency code or 40-hex" />
+        <input id="base-issuer" type="text" placeholder="Base issuer (account, blank for XRP)" value="rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" aria-label="Base issuer account (leave empty for XRP)" />
+
+        <!-- Counter asset -->
+        <input id="counter-currency" type="text" placeholder="Counter currency (e.g., XRP or 40‑hex)" value="XRP" aria-label="Counter currency code or 40-hex" />
+        <input id="counter-issuer" type="text" placeholder="Counter issuer (account, blank for XRP)" value="" aria-label="Counter issuer account (leave empty for XRP)" />
+      </div>
+
+      <div class="controls">
+        <button id="refresh-book" type="button" aria-label="Refresh order book">Refresh order book</button>
+        <span id="last-updated" class="subtle" aria-live="polite">Last updated: —</span>
+      </div>
+
+      <div class="flex">
+        <div class="table" aria-label="Asks">
+          <table>
+            <thead>
+              <tr><th>Ask price (counter/base)</th><th>Base amount</th><th>Counter amount</th></tr>
+            </thead>
+            <tbody id="asks-body">
+              <tr><td colspan="3">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table" aria-label="Bids">
+          <table>
+            <thead>
+              <tr><th>Bid price (counter/base)</th><th>Base amount</th><th>Counter amount</th></tr>
+            </thead>
+            <tbody id="bids-body">
+              <tr><td colspan="3">—</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer><div class="container footer-grid">
-    <div><div class="brand" style="margin-bottom:8px"><img src="https://meta.xrbitcoincash.com/logo.png" alt="" /><span class="name">XRBitcoinCash</span></div><p class="small">© 2025 XRBitcoinCash.</p></div>
-    <div class="footer-links"><h4>Explore</h4><a href="about.html">About</a><a href="roadmap.html">Roadmap</a><a href="community.html">Community</a><a href="game.html">Game</a></div>
-    <div class="footer-links"><h4>Build</h4><a href="metadata.html">Token Metadata</a><a href=".well-known/xrp-ledger.toml">XRPL .toml</a><a href="dashboard.html">Dashboard</a><a href="nfts.html">NFTs</a></div>
-    <div class="footer-links"><h4>Trade</h4><a href="trade.html">Guide</a><a href="dex.html">DEX</a><a href="https://xpmarket.io" target="_blank" rel="noopener">XP Marketplace</a><a href="https://sologenic.org" target="_blank" rel="noopener">Sologenic</a></div>
-  </div></footer>
+  <!-- Bottom: XRPL TOML verification -->
+  <footer class="toml" role="contentinfo">
+    <div class="wrap">
+      <h3>Verify project identity</h3>
+      <p>Explorers and automated services can verify our domain and metadata here:</p>
+      <a class="link" href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
+    </div>
+  </footer>
 
-  <script>(function(){const b=document.getElementById('navToggle'),m=document.getElementById('primary-menu');if(b&&m){b.addEventListener('click',()=>{const o=m.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false');});}const p='dex.html';document.querySelectorAll('#primary-menu a[href]').forEach(a=>{if(a.getAttribute('href')===p){a.setAttribute('aria-current','page');}});})();</script>
+  <script>
+    // Trusted read-only XRPL order book fetcher (no keys, no writes)
+    (function () {
+      const asksBody = document.getElementById('asks-body');
+      const bidsBody = document.getElementById('bids-body');
+      const baseCurrencyEl = document.getElementById('base-currency');
+      const baseIssuerEl = document.getElementById('base-issuer');
+      const counterCurrencyEl = document.getElementById('counter-currency');
+      const counterIssuerEl = document.getElementById('counter-issuer');
+      const refreshBtn = document.getElementById('refresh-book');
+      const lastUpdated = document.getElementById('last-updated');
+
+      const WS_ENDPOINTS = ["wss://s1.ripple.com", "wss://s2.ripple.com"];
+
+      function dropsToXRP(drops) {
+        // amounts as string of drops (1 XRP = 1,000,000 drops)
+        const n = Number(drops);
+        return isFinite(n) ? n / 1e6 : NaN;
+        }
+      function amtToValue(a) {
+        // object {currency, issuer, value} OR string drops for XRP
+        if (typeof a === 'string') return dropsToXRP(a);
+        return Number(a?.value);
+      }
+
+      function makeSpec(currency, issuer) {
+        const isXRP = String(currency).toUpperCase() === 'XRP';
+        if (isXRP) return { currency: 'XRP' };
+        // Accept 3‑5 letter codes (not used here) or 40-hex. We pass through as provided.
+        return issuer ? { currency: currency, issuer: issuer } : { currency: currency };
+      }
+
+      function renderRows(el, offers, orientation) {
+        // orientation: 'asks' where price = counter/base = gets/pays
+        //             'bids' where price = counter/base = pays/gets
+        el.innerHTML = '';
+        if (!offers || !offers.length) {
+          el.innerHTML = '<tr><td colspan="3">No data</td></tr>';
+          return;
+        }
+        const rows = offers.slice(0, 10).map(off => {
+          const pays = amtToValue(off.TakerPays);
+          const gets = amtToValue(off.TakerGets);
+          if (!isFinite(pays) || !isFinite(gets) || pays <= 0 || gets <= 0) return null;
+
+          let price, baseAmt, counterAmt;
+          if (orientation === 'asks') {
+            // seller pays base, gets counter → price = counter/base = gets/pays
+            price = gets / pays;
+            baseAmt = pays;
+            counterAmt = gets;
+          } else {
+            // buyer pays counter, gets base → price = counter/base = pays/gets
+            price = pays / gets;
+            baseAmt = gets;
+            counterAmt = pays;
+          }
+          return `<tr>
+              <td>${price.toPrecision(6)}</td>
+              <td>${baseAmt.toPrecision(6)}</td>
+              <td>${counterAmt.toPrecision(6)}</td>
+            </tr>`;
+        }).filter(Boolean);
+
+        el.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="3">No parsable data</td></tr>';
+      }
+
+      async function fetchBook(wsUrl, base, counter) {
+        // Two calls: asks (sell base for counter), bids (buy base with counter)
+        const ws = new WebSocket(wsUrl);
+        const once = (socket, type) => new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error('timeout')), 10000);
+          socket.addEventListener('message', (ev) => {
+            try {
+              const msg = JSON.parse(ev.data);
+              if (msg.type === type || msg.id === 1 || msg.id === 2) {
+                clearTimeout(timer);
+                resolve(msg);
+              }
+            } catch (e) { /* ignore non-json */ }
+          });
+          socket.addEventListener('error', reject);
+        });
+
+        await new Promise((res, rej) => {
+          ws.addEventListener('open', res);
+          ws.addEventListener('error', rej);
+        });
+
+        // ASKS: taker_pays = base, taker_gets = counter
+        ws.send(JSON.stringify({
+          id: 1,
+          command: 'book_offers',
+          ledger_index: 'current',
+          limit: 40,
+          taker_pays: base,
+          taker_gets: counter
+        }));
+        const asks = await once(ws, 'response');
+
+        // BIDS: taker_pays = counter, taker_gets = base
+        ws.send(JSON.stringify({
+          id: 2,
+          command: 'book_offers',
+          ledger_index: 'current',
+          limit: 40,
+          taker_pays: counter,
+          taker_gets: base
+        }));
+        const bids = await once(ws, 'response');
+
+        try { ws.close(); } catch (e) {}
+
+        return {
+          asks: Array.isArray(asks?.result?.offers) ? asks.result.offers : [],
+          bids: Array.isArray(bids?.result?.offers) ? bids.result.offers : []
+        };
+      }
+
+      async function loadBook() {
+        const base = makeSpec(baseCurrencyEl.value.trim(), baseIssuerEl.value.trim());
+        const counter = makeSpec(counterCurrencyEl.value.trim(), counterIssuerEl.value.trim());
+
+        // Try first node, fall back to second
+        try {
+          const data = await fetchBook(WS_ENDPOINTS[0], base, counter);
+          renderRows(asksBody, data.asks, 'asks');
+          renderRows(bidsBody, data.bids, 'bids');
+        } catch (e1) {
+          try {
+            const data = await fetchBook(WS_ENDPOINTS[1], base, counter);
+            renderRows(asksBody, data.asks, 'asks');
+            renderRows(bidsBody, data.bids, 'bids');
+          } catch (e2) {
+            asksBody.innerHTML = '<tr><td colspan="3">Error loading order book</td></tr>';
+            bidsBody.innerHTML = '<tr><td colspan="3">Error loading order book</td></tr>';
+          }
+        }
+        const t = new Date();
+        lastUpdated.textContent = 'Last updated: ' + t.toLocaleTimeString();
+      }
+
+      refreshBtn.addEventListener('click', loadBook);
+      // Initial load
+      loadBook();
+    })();
+  </script>
 </body>
 </html>
-<script>
-  (function(){
-    const btn = document.getElementById('navToggle');
-    const menu = document.getElementById('primary-menu');
-    if(btn && menu){
-      btn.addEventListener('click', function(){
-        const open = menu.classList.toggle('open');
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-    // Set active nav link
-    const path = location.pathname.split('/').pop() || 'index.html';
-    document.querySelectorAll('#primary-menu a[href]').forEach(a=>{
-      const href = a.getAttribute('href');
-      if(href === path || (path==='index.html' && href==='index.html')){
-        a.setAttribute('aria-current','page');
-      }
-    });
-  })();
-</script>
+
