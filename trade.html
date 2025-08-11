@@ -2,245 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trade XRBitcoinCash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trade — XRBitcoinCash</title>
+
+  <!-- Favicon / icons -->
+  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- SEO basics -->
+  <meta name="description" content="How to add the XRBC trustline and trade on XRPL." />
+  <link rel="canonical" href="https://xrbitcoincash.github.io/trade.html" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/trade.html" />
+  <meta property="og:title" content="Trade — XRBitcoinCash" />
+  <meta property="og:description" content="Trustline setup and trading steps for XRBC on XRPL." />
+  <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash logo" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Trade — XRBitcoinCash" />
+  <meta name="twitter:description" content="Trustline setup and trading steps for XRBC on XRPL." />
+  <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"XRBitcoinCash",
+    "url":"https://xrbitcoincash.github.io/trade.html",
+    "logo":"https://xrbitcoincash.github.io/xrbc-nft.png",
+    "description":"How to add the XRBC trustline and trade on XRPL."
+  }
+  </script>
+
   <style>
-    :root {
-      --bg: #0f1c2e;
-      --ink: #eaf2ff;
-      --muted: #a9b8ca;
-      --accent: #ffd166;
-      --accent-ink: #1a2433;
-      --card: rgba(255,255,255,0.06);
-      --stroke: rgba(255,255,255,0.12);
-      --frame-bg: #0b1524;
-      --link: #7ec8ff;
-    }
-
-    /* Page layout */
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -200px, #1b2a41 0%, #0f1c2e 45%, #0f1c2e 100%);
-      color: var(--ink);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      text-align: center;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    header, main { width: 100%; }
-    .wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    /* Home button (non-overlapping, in normal flow) */
-    header {
-      padding: 32px 20px 8px;
-    }
-    .home-btn {
-      display: inline-block;
-      padding: 12px 18px;
-      background: var(--accent);
-      color: var(--accent-ink);
-      text-decoration: none;
-      font-weight: 800;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
-      letter-spacing: 0.2px;
-    }
-
-    /* Content */
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-      padding: 28px 0 40px;
-    }
-    .content {
-      width: 100%;
-      display: grid;
-      gap: 28px;
-      justify-items: center;
-    }
-    h1 {
-      font-size: clamp(2rem, 3vw + 1rem, 2.6rem);
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
-    p.lead {
-      margin: 0;
-      max-width: 820px;
-      color: var(--muted);
-      line-height: 1.7;
-      font-size: 1.1rem;
-    }
-
-    /* Button boxes */
-    .button-grid {
-      width: 100%;
-      display: grid;
-      gap: 20px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 800px) {
-      .button-grid { grid-template-columns: 1fr 1fr; }
-    }
-    .button-box {
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      min-height: 220px;
-      display: grid;
-      place-items: center;
-      padding: 18px;
-    }
-    .trade-btn {
-      display: inline-block;
-      padding: 14px 22px;
-      border-radius: 10px;
-      background: #e9eef3;
-      color: #0b1220;
-      text-decoration: none;
-      font-weight: 700;
-      box-shadow: 0 10px 25px rgba(20, 30, 60, 0.25);
-    }
-
-    /* (Charts removed) keep base iframe style for consistency */
-    iframe.chart {
-      display: block;
-      width: 100%;
-      height: 360px;
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      background: var(--frame-bg);
-    }
-
-    /* XRPL Tokens Explorer */
-    .explorer-box {
-      width: 100%;
-      max-width: 1100px;
-      margin: 16px auto;
-    }
-    .explorer-frame {
-      display: block;
-      width: 100%;
-      height: 1360px; /* doubled height */
-      background: #0b1524;
-      border-radius: 12px;
-      border: 1px solid var(--stroke);
-    }
-    .explorer-controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: flex-end;
-      font-size: 14px;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-    .explorer-controls button {
-      background: var(--accent);
-      color: var(--accent-ink);
-      border: 0;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    @media (max-width: 640px) {
-      .explorer-frame { height: 1120px; } /* doubled mobile height */
-    }
+    :root{--bg:#0B1020;--ink:#ECF3FF;--muted:#9EB2D0;--card-bg:rgba(255,255,255,0.05);--chip-stroke:rgba(255,255,255,0.12)}
+    html,body{height:100%}
+    body{margin:0;font-family:'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;display:flex;flex-direction:column;min-height:100vh}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;border:2px solid rgba(0,229,255,0.15);border-radius:16px;z-index:9999;box-shadow:0 0 8px rgba(0,229,255,0.25), inset 0 0 4px rgba(0,229,255,0.10)}
+    header{background:#111827;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+    .branding{display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
+    .branding img{height:48px;width:48px;border-radius:8px}
+    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
+    main{flex:1}
+    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
+    h1{text-align:center;margin:8px 0 18px;font-size:2rem;font-weight:800;letter-spacing:-0.02em}
+    .content{background:var(--card-bg);border:1px solid var(--chip-stroke);border-radius:14px;padding:20px}
+    .content h2{margin:0 0 10px}
+    ol{padding-left:18px}
+    footer{background:#111827;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.08)}
+    footer small{color:#9EB2D0}
   </style>
 </head>
 <body>
-  <!-- Top: Home button in normal flow -->
   <header>
-    <div class="wrap">
-      <a class="home-btn" href="index.html" aria-label="Go to Home">Home</a>
+    <div class="branding">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" />
+      <span class="site-name">XRBitcoinCash</span>
     </div>
   </header>
 
-  <!-- Main content ends after metrics box -->
   <main>
-    <div class="wrap content">
-      <h1>Trade XRBitcoinCash</h1>
-      <p class="lead">Use the buttons below to access live markets. The explorer provides live token metrics and deep links to active projects.</p>
-
-      <div class="button-grid">
-        <div class="button-box">
-          <a
-            class="trade-btn"
-            href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
-            target="_blank" rel="noopener noreferrer"
-            aria-label="Open Sologenic trade for XRBitcoinCash/XRP">
-            Open Sologenic Trade
-          </a>
-        </div>
-        <div class="button-box">
-          <a
-            class="trade-btn"
-            href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-            target="_blank" rel="noopener noreferrer"
-            aria-label="Open XPMarket token page for XRBitcoinCash">
-            Open XPMarket Token
-          </a>
-        </div>
+    <div class="wrap">
+      <h1>Trade XRBC</h1>
+      <div class="content">
+        <h2>Quick start</h2>
+        <ol>
+          <li>Add the XRBC trustline in your XRPL wallet.</li>
+          <li>Fund with XRP for fees/liquidity.</li>
+          <li>Place a buy/sell on your preferred XRPL DEX.</li>
+          <li>Verify balances and remove stale offers when done.</li>
+        </ol>
+        <p class="muted">Tip: Keep a small XRP buffer for network fees and trustline adjustments.</p>
       </div>
-
-      <!-- XRPL Tokens Explorer (manual refresh only) -->
-      <div id="xrpl-explorer-box" class="explorer-box">
-        <iframe
-          id="xrpl-explorer"
-          class="chart explorer-frame"
-          title="XRPL Tokens Explorer"
-          data-src="https://xrpl.to/?embed=1"
-          src="https://xrpl.to/?embed=1"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-          sandbox="allow-scripts allow-same-origin allow-popups"
-        ></iframe>
-
-        <div class="explorer-controls">
-          <button id="explorer-refresh" type="button">Refresh now</button>
-          <span class="last-updated" id="explorer-last">Last updated: —</span>
-        </div>
-      </div>
-      <!-- Page ends after metrics box -->
     </div>
   </main>
 
-  <!-- XRPL Tokens Explorer manual refresh script (auto-refresh removed) -->
-  <script>
-    (function () {
-      const frame = document.getElementById('xrpl-explorer');
-      const btn = document.getElementById('explorer-refresh');
-      const last = document.getElementById('explorer-last');
-      const base = frame?.dataset?.src || frame?.src || '';
-
-      function stamp() {
-        if (!last) return;
-        const t = new Date();
-        last.textContent = 'Last updated: ' + t.toLocaleTimeString();
-      }
-
-      function reload() {
-        if (!frame || !base) return;
-        const sep = base.includes('?') ? '&' : '?';
-        frame.src = base + sep + 't=' + Date.now();
-        stamp();
-      }
-
-      if (btn) btn.addEventListener('click', reload);
-    })();
-  </script>
+  <footer role="contentinfo">
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
+  </footer>
 </body>
 </html>
-
-
