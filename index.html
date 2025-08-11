@@ -3,26 +3,44 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoinCash — XRBC on XRPL</title>
+  <title>XRBitcoinCash (XRBC) — Fast XRP Ledger Token</title>
 
   <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- SEO -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade on Sologenic AMM. Transparent, non-custodial flows." />
-  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool" />
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee token on the XRP Ledger. Trade, swap, and connect your wallet seamlessly via Xumm/Xaman." />
+  <meta name="keywords" content="XRBC, XRBitcoinCash, XRP Ledger, XRPL token, cryptocurrency, sologenic, liquidity pool, Xumm, Xaman wallet" />
   <link rel="canonical" href="https://xrbitcoincash.github.io/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
+  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees, 3s finality, Sologenic liquidity pool access." />
   <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
   <meta property="og:url" content="https://xrbitcoincash.github.io/" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta name="twitter:description" content="Fast, low-fee XRPL token with open governance and NFT integration." />
+  <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Cryptocurrency",
+    "name": "XRBitcoinCash",
+    "symbol": "XRBC",
+    "description": "XRBitcoinCash (XRBC) — a transparent, low-fee XRP Ledger token.",
+    "image": "https://xrbitcoincash.github.io/xrbc-nft.png",
+    "url": "https://xrbitcoincash.github.io/",
+    "blockchain": "XRP Ledger",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  }
+  </script>
 
   <style>
     :root{--bg:#0B1020;--card:#0F1724;--ink:#ECF3FF;--muted:#9EB2D0;--accent:#00E5FF}
@@ -55,6 +73,9 @@
     footer{max-width:1200px;margin:28px auto 60px;padding:18px;text-align:center;color:var(--muted)}
     .small{font-size:0.9rem}
   </style>
+
+  <!-- Xumm SDK -->
+  <script src="https://xumm.app/assets/cdn/xumm.min.js"></script>
 </head>
 <body>
   <div class="bg-blob"></div>
@@ -96,19 +117,10 @@
       </div>
       <aside class="card nft">
         <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
-        <p class="muted small" style="margin-top:10px"><a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork.</a></p>
+        <p class="muted small" style="margin-top:10px">
+          <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork.</a>
+        </p>
       </aside>
-    </section>
-
-    <section style="margin-top:28px">
-      <div class="card">
-        <h3>Token quick info</h3>
-        <p class="muted">Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong></p>
-        <p class="muted">Currency code: <strong>XRbitcoincash</strong></p>
-        <p class="muted">TrustLine limit: <strong>20,999,999.999999996</strong></p>
-        <p class="muted">Market: XPMarket — XRBC</p>
-        <p class="muted">Documentation available upon request.</p>
-      </div>
     </section>
   </main>
 
@@ -117,8 +129,15 @@
   </footer>
 
   <script>
-    document.getElementById('connectWallet').addEventListener('click', function(){
-      alert('To connect a wallet, integrate an approved XRPL wallet provider (e.g. XUMM).');
+    const xumm = new Xumm('YOUR_XUMM_API_KEY'); // Replace with your Xumm API key
+    document.getElementById('connectWallet').addEventListener('click', async () => {
+      try {
+        await xumm.authorize();
+        alert("Wallet connected successfully!");
+      } catch (err) {
+        console.error(err);
+        alert("Wallet connection failed.");
+      }
     });
   </script>
 </body>
