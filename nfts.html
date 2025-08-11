@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash NFT Project</title>
   <link rel="icon" href="https://meta.xrbitcoincash.com/logo.png" />
   <link rel="stylesheet" href="style.css" />
@@ -14,14 +15,22 @@
       text-align: center;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     .wrap {
       max-width: 980px;
       margin: 0 auto;
       padding: 0 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     header {
-      padding: 32px 16px 12px;
+      margin-top: 48px;
+      margin-bottom: 24px;
     }
     .home-btn {
       display: inline-block;
@@ -36,11 +45,11 @@
     }
     h1 {
       font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
-      margin-top: 24px;
+      margin: 12px 0 24px;
     }
     .lead {
       max-width: 800px;
-      margin: 12px auto 24px;
+      margin: 0 auto 36px;
       font-size: 1.2rem;
       color: #a9b8ca;
       line-height: 1.7;
@@ -50,7 +59,7 @@
       width: 100%;
       border-radius: 12px;
       box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
     .link {
       display: inline-block;
@@ -61,28 +70,26 @@
       border-radius: 8px;
       text-decoration: none;
       box-shadow: 0 6px 12px rgba(255,255,255,0.1);
+      margin-bottom: 80px;
     }
   </style>
 </head>
 <body>
-  <header class="wrap">
-    <a class="home-btn" href="index.html">Home</a>
+  <header>
+    <a class="home-btn" href="index.html">← Home</a>
   </header>
 
   <main class="wrap">
     <h1>XRBitcoinCash NFT Collection</h1>
     <p class="lead">
-      XRBC’s NFT initiative is a creative showcase of decentralized expression. Artists, coders, and believers converge to mint drops tied to the project’s mission.  
-      From mech-bots to prophetic abstracts, these collections embody both blockchain transparency and thematic depth.
+      XRBC’s NFT initiative is a creative showcase of decentralized expression. Artists, coders, and believers converge to mint drops tied to the project’s mission.
+      From mech-bots to prophetic abstracts, these collections embody blockchain transparency and thematic depth.
     </p>
 
-    <img class="nft-img" src="https://meta.xrbitcoincash.com/logo.png" alt="XRBC NFT Collection thumbnail" />
+    <img class="nft-img" src="https://assets.sologenic.org/images/nft-marketplace/thumbnail/metadata?metadataId=ZGVjbGluZUVuZGVyLVRodW1ibmFpbC1lYWZhQWpWZkdCRmhzRGVoWUNGRTZrWA==?timestamp=1754877540" alt="XRBitcoinCash NFT Thumbnail" />
 
-    <p>
-      Explore all collections, spotlighted mints, and verified listings via our official marketplace profile:  
-      <br />
-      <a class="link" href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" rel="noopener">View XRBitcoinCash on Sologenic</a>
-    </p>
+    <a class="link" href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" rel="noopener">View XRBitcoinCash on Sologenic</a>
   </main>
 </body>
 </html>
+
