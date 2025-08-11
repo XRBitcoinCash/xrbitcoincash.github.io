@@ -3,49 +3,131 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About XRBitcoinCash</title>
+  <title>XRBitcoinCash Trading</title>
   <style>
+    :root {
+      --bg: #f5f7fa;
+      --ink: #1c2b3a;
+      --accent: #0056b3;
+      --home-bg: #ffd166;
+      --home-ink: #1a2433;
+    }
+    html, body { height: 100%; }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #0f1c2e;
-      color: #eaf2ff;
+      background: var(--bg);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
       text-align: center;
-      padding: 40px 20px;
+    }
+    header, main { width: 100%; }
+    header {
+      padding: 32px 20px 12px;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .home-btn {
+      display: inline-block;
+      padding: 12px 18px;
+      background: var(--home-bg);
+      color: var(--home-ink);
+      text-decoration: none;
+      font-weight: 700;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;     /* center charts and links vertically in remaining space */
+      justify-content: center;
+      padding: 24px 0 36px;
+    }
+    .content {
+      width: 100%;
+      display: grid;
+      gap: 24px;               /* more space between blocks */
+      justify-items: center;
     }
     h1 {
-      font-size: 2.8rem;
-      margin-bottom: 20px;
+      font-size: 2.5rem;
+      margin: 0 0 4px 0;
     }
-    p {
-      font-size: 1.2rem;
-      max-width: 800px;
-      margin: 0 auto 20px;
-      line-height: 1.6;
+    .links {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: 700px;
     }
-    .highlight {
-      background: #f0f4f8;
-      color: #0f1c2e;
-      padding: 20px;
-      margin-top: 40px;
-      border-radius: 8px;
-    }
-    .highlight a {
-      color: #0f1c2e;
+    .links a {
+      display: block;
+      margin: 0 auto;
       font-weight: bold;
+      color: var(--accent);
       text-decoration: none;
+      padding: 10px 0;
+    }
+    .charts {
+      width: 100%;
+      max-width: 1000px;
+      display: grid;
+      gap: 20px;
+    }
+    iframe {
+      display: block;
+      width: 100%;
+      height: 340px; /* slightly taller for readability */
+      border: none;
+      background: white;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <h1>XRBitcoinCash</h1>
-  <p>XRBitcoinCash (XRBC) is a decentralized token built on the XRP Ledger, designed for fast, low-cost transactions and global reach. It supports micropayments, cross-border transfers, and NFT meta galleries.</p>
-  <p>We prioritize transparency, faith-based stewardship, and verifiable identity. Our mission is to provide a clean, discoverable presence on the XRPL with clear disclosures and structured data.</p>
-  <p>All digital assets come with significant risk. Please do your research before completing any trades.</p>
+  <!-- Top: Home button (normal flow; won’t overlap content) -->
+  <header>
+    <div class="wrap">
+      <a class="home-btn" href="index.html" aria-label="Go to Home">Home</a>
+    </div>
+  </header>
 
-  <div class="highlight">
-    <p>Verify our identity and metadata:</p>
-    <a href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
-  </div>
+  <!-- Middle: evenly spaced content, centered -->
+  <main>
+    <div class="wrap content">
+      <h1>Trade XRBitcoinCash</h1>
+
+      <div class="links">
+        <a href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP">Trade on Sologenic</a>
+        <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw">View on XPMarket</a>
+      </div>
+
+      <div class="charts">
+        <!-- XRP Price Chart -->
+        <iframe
+          title="XRP/USD Chart"
+          src="https://widgets.coingecko.com/coingecko-coin-price-chart-widget?coin_id=ripple&currency=usd">
+        </iframe>
+
+        <!-- SOLO Price Chart -->
+        <iframe
+          title="SOLO/XRP Chart"
+          src="https://widgets.coingecko.com/coingecko-coin-price-chart-widget?coin_id=sologenic&currency=xrp">
+        </iframe>
+
+        <!-- XRBitcoinCash token view (XPMarket) -->
+        <iframe
+          title="XRBitcoinCash on XPMarket"
+          src="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw">
+        </iframe>
+      </div>
+    </div>
+  </main>
 </body>
 </html>
