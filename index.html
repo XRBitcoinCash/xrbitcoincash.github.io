@@ -38,18 +38,39 @@ header {
   z-index: 999; padding: 10px 18px;
   display: flex; align-items: center; justify-content: space-between;
   max-width: 1200px; margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .brand {display:flex;gap:12px;align-items:center;}
 .brand img {width:44px;height:44px;border-radius:8px;}
 .brand h1 {font-size:1.05rem;margin:0;}
-nav a {color:var(--muted);text-decoration:none;margin-left:16px;font-weight:600;}
+nav a {color:var(--muted);text-decoration:none;margin-left:0;margin-top:8px;font-weight:600;}
 nav a.cta {background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;padding:8px 12px;border-radius:10px;}
 main {position:relative;z-index:2;max-width:1000px;margin:46px auto;padding:24px;padding-top:100px;}
-.hero {display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;padding:32px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03);overflow:hidden;position:relative;}
-@media (max-width:880px){.hero{grid-template-columns:1fr}}
+
+/* --- Mobile-first HERO --- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: linear-gradient(180deg,rgba(255,255,255,0.01),transparent);
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 14px;
+}
 .hero h2 {font-size:1.9rem;margin:0;}
-.hero p {color:var(--muted);margin-top:6px;max-width:85%;}
-.hero .actions {margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;}
+.hero p {color:var(--muted);margin-top:6px;max-width:100%;}
+.hero .actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero .actions .btn {
+  width: 100%;
+  justify-content: center;
+}
+
 .btn {display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-weight:700;text-decoration:none;cursor:pointer;transition:box-shadow 0.3s;}
 .btn.primary {background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;animation:pulse 10s infinite;}
 .btn.ghost {background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--ink);}
@@ -57,10 +78,24 @@ main {position:relative;z-index:2;max-width:1000px;margin:46px auto;padding:24px
 .card {background:var(--card);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);min-height:200px;}
 .card p {word-break:break-word;}
 .nft img {width:100%;border-radius:12px;}
-.grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:26px;align-items:start;}
-.feature {opacity:0;transform:translateY(20px);transition:all 0.6s ease;}
-.feature.visible {opacity:1;transform:translateY(0);}
-.stats {display:flex;gap:20px;justify-content:space-around;margin-top:20px;}
+
+/* GRID: single column on mobile */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 26px;
+  align-items: start;
+}
+
+/* Stats stacked on mobile */
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 .stat {text-align:center;}
 .stat-number {font-size:1.6rem;font-weight:bold;}
 footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;color:var(--muted);}
@@ -69,12 +104,27 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
 .particles {position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
 .particle {position:absolute;width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 6px var(--accent);animation:float 6s infinite ease-in-out;}
 @keyframes float {0%{transform:translateY(0) scale(1);opacity:1}50%{transform:translateY(-20px) scale(1.2);opacity:0.6}100%{transform:translateY(0) scale(1);opacity:1}}
+
+/* --- Larger screen overrides --- */
+@media (min-width: 880px) {
+  nav a {margin-left:16px;margin-top:0;}
+  .hero {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .hero .actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .stats {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .grid {
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+  }
+}
 </style>
-</head>
-<body>
-<div class="bg-blob"></div>
-<div class="bg-logo"></div>
-<div class="page-frame"></div>
 
 <header>
   <div class="brand">
