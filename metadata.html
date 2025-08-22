@@ -1,23 +1,115 @@
-<!-- rebuild trigger - 2025-08-07T21:00Z -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>XRBitcoinCash Metadata Portal</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <!-- Encoding & Rendering -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- Title -->
+  <title>XRBitcoinCash Metadata Portal — XRPL xrp-ledger.toml, Wallet Integration, and Project Identity</title>
+
+  <!-- Canonical & Language -->
+  <!-- If this page lives on a custom domain, change canonical to that URL -->
+  <link rel="canonical" href="https://xrbitcoincash.github.io/metadata.html" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.github.io/metadata.html" />
+
+  <!-- Primary SEO -->
+  <meta name="description" content="Official XRBitcoinCash (XRBC) Metadata Portal. Access xrp-ledger.toml, verify project identity, and integrate with XRPL wallets, explorers, and analytics." />
+  <meta name="keywords" content="XRBitcoinCash, XRBC, XRPL, XRP Ledger, xrp-ledger.toml, wallet integration, crypto metadata, explorers, analytics" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="googlebot" content="index,follow,max-image-preview:large" />
+  <meta name="bingbot" content="index,follow,max-image-preview:large" />
+  <meta name="author" content="XRBitcoinCash" />
+  <meta name="application-name" content="XRBitcoinCash Metadata Portal" />
+  <meta name="theme-color" content="#0F1C2E" />
+  <meta name="color-scheme" content="dark light" />
+
+  <!-- Icons & Favicons (absolute URLs for off-site scrapers) -->
+  <link rel="icon" type="image/png" href="https://meta.xrbitcoincash.com/logo.png" />
+  <link rel="apple-touch-icon" href="https://meta.xrbitcoincash.com/logo.png" />
+  <link rel="shortcut icon" href="https://meta.xrbitcoincash.com/logo.png" />
+  <!-- Optional: surface the TOML directly to scrapers -->
+  <link rel="alternate" type="text/plain" href="/.well-known/xrp-ledger.toml" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:title" content="XRBitcoinCash Metadata Portal — XRPL xrp-ledger.toml" />
+  <meta property="og:description" content="Verify XRBitcoinCash (XRBC) via xrp-ledger.toml. Designed for wallets, explorers, and XRP Ledger analytics." />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/metadata.html" />
+  <meta property="og:image" content="https://meta.xrbitcoincash.com/logo.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash Logo" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Helpful cross-reference for XRPL scrapers -->
+  <meta property="og:see_also" content="https://xrbitcoincash.github.io/.well-known/xrp-ledger.toml" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash Metadata Portal — XRPL xrp-ledger.toml" />
+  <meta name="twitter:description" content="Official identity and integration portal for XRBitcoinCash (XRBC). Wallet- and explorer-friendly." />
+  <meta name="twitter:image" content="https://meta.xrbitcoincash.com/logo.png" />
+  <!-- If you want attribution on X/Twitter, uncomment and set your handle -->
+  <!-- <meta name="twitter:site" content="@XRbitcoincash" /> -->
+  <!-- <meta name="twitter:creator" content="@XRbitcoincash" /> -->
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "XRBitcoinCash Metadata Portal",
+    "url": "https://xrbitcoincash.github.io/metadata.html",
+    "description": "Official XRBitcoinCash (XRBC) Metadata Portal for XRPL. Access xrp-ledger.toml and integration resources for wallets and explorers.",
+    "primaryImageOfPage": "https://meta.xrbitcoincash.com/logo.png",
+    "publisher": {
+      "@type": "Organization",
+      "name": "XRBitcoinCash",
+      "url": "https://xrbitcoincash.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://meta.xrbitcoincash.com/logo.png"
+      }
+    },
+    "about": {
+      "@type": "Organization",
+      "name": "XRBitcoinCash",
+      "url": "https://xrbitcoincash.com"
+    },
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "XRBitcoinCash GitHub Pages",
+      "url": "https://xrbitcoincash.github.io"
+    },
+    "mainEntity": {
+      "@type": "TechArticle",
+      "headline": "XRPL Metadata and xrp-ledger.toml",
+      "about": "XRPL project identity and wallet/explorer integration",
+      "url": "https://xrbitcoincash.github.io/.well-known/xrp-ledger.toml"
+    }
+  }
+  </script>
+
+  <!-- Security & Privacy (best-effort on static hosting) -->
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 img-src 'self' https: data:;
+                 style-src 'self' 'unsafe-inline';
+                 script-src 'self' 'unsafe-inline';
+                 connect-src 'self';
+                 object-src 'none';
+                 base-uri 'none';
+                 form-action 'none';
+                 upgrade-insecure-requests;" />
+
+  <!-- Performance hints for remote assets used here -->
+  <link rel="preconnect" href="https://meta.xrbitcoincash.com" crossorigin />
+  <link rel="dns-prefetch" href="https://meta.xrbitcoincash.com" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
-<body>
-  <nav>
-    <a href="index.html">Home</a> |
-    <a href="metadata.html">Metadata</a>
-  </nav>
-  <hr>
-  <img src="https://meta.xrbitcoincash.com/logo.png" alt="XRBitcoinCash Logo" />
-  <h1>Welcome to XRBitcoinCash Metadata 💸</h1>
-  <p>This page confirms your GitHub Pages deployment is successful.</p>
-  <p>Your <code>xrp-ledger.toml</code> metadata file is live at:</p>
-  <p><a href="/.well-known/xrp-ledger.toml" target="_blank">/.well-known/xrp-ledger.toml</a></p>
-  <p>Supported Wallets: <strong>Xaman Wallet</strong>, <strong>Xumm</strong>, and others</p>
-  <p>For full token metadata and updates, visit: <a href="https://xrbitcoincash.github.io" target="_blank">https://xrbitcoincash.github.io</a></p>
-</body>
-</html>
