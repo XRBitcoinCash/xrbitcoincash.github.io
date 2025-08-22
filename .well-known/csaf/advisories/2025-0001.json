@@ -1,0 +1,36 @@
+# In your local clone
+touch .nojekyll  # ensures .well-known is served
+mkdir -p .well-known/csaf/advisories
+
+cat > .well-known/csaf/advisories/2025-0001.json <<'EOF'
+{
+  "document": {
+    "title": "XRBitcoinCash Security Advisory 2025-0001",
+    "category": "csaf_v2.0",
+    "publisher": {
+      "name": "XRBitcoinCash",
+      "category": "vendor",
+      "namespace": "https://xrbitcoincash.com"
+    },
+    "tracking": {
+      "id": "XRBC-2025-0001",
+      "status": "final",
+      "version": "1.0",
+      "initial_release_date": "2025-08-22T00:00:00Z",
+      "current_release_date": "2025-08-22T00:00:00Z"
+    }
+  },
+  "vulnerabilities": [
+    {
+      "title": "Placeholder advisory",
+      "notes": [
+        { "category": "summary", "text": "Placeholder CSAF advisory file for testing path and compliance." }
+      ]
+    }
+  ]
+}
+EOF
+
+git add .nojekyll .well-known/csaf/advisories/2025-0001.json
+git commit -m "Add placeholder CSAF advisory 2025-0001"
+git push
