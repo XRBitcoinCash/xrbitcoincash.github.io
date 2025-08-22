@@ -5,4 +5,5 @@ Encryption: https://xrbitcoincash.com/pgp-key.txt
 Preferred-Languages: en
 Canonical: https://xrbitcoincash.com/.well-known/security.txt
 Policy: https://xrbitcoincash.com/security-policy.html
+CSAF: https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json
 
