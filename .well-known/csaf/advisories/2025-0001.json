@@ -1,22 +1,9 @@
 {
-  "document": {
-    "title": "XRBitcoinCash Security Advisory 2025-0001",
-    "category": "csaf_v2.0",
-    "publisher": {
-      "name": "XRBitcoinCash",
-      "category": "vendor",
-      "namespace": "https://xrbitcoincash.com",
-      "contact_details": [
-        "mailto:security@xrbitcoincash.com"
-      ]
-    },
-    "tracking": {
-      "id": "XRBC-2025-0001",
-      "status": "final",
-      "version": "1.0",
-      "initial_release_date": "2025-08-22T00:00:00Z",
-      "current_release_date": "2025-08-22T00:00:00Z"
-    }
+  "publisher": {
+    "name": "XRBitcoinCash",
+    "namespace": "https://xrbitcoincash.com",
+    "contact_details": ["mailto:xrbitcoincash@gmail.com"],
+    "category": "vendor"
   },
   "distributions": [
     {
