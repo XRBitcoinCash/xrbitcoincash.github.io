@@ -75,8 +75,18 @@
     <priority>0.65</priority>
   </url>
 
+  <!-- Instant Ping URLs (for your use, not for indexing your site content) -->
+  <url>
+    <loc>https://www.google.com/ping?sitemap=https://xrbitcoincash.com/sitemap.xml</loc>
+    <lastmod>2025-08-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.0</priority>
+  </url>
+  <url>
+    <loc>https://www.bing.com/ping?sitemap=https://xrbitcoincash.com/sitemap.xml</loc>
+    <lastmod>2025-08-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.0</priority>
+  </url>
+
 </urlset>
-
-
-
- 
