@@ -1,0 +1,4 @@
+Contact: mailto:hello@xrbitcoincash.com
+Policy: https://xrbitcoincash.com/security.html
+Preferred-Languages: en
+Expires: 2036-08-22T00:00:00Z
