@@ -2,15 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  />
-  <title>DEX | XRBitcoinCash (XRBC) on XRPL</title>
-  <meta name="description" content="Trusted XRPL DEX portal for XRBitcoinCash (XRBC). View markets, inspect order books, and verify project identity. No keys collected." />
-  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <!-- Security headers (as meta, best-effort on static hosting) -->
+  <title>XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)</title>
+
+  <!-- Icons -->
+  <link rel="icon" href="https://xrbitcoincash.com/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Primary SEO -->
+  <meta name="description" content="Trusted XRPL DEX portal for XRBitcoinCash (XRBC). Swap, provide liquidity, and explore order books on XRPL AMMs like Sologenic. Low fees, ~3s finality, non-custodial." />
+  <meta name="keywords" content="XRBitcoinCash DEX, XRBC trading, XRPL AMM, Sologenic, liquidity pool, on-ledger exchange, crypto swap, XRP Ledger" />
+  <link rel="canonical" href="https://xrbitcoincash.com/dex.html" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#0F1C2E" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)" />
+  <meta property="og:description" content="Swap and provide liquidity for XRBC on XRPL via Sologenic and other AMMs. Low fees, ~3s finality, and non‑custodial control." />
+  <meta property="og:url" content="https://xrbitcoincash.com/dex.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash DEX trading interface preview" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)" />
+  <meta name="twitter:description" content="Trade XRBC with low fees and ~3s finality on XRPL's built‑in DEX." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- JSON‑LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"XRBitcoinCash DEX",
+    "url":"https://xrbitcoincash.com/dex.html",
+    "description":"Trusted XRPL DEX portal for XRBitcoinCash (XRBC). Swap, provide liquidity, and explore order books on XRPL AMMs like Sologenic.",
+    "image":"https://xrbitcoincash.com/xrbc-nft.png",
+    "publisher":{
+      "@type":"Organization",
+      "name":"XRBitcoinCash",
+      "logo":"https://xrbitcoincash.com/xrbc-nft.png",
+      "url":"https://xrbitcoincash.com"
+    }
+  }
+  </script>
+
+  <!-- Security headers (best‑effort on static hosting) -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  img-src 'self' https: data:;
@@ -26,6 +66,8 @@
   <meta http-equiv="Permissions-Policy"
         content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()" />
 
+  <!-- Page Styles -->
+  <link rel="stylesheet" href="style.css" />
   <style>
     :root {
       --bg: #0f1c2e;
