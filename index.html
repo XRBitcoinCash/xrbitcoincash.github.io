@@ -149,6 +149,38 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
     <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Sologenic Liquidity Pool</a>
   </nav>
 </header>
+<!-- Countdown reminder for security.txt & CSAF expiry -->
+<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
+  <strong>Security File Update:</strong>
+  <div id="updateCountdown"></div>
+  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
+</div>
+
+<script>
+// ===== CONFIGURE EXPIRY DATE HERE =====
+const expiryDate = new Date("2026-08-22T05:00:00Z");
+
+function updateTimer() {
+  const now = new Date();
+  const diff = expiryDate - now;
+
+  if (diff <= 0) {
+    document.getElementById("updateCountdown").innerHTML = "<span style='color:red;'>Expired! Update now.</span>";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const mins = Math.floor((diff / (1000 * 60)) % 60);
+
+  let msg = `${days} days, ${hours} hrs, ${mins} min remaining`;
+  if (days < 30) msg = `<span style="color:orange;">${msg}</span>`; // Warning when < 30 days
+  document.getElementById("updateCountdown").innerHTML = msg;
+}
+
+updateTimer(); // run immediately
+setInterval(updateTimer, 60000); // update every minute
+</script>
 
 <main>
   <section class="hero">
