@@ -1,0 +1,5 @@
+Contact: mailto:security@xrbitcoincash.com
+Expires: 2026-08-22T00:00:00Z
+Preferred-Languages: en
+Encryption: https://xrbitcoincash.com/pgp-key.txt
+Policy: https://xrbitcoincash.com/security-policy.html
