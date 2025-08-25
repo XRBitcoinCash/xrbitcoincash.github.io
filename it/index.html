@@ -149,6 +149,79 @@ footer {
 #homeButton:hover {
   background: #ff9e3d;
 }
+/* Logo click area */
+.logo-link {
+  display: inline-block;
+  position: relative;
+}
+
+/* Enlarge & center logo */
+.logo-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%);
+  box-shadow: 0 0 20px rgba(255,255,255,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo-wrapper img {
+  height: 72px; /* larger emblem for visibility */
+  width: auto;
+  display: block;
+}
+
+/* Glow hover/tap effect */
+.logo-link:hover .logo-wrapper,
+.logo-link:focus .logo-wrapper {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255,255,255,0.6);
+}
+
+/* Orbs orbiting around logo */
+.orb-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  margin-left: -55px;
+  margin-top: -55px;
+  animation: rotateOrbit 8s linear infinite;
+}
+
+.orb {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255,255,255,0.8);
+}
+
+.orb:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+.orb:nth-child(2) { right: 0; top: 50%; transform: translateY(-50%); }
+.orb:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); }
+.orb:nth-child(4) { left: 0; top: 50%; transform: translateY(-50%); }
+
+@keyframes rotateOrbit {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .logo-wrapper img {
+    height: 56px; /* slightly smaller for small screens */
+  }
+  .orb-container {
+    width: 90px;
+    height: 90px;
+    margin-left: -45px;
+    margin-top: -45px;
+  }
+}
 
 /* Accent link styles */
 a {
@@ -170,7 +243,18 @@ a:hover {
 
 <header>
   <div class="brand">
-    <a href="/"><img src="/xrbc-nft.png" alt="XRBC logo" /></a>
+   <a href="/" class="logo-link">
+  <div class="logo-wrapper">
+    <img src="/xrbc-nft.png" alt="XRBC logo" />
+    <div class="orb-container">
+      <span class="orb"></span>
+      <span class="orb"></span>
+      <span class="orb"></span>
+      <span class="orb"></span>
+    </div>
+  </div>
+</a>
+
     <h1>XRBitcoinCash <span class="small muted">Whitepaper</span></h1>
   </div>
 </header>
@@ -194,7 +278,10 @@ a:hover {
   <small>© 2025 XRBitcoinCash™ — Basato su XRPL</small>
 </footer>
 
-<button id="backToTop">↑</button>
+<a id="homeButton" href="/index.html"
+   data-it-label="Pagina Iniziale"
+   data-en-label="Home">Home</a>
+
 
 <script>
   /* [Use exact same JavaScript from the English file — unchanged] */
