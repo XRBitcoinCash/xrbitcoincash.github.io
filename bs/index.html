@@ -72,6 +72,17 @@ html,body {
   -webkit-font-smoothing:antialiased;
   line-height:1.6;
 }
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0; }
+}
+#update-status {
+  margin-left: 0.5rem;
+  font-size: 0.9em;
+  color: var(--accent);
+  animation: blink 1s infinite;
+}
+
 
 /* Blobby animated BG */
 .bg-blob {
@@ -268,18 +279,25 @@ footer {
           <td class="value">User defined per TrustLine (default: 100,000,000)</td>
         </tr>
         <tr>
-          <th scope="row">Total Supply</th>
-          <td class="value">21,000,000 XRBC</td>
-        </tr>
-        <tr>
-          <th scope="row">Circulating</th>
-          <td class="value">~51,200 XRBC (July 2025)</td>
-        </tr>
-        <tr>
-          <th scope="row">Holders / Trustlines</th>
-          <td class="value">152 / 863</td>
-        </tr>
-        <tr>
+  <th scope="row">Total Supply</th>
+  <td class="value">
+    <span id="stat-max">21,000,000</span> XRBC
+    <span id="update-status">Updating…</span>
+  </td>
+</tr>
+<tr>
+  <th scope="row">Circulating</th>
+  <td class="value">
+    <span id="stat-circ">~51,200</span> XRBC
+  </td>
+</tr>
+<tr>
+  <th scope="row">Holders / Trustlines</th>
+  <td class="value">
+    <span id="stat-holders">152</span> / 863
+  </td>
+</tr>
+
           <th scope="row">Issuer Fee</th>
           <td class="value">0%</td>
         </tr>
@@ -397,5 +415,40 @@ footer {
     window.scrollTo({top:0, behavior:'smooth'});
   });
   </script>
+  <!-- existing fade-in + progress/back-to-top script -->
+  <script>
+    // ... your fade-in + back-to-top code ...
+  </script>
+
+  <!-- ⬇️ Insert your XRPL-refresh code here ⬇️ -->
+  <script>
+  (async function refreshStats() {
+    const CONFIG = { REFRESH_MS: 30000, /* …other config… */ };
+    const elMax = document.getElementById('stat-max');
+    const elCirc = document.getElementById('stat-circ');
+    const elHolders = document.getElementById('stat-holders');
+    const elStatus = document.getElementById('update-status');
+
+    async function fetchAndUpdate() {
+      try {
+        elStatus.textContent = 'Updating…';
+        const data = await fetch(/* your ledger endpoint */).then(r=>r.json());
+        elMax.textContent = data.totalSupply.toLocaleString();
+        elCirc.textContent = data.circulating.toLocaleString();
+        elHolders.textContent = data.holdersCount.toLocaleString();
+        elStatus.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      } catch(e) {
+        elStatus.textContent = 'Error';
+        console.error(e);
+      }
+    }
+
+    await fetchAndUpdate();
+    setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
+  })();
+  </script>
+</body>
+</html>
+
 </body>
 </html>
