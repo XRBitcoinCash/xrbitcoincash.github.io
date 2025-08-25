@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <!-- Renewal Security Protocol -->
+<script src="/js/renewal-security-protocol.js" defer></script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL</title>
@@ -53,22 +56,110 @@
   <!-- Existing CSS from your English version -->
   <style>
     :root {
-  --bg:#0B1020;
-  --card:#0F1724;
-  --ink:#ECF3FF;
-  --muted:#9EB2D0;
-  --accent:#00E5FF;
+  --bg: #0B1020;          /* XRBC dark background */
+  --card: #0F1724;
+  --ink: #ECF3FF;
+  --muted: #9EB2D0;
+  --accent: #F7931A;      /* Bitcoin orange for highlights */
+  --accent-glow: rgba(247,147,26,0.4);
 }
+
 html, body {
-  height:100%;
-  margin:0;
-  font-family:Inter,Segoe UI,Roboto,system-ui,Arial;
-  color:var(--ink);
-  background:var(--bg); /* This is what gives you the dark theme */
-  -webkit-font-smoothing:antialiased;
-  line-height:1.6;
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Roboto, system-ui, Arial;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
-/* [Use exact same CSS block from the English file — unchanged] */
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  border-bottom: 1px solid var(--card);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header img {
+  height: 48px;
+  margin-right: 1rem;
+}
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+header .muted {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Card sections */
+.card {
+  max-width: 900px;
+  background: var(--card);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 25px var(--accent-glow);
+}
+.card h2 {
+  color: var(--accent);
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+.card p {
+  font-size: 1rem;
+  margin: 0.75rem 0;
+}
+.card .highlight {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--card);
+}
+
+/* Back-to-top button */
+#backToTop {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--accent);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 50%;
+  color: var(--bg);
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 12px var(--accent-glow);
+  transition: background 0.3s ease;
+}
+#backToTop:hover {
+  background: #ff9e3d;
+}
+
+/* Accent link styles */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
   </style>
 </head>
 <body>
