@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash (XRBC) – Blockchain Specification</title>
+  <meta name="description" content="Blockchain specification and security/compliance profile for XRBitcoinCash (XRBC) on XRPL, including issuer address, token code, trustline, DEX, TOML, and KYC verification.">
+
+  <!-- Favicon and branding -->
+  <link rel="icon" href="/xrbc-nft.png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Open Graph Metadata -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://xrbitcoincash.com/bs" />
+  <meta property="og:title" content="XRBitcoinCash (XRBC) Specification" />
+  <meta property="og:description" content="Blockchain specification, security, DEX/AMM, TOML and compliance profile for XRBitcoinCash (XRBC) on XRPL." />
+  <meta property="og:image" content="https://xrbitcoincash.com/img/xrbc-logo.png" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <!-- Twitter Card Metadata -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@xrbitcoincash" />
+  <meta name="twitter:title" content="XRBitcoinCash (XRBC) Specification" />
+  <meta name="twitter:description" content="Blockchain specification, security, DEX/AMM, TOML and compliance for XRBitcoinCash (XRBC) on XRPL." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/img/xrbc-logo.png" />
+
+  <!-- JSON-LD Schema.org Cryptocurrency -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Cryptocurrency",
+    "name": "XRBitcoinCash",
+    "alternateName": "XRBC",
+    "image": "https://xrbitcoincash.com/img/xrbc-logo.png",
+    "url": "https://xrbitcoincash.com/bs",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "XRBitcoinCash",
+      "value": "XRBC"
+    },
+    "sameAs": [
+      "https://xrpl.org",
+      "https://xrbitcoincash.com",
+      "https://xrptoolkit.com",
+      "https://sologenic.org"
+    ],
+    "creator": {
+      "@type": "Organization",
+      "name": "XRBitcoinCash Foundation",
+      "url": "https://xrbitcoincash.com"
+    },
+    "mainEntityOfPage": "https://xrbitcoincash.com/bs"
+  }
+  </script>
+
+  <style>
+:root {
+  --bg:#0B1020;
+  --card:#0F1724;
+  --ink:#ECF3FF;
+  --muted:#9EB2D0;
+  --accent:#00E5FF;
+}
+* {box-sizing:border-box;}
+html,body {
+  height:100%;
+  margin:0;
+  font-family:Inter,Segoe UI,Roboto,system-ui,Arial;
+  color:var(--ink);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+
+/* Blobby animated BG */
+.bg-blob {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(600px 300px at 7% 22%, rgba(0,230,255,0.11), transparent),
+              radial-gradient(500px 260px at 85% 77%, rgba(0,150,255,0.08), transparent);
+  filter:blur(30px);
+  animation:blob 22s linear infinite;
+}
+@keyframes blob {
+  0% {transform:translate(0,0);}
+  50% {transform:translate(-6%,3%);}
+  100% {transform:translate(0,0);}
+}
+.page-frame {
+  position:fixed; inset:12px;
+  border-radius:16px;
+  border:2px solid rgba(0,229,255,0.10);
+  pointer-events:none;
+  z-index:5;
+}
+/* Header */
+header {
+  position:sticky; top:12px; z-index:10;
+  background:transparent; padding:10px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:1200px; margin:0 auto;
+}
+
+/* Logo Orbit Animation */
+.brand {
+  display:flex; gap:12px; align-items:center; position:relative;
+}
+.brand img {
+  width:44px; height:44px; border-radius:8px;
+  animation:glowPulse 2.5s infinite alternate;
+  box-shadow:0 0 8px var(--accent);
+  z-index:1;
+}
+@keyframes glowPulse {
+  from { box-shadow:0 0 4px var(--accent); }
+  to { box-shadow:0 0 16px var(--accent); }
+}
+.orbit {
+  position:absolute; left:16px; top:12px; width:60px; height:60px; pointer-events:none; z-index:0;
+}
+.orbit-sat {
+  position:absolute; width:16px; height:16px; background:var(--accent);
+  border-radius:50%; top:22px; left:42px; opacity:0.4;
+  animation:orbitAnim 3.6s linear infinite;
+}
+@keyframes orbitAnim {
+  0%   { transform: rotate(0deg) translateX(22px) rotate(0deg);}
+  100% { transform: rotate(360deg) translateX(22px) rotate(-360deg);}
+}
+.brand h1 {font-size:1.07rem; margin:0;}
+nav a {
+  color:var(--muted); text-decoration:none; margin-left:18px; font-weight:600
+}
+nav a.cta {
+  background:linear-gradient(180deg,var(--accent),#00b6d0);
+  color:#00121a; padding:8px 12px; border-radius:10px
+}
+main {position:relative; z-index:2; max-width:1040px; margin:36px auto; padding:24px;}
+.card {
+  background:var(--card);
+  padding:24px 24px 16px 24px; border-radius:14px;
+  border:1.5px solid rgba(255,255,255,0.04);
+  max-width:97%; margin:0 auto 36px auto;
+  box-shadow:0 4px 20px 0 rgba(0,229,255,0.06);
+}
+h2, h3 {margin-top:0; color:var(--accent);}
+.fade-in {opacity:0; transform:translateY(18px); transition:opacity 0.8s, transform 0.7s;}
+.fade-in.visible {opacity:1; transform:translateY(0);}
+.highlight {color:var(--accent); font-weight:600;}
+.provenance-bar {
+  display:flex; flex-wrap:wrap; gap:20px; padding:0 0 14px 0;
+  margin-bottom:12px; justify-content:center;
+}
+.prov-badge {
+  background: #092031;
+  border:1.2px solid var(--accent); border-radius:8px;
+  color:var(--ink); display:flex; align-items:center;
+  gap:10px; padding:5px 16px; font-size:1rem; margin:4px 0;
+}
+.prov-badge .prov-icon {
+  width:20px; height:20px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.2em; background:var(--accent); color:#072130;
+  box-shadow:0 0 8px 0 rgba(0,229,255,0.10);
+}
+
+/* Table for specs */
+.spec-table {
+  width:100%;
+  border-collapse:collapse;
+  background:rgba(255,255,255,0.02);
+  margin-bottom:18px;
+}
+.spec-table th, .spec-table td {
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:7.5px 10px; text-align:left;
+}
+.spec-table th {color:var(--muted); font-weight:600;}
+.spec-table tr:last-child th, .spec-table tr:last-child td {border-bottom:0;}
+.spec-table .value {color:var(--ink); font-family:monospace;}
+.strong {font-weight:600;}
+
+footer {
+   max-width:1000px; margin:24px auto 60px; padding:20px 0 0 0;
+   text-align:center; color:var(--muted);
+   font-size:1rem;
+}
+
+.small {font-size:0.89rem;}
+/* Back to top button */
+#backToTop {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--accent); color:#00121a;
+  border:none; border-radius:50%;
+  width:46px; height:46px; font-size:22px;
+  cursor:pointer; display:none;
+  box-shadow:0 0 10px var(--accent);
+  z-index:9999;
+}
+#backToTop:hover {background:#00b6d0;}
+
+@media (max-width:700px) {
+  .card {padding:14px;}
+  .brand h1 {font-size:1rem;}
+  .orbit {display:none;}
+  .spec-table th,.spec-table td {padding:7px 2.5vw;}
+}
+
+  </style>
+</head>
+<body>
+  <div class="bg-blob"></div>
+  <div class="page-frame"></div>
+  <div class="progress-bar" id="progressBar" style="position:fixed;top:0;left:0;height:4px; background:var(--accent);box-shadow:0 0 12px var(--accent);z-index:999;width:0%;transition:width 0.17s linear;"></div>
+  <header>
+    <div class="brand">
+      <a href="/"><img src="/xrbc-nft.png" alt="XRBitcoinCash logo, linked to home" /></a>
+      <div class="orbit"><span class="orbit-sat"></span></div>
+      <h1>XRBitcoinCash <span class="small muted">Specification</span></h1>
+    </div>
+    <nav>
+      <a href="/" class="cta" aria-label="Home">Home</a>
+    </nav>
+  </header>
+  <main>
+    <section class="card">
+      <h2 class="fade-in">XRBitcoinCash (XRBC) Blockchain Specs</h2>
+      <div class="provenance-bar fade-in" aria-label="Verification statuses">
+        <span class="prov-badge" title="Issuer address permanently blackholed for security.">
+          <span class="prov-icon" aria-hidden="true">🔒</span> Blackholed Issuer
+        </span>
+        <span class="prov-badge" title="Domain matches and TOML registry present.">
+          <span class="prov-icon" aria-hidden="true">🌐</span> Domain Verified
+        </span>
+        <span class="prov-badge" title="KYC completed via Xaman Wallet.">
+          <span class="prov-icon" aria-hidden="true">🪪</span> KYC: Xaman Verified
+        </span>
+        <span class="prov-badge" title="TOML/Specs last recertified July 2025.">
+          <span class="prov-icon" aria-hidden="true">✅</span> Recertified 2025-07
+        </span>
+      </div>
+      <p class="fade-in">
+        <strong>XRBitcoinCash (XRBC)</strong> is a community-driven digital asset on the XRP Ledger (XRPL), built for transparency, immutability, and compliance in decentralized finance. All asset rules and settings are cryptographically frozen for maximum trust. This page presents the active, verifiable blockchain specs for XRBC.
+      </p>
+      <table class="spec-table fade-in" aria-label="XRBC token specification">
+        <tr>
+          <th scope="row">Token Name</th>
+          <td class="value">XRBitcoinCash</td>
+        </tr>
+        <tr>
+          <th scope="row">Token Code</th>
+          <td class="value">XRBC <span class="strong">(Hex: 5852626974636F696E6361736800000000000000)</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Issuer Address</th>
+          <td class="value"><code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></td>
+        </tr>
+        <tr>
+          <th scope="row">Blackholed</th>
+          <td class="value highlight">YES (irreversible)</td>
+        </tr>
+        <tr>
+          <th scope="row">Domain &amp; TOML</th>
+          <td class="value"><a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">xrbitcoincash.com</a> <span class="small muted">(TOML verified)</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Trustline Limit</th>
+          <td class="value">User defined per TrustLine (default: 100,000,000)</td>
+        </tr>
+        <tr>
+          <th scope="row">Total Supply</th>
+          <td class="value">21,000,000 XRBC</td>
+        </tr>
+        <tr>
+          <th scope="row">Circulating</th>
+          <td class="value">~51,200 XRBC (July 2025)</td>
+        </tr>
+        <tr>
+          <th scope="row">Holders / Trustlines</th>
+          <td class="value">152 / 863</td>
+        </tr>
+        <tr>
+          <th scope="row">Issuer Fee</th>
+          <td class="value">0%</td>
+        </tr>
+        <tr>
+          <th scope="row">DEX/AMM Trade</th>
+          <td class="value">
+            <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a>,
+            <a href="https://sologenic.org/trade" target="_blank" rel="noopener">Sologenic</a>,
+            <a href="https://xaman.app/dex" target="_blank" rel="noopener">Xaman DEX</a>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Creation Date</th>
+          <td class="value">2022-01-05</td>
+        </tr>
+        <tr>
+          <th scope="row">KYC</th>
+          <td class="value">Xaman Verified, Sovereign entity (see Compliance below)</td>
+        </tr>
+        <tr>
+          <th scope="row">Last Recertified</th>
+          <td class="value">2025-07-08</td>
+        </tr>
+      </table>
+      <div class="fade-in">
+        <details>
+          <summary><strong>What does "blackholed issuer" mean?</strong></summary>
+          <p>
+            The XRBC issuer account is cryptographically locked ("blackholed") making additional issuance, freezing, or alteration impossible. All XRBC tokens now exist fully on the decentralized ledger with no further control by any party, ensuring total immutability and decentralization.<br>
+            <a href="https://bithomp.com/en/learn/blackholed-address" target="_blank" rel="noopener">Learn more about Blackholed addresses</a>
+          </p>
+        </details>
+      </div>
+    </section>
+    <section class="card">
+      <h3 class="fade-in">Security, Compliance & Certification</h3>
+      <p class="fade-in">
+        XRBitcoinCash rigorously follows leading security, compliance, and transparency practices:
+      </p>
+      <ul class="fade-in">
+        <li><strong>Issuer Blackholed:</strong> No new tokens can ever be issued, nor assets frozen or seized.</li>
+        <li><strong>TOML & Domain Verified:</strong> Specs, KYC, and social links are public and registry-compliant.</li>
+        <li><strong>KYC & AML Note:</strong> XRBC is Xaman verified and operated as a sovereign entity—no legal corporation; fully decentralized, with Xaman KYC attestation. Risk and compliance are disclosed for all participants. For privacy, no personal PII is stored on servers but any user participation is subject to standard AML laws applicable to exchanges/wallets.</li>
+        <li><strong>Security Audits & Backups:</strong> All operational procedures are documented and subject to internal annual recertification. Regular encrypted multi-geo backups are verified yearly or after any software modification, meeting or exceeding 2025 global standards. Disaster recovery runbooks and reporting logs are maintained.</li>
+        <li><strong>Recertification:</strong> This spec and all underlying documentation are reviewed yearly. Current "last certified" date: <time datetime="2025-07-08">July 8, 2025</time>.
+        </li>
+      </ul>
+      <p class="small faded-in">
+        <strong>Compliance Notice:</strong> Participation in XRBC and usage of DEX/AMM venues constitutes acceptance of all asset and trading risks. XRBC issues no claim of legal responsibility nor financial returns; use at your own risk.
+      </p>
+    </section>
+    <section class="card">
+      <h3 class="fade-in">DEX/AMM Trading & Liquidity</h3>
+      <p class="fade-in">
+        XRBitcoinCash (XRBC) is available for trade via decentralized exchanges (DEX) and Automated Market Maker pools on the XRPL. <br>
+        <strong>Before trading, set a trustline to the XRBC issuer address.</strong>
+      </p>
+      <ul class="fade-in">
+        <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket DEX / AMM</a></li>
+        <li><a href="https://sologenic.org/trade" target="_blank" rel="noopener">Sologenic DEX</a></li>
+        <li><a href="https://xaman.app/dex" target="_blank" rel="noopener">Xaman DEX</a></li>
+        <li><a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">Official TOML Spec</a></li>
+      </ul>
+      <details class="fade-in">
+        <summary><strong>What is a trustline & how do I set it?</strong></summary>
+        <p>
+          XRPL requires users to opt-in to non-XRP assets via a trustline—an explicit setting in your wallet that authorizes holding XRBC.<br>
+          <a href="https://xrpauthority.com/david-schwartz-and-the-creation-of-the-xrp-ledger/what-are-xrpl-trustlines-how-they-work/" target="_blank" rel="noopener">Trustlines explained (XRPL)</a>
+        </p>
+      </details>
+    </section>
+    <section class="card fade-in">
+      <h3>Contact & Registry Links</h3>
+      <p>
+        <strong>Email:</strong> <a href="mailto:xrbitcoincash@gmail.com" class="highlight">xrbitcoincash@gmail.com</a><br>
+        <strong>Social:</strong> <a href="https://twitter.com/xrbitcoincash" target="_blank">@xrbitcoincash</a><br>
+        <strong>TOML/Registry:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank">xrbitcoincash.com/.well-known/xrp-ledger.toml</a>
+      </p>
+      <p>
+        <strong>Revision:</strong> v2, signed 2022-09-03.<br>
+        <strong>Page Last Certified:</strong> <time datetime="2025-07-08">July 8, 2025</time>
+      </p>
+    </section>
+  </main>
+  <footer>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL. Compliance-first, immutability by blackhole. Validators: <a href="https://xrpl.org" target="_blank">xrpl.org</a>. Verified by TOML registry.</small>
+  </footer>
+  <button id="backToTop" aria-label="Back to top">↑</button>
+  <script>
+  // Reveal/fade-in
+  const faders = document.querySelectorAll('.fade-in');
+  const appearOptions = { threshold: 0.12 };
+  const appearOnScroll = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, appearOptions);
+  faders.forEach(fader => {
+    appearOnScroll.observe(fader);
+  });
+
+  // Progress bar and back-to-top
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    document.getElementById('progressBar').style.width = scrollPercent + '%';
+    document.getElementById('backToTop').style.display = scrollTop > 300 ? 'block' : 'none';
+  });
+  document.getElementById('backToTop').addEventListener('click', () => {
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  </script>
+</body>
+</html>
