@@ -137,31 +137,54 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
   .grid {
     grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
   }
-}
+</style>
+
 </style>
 
 <header>
- <nav>
-  <a class="cta" href="/bs">Blockchain Specs</a>
-  <!-- existing buttons stay here -->
-</nav>
+  <nav>
+    <a class="cta" href="/bs">Blockchain Specs</a>
+    <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">
+      Sologenic Liquidity Pool
+    </a>
+  </nav>
 
   <div class="brand">
     <img src="/xrbc-nft.png" alt="XRBC logo" />
     <h1>XRBitcoinCash <span class="muted small">— XRBC on XRPL</span></h1>
   </div>
-  <nav>
-    <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Sologenic Liquidity Pool</a>
-  </nav>
 </header>
+
 <!-- Countdown reminder for security.txt & CSAF expiry -->
-<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
+<div id="updateReminder" class="update-reminder">
   <strong>Security File Update:</strong>
   <div id="updateCountdown"></div>
-  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
+  <small>
+    Next update due for <code>security.txt</code> and CSAF on
+    <strong>August 22, 2026</strong>.
+  </small>
 </div>
 
 <script>
+  const expiryDate = new Date("2026-08-22T05:00:00Z");
+  function updateTimer() {
+    const diff = expiryDate - new Date();
+    const el = document.getElementById("updateCountdown");
+    if (diff <= 0) {
+      el.innerHTML = "<span style='color:red;'>Expired! Update now.</span>";
+      return;
+    }
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    let msg = `${days} days, ${hours} hrs, ${mins} min remaining`;
+    if (days < 30) msg = `<span style="color:orange;">${msg}</span>`;
+    el.innerHTML = msg;
+  }
+  updateTimer();
+  setInterval(updateTimer, 60000);
+</script>
+
 // ===== CONFIGURE EXPIRY DATE HERE =====
 const expiryDate = new Date("2026-08-22T05:00:00Z");
 
@@ -205,11 +228,21 @@ setInterval(updateTimer, 60000); // update every minute
         <a class="btn ghost" href="https://xpmarket.com/login?redirectTo=%2Fwallet" target="_blank">Connect Wallet</a>
         <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
       </div>
-      <div class="stats card">
-        <div class="stat"><div class="stat-number" data-target="20999999">0</div><div class="muted small">Max Supply</div></div>
-        <div class="stat"><div class="stat-number" data-target="3500000">0</div><div class="muted small">Circulating</div></div>
-        <div class="stat"><div class="stat-number" data-target="500">0</div><div class="muted small">Holders</div></div>
-      </div>
+     <div class="stats card">
+  <div class="stat">
+    <div id="maxSupply" class="stat-number">0</div>
+    <div class="muted small">Max Supply</div>
+  </div>
+  <div class="stat">
+    <div id="circulating" class="stat-number">0</div>
+    <div class="muted small">Circulating</div>
+  </div>
+  <div class="stat">
+    <div id="holders" class="stat-number">0</div>
+    <div class="muted small">Holders</div>
+  </div>
+</div>
+
     </div>
     <aside class="card nft">
       <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
