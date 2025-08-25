@@ -73,15 +73,17 @@ html,body {
   line-height:1.6;
 }
 @keyframes blink {
-  0%,100% { opacity: 1; }
-  50%     { opacity: 0; }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
 }
-#update-status {
+
+.update-status {
   margin-left: 0.5rem;
   font-size: 0.9em;
   color: var(--accent);
   animation: blink 1s infinite;
 }
+
 
 
 /* Blobby animated BG */
@@ -279,24 +281,31 @@ footer {
           <td class="value">User defined per TrustLine (default: 100,000,000)</td>
         </tr>
         <tr>
+<tr>
   <th scope="row">Total Supply</th>
   <td class="value">
     <span id="stat-max">21,000,000</span> XRBC
-    <span id="update-status">Updating…</span>
+    <!-- status span for this row -->
+    <span id="status-max" class="update-status">Updating…</span>
   </td>
 </tr>
 <tr>
   <th scope="row">Circulating</th>
   <td class="value">
     <span id="stat-circ">~51,200</span> XRBC
+    <!-- new status span for circulating -->
+    <span id="status-circ" class="update-status">Updating…</span>
   </td>
 </tr>
 <tr>
   <th scope="row">Holders / Trustlines</th>
   <td class="value">
     <span id="stat-holders">152</span> / 863
+    <!-- new status span for holders -->
+    <span id="status-holders" class="update-status">Updating…</span>
   </td>
 </tr>
+
 
           <th scope="row">Issuer Fee</th>
           <td class="value">0%</td>
@@ -421,32 +430,46 @@ footer {
   </script>
 
   <!-- ⬇️ Insert your XRPL-refresh code here ⬇️ -->
-  <script>
-  (async function refreshStats() {
-    const CONFIG = { REFRESH_MS: 30000, /* …other config… */ };
-    const elMax = document.getElementById('stat-max');
-    const elCirc = document.getElementById('stat-circ');
-    const elHolders = document.getElementById('stat-holders');
-    const elStatus = document.getElementById('update-status');
+ <script>
+(async function refreshStats() {
+  const CONFIG = { REFRESH_MS: 30000 };
+  const rows = [
+    { valueId: 'stat-max',    statusId: 'status-max',    field: 'totalSupply' },
+    { valueId: 'stat-circ',   statusId: 'status-circ',   field: 'circulating' },
+    { valueId: 'stat-holders',statusId: 'status-holders',field: 'holdersCount' }
+  ];
 
-    async function fetchAndUpdate() {
-      try {
-        elStatus.textContent = 'Updating…';
-        const data = await fetch(/* your ledger endpoint */).then(r=>r.json());
-        elMax.textContent = data.totalSupply.toLocaleString();
-        elCirc.textContent = data.circulating.toLocaleString();
-        elHolders.textContent = data.holdersCount.toLocaleString();
+  async function fetchAndUpdate() {
+    try {
+      // show “Updating…” on all three
+      rows.forEach(r => {
+        document.getElementById(r.statusId).textContent = 'Updating…';
+      });
+
+      const res  = await fetch('https://data.ripple.com/v2/accounts/YOUR_ISSUER/balances?currency=XRBC');
+      const json = await res.json();
+
+      // parse your JSON structure here—example assumes top-level keys
+      rows.forEach(r => {
+        const elValue  = document.getElementById(r.valueId);
+        const elStatus = document.getElementById(r.statusId);
+        const newVal   = json[r.field];  
+        elValue.textContent  = Number(newVal).toLocaleString();
         elStatus.textContent = `Updated ${new Date().toLocaleTimeString()}`;
-      } catch(e) {
-        elStatus.textContent = 'Error';
-        console.error(e);
-      }
+      });
+    } catch (err) {
+      console.error(err);
+      rows.forEach(r => {
+        document.getElementById(r.statusId).textContent = 'Error';
+      });
     }
+  }
 
-    await fetchAndUpdate();
-    setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
-  })();
-  </script>
+  await fetchAndUpdate();
+  setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
+})();
+</script>
+
 </body>
 </html>
 
