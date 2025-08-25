@@ -156,16 +156,41 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
 </header>
 
 <!-- Countdown reminder for security.txt & CSAF expiry -->
-<div id="updateReminder" class="update-reminder">
+<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
   <strong>Security File Update:</strong>
   <div id="updateCountdown"></div>
-  <small>
-    Next update due for <code>security.txt</code> and CSAF on
-    <strong>August 22, 2026</strong>.
-  </small>
+  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
 </div>
 
 <script>
+  // ===== CONFIGURE EXPIRY DATE HERE =====
+  (function () {
+    const expiryDate = new Date("2026-08-22T05:00:00Z");
+
+    function updateTimer() {
+      const el = document.getElementById("updateCountdown");
+      if (!el) return;
+
+      const diff = expiryDate - new Date();
+      if (diff <= 0) {
+        el.innerHTML = "<span style='color:red;'>Expired! Update now.</span>";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
+
+      let msg = `${days} days, ${hours} hrs, ${mins} min remaining`;
+      if (days < 30) msg = `<span style="color:orange;">${msg}</span>`;
+      el.innerHTML = msg;
+    }
+
+    updateTimer();              // run immediately
+    setInterval(updateTimer, 60000); // update every minute
+  })();
+</script>
+
   const expiryDate = new Date("2026-08-22T05:00:00Z");
   function updateTimer() {
     const diff = expiryDate - new Date();
@@ -228,7 +253,14 @@ setInterval(updateTimer, 60000); // update every minute
         <a class="btn ghost" href="https://xpmarket.com/login?redirectTo=%2Fwallet" target="_blank">Connect Wallet</a>
         <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
       </div>
-     <div class="stats card">
+   <!-- Countdown reminder for security.txt & CSAF expiry -->
+<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
+  <strong>Security File Update:</strong>
+  <div id="updateCountdown"></div>
+  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
+</div>
+
+<div class="stats card">
   <div class="stat">
     <div id="maxSupply" class="stat-number">0</div>
     <div class="muted small">Max Supply</div>
@@ -242,6 +274,9 @@ setInterval(updateTimer, 60000); // update every minute
     <div class="muted small">Holders</div>
   </div>
 </div>
+
+</script>
+>
 
     </div>
     <aside class="card nft">
@@ -316,5 +351,59 @@ document.querySelectorAll('.stat-number').forEach(el=>{
 });
 </script>
 <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
-</body>
+<script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const set = (id, val) => { const el = $(id); if (el) el.textContent = val; };
+    const fmt = (n) => Number.isFinite(n) ? n.toLocaleString(undefined, { maximumFractionDigits: 6 }) : "—";
+
+    // Try to normalize multiple possible API response shapes/keys
+    const normalize = (raw) => {
+      const data = raw?.data ?? raw?.result ?? raw;
+      const toNum = (v) => {
+        if (v === null || v === undefined) return NaN;
+        if (typeof v === "number") return v;
+        if (typeof v === "string") {
+          const parsed = parseFloat(v.replace(/,/g, ""));
+          return Number.isFinite(parsed) ? parsed : NaN;
+        }
+        return NaN;
+      };
+      const total = toNum(data?.total_supply ?? data?.totalSupply ?? data?.supply);
+      const circ  = toNum(data?.circulating_supply ?? data?.circulatingSupply ?? data?.circulating);
+      const hold  = toNum(data?.holders ?? data?.holder_count ?? data?.holderCount);
+      return { total, circ, hold };
+    };
+
+    async function updateXRBCMetrics() {
+      // Replace with your trusted endpoint if different
+      const url = "https://api.xrpldata.com/api/v1/tokens/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw/5852626974636F696E6361736800000000000000";
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const { total, circ, hold } = normalize(json);
+
+        set("maxSupply", fmt(total));
+        set("circulating", fmt(circ));
+        set("holders", fmt(hold));
+      } catch (err) {
+        console.error("XRBC metrics fetch failed:", err);
+        // graceful fallbacks—never show NaN
+        set("maxSupply", "—");
+        set("circulating", "—");
+        set("holders", "—");
+      }
+    }
+
+    // Run after DOM is ready in case this script is moved earlier
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", updateXRBCMetrics);
+    } else {
+      updateXRBCMetrics();
+    }
+  })();
+</script>
+
+  </body>
 </html>
