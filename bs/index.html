@@ -446,7 +446,8 @@ footer {
         document.getElementById(r.statusId).textContent = 'Updating…';
       });
 
-      const res  = await fetch('https://data.ripple.com/v2/accounts/YOUR_ISSUER/balances?currency=XRBC');
+     const res = await fetch('https://xrpldata.inftf.org/v1/token/XRBC');
+
       const json = await res.json();
 
       // parse your JSON structure here—example assumes top-level keys
