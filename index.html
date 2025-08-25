@@ -248,40 +248,224 @@ setInterval(updateTimer, 60000); // update every minute
 <footer>
   <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
 </footer>
-
-<script>
-// Scroll fade-in
-const features = document.querySelectorAll('.feature');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('visible'); } });
-},{threshold:0.2});
-features.forEach(f => observer.observe(f));
-
-// Count-up stats
-function animateCount(el){
-  const target = +el.dataset.target;
-  const step = target/100;
-  let count = 0;
-  const update = () => {
-    count += step;
-    if(count < target){
-      el.textContent = Math.floor(count).toLocaleString();
-      requestAnimationFrame(update);
-    } else {
-      el.textContent = target.toLocaleString();
-    }
-  };
-  update();
-}
-document.querySelectorAll('.stat-number').forEach(el=>{
-  const statObs = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ animateCount(el); statObs.unobserve(el); }
-    });
-  });
-  statObs.observe(el);
-});
-</script>
 <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // ===== 1. SCROLL FADE-IN =====
+  const features = document.querySelectorAll('.feature');
+  const fadeObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        fadeObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  features.forEach(f => fadeObserver.observe(f));
+
+  // ===== 2. COUNT-UP STATS =====
+  function animateCount(el) {
+    const target = +el.dataset.target;
+    const step   = target / 100;
+    let   count  = 0;
+    function update() {
+      count += step;
+      if (count < target) {
+        el.textContent = Math.floor(count).toLocaleString();
+        requestAnimationFrame(update);
+      } else {
+        el.textContent = target.toLocaleString();
+      }
+    }
+    update();
+  }
+  document.querySelectorAll('.stat-number').forEach(el => {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCount(el);
+          obs.unobserve(el);
+        }
+      });
+    });
+    obs.observe(el);
+  });
+
+  // ===== 3. XRPL REAL-TIME STATS =====
+  const CONFIG = {
+    ISSUER:      "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    CURRENCY:    "XRbitcoincash",
+    MAX_SUPPLY:  "20999999.999999996",
+    WS_URL:      "wss://xrplcluster.com",
+    REST_URL:    "https://data.ripple.com/v2/accounts/",
+    REFRESH_MS:  60000,
+    TIMEOUT_MS:  8000
+  };
+
+  // Locate and anchor the three numeric spans (no layout changes)
+  function anchorStat(label, id) {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+    const re     = new RegExp(`(\\d[\\d,\\.]*?)\\s+${label}\\b`);
+    while (walker.nextNode()) {
+      const el = walker.currentNode;
+      if (!el.textContent || el.querySelector(`#${id}`)) continue;
+      if (!el.textContent.includes(label)) continue;
+      const original = el.innerHTML;
+      const wrapped  = original.replace(re, (_, num) =>
+        `<span id="${id}">${num}</span> ${label}`
+      );
+      if (wrapped !== original) {
+        el.innerHTML = wrapped;
+        return document.getElementById(id);
+      }
+    }
+    return document.getElementById(id);
+  }
+  const anchors = {
+    max      : anchorStat("Max Supply",  "stat-max"),
+    circ     : anchorStat("Circulating",  "stat-circ"),
+    holders  : anchorStat("Holders",      "stat-holders")
+  };
+
+  // Safe parsing & formatting
+  const toNum = x => Number.isFinite(+x) ? +x : 0;
+  const fmtInt = n => Math.round(n).toLocaleString();
+  const fmtDec = s => {
+    const n = Number(s);
+    return Number.isFinite(n)
+      ? n.toLocaleString(undefined, { maximumFractionDigits: 9 })
+      : s;
+  };
+
+  // WebSocket query with pagination
+  function fetchLinesWS(issuer) {
+    return new Promise((resolve, reject) => {
+      const ws      = new WebSocket(CONFIG.WS_URL);
+      const lines   = [];
+      let   timer   = setTimeout(() => {
+        ws.close();
+        reject(new Error("WS timeout"));
+      }, CONFIG.TIMEOUT_MS);
+
+      const reqBase = {
+        id:      1,
+        command: "account_lines",
+        account: issuer,
+        ledger_index: "validated",
+        limit:  400
+      };
+
+      ws.onopen = () => ws.send(JSON.stringify(reqBase));
+      ws.onmessage = msg => {
+        const data = JSON.parse(msg.data);
+        if (data.result && Array.isArray(data.result.lines)) {
+          lines.push(...data.result.lines);
+          if (data.result.marker) {
+            ws.send(JSON.stringify({ ...reqBase, marker: data.result.marker }));
+          } else {
+            clearTimeout(timer);
+            ws.close();
+            resolve(lines);
+          }
+        }
+      };
+      ws.onerror = () => {}; // fallback handles errors
+    });
+  }
+
+  // REST fallback
+  async function fetchLinesREST(issuer) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+    const url = `${CONFIG.REST_URL}${issuer}/lines?limit=400`;
+    try {
+      const res  = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`REST ${res.status}`);
+      const json = await res.json();
+      return json.lines || [];
+    } catch (err) {
+      clearTimeout(timer);
+      throw new Error("REST failed: " + err.message);
+    }
+  }
+
+  // Compute stats from trust lines
+  function computeStats(lines) {
+    let circ = 0, holders = 0;
+    lines.forEach(line => {
+      if (line.currency === CONFIG.CURRENCY && toNum(line.balance) < 0) {
+        circ    += -toNum(line.balance);
+        holders += 1;
+      }
+    });
+    return {
+      maxSupply: CONFIG.MAX_SUPPLY,
+      circulating: circ,
+      holders
+    };
+  }
+
+  // Update DOM & error state
+  function updateDom(stats, ok, errorMsg) {
+    if (anchors.max)     anchors.max.textContent     = fmtDec(stats.maxSupply);
+    if (ok && anchors.circ)    anchors.circ.textContent    = fmtInt(stats.circulating);
+    if (ok && anchors.holders) anchors.holders.textContent = fmtInt(stats.holders);
+
+    if (!ok) {
+      document.body.setAttribute("data-xrbc-error", `${new Date().toLocaleTimeString()}: ${errorMsg}`);
+    } else {
+      document.body.removeAttribute("data-xrbc-error");
+    }
+  }
+
+  // Exponential backoff state
+  let failureCount   = 0;
+  let currentInterval = CONFIG.REFRESH_MS;
+  let timerId;
+
+  // Main tick
+  async function tick() {
+    let lines, ok = false, errMsg = "";
+    try {
+      lines = await fetchLinesWS(CONFIG.ISSUER);
+      ok = Array.isArray(lines) && lines.length > 0;
+    } catch (wsErr) {
+      errMsg = wsErr.message;
+      try {
+        lines = await fetchLinesREST(CONFIG.ISSUER);
+        ok = Array.isArray(lines) && lines.length > 0;
+        if (ok) errMsg += " | REST ok";
+      } catch (restErr) {
+        errMsg = restErr.message;
+      }
+    }
+
+    if (ok) {
+      failureCount = 0;
+      currentInterval = CONFIG.REFRESH_MS;
+      updateDom(computeStats(lines), true);
+    } else {
+      failureCount++;
+      if (failureCount >= 3) {
+        currentInterval = Math.min(currentInterval * 2, 300000);
+      }
+      updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, errMsg);
+      console.error("[XRBC] Update failed:", errMsg);
+    }
+
+    clearTimeout(timerId);
+    timerId = setTimeout(tick, currentInterval);
+  }
+
+  // Initial paint & first fetch
+  updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, "");
+  tick();
+
+})();
+</script>
+
 </body>
 </html>
