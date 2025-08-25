@@ -52,7 +52,23 @@
 
   <!-- Existing CSS from your English version -->
   <style>
-    /* [Use exact same CSS block from the English file — unchanged] */
+    :root {
+  --bg:#0B1020;
+  --card:#0F1724;
+  --ink:#ECF3FF;
+  --muted:#9EB2D0;
+  --accent:#00E5FF;
+}
+html, body {
+  height:100%;
+  margin:0;
+  font-family:Inter,Segoe UI,Roboto,system-ui,Arial;
+  color:var(--ink);
+  background:var(--bg); /* This is what gives you the dark theme */
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+/* [Use exact same CSS block from the English file — unchanged] */
   </style>
 </head>
 <body>
