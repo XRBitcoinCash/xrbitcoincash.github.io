@@ -269,7 +269,7 @@ setInterval(updateTimer, 60000); // update every minute
   function animateCount(el) {
     const target = +el.dataset.target;
     const step   = target / 100;
-    let   count  = 0;
+    let count    = 0;
     function update() {
       count += step;
       if (count < target) {
@@ -295,42 +295,22 @@ setInterval(updateTimer, 60000); // update every minute
 
   // ===== 3. XRPL REAL-TIME STATS =====
   const CONFIG = {
-    ISSUER:      "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    CURRENCY:    "XRbitcoincash",
-    MAX_SUPPLY:  "20999999.999999996",
-    WS_URL:      "wss://xrplcluster.com",
-    REST_URL:    "https://data.ripple.com/v2/accounts/",
-    REFRESH_MS:  60000,
-    TIMEOUT_MS:  8000
+    ISSUER:     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    CURRENCY:   "XRbitcoincash",
+    MAX_SUPPLY: "20999999.999999996",
+    WS_URL:     "wss://xrplcluster.com",
+    REST_URL:   "https://data.ripple.com/v2/accounts/",
+    REFRESH_MS: 60000,
+    TIMEOUT_MS: 8000
   };
 
-  // Locate and anchor the three numeric spans (no layout changes)
-  function anchorStat(label, id) {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
-    const re     = new RegExp(`(\\d[\\d,\\.]*?)\\s+${label}\\b`);
-    while (walker.nextNode()) {
-      const el = walker.currentNode;
-      if (!el.textContent || el.querySelector(`#${id}`)) continue;
-      if (!el.textContent.includes(label)) continue;
-      const original = el.innerHTML;
-      const wrapped  = original.replace(re, (_, num) =>
-        `<span id="${id}">${num}</span> ${label}`
-      );
-      if (wrapped !== original) {
-        el.innerHTML = wrapped;
-        return document.getElementById(id);
-      }
-    }
-    return document.getElementById(id);
-  }
-  const anchors = {
-    max      : anchorStat("Max Supply",  "stat-max"),
-    circ     : anchorStat("Circulating",  "stat-circ"),
-    holders  : anchorStat("Holders",      "stat-holders")
-  };
+  // Direct references to our three stat spans
+  const elMax     = document.getElementById('stat-max');
+  const elCirc    = document.getElementById('stat-circ');
+  const elHolders = document.getElementById('stat-holders');
 
-  // Safe parsing & formatting
-  const toNum = x => Number.isFinite(+x) ? +x : 0;
+  // Helpers
+  const toNum  = x => Number.isFinite(+x) ? +x : 0;
   const fmtInt = n => Math.round(n).toLocaleString();
   const fmtDec = s => {
     const n = Number(s);
@@ -339,25 +319,25 @@ setInterval(updateTimer, 60000); // update every minute
       : s;
   };
 
-  // WebSocket query with pagination
+  // Fetch trust lines via WebSocket (with pagination)
   function fetchLinesWS(issuer) {
     return new Promise((resolve, reject) => {
-      const ws      = new WebSocket(CONFIG.WS_URL);
-      const lines   = [];
-      let   timer   = setTimeout(() => {
+      const ws    = new WebSocket(CONFIG.WS_URL);
+      const lines = [];
+      let timer    = setTimeout(() => {
         ws.close();
         reject(new Error("WS timeout"));
       }, CONFIG.TIMEOUT_MS);
 
       const reqBase = {
-        id:      1,
-        command: "account_lines",
-        account: issuer,
+        id:           1,
+        command:      "account_lines",
+        account:      issuer,
         ledger_index: "validated",
-        limit:  400
+        limit:        400
       };
 
-      ws.onopen = () => ws.send(JSON.stringify(reqBase));
+      ws.onopen    = () => ws.send(JSON.stringify(reqBase));
       ws.onmessage = msg => {
         const data = JSON.parse(msg.data);
         if (data.result && Array.isArray(data.result.lines)) {
@@ -371,15 +351,16 @@ setInterval(updateTimer, 60000); // update every minute
           }
         }
       };
-      ws.onerror = () => {}; // fallback handles errors
+      ws.onerror = () => {}; // fallback to REST
     });
   }
 
-  // REST fallback
+  // REST fallback fetch
   async function fetchLinesREST(issuer) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
-    const url = `${CONFIG.REST_URL}${issuer}/lines?limit=400`;
+    const timer      = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+    const url        = `${CONFIG.REST_URL}${issuer}/lines?limit=400`;
+
     try {
       const res  = await fetch(url, { signal: controller.signal });
       clearTimeout(timer);
@@ -392,7 +373,7 @@ setInterval(updateTimer, 60000); // update every minute
     }
   }
 
-  // Compute stats from trust lines
+  // Compute circulating supply & holder count
   function computeStats(lines) {
     let circ = 0, holders = 0;
     lines.forEach(line => {
@@ -408,35 +389,38 @@ setInterval(updateTimer, 60000); // update every minute
     };
   }
 
-  // Update DOM & error state
+  // Update DOM & handle error state
   function updateDom(stats, ok, errorMsg) {
-    if (anchors.max)     anchors.max.textContent     = fmtDec(stats.maxSupply);
-    if (ok && anchors.circ)    anchors.circ.textContent    = fmtInt(stats.circulating);
-    if (ok && anchors.holders) anchors.holders.textContent = fmtInt(stats.holders);
-
-    if (!ok) {
-      document.body.setAttribute("data-xrbc-error", `${new Date().toLocaleTimeString()}: ${errorMsg}`);
-    } else {
+    elMax.textContent = fmtDec(stats.maxSupply);
+    if (ok) {
+      elCirc.textContent    = fmtInt(stats.circulating);
+      elHolders.textContent = fmtInt(stats.holders);
       document.body.removeAttribute("data-xrbc-error");
+    } else {
+      document.body.setAttribute(
+        "data-xrbc-error",
+        `${new Date().toLocaleTimeString()}: ${errorMsg}`
+      );
     }
   }
 
   // Exponential backoff state
-  let failureCount   = 0;
+  let failureCount    = 0;
   let currentInterval = CONFIG.REFRESH_MS;
   let timerId;
 
-  // Main tick
+  // Main polling loop
   async function tick() {
     let lines, ok = false, errMsg = "";
+
     try {
       lines = await fetchLinesWS(CONFIG.ISSUER);
-      ok = Array.isArray(lines) && lines.length > 0;
+      ok    = Array.isArray(lines) && lines.length > 0;
     } catch (wsErr) {
       errMsg = wsErr.message;
       try {
         lines = await fetchLinesREST(CONFIG.ISSUER);
-        ok = Array.isArray(lines) && lines.length > 0;
+        ok    = Array.isArray(lines) && lines.length > 0;
         if (ok) errMsg += " | REST ok";
       } catch (restErr) {
         errMsg = restErr.message;
@@ -444,7 +428,7 @@ setInterval(updateTimer, 60000); // update every minute
     }
 
     if (ok) {
-      failureCount = 0;
+      failureCount    = 0;
       currentInterval = CONFIG.REFRESH_MS;
       updateDom(computeStats(lines), true);
     } else {
@@ -460,12 +444,12 @@ setInterval(updateTimer, 60000); // update every minute
     timerId = setTimeout(tick, currentInterval);
   }
 
-  // Initial paint & first fetch
+  // Initial paint & start loop
   updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, "");
   tick();
 
 })();
 </script>
-
 </body>
 </html>
+
