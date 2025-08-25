@@ -205,12 +205,21 @@ setInterval(updateTimer, 60000); // update every minute
         <a class="btn ghost" href="https://xpmarket.com/login?redirectTo=%2Fwallet" target="_blank">Connect Wallet</a>
         <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
       </div>
-      <div class="stats card">
-        <div class="stat"><div class="stat-number" data-target="20999999">0</div><div class="muted small">Max Supply</div></div>
-        <div class="stat"><div class="stat-number" data-target="3500000">0</div><div class="muted small">Circulating</div></div>
-        <div class="stat"><div class="stat-number" data-target="500">0</div><div class="muted small">Holders</div></div>
-      </div>
-    </div>
+     <div class="stats card">
+  <div class="stat">
+    <div class="stat-number" id="maxSupply" data-target="20999999">0</div>
+    <div class="muted small">Max Supply</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number" id="circulating" data-target="3500000">0</div>
+    <div class="muted small">Circulating</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number" id="holders" data-target="500">0</div>
+    <div class="muted small">Holders</div>
+  </div>
+</div>
+
     <aside class="card nft">
       <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
       <p class="muted small" style="margin-top:10px"><a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a></p>
@@ -253,35 +262,51 @@ setInterval(updateTimer, 60000); // update every minute
 // Scroll fade-in
 const features = document.querySelectorAll('.feature');
 const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('visible'); } });
-},{threshold:0.2});
-features.forEach(f => observer.observe(f));
-
-// Count-up stats
-function animateCount(el){
-  const target = +el.dataset.target;
-  const step = target/100;
-  let count = 0;
-  const update = () => {
-    count += step;
-    if(count < target){
-      el.textContent = Math.floor(count).toLocaleString();
-      requestAnimationFrame(update);
-    } else {
-      el.textContent = target.toLocaleString();
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
     }
-  };
-  update();
-}
-document.querySelectorAll('.stat-number').forEach(el=>{
-  const statObs = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ animateCount(el); statObs.unobserve(el); }
-    });
   });
-  statObs.observe(el);
-});
+}, { threshold: 0.2 });
+features.forEach(f => observer.observe(f));
 </script>
-<script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
+
+<script>
+(function () {
+  function animateCount(el) {
+    const target = +el.dataset.target;
+    if (!Number.isFinite(target)) return; // safety guard
+    const step = Math.max(1, target / 100);
+    let count = 0;
+    const update = () => {
+      count += step;
+      if (count < target) {
+        el.textContent = Math.floor(count).toLocaleString();
+        requestAnimationFrame(update);
+      } else {
+        el.textContent = target.toLocaleString();
+      }
+    };
+    update();
+  }
+
+  // Exclude the three live metrics from animation
+  document
+    .querySelectorAll('.stat-number[data-target]:not(#maxSupply):not(#circulating):not(#holders)')
+    .forEach((el) => {
+      const statObs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            animateCount(el);
+            statObs.unobserve(el);
+          }
+        });
+      }, { threshold: 0.2 });
+      statObs.observe(el);
+    });
+})();
+</script>
+
+
 </body>
 </html>
