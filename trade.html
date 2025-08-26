@@ -651,7 +651,20 @@
        ========================= -->
   <script>
   ;(function(){
-    'use strict';
+     'use strict';
++ // ───────────────────────────────────────────────────────────────
++ // Quick test: grab “Connect Wallet” button and log clicks
++ const btnConnect = document.getElementById('btnConnect');
++
++ // Make sure it’s enabled for this test
++ btnConnect.disabled = false;
++
++ // Attach a simple click‐logger
++ btnConnect.addEventListener('click', () => {
++   console.log('Connect Wallet button clicked');
++ });
++ // ───────────────────────────────────────────────────────────────
+
 
     // --------------------------------
     // State & Configuration
