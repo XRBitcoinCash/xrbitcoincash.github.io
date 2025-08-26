@@ -101,6 +101,9 @@
       const auth = await xumm.authorize(); // triggers app/QR
       const account = await xumm.user.account;
       statusEl.textContent = 'Connected: ' + account;
+ //button disconect    
+      btn.textContent = 'Disconnect';
+ //button disconect
     } catch (err) {
       console.error(err);
       statusEl.textContent = 'Status: Not connected';
