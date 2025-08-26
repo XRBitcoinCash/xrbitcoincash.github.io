@@ -635,7 +635,7 @@
     "tokenCode": "XRbitcoincash",
     "tokenLimit": "20999999.999999996",
     "rpcEndpoint": "wss://YOUR_XRPL_RPC_ENDPOINT",
-    "xummApiKey": "YOUR_XUMM_PUBLIC_API_KEY",
+    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
     "sologenicApiBase": "https://api.sologenic.org",
     "networkName": "XRPL Mainnet"
   }
@@ -740,67 +740,50 @@
 
     // --------------------------------
     // XRPL & Wallet (Xaman/Xumm)
-    // --------------------------------
-    const xumm = new Xumm(cfg.xummApiKey);
-    xumm.on('ready', () => {
-      setStatus('Xaman SDK ready. Connect wallet to begin.');
-      enable('#btnConnect', true);
-      enable('#btnAuthorize', true);
-      $('#rpcEndpoint').value = state.xrpl.endpoint || '';
-      setText('#pillNetwork', 'Disconnected');
-    });
-    xumm.on('success', async () => {
-      const acct = await xumm.user.account;
-      state.wallet.connected = true;
-      state.wallet.account = acct;
-      setText('#walletAddress', acct);
-      setText('#kpiWallet', shortAddr(acct));
-      setStatus('Wallet connected. Optional: connect XRPL client for live data.');
-      enable('#btnLogout', true);
-      $('#btnConnect').disabled = true;
-      $('#btnAuthorize').disabled = true;
-      // Build default trustline deeplink
-      buildTrustlineDeeplink();
-      // Enable DEX actions (still require XRPL client for on-ledger actions)
-      updateActionGates();
-    });
-    xumm.on('logout', () => {
-      state.wallet.connected = false;
-      state.wallet.account = null;
-      setText('#walletAddress', '—');
-      setText('#kpiWallet', 'Not connected');
-      setStatus('Disconnected from wallet.');
-      enable('#btnLogout', false);
-      $('#btnConnect').disabled = false;
-      $('#btnAuthorize').disabled = false;
-      state.trustline = { exists:false, prepared:null, deeplink:null };
-      updateActionGates();
-    });
+   // Initialize Xumm with your public API key
+const xumm = new Xumm('2abde023-0df1-49a2-a4dc-86d776f6318d');
 
-    async function connectXRPL() {
-      try {
-        if (state.xrpl.client && state.xrpl.connected) {
-          await state.xrpl.client.disconnect();
-        }
-        const ep = $('#rpcEndpoint').value.trim() || cfg.rpcEndpoint;
-        state.xrpl.endpoint = ep;
-        state.xrpl.client = new xrpl.Client(ep);
-        await state.xrpl.client.connect();
-        state.xrpl.connected = true;
-        setStatus('XRPL client connected.');
-        setText('#xrplConn','online');
-        setText('#pillNetwork', cfg.networkName || 'XRPL');
-        // refresh simulated → could add real queries here
-        updateBalancesDemo();
-        updateMarketDemo();
-        updatePoolDemo();
-        updateActionGates();
-      } catch (err) {
-        setStatus('XRPL connect error: ' + err.message, 'error');
-        setText('#xrplConn','offline');
-        state.xrpl.connected = false;
-      }
-    }
+const connectWalletButton = document.getElementById('connectWalletButton');
+const logoutButton = document.getElementById('logoutButton');
+const walletAddressElement = document.getElementById('walletAddress');
+const statusDiv = document.getElementById('status');
+
+// Enable the connect button once SDK is loaded
+xumm.on('ready', () => {
+  statusDiv.textContent = 'Xumm SDK loaded and ready.';
+  connectWalletButton.disabled = false;
+});
+
+// Connect wallet button triggers Xumm OAuth2 flow
+connectWalletButton.onclick = () => {
+  statusDiv.textContent = 'Connecting to Xaman/Xumm wallet...';
+  xumm.authorize().catch(error => {
+    statusDiv.textContent = 'Authorization failed: ' + error.message;
+  });
+};
+
+// Success event on wallet connect
+xumm.on('success', async () => {
+  const account = await xumm.user.account;
+  walletAddressElement.textContent = 'Wallet Connected: ' + account;
+  connectWalletButton.style.display = 'none';
+  logoutButton.style.display = '';
+  statusDiv.textContent = 'Connected successfully.';
+});
+
+// Logout logic
+logoutButton.onclick = () => {
+  xumm.logout();
+  statusDiv.textContent = 'Logging out...';
+};
+
+xumm.on('logout', () => {
+  walletAddressElement.textContent = 'Status: Not connected';
+  connectWalletButton.style.display = '';
+  logoutButton.style.display = 'none';
+  statusDiv.textContent = 'You have logged out.';
+});
+
 
     // --------------------------------
     // Trustline
