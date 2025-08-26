@@ -1,105 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <!-- favicon… -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/favicon.png">
-</head>
- <!-- favicon… -->
-  <meta charset="UTF-8" />
-  <link rel="security" type="text/plain" href="https://xrbitcoincash.com/.well-known/security.txt">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>About — XRBitcoinCash</title>
-
-  <!-- Favicon / Icons -->
-  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
-  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
-
-  <!-- Primary SEO -->
-  <meta name="description" content="Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger." />
-  <meta name="keywords" content="XRBitcoinCash, XRBC, XRP Ledger, XRPL, cryptocurrency, tokenomics, crypto payments, low fees, blockchain" />
-  <link rel="canonical" href="https://xrbitcoincash.com/about.html" />
+  <!-- === META & THEME === -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash · Wallet Connect</title>
+  <meta name="description" content="Connect Xaman/Xumm wallet to XRBitcoinCash for XRPL trading and liquidity." />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#0B1020" />
-
-  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:title" content="XRBitcoinCash · Wallet Connect" />
+  <meta property="og:description" content="Connect your wallet to trade XRBC on XRPL." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://xrbitcoincash.com/about.html" />
-  <meta property="og:title" content="About — XRBitcoinCash" />
-  <meta property="og:description" content="XRBC is a transparent, low‑fee asset on XRPL with simple, auditable flows." />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-  <meta property="og:image:alt" content="XRBitcoinCash logo" />
-  <meta property="og:site_name" content="XRBitcoinCash" />
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="About — XRBitcoinCash" />
-  <meta name="twitter:description" content="XRBC is a transparent, low‑fee asset on XRPL with simple, auditable flows." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- JSON‑LD Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Organization",
-    "name":"XRBitcoinCash",
-    "url":"https://xrbitcoincash.com",
-    "logo":"https://xrbitcoincash.com/xrbc-nft.png",
-    "description":"Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger.",
-    "sameAs":[
-      "https://xrpl.org/",
-      "https://twitter.com/YourHandle",
-      "https://t.me/YourTelegram",
-      "https://github.com/XRBitcoinCash"
-    ]
-  }
-  </script>
+  <meta name="theme-color" content="#0b1118" />
 
   <style>
-    :root{--bg:#0B1020;--ink:#ECF3FF;--muted:#9EB2D0;--card-bg:rgba(255,255,255,0.05);--chip-stroke:rgba(255,255,255,0.12)}
-    html,body{height:100%}
-    body{margin:0;font-family:'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;display:flex;flex-direction:column;min-height:100vh}
-    body::before{content:"";position:fixed;inset:0;pointer-events:none;border:2px solid rgba(0,229,255,0.15);border-radius:16px;z-index:9999;box-shadow:0 0 8px rgba(0,229,255,0.25), inset 0 0 4px rgba(0,229,255,0.10)}
-    header{background:#111827;padding:16px 16px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
-    .branding{display:inline-flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
-    .branding img{height:48px;width:48px;border-radius:8px}
-    .branding .site-name{font-size:1.5rem;font-weight:800;letter-spacing:-0.01em}
-    main{flex:1}
-    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 40px}
-    h1{text-align:center;margin:8px 0 18px;font-size:2rem;font-weight:800;letter-spacing:-0.02em}
-    .content{background:var(--card-bg);border:1px solid var(--chip-stroke);border-radius:14px;padding:20px}
-    .content h2{margin:0 0 10px}
-    footer{background:#111827;padding:20px;text-align:center;border-top:1px solid rgba(255,255,255,0.08)}
-    footer small{color:#9EB2D0}
+    :root {
+      --bg: #0b1118;
+      --panel: #0f1722;
+      --text: #e7eef8;
+      --brand: #a7ff83;
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header.appbar {
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(167,255,131,0.15);
+    }
+    .btn {
+      border: 1px solid rgba(167,255,131,0.25);
+      background: linear-gradient(180deg, var(--panel), #121c2a);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      border-color: var(--brand);
+    }
+    #walletAddress {
+      margin-left: 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="branding">
-      <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" />
-      <span class="site-name">XRBitcoinCash</span>
-    </div>
-  </header>
 
-  <main>
-    <div class="wrap">
-      <h1>About XRBitcoinCash</h1>
-      <div class="content">
-        <h2>Mission</h2>
-        <p>Deliver a simple, transparent asset on XRPL with low fees, fast settlement, and clear, auditable flows.</p>
-        <h2>Principles</h2>
-        <ul>
-          <li>Clarity over complexity</li>
-          <li>Non-custodial by default</li>
-          <li>Consistent branding and metadata</li>
-        </ul>
-      </div>
-    </div>
-  </main>
+<header class="appbar">
+  <div class="brand">
+    <strong>XRBitcoinCash</strong> · Wallet Connect
+  </div>
+  <div class="actions">
+    <button id="connectWalletButton" type="button" class="btn">Connect Wallet</button>
+    <span id="walletAddress">Status: Not connected</span>
+  </div>
+</header>
+<!-- === TEXT === -->
+<main style="padding:20px;">
+  <div id="xrbc-dex-root"></div>
+</main>
 
-  <footer role="contentinfo">
-    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
-  </footer>
+
+<!-- === CONFIG PLACEHOLDER === -->
+<script type="application/json" id="app-config">
+{
+  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+  "rpcEndpoint": "wss://YOUR_XRPL_RPC_ENDPOINT"
+}
+</script>
+
+<!-- === EXTERNAL LIBS === -->
+<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+
+<!-- === APP SCRIPT === -->
+<script>
+(function(){
+  'use strict';
+
+  const cfg = JSON.parse(document.getElementById('app-config').textContent);
+  const btn = document.getElementById('connectWalletButton');
+  const statusEl = document.getElementById('walletAddress');
+
+  // Init Xumm SDK
+  const xumm = new Xumm(cfg.xummApiKey);
+
+  xumm.on('ready', () => {
+    console.log('Xumm SDK ready');
+    btn.disabled = false;
+  });
+ //added disconnect button now visable
+async function disconnectWallet() {
+  try {
+    // End the Xumm session and clear auth
+    await xumm.logout();
+
+    // Update UI to show a safe disconnect
+    statusEl.textContent = '✅ Your wallet has disconnected safely.';
+    btn.textContent = 'Connect Wallet';
+
+    // If you want, trigger any follow‑up UI like a ledger receipt here
+    // showLedgerReceipt();
+  } catch (err) {
+    console.error('Error disconnecting wallet:', err);
+    statusEl.textContent = '⚠ Could not disconnect — see console for details.';
+  }
+}
+//added disconnect button now visable
+
+//button function correct
+  btn.addEventListener('click', async () => { if (btn.textContent.trim() === 'Disconnect') { return disconnectWallet(); }
+  statusEl.textContent = 'Not connected';
+//button funtion correct
+    statusEl.textContent = 'Connecting...';
+    try {
+      const auth = await xumm.authorize(); // triggers app/QR
+      const account = await xumm.user.account;
+      statusEl.textContent = 'Connected: ' + account;
+ //button disconect    
+      btn.textContent = 'Disconnect';
+ //button disconect
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Status: Not connected';
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
