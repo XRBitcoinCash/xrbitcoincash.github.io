@@ -694,6 +694,30 @@
     const setHTML = (sel, html) => { const el = $(sel); if (el) el.innerHTML = html; };
     const enable = (el, on=true) => { if (typeof el === 'string') el = $(el); if (el) el.disabled = !on; };
     const show = (el, on=true) => { if (typeof el === 'string') el = $(el); if (el) el.hidden = !on; };
+// --- small helpers (add once, after DOM helpers) ---
+function shortAddr(a){ return a ? `${a.slice(0,6)}…${a.slice(-6)}` : '—'; }
+function currencyCodeToXRPL(code){
+  if(!code) return '';
+  if(code.length <= 3) return code.toUpperCase();
+  return xrpl.convertStringToHex(code).slice(0,40).padEnd(40,'0').toUpperCase();
+}
+function drops(xrp){
+  const v = Number(xrp);
+  if (!isFinite(v)) return '0';
+  return String(Math.round(v * 1000000)); // drops are millionth of XRP
+}
+function timeStr(){ return new Date().toLocaleTimeString(); }
+function withSep(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function openModalJSON(title, obj){
+  // Minimal preview fallback — replace with your modal UI if you have one
+  alert(title + '\n\n' + JSON.stringify(obj, null, 2));
+}
+function setStatus(msg, kind='info'){
+  const s = $('#status');
+  if(!s) return;
+  s.textContent = msg;
+  s.className = kind === 'error' ? 'error' : kind === 'ok' ? 'success' : kind === 'warn' ? 'notice' : 'notice';
+}
 
     // --------------------------------
     // Routing
@@ -829,6 +853,38 @@
       enable('#btnOpenXumm', true);
       enable('#btnCopyLink', true);
     }
+// --- Check whether account already has the trustline on ledger ---
+async function hasTrustline(account) {
+  if (!account) return false;
+  try {
+    // ensure a connected XRPL client (re-use existing client if possible)
+    if (!state.xrpl.client || !state.xrpl.connected) {
+      state.xrpl.endpoint = state.xrpl.endpoint || cfg.rpcEndpoint;
+      state.xrpl.client = new xrpl.Client(state.xrpl.endpoint);
+      await state.xrpl.client.connect();
+      state.xrpl.connected = true;
+      setText('#xrplConn','online');
+      setText('#pillNetwork', cfg.networkName || 'XRPL');
+    }
+    const resp = await state.xrpl.client.request({
+      command: 'account_lines',
+      account,
+      ledger_index: 'validated'
+    });
+    const lines = resp?.result?.lines || [];
+    const token = cfg.tokenCode;
+    const tokenHex = currencyCodeToXRPL(token);
+    const found = lines.some(line =>
+      line.account === cfg.issuerAddress &&
+      (line.currency === token || line.currency === tokenHex)
+    );
+    state.trustline.exists = !!found;
+    return !!found;
+  } catch (err) {
+    console.warn('hasTrustline error', err);
+    return false;
+  }
+}
 
     // --------------------------------
     // DEX (Offers & Path Payments)
@@ -1073,11 +1129,23 @@
       }
     }
 
-    // --------------------------------
-    // Bind UI
-    // --------------------------------
-    function bindUI() {
-      $('#btnTheme').addEventListener('click', () => applyTheme(state.theme==='dark'?'light':'dark'));
-      $('#btnConnect').addEventListener('click', () => xumm.authorize().catch(e => setStatus('Auth error: '+e.message,'error')));
-      $('#btnAuthorize').addEventListener('click', () => xumm.authorize().catch(e => setStatus('Auth error: '+e.message,'error')));
-      $('#btnLogout').addEventListener('click', () => xumm.logout());
+   function bindUI() {
+  const btnTheme = $('#btnTheme');
+  if (btnTheme) btnTheme.addEventListener('click', () =>
+    applyTheme(state.theme === 'dark' ? 'light' : 'dark')
+  );
+
+  const btnConnectTop = $('#btnConnect');
+  if (btnConnectTop) btnConnectTop.addEventListener('click', () =>
+    xumm.authorize().catch(e => setStatus('Auth error: ' + (e?.message || e), 'error'))
+  );
+
+  const btnAuthorize = $('#btnAuthorize');
+  if (btnAuthorize) btnAuthorize.addEventListener('click', () =>
+    xumm.authorize().catch(e => setStatus('Auth error: ' + (e?.message || e), 'error'))
+  );
+
+  const btnLogout = $('#btnLogout');
+  if (btnLogout) btnLogout.addEventListener('click', () => xumm.logout());
+}
+
