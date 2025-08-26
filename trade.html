@@ -107,7 +107,11 @@
     console.log('Xumm SDK ready');
     btn.disabled = false;
   });
- //added disconnect button now visable
+document.getElementById('xrbc-order-type').addEventListener('change', (e)=>{
+  orderPriceEl.disabled = (e.target.value === 'market');
+});
+
+  //added disconnect button now visable
 async function disconnectWallet() {
   try {
     // End the Xumm session and clear auth
@@ -116,6 +120,32 @@ async function disconnectWallet() {
     // Update UI to show a safe disconnect
     statusEl.textContent = '✅ Your wallet has disconnected safely.';
     btn.textContent = 'Connect Wallet';
+submitBtn.addEventListener('click', async ()=>{
+  const side = orderSideEl.value;
+  const amount = Number(orderAmountEl.value);
+  const price = Number(orderPriceEl.value);
+  const orderType = document.getElementById('xrbc-order-type').value;
+
+  if(!amount || (orderType === 'limit' && !price)){
+    orderFeedbackEl.textContent='Enter valid amount and price (for limit)';
+    return;
+  }
+
+  let finalPrice = price;
+  if(orderType === 'market' && lastOrderbook){
+    // Compute approximate market price
+    const levels = lastOrderbook.map(o => o.quality ? Number(o.quality) : null).filter(p => p);
+    if(levels.length){
+      finalPrice = side === 'buy' ? Math.max(...levels) : Math.min(...levels);
+    } else {
+      orderFeedbackEl.textContent = 'Cannot compute market price — orderbook empty';
+      return;
+    }
+  }
+
+
+  await createOfferViaXumm(side, amount, finalPrice, orderType);
+});
 
     // If you want, trigger any follow‑up UI like a ledger receipt here
     // showLedgerReceipt();
@@ -212,6 +242,13 @@ async function disconnectWallet() {
           <div class="xrbc-row"><em class="xrbc-small">Load an orderbook to view levels</em></div>
         </div>
       </div>
+<div>
+  <label class="xrbc-small" for="xrbc-order-type">Order Type</label>
+  <select id="xrbc-order-type">
+    <option value="limit">Limit</option>
+    <option value="market">Market</option>
+  </select>
+</div>
 
       <div id="xrbc-metrics-card" style="margin-top:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
