@@ -113,24 +113,34 @@ async function disconnectWallet() {
 }
 //added disconnect button now visable
 
-//button function correct
-  btn.addEventListener('click', async () => { if (btn.textContent.trim() === 'Disconnect') { return disconnectWallet(); }
-  statusEl.textContent = 'Not connected';
-//button funtion correct
-    statusEl.textContent = 'Connecting...';
-    try {
-      const auth = await xumm.authorize(); // triggers app/QR
-      const account = await xumm.user.account;
-      statusEl.textContent = 'Connected: ' + account;
- //button disconect    
-      btn.textContent = 'Disconnect';
- //button disconect
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent = 'Status: Not connected';
+//button function desk top iso 
+btn.addEventListener('click', async () => {
+  if (btn.textContent.trim() === 'Disconnect') {
+    return disconnectWallet();
+  }
+
+  statusEl.textContent = 'Connecting…';
+
+  try {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+    // Always triggers QR as before
+    const sub = await xumm.authorize();
+
+    // On mobile, also attempt direct handoff to Xaman
+    if (isMobile && sub.refs && sub.refs.qr_app) {
+      window.location.href = sub.refs.qr_app;
     }
-  });
-})();
+
+    const account = await xumm.user.account;
+    statusEl.textContent = 'Connected: ' + account;
+    btn.textContent = 'Disconnect';
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Status: Not connected';
+  }
+});
+
 </script>
 
 </body>
