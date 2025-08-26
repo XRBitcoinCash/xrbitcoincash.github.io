@@ -133,6 +133,481 @@ async function disconnectWallet() {
   });
 })();
 </script>
+<!-- PART 1 — XRBC DEX Module: HTML + CSS -->
+<style id="xrbc-dex-styles">
+  :root {
+    --xrbc-bg: #0f1722;
+    --xrbc-panel: #121827;
+    --xrbc-text: #e7eef8;
+    --xrbc-accent: #7ef09a;
+    --xrbc-danger: #ff6b6b;
+    --xrbc-muted: #98a2b3;
+  }
+  #xrbc-dex-container {
+    max-width:900px;
+    margin:28px auto;
+    padding:18px;
+    background: linear-gradient(180deg,var(--xrbc-panel), #0b1320);
+    border-radius:14px;
+    color:var(--xrbc-text);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+    box-shadow: 0 8px 30px rgba(3,8,14,0.6);
+    border: 1px solid rgba(126,240,154,0.06);
+  }
+  #xrbc-dex-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  #xrbc-dex-header h2 { margin:0; color:var(--xrbc-accent); font-size:1.05rem; }
+  #xrbc-dex-grid { display:grid; grid-template-columns: 1fr 320px; gap:18px; margin-top:14px; }
+  #xrbc-orderbook-card, #xrbc-metrics-card { background: linear-gradient(180deg,#0b1220, #0f1726); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.03); }
+  #xrbc-orderbook { height:320px; overflow:auto; font-size:0.92rem; color:var(--xrbc-text); }
+  .xrbc-row { display:flex; justify-content:space-between; padding:6px 8px; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.01); }
+  .xrbc-bid { color:#2ecc71; }
+  .xrbc-ask { color:#ff6b6b; }
+  #xrbc-order-form { background:transparent; display:flex; flex-direction:column; gap:10px; }
+  #xrbc-order-form input, #xrbc-order-form select { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--xrbc-text); }
+  .xrbc-btn { padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+  .xrbc-btn-primary { background:linear-gradient(180deg,#2b7fff,#1f4fd6); color:white; }
+  .xrbc-btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--xrbc-text); }
+  #xrbc-status { font-size:0.92rem; color:var(--xrbc-muted); }
+  .xrbc-small { font-size:0.86rem; color:var(--xrbc-muted); }
+  @media (max-width:880px) { #xrbc-dex-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div id="xrbc-dex-container" aria-live="polite" role="region" aria-label="XRBC DEX module">
+  <div id="xrbc-dex-header">
+    <h2>XRBC DEX — Live orderbook & metrics</h2>
+    <div id="xrbc-header-actions" class="xrbc-small">
+      <span id="xrbc-wallet-view">Wallet: <em id="xrbc-wallet-addr">Not connected</em></span>
+      <button id="xrbc-refresh-btn" class="xrbc-btn xrbc-btn-ghost" title="Refresh market data">Refresh</button>
+    </div>
+  </div>
+
+  <div id="xrbc-dex-grid">
+    <!-- LEFT: Orderbook + metrics -->
+    <div>
+      <div id="xrbc-orderbook-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <label for="xrbc-pair-select" class="xrbc-small">Pair</label>
+            <select id="xrbc-pair-select" style="margin-left:8px;padding:6px;border-radius:8px;">
+              <option value="XRBC/XRP">XRBC / XRP</option>
+            </select>
+          </div>
+          <div class="xrbc-small">Top 20 levels</div>
+        </div>
+
+        <div id="xrbc-orderbook" aria-live="polite">
+          <div class="xrbc-row"><strong>Type</strong><strong>Price</strong><strong>Amount</strong></div>
+          <div class="xrbc-row"><em class="xrbc-small">Load an orderbook to view levels</em></div>
+        </div>
+      </div>
+
+      <div id="xrbc-metrics-card" style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>Quick metrics</strong>
+          <span class="xrbc-small">Snapshot</span>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
+          <div><div class="xrbc-small">Spread</div><div id="xrbc-metric-spread">—</div></div>
+          <div><div class="xrbc-small">Best Bid</div><div id="xrbc-metric-bestbid">—</div></div>
+          <div><div class="xrbc-small">Best Ask</div><div id="xrbc-metric-bestask">—</div></div>
+          <div><div class="xrbc-small">Top Depth (bid/ask)</div><div id="xrbc-metric-depth">—</div></div>
+          <div style="width:100%;margin-top:8px;">
+            <label class="xrbc-small">Simulate slippage for amount (XRBC)</label>
+            <input id="xrbc-sim-amount" type="number" step="0.000001" min="0" placeholder="e.g., 10" style="width:160px;">
+            <div class="xrbc-small" style="margin-top:6px;">Estimated slippage: <strong id="xrbc-sim-result">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Order form -->
+    <aside>
+      <div id="xrbc-order-form-card">
+        <div id="xrbc-order-form" >
+          <div><label class="xrbc-small" for="xrbc-order-side">Side</label><select id="xrbc-order-side"><option value="buy">Buy XRBC (spend XRP)</option><option value="sell">Sell XRBC (receive XRP)</option></select></div>
+          <div><label class="xrbc-small" for="xrbc-order-amount">Amount (XRBC)</label><input id="xrbc-order-amount" type="number" step="0.000001" min="0"></div>
+          <div><label class="xrbc-small" for="xrbc-order-price">Price (XRP per XRBC)</label><input id="xrbc-order-price" type="number" step="0.000001" min="0" placeholder="market or custom"></div>
+          <div style="display:flex;gap:8px;">
+            <button id="xrbc-submit-order" class="xrbc-btn xrbc-btn-primary">Create Offer (Xumm)</button>
+            <button id="xrbc-simulate-btn" class="xrbc-btn xrbc-btn-ghost">Simulate</button>
+          </div>
+          <div id="xrbc-order-feedback" class="xrbc-small" style="margin-top:8px;color:var(--xrbc-muted);">Status: idle</div>
+          <div id="xrbc-status" class="xrbc-small" style="margin-top:10px;">Node: <span id="xrbc-node-status">disconnected</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+<!-- End PART 1 -->
+<!-- PART 2 — XRBC DEX Module: Main JS -->
+<script defer>
+(function(){
+  'use strict';
+  // Config/constants
+  const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
+  const XRBC_CODE = "XRbitcoincash";
+  const DEFAULT_WSS = "wss://xrplcluster.com";
+  const MAX_LEVELS = 20;
+
+  // DOM refs
+  const pairSelect = document.getElementById('xrbc-pair-select');
+  const orderbookEl = document.getElementById('xrbc-orderbook');
+  const walletAddrEl = document.getElementById('xrbc-wallet-addr');
+  const nodeStatusEl = document.getElementById('xrbc-node-status');
+  const spreadEl = document.getElementById('xrbc-metric-spread');
+  const bestBidEl = document.getElementById('xrbc-metric-bestbid');
+  const bestAskEl = document.getElementById('xrbc-metric-bestask');
+  const depthEl = document.getElementById('xrbc-metric-depth');
+  const simAmountEl = document.getElementById('xrbc-sim-amount');
+  const simResultEl = document.getElementById('xrbc-sim-result');
+  const refreshBtn = document.getElementById('xrbc-refresh-btn');
+  const submitBtn = document.getElementById('xrbc-submit-order');
+  const simulateBtn = document.getElementById('xrbc-simulate-btn');
+  const orderSideEl = document.getElementById('xrbc-order-side');
+  const orderAmountEl = document.getElementById('xrbc-order-amount');
+  const orderPriceEl = document.getElementById('xrbc-order-price');
+  const orderFeedbackEl = document.getElementById('xrbc-order-feedback');
+
+  // read site config safely
+  let siteCfg = {};
+  try {
+    const c = document.getElementById('app-config');
+    if (c) siteCfg = JSON.parse(c.textContent || '{}');
+  } catch(e){ console.warn('XRBC DEX: app-config parse error', e); }
+
+  // dependencies detection
+  const hasXrpl = (typeof xrpl !== 'undefined');
+  const hasXumm = (typeof Xumm !== 'undefined') || (typeof XummSdk !== 'undefined') || (typeof window.Xumm !== 'undefined');
+
+  // runtime state
+  let xrplClient = null;
+  let xumm = null;
+  let userAccount = null;
+  let lastOrderbook = null;
+
+  // Init clients (xrpl and xumm) defensively
+  async function initClients(){
+    // xrpl client
+    try {
+      if (hasXrpl) {
+        xrplClient = new xrpl.Client(siteCfg.rpcEndpoint || DEFAULT_WSS);
+        await xrplClient.connect();
+        nodeStatusEl.textContent = 'connected';
+      } else {
+        nodeStatusEl.textContent = 'xrpl.js not present';
+        console.warn('xrpl.js is not available on page. Include xrpl.js for node access.');
+      }
+    } catch (err) {
+      nodeStatusEl.textContent = 'connection failed';
+      console.error('XRPL connect error', err);
+    }
+
+    // xumm client
+    try {
+      const apiKey = siteCfg.xummApiKey || null;
+      if (!apiKey) console.warn('No xummApiKey in app-config (may still work if Xumm is available globally).');
+      if (hasXumm) {
+        try { xumm = new Xumm(apiKey); } catch(e){
+          try { xumm = new XummSdk(apiKey); } catch(e2){
+            xumm = window.Xumm || null;
+          }
+        }
+        // attempt to detect signed account quickly
+        try {
+          if (xumm && xumm.user && typeof xumm.user.account !== 'undefined') {
+            const a = await xumm.user.account;
+            if (a) { userAccount = a; walletAddrEl.textContent = a; }
+          }
+        } catch(e){}
+      } else {
+        console.warn('Xumm SDK not loaded; create offer flow will be limited.');
+      }
+    } catch(err){
+      console.error('Xumm init error', err);
+    }
+  }
+
+  // Helpers to convert drops <-> xrp (safe if xrpl lib present)
+  function toDrops(xrp) {
+    if (hasXrpl && xrpl && typeof xrpl.xrpToDrops === 'function') return xrpl.xrpToDrops(String(xrp));
+    return String(Math.round(Number(xrp) * 1_000_000));
+  }
+  function fromDrops(drops) {
+    if (!drops) return 0;
+    return Number(drops) / 1_000_000;
+  }
+
+  // load orderbook from XRPL node
+  async function loadOrderbook(){
+    orderbookEl.innerHTML = "<div class='xrbc-row'><em>Loading orderbook…</em></div>";
+    if (!xrplClient || !xrplClient.isConnected()) {
+      orderbookEl.innerHTML = "<div class='xrbc-row' style='color:var(--xrbc-danger)'>XRPL node not connected.</div>";
+      return;
+    }
+    const req = {
+      command: "book_offers",
+      taker_gets: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
+      taker_pays: { currency: "XRP" },
+      limit: MAX_LEVELS
+    };
+    try {
+      const res = await xrplClient.request(req);
+      const offers = (res && res.result && res.result.offers) ? res.result.offers : [];
+      lastOrderbook = offers;
+      renderOrderbook(offers);
+      computeMetrics(offers);
+    } catch (err) {
+      console.error('book_offers error', err);
+      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error: ${err.message || err}</div>`;
+    }
+  }
+
+  // render orderbook snapshot
+  function renderOrderbook(offers){
+    if (!offers || !offers.length) {
+      orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers found</em></div>";
+      return;
+    }
+    const container = document.createElement('div');
+    const head = document.createElement('div');
+    head.className = 'xrbc-row';
+    head.innerHTML = "<strong>Side</strong><strong>Price</strong><strong>Amount</strong>";
+    container.appendChild(head);
+
+    offers.forEach((o)=>{
+      const quality = o.quality ? parseFloat(o.quality) : null;
+      let amount = '—';
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) {
+        amount = parseFloat(o.TakerGets.value);
+      } else if (o.TakerGets && !isNaN(o.TakerGets)) {
+        amount = fromDrops(o.TakerGets);
+      }
+      // Determine side: XRPL's flag approach is not the definitive source of bid/ask label in offers:
+      // We infer: if taker_gets is IOU (XRBC), that means the maker is selling XRBC (so that's a sell offer).
+      let type = 'Buy';
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) type = 'Sell';
+      // Otherwise fallback to flags heuristic:
+      else if (o.Flags && (o.Flags & 0x00080000)) type = 'Sell';
+
+      const row = document.createElement('div');
+      row.className = 'xrbc-row';
+      row.innerHTML = `<div class="${type==='Buy'?'xrbc-bid':'xrbc-ask'}">${type}</div><div>${quality ? Number(quality).toFixed(6) : '—'}</div><div>${amount}</div>`;
+      container.appendChild(row);
+    });
+    orderbookEl.innerHTML = '';
+    orderbookEl.appendChild(container);
+  }
+
+  // compute metrics (best bid/ask, spread, depth)
+  function computeMetrics(offers){
+    if (!offers || !offers.length) {
+      spreadEl.textContent = '—'; bestBidEl.textContent = '—'; bestAskEl.textContent = '—'; depthEl.textContent = '—';
+      return;
+    }
+    // Build normalized price list with explicit side (sell = asks, buy = bids)
+    const asks = [], bids = [];
+    offers.forEach(o=>{
+      const price = o.quality ? Number(o.quality) : null;
+      let amount = 0;
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
+      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
+      // If maker is selling XRBC (TakerGets is XRBC), that is a sell order (ask)
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) {
+        // ask: seller offers XRBC in exchange for XRP at price (quality)
+        asks.push({price, amount});
+      } else {
+        // otherwise treat as bid (maker offers XRP to receive XRBC)
+        bids.push({price, amount});
+      }
+    });
+
+    // Sort
+    asks.sort((a,b)=>a.price - b.price); // cheapest ask first
+    bids.sort((a,b)=>b.price - a.price); // highest bid first
+
+    const bestAsk = (asks.length>0) ? asks[0].price : null;
+    const bestBid = (bids.length>0) ? bids[0].price : null;
+    bestAskEl.textContent = bestAsk ? bestAsk.toFixed(6) : '—';
+    bestBidEl.textContent = bestBid ? bestBid.toFixed(6) : '—';
+    if (bestAsk !== null && bestBid !== null) {
+      const sp = bestAsk - bestBid;
+      spreadEl.textContent = sp.toFixed(6);
+    } else spreadEl.textContent = '—';
+
+    // depth: sum top 5 amounts each side
+    const topBids = bids.slice(0,5).reduce((s,x)=>s + (x.amount || 0), 0);
+    const topAsks = asks.slice(0,5).reduce((s,x)=>s + (x.amount || 0), 0);
+    depthEl.textContent = `${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
+  }
+
+  // slippage simulator (fills sequential levels)
+  function simulateSlippage(side, amountXRBC){
+    if (!lastOrderbook || !lastOrderbook.length) return 'No orderbook';
+    // Create levels with side classification like in computeMetrics
+    const asks = [], bids = [];
+    lastOrderbook.forEach(o=>{
+      const price = o.quality ? Number(o.quality) : null;
+      let amount = 0;
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
+      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) asks.push({price, amount});
+      else bids.push({price, amount});
+    });
+    asks.sort((a,b)=>a.price - b.price);
+    bids.sort((a,b)=>b.price - a.price);
+
+    const levels = (side === 'buy') ? asks : bids; // buy consumes asks; sell consumes bids
+    let remaining = Number(amountXRBC);
+    if (remaining <= 0) return 'Enter a positive amount';
+    let filledValue = 0; // sum(price * qty)
+    for (const lvl of levels) {
+      if (remaining <= 0) break;
+      const lvlAmt = lvl.amount || 0;
+      if (!lvlAmt || !lvl.price) continue;
+      const take = Math.min(remaining, lvlAmt);
+      filledValue += take * lvl.price;
+      remaining -= take;
+    }
+    if (remaining > 0) return 'Insufficient depth';
+    const avgPrice = filledValue / Number(amountXRBC);
+    // best price used for comparison
+    const bestPrice = ((side === 'buy') ? (asks[0] && asks[0].price) : (bids[0] && bids[0].price)) || avgPrice;
+    const slippagePct = ((avgPrice - bestPrice) / bestPrice) * 100;
+    return `Avg ${avgPrice.toFixed(6)} XRP — slippage ${slippagePct.toFixed(4)}%`;
+  }
+
+  // create Offer via Xumm (payload flow)
+  async function createOfferViaXumm(side, amount, price) {
+    if (!xumm) {
+      orderFeedbackEl.textContent = 'Xumm SDK not available on page.';
+      return;
+    }
+    if (!userAccount) {
+      try {
+        if (xumm.user && typeof xumm.user.account !== 'undefined') {
+          userAccount = await xumm.user.account;
+          if (userAccount) walletAddrEl.textContent = userAccount;
+        }
+      } catch(e){}
+    }
+    if (!userAccount) { orderFeedbackEl.textContent = 'Wallet not connected (Xumm).'; return; }
+
+    // Build TakerGets / TakerPays
+    let takerGets, takerPays;
+    if (side === 'buy') {
+      // buy XRBC: spend XRP (TakerGets = XRP drops), receive XRBC (TakerPays = IOU)
+      takerGets = toDrops(Number(price) * Number(amount));
+      takerPays = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
+    } else {
+      // sell XRBC: TakerGets = XRBC IOU, TakerPays = XRP drops
+      takerGets = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
+      takerPays = toDrops(Number(price) * Number(amount));
+    }
+
+    const tx = {
+      TransactionType: "OfferCreate",
+      Account: userAccount,
+      TakerGets: takerGets,
+      TakerPays: takerPays,
+      Flags: (side === 'sell') ? 0x00080000 : 0
+    };
+
+    orderFeedbackEl.textContent = 'Sending sign request to Xumm…';
+    try {
+      // use createAndSubscribe if available for nicer UX
+      if (xumm.payload && typeof xumm.payload.createAndSubscribe === 'function') {
+        const sub = await xumm.payload.createAndSubscribe({ txjson: tx }, (evt) => {
+          // evt.data contains payload state
+          if (!evt || !evt.data) return;
+          if (evt.data.signed === true) {
+            orderFeedbackEl.textContent = 'Order signed and placed on ledger.';
+            return true; // stop subscription
+          } else if (evt.data.signed === false) {
+            orderFeedbackEl.textContent = 'Signature rejected by user.';
+            return false;
+          }
+        });
+        // If the createAndSubscribe returned immediate info, show a link if available
+        if (sub && sub.created && sub.created.next && sub.created.next.alternative_url) {
+          orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${sub.created.next.alternative_url}">Open Xumm</a>`;
+        }
+      } else if (xumm.payload && typeof xumm.payload.create === 'function') {
+        const created = await xumm.payload.create({ txjson: tx });
+        if (created && created.next && created.next.alternative_url) {
+          orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${created.next.alternative_url}">Open Xumm</a>`;
+        } else orderFeedbackEl.textContent = 'Payload created; follow Xumm flow.';
+      } else {
+        orderFeedbackEl.textContent = 'Xumm payload API not available (incompatible SDK).';
+      }
+    } catch (err) {
+      console.error('Xumm payload error', err);
+      orderFeedbackEl.textContent = `Error creating payload: ${err.message || err}`;
+    }
+  }
+
+  // Event bindings
+  refreshBtn.addEventListener('click', ()=> loadOrderbook());
+  simulateBtn.addEventListener('click', ()=>{
+    const amt = Number(orderAmountEl.value || simAmountEl.value || 0);
+    if (!amt || amt<=0) { orderFeedbackEl.textContent = 'Enter an amount to simulate.'; return; }
+    const side = orderSideEl.value;
+    const res = simulateSlippage(side, amt);
+    simResultEl.textContent = (typeof res === 'string') ? res : JSON.stringify(res);
+    orderFeedbackEl.textContent = 'Simulation complete';
+  });
+  submitBtn.addEventListener('click', async ()=>{
+    const side = orderSideEl.value;
+    const amount = Number(orderAmountEl.value);
+    const price = Number(orderPriceEl.value);
+    if (!amount || amount <= 0) { orderFeedbackEl.textContent = 'Enter a valid amount.'; return; }
+    if (!price || price <= 0) { orderFeedbackEl.textContent = 'Enter a valid price.'; return; }
+    await createOfferViaXumm(side, amount, price);
+  });
+
+  // quick wallet detection
+  async function detectWalletQuick(){
+    try {
+      if (xumm && xumm.user && typeof xumm.user.account !== 'undefined') {
+        const acct = await xumm.user.account;
+        if (acct) { userAccount = acct; walletAddrEl.textContent = acct; return; }
+      }
+    } catch(e){}
+  }
+
+  // Kickoff
+  initClients().then(()=>{
+    detectWalletQuick();
+    loadOrderbook();
+  });
+
+  // small API for dev/debug
+  window.__xrbcDex = {
+    loadOrderbook: loadOrderbook,
+    simulateSlippage: simulateSlippage,
+    lastOrderbook: () => lastOrderbook
+  };
+
+})();
+</script>
+<!-- End PART 2 -->
+<!-- PART 3 — Extras: helper + short README (optional) -->
+<script defer>
+/*
+  XRBC DEX quick notes (visible in console)
+  - If xrpl.js or Xumm aren't loaded, the widget will still render but network and signing won't work.
+  - To change node endpoint, edit the <script id="app-config"> JSON in your page:
+    {
+      "xummApiKey": "YOUR_KEY_IF_ANY",
+      "rpcEndpoint": "wss://your-xrpl-node"
+    }
+  - Debug:
+      window.__xrbcDex.loadOrderbook();
+      window.__xrbcDex.simulateSlippage('buy', 10);
+*/
+console.info('XRBC DEX module loaded — use window.__xrbcDex for debug.');
+</script>
+<!-- End PART 3 -->
 
 </body>
 </html>
