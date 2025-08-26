@@ -261,9 +261,10 @@ async function disconnectWallet() {
   'use strict';
   // Config/constants
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
-  const XRBC_CODE = "XRbitcoincash";
+  // XRBC IOU currency must be the 160-bit hex (20-byte) string
+  const XRBC_CODE   = "5852626974636F696E6361736800000000000000";
   const DEFAULT_WSS = "wss://xrplcluster.com";
-  const MAX_LEVELS = 20;
+  const MAX_LEVELS  = 20;
 
   // DOM refs
   const pairSelect = document.getElementById('xrbc-pair-select');
