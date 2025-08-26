@@ -115,31 +115,40 @@ async function disconnectWallet() {
 
 //button function desk top iso 
 btn.addEventListener('click', async () => {
-  if (btn.textContent.trim() === 'Disconnect') {
-    return disconnectWallet();
-  }
-
-  statusEl.textContent = 'Connecting…';
-
   try {
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-    // Always triggers QR as before
-    const sub = await xumm.authorize();
-
-    // On mobile, also attempt direct handoff to Xaman
-    if (isMobile && sub.refs && sub.refs.qr_app) {
-      window.location.href = sub.refs.qr_app;
+    if (btn.textContent.trim() === 'Disconnect') {
+      // Clear stored token/session manually (logout may not exist)
+      xumm.logout && await xumm.logout(); // Call only if defined
+      statusEl.textContent = '✅ Your wallet has disconnected safely.';
+      btn.textContent = 'Connect Wallet';
+      return;
     }
 
-    const account = await xumm.user.account;
+    statusEl.textContent = 'Connecting…';
+
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+    // Request authorization
+    const sub = await xumm.authorize();
+
+    // On mobile, hand off to wallet AFTER session is set
+    if (isMobile && sub.refs?.qr_app) {
+      setTimeout(() => {
+        window.location.href = sub.refs.qr_app;
+      }, 500); // small delay to ensure auth session is saved
+    }
+
+    // Get connected account (property, not Promise)
+    const account = xumm.user?.account || 'Unknown';
     statusEl.textContent = 'Connected: ' + account;
     btn.textContent = 'Disconnect';
   } catch (err) {
-    console.error(err);
+    console.error('Wallet connect failed:', err);
     statusEl.textContent = 'Status: Not connected';
+    btn.textContent = 'Connect Wallet';
   }
 });
+
 
 </script>
 
