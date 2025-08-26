@@ -256,13 +256,12 @@ async function disconnectWallet() {
 <script defer>
 (function(){
   'use strict';
-  // Config/constants
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
   const XRBC_CODE = "XRbitcoincash";
   const DEFAULT_WSS = "wss://xrplcluster.com";
   const MAX_LEVELS = 20;
 
-  // DOM refs
+  // DOM refs (same as before)
   const pairSelect = document.getElementById('xrbc-pair-select');
   const orderbookEl = document.getElementById('xrbc-orderbook');
   const walletAddrEl = document.getElementById('xrbc-wallet-addr');
@@ -271,15 +270,20 @@ async function disconnectWallet() {
   const bestBidEl = document.getElementById('xrbc-metric-bestbid');
   const bestAskEl = document.getElementById('xrbc-metric-bestask');
   const depthEl = document.getElementById('xrbc-metric-depth');
-  const simAmountEl = document.getElementById('xrbc-sim-amount');
-  const simResultEl = document.getElementById('xrbc-sim-result');
   const refreshBtn = document.getElementById('xrbc-refresh-btn');
   const submitBtn = document.getElementById('xrbc-submit-order');
-  const simulateBtn = document.getElementById('xrbc-simulate-btn');
   const orderSideEl = document.getElementById('xrbc-order-side');
   const orderAmountEl = document.getElementById('xrbc-order-amount');
   const orderPriceEl = document.getElementById('xrbc-order-price');
   const orderFeedbackEl = document.getElementById('xrbc-order-feedback');
+
+  // Remove simulate elements completely
+  const simAmountEl = document.getElementById('xrbc-sim-amount');
+  const simResultEl = document.getElementById('xrbc-sim-result');
+  const simulateBtn = document.getElementById('xrbc-simulate-btn');
+  if(simAmountEl) simAmountEl.remove();
+  if(simResultEl) simResultEl.remove();
+  if(simulateBtn) simulateBtn.remove();
 
   // read site config safely
   let siteCfg = {};
@@ -298,7 +302,6 @@ async function disconnectWallet() {
   let userAccount = null;
   let lastOrderbook = null;
 
-  // Init clients (xrpl and xumm) defensively
   async function initClients(){
     // xrpl client
     try {
@@ -308,49 +311,36 @@ async function disconnectWallet() {
         nodeStatusEl.textContent = 'connected';
       } else {
         nodeStatusEl.textContent = 'xrpl.js not present';
-        console.warn('xrpl.js is not available on page. Include xrpl.js for node access.');
       }
-    } catch (err) {
-      nodeStatusEl.textContent = 'connection failed';
-      console.error('XRPL connect error', err);
-    }
+    } catch (err) { nodeStatusEl.textContent = 'connection failed'; }
 
     // xumm client
     try {
       const apiKey = siteCfg.xummApiKey || null;
-      if (!apiKey) console.warn('No xummApiKey in app-config (may still work if Xumm is available globally).');
       if (hasXumm) {
         try { xumm = new Xumm(apiKey); } catch(e){
-          try { xumm = new XummSdk(apiKey); } catch(e2){
-            xumm = window.Xumm || null;
-          }
+          try { xumm = new XummSdk(apiKey); } catch(e2){ xumm = window.Xumm || null; }
         }
-        // attempt to detect signed account quickly
         try {
           if (xumm && xumm.user && typeof xumm.user.account !== 'undefined') {
             const a = await xumm.user.account;
             if (a) { userAccount = a; walletAddrEl.textContent = a; }
           }
         } catch(e){}
-      } else {
-        console.warn('Xumm SDK not loaded; create offer flow will be limited.');
       }
-    } catch(err){
-      console.error('Xumm init error', err);
-    }
+    } catch(err){}
   }
 
-  // Helpers to convert drops <-> xrp (safe if xrpl lib present)
   function toDrops(xrp) {
     if (hasXrpl && xrpl && typeof xrpl.xrpToDrops === 'function') return xrpl.xrpToDrops(String(xrp));
     return String(Math.round(Number(xrp) * 1_000_000));
   }
+
   function fromDrops(drops) {
     if (!drops) return 0;
     return Number(drops) / 1_000_000;
   }
 
-  // load orderbook from XRPL node
   async function loadOrderbook(){
     orderbookEl.innerHTML = "<div class='xrbc-row'><em>Loading orderbook…</em></div>";
     if (!xrplClient || !xrplClient.isConnected()) {
@@ -370,36 +360,24 @@ async function disconnectWallet() {
       renderOrderbook(offers);
       computeMetrics(offers);
     } catch (err) {
-      console.error('book_offers error', err);
-      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error: ${err.message || err}</div>`;
+      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error</div>`;
     }
   }
 
-  // render orderbook snapshot
   function renderOrderbook(offers){
-    if (!offers || !offers.length) {
-      orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers found</em></div>";
-      return;
-    }
+    if (!offers || !offers.length) { orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers found</em></div>"; return; }
     const container = document.createElement('div');
-    const head = document.createElement('div');
-    head.className = 'xrbc-row';
+    const head = document.createElement('div'); head.className = 'xrbc-row';
     head.innerHTML = "<strong>Side</strong><strong>Price</strong><strong>Amount</strong>";
     container.appendChild(head);
 
     offers.forEach((o)=>{
       const quality = o.quality ? parseFloat(o.quality) : null;
-      let amount = '—';
-      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) {
-        amount = parseFloat(o.TakerGets.value);
-      } else if (o.TakerGets && !isNaN(o.TakerGets)) {
-        amount = fromDrops(o.TakerGets);
-      }
-      // Determine side: XRPL's flag approach is not the definitive source of bid/ask label in offers:
-      // We infer: if taker_gets is IOU (XRBC), that means the maker is selling XRBC (so that's a sell offer).
+      let amount = 0;
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = parseFloat(o.TakerGets.value);
+      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
       let type = 'Buy';
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) type = 'Sell';
-      // Otherwise fallback to flags heuristic:
       else if (o.Flags && (o.Flags & 0x00080000)) type = 'Sell';
 
       const row = document.createElement('div');
@@ -407,58 +385,13 @@ async function disconnectWallet() {
       row.innerHTML = `<div class="${type==='Buy'?'xrbc-bid':'xrbc-ask'}">${type}</div><div>${quality ? Number(quality).toFixed(6) : '—'}</div><div>${amount}</div>`;
       container.appendChild(row);
     });
-    orderbookEl.innerHTML = '';
-    orderbookEl.appendChild(container);
+    orderbookEl.innerHTML = ''; orderbookEl.appendChild(container);
   }
 
-  // compute metrics (best bid/ask, spread, depth)
   function computeMetrics(offers){
-    if (!offers || !offers.length) {
-      spreadEl.textContent = '—'; bestBidEl.textContent = '—'; bestAskEl.textContent = '—'; depthEl.textContent = '—';
-      return;
-    }
-    // Build normalized price list with explicit side (sell = asks, buy = bids)
+    if (!offers || !offers.length) { spreadEl.textContent = '—'; bestBidEl.textContent = '—'; bestAskEl.textContent = '—'; depthEl.textContent = '—'; return; }
     const asks = [], bids = [];
     offers.forEach(o=>{
-      const price = o.quality ? Number(o.quality) : null;
-      let amount = 0;
-      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
-      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
-      // If maker is selling XRBC (TakerGets is XRBC), that is a sell order (ask)
-      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) {
-        // ask: seller offers XRBC in exchange for XRP at price (quality)
-        asks.push({price, amount});
-      } else {
-        // otherwise treat as bid (maker offers XRP to receive XRBC)
-        bids.push({price, amount});
-      }
-    });
-
-    // Sort
-    asks.sort((a,b)=>a.price - b.price); // cheapest ask first
-    bids.sort((a,b)=>b.price - a.price); // highest bid first
-
-    const bestAsk = (asks.length>0) ? asks[0].price : null;
-    const bestBid = (bids.length>0) ? bids[0].price : null;
-    bestAskEl.textContent = bestAsk ? bestAsk.toFixed(6) : '—';
-    bestBidEl.textContent = bestBid ? bestBid.toFixed(6) : '—';
-    if (bestAsk !== null && bestBid !== null) {
-      const sp = bestAsk - bestBid;
-      spreadEl.textContent = sp.toFixed(6);
-    } else spreadEl.textContent = '—';
-
-    // depth: sum top 5 amounts each side
-    const topBids = bids.slice(0,5).reduce((s,x)=>s + (x.amount || 0), 0);
-    const topAsks = asks.slice(0,5).reduce((s,x)=>s + (x.amount || 0), 0);
-    depthEl.textContent = `${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
-  }
-
-  // slippage simulator (fills sequential levels)
-  function simulateSlippage(side, amountXRBC){
-    if (!lastOrderbook || !lastOrderbook.length) return 'No orderbook';
-    // Create levels with side classification like in computeMetrics
-    const asks = [], bids = [];
-    lastOrderbook.forEach(o=>{
       const price = o.quality ? Number(o.quality) : null;
       let amount = 0;
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
@@ -466,142 +399,68 @@ async function disconnectWallet() {
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) asks.push({price, amount});
       else bids.push({price, amount});
     });
-    asks.sort((a,b)=>a.price - b.price);
-    bids.sort((a,b)=>b.price - a.price);
-
-    const levels = (side === 'buy') ? asks : bids; // buy consumes asks; sell consumes bids
-    let remaining = Number(amountXRBC);
-    if (remaining <= 0) return 'Enter a positive amount';
-    let filledValue = 0; // sum(price * qty)
-    for (const lvl of levels) {
-      if (remaining <= 0) break;
-      const lvlAmt = lvl.amount || 0;
-      if (!lvlAmt || !lvl.price) continue;
-      const take = Math.min(remaining, lvlAmt);
-      filledValue += take * lvl.price;
-      remaining -= take;
-    }
-    if (remaining > 0) return 'Insufficient depth';
-    const avgPrice = filledValue / Number(amountXRBC);
-    // best price used for comparison
-    const bestPrice = ((side === 'buy') ? (asks[0] && asks[0].price) : (bids[0] && bids[0].price)) || avgPrice;
-    const slippagePct = ((avgPrice - bestPrice) / bestPrice) * 100;
-    return `Avg ${avgPrice.toFixed(6)} XRP — slippage ${slippagePct.toFixed(4)}%`;
+    asks.sort((a,b)=>a.price - b.price); bids.sort((a,b)=>b.price - a.price);
+    const bestAsk = (asks.length>0)?asks[0].price:null;
+    const bestBid = (bids.length>0)?bids[0].price:null;
+    bestAskEl.textContent = bestAsk?bestAsk.toFixed(6):'—';
+    bestBidEl.textContent = bestBid?bestBid.toFixed(6):'—';
+    spreadEl.textContent = (bestAsk!==null && bestBid!==null)?(bestAsk-bestBid).toFixed(6):'—';
+    const topBids = bids.slice(0,5).reduce((s,x)=>s+(x.amount||0),0);
+    const topAsks = asks.slice(0,5).reduce((s,x)=>s+(x.amount||0),0);
+    depthEl.textContent = `${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
   }
 
-  // create Offer via Xumm (payload flow)
-  async function createOfferViaXumm(side, amount, price) {
-    if (!xumm) {
-      orderFeedbackEl.textContent = 'Xumm SDK not available on page.';
-      return;
-    }
-    if (!userAccount) {
-      try {
-        if (xumm.user && typeof xumm.user.account !== 'undefined') {
-          userAccount = await xumm.user.account;
-          if (userAccount) walletAddrEl.textContent = userAccount;
-        }
-      } catch(e){}
-    }
-    if (!userAccount) { orderFeedbackEl.textContent = 'Wallet not connected (Xumm).'; return; }
+  // FIXED SLIPPAGE: always 0.5%
+  const getSlippage = ()=>0.5;
 
-    // Build TakerGets / TakerPays
+  async function createOfferViaXumm(side, amount, price, orderType='limit'){
+    if (!xumm || !userAccount) { orderFeedbackEl.textContent='Wallet not connected or Xumm not available'; return; }
+    // Determine TakerGets / TakerPays
     let takerGets, takerPays;
-    if (side === 'buy') {
-      // buy XRBC: spend XRP (TakerGets = XRP drops), receive XRBC (TakerPays = IOU)
-      takerGets = toDrops(Number(price) * Number(amount));
-      takerPays = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
-    } else {
-      // sell XRBC: TakerGets = XRBC IOU, TakerPays = XRP drops
-      takerGets = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
-      takerPays = toDrops(Number(price) * Number(amount));
-    }
+    if(side==='buy'){ takerGets = toDrops(price*amount); takerPays={currency:XRBC_CODE,issuer:XRBC_ISSUER,value:amount.toFixed(6)}; }
+    else { takerGets={currency:XRBC_CODE,issuer:XRBC_ISSUER,value:amount.toFixed(6)}; takerPays=toDrops(price*amount); }
 
-    const tx = {
-      TransactionType: "OfferCreate",
-      Account: userAccount,
-      TakerGets: takerGets,
-      TakerPays: takerPays,
-      Flags: (side === 'sell') ? 0x00080000 : 0
-    };
+    const tx = { TransactionType:"OfferCreate", Account:userAccount, TakerGets:takerGets, TakerPays:takerPays, Flags:(side==='sell'?0x00080000:0) };
 
-    orderFeedbackEl.textContent = 'Sending sign request to Xumm…';
-    try {
-      // use createAndSubscribe if available for nicer UX
-      if (xumm.payload && typeof xumm.payload.createAndSubscribe === 'function') {
-        const sub = await xumm.payload.createAndSubscribe({ txjson: tx }, (evt) => {
-          // evt.data contains payload state
-          if (!evt || !evt.data) return;
-          if (evt.data.signed === true) {
-            orderFeedbackEl.textContent = 'Order signed and placed on ledger.';
-            return true; // stop subscription
-          } else if (evt.data.signed === false) {
-            orderFeedbackEl.textContent = 'Signature rejected by user.';
-            return false;
-          }
+    orderFeedbackEl.textContent='Sending to Xumm…';
+    try{
+      if(xumm.payload && typeof xumm.payload.createAndSubscribe==='function'){
+        const sub = await xumm.payload.createAndSubscribe({txjson:tx},(evt)=>{
+          if(evt?.data?.signed===true){ orderFeedbackEl.textContent='Order signed and placed.'; return true; }
+          else if(evt?.data?.signed===false){ orderFeedbackEl.textContent='Signature rejected'; return false; }
         });
-        // If the createAndSubscribe returned immediate info, show a link if available
-        if (sub && sub.created && sub.created.next && sub.created.next.alternative_url) {
-          orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${sub.created.next.alternative_url}">Open Xumm</a>`;
-        }
-      } else if (xumm.payload && typeof xumm.payload.create === 'function') {
-        const created = await xumm.payload.create({ txjson: tx });
-        if (created && created.next && created.next.alternative_url) {
-          orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${created.next.alternative_url}">Open Xumm</a>`;
-        } else orderFeedbackEl.textContent = 'Payload created; follow Xumm flow.';
-      } else {
-        orderFeedbackEl.textContent = 'Xumm payload API not available (incompatible SDK).';
+        if(sub?.created?.next?.alternative_url){ orderFeedbackEl.innerHTML=`<a target="_blank" href="${sub.created.next.alternative_url}">Open Xumm to sign</a>`; }
       }
-    } catch (err) {
-      console.error('Xumm payload error', err);
-      orderFeedbackEl.textContent = `Error creating payload: ${err.message || err}`;
-    }
+      else if(xumm.payload && typeof xumm.payload.create==='function'){
+        const created = await xumm.payload.create({txjson:tx});
+        if(created?.next?.alternative_url){ orderFeedbackEl.innerHTML=`<a target="_blank" href="${created.next.alternative_url}">Open Xumm</a>`; }
+        else orderFeedbackEl.textContent='Payload created; follow Xumm flow.'; 
+      }
+      else orderFeedbackEl.textContent='Xumm SDK not compatible';
+    } catch(err){ orderFeedbackEl.textContent='Error: '+(err.message||err); }
   }
 
   // Event bindings
-  refreshBtn.addEventListener('click', ()=> loadOrderbook());
-  simulateBtn.addEventListener('click', ()=>{
-    const amt = Number(orderAmountEl.value || simAmountEl.value || 0);
-    if (!amt || amt<=0) { orderFeedbackEl.textContent = 'Enter an amount to simulate.'; return; }
-    const side = orderSideEl.value;
-    const res = simulateSlippage(side, amt);
-    simResultEl.textContent = (typeof res === 'string') ? res : JSON.stringify(res);
-    orderFeedbackEl.textContent = 'Simulation complete';
-  });
+  refreshBtn.addEventListener('click', ()=>loadOrderbook());
   submitBtn.addEventListener('click', async ()=>{
     const side = orderSideEl.value;
     const amount = Number(orderAmountEl.value);
     const price = Number(orderPriceEl.value);
-    if (!amount || amount <= 0) { orderFeedbackEl.textContent = 'Enter a valid amount.'; return; }
-    if (!price || price <= 0) { orderFeedbackEl.textContent = 'Enter a valid price.'; return; }
+    if(!amount||!price){ orderFeedbackEl.textContent='Enter valid amount and price'; return; }
     await createOfferViaXumm(side, amount, price);
   });
 
-  // quick wallet detection
   async function detectWalletQuick(){
-    try {
-      if (xumm && xumm.user && typeof xumm.user.account !== 'undefined') {
-        const acct = await xumm.user.account;
-        if (acct) { userAccount = acct; walletAddrEl.textContent = acct; return; }
-      }
-    } catch(e){}
+    try{ if(xumm?.user?.account){ const acct = await xumm.user.account; if(acct){ userAccount=acct; walletAddrEl.textContent=acct; } } } catch(e){}
   }
 
-  // Kickoff
-  initClients().then(()=>{
-    detectWalletQuick();
-    loadOrderbook();
-  });
+  initClients().then(()=>{ detectWalletQuick(); loadOrderbook(); });
 
-  // small API for dev/debug
-  window.__xrbcDex = {
-    loadOrderbook: loadOrderbook,
-    simulateSlippage: simulateSlippage,
-    lastOrderbook: () => lastOrderbook
-  };
+  window.__xrbcDex = { loadOrderbook, lastOrderbook:()=>lastOrderbook };
 
 })();
 </script>
+
 <!-- End PART 2 -->
 <!-- PART 3 — Extras: helper + short README (optional) -->
 <script defer>
