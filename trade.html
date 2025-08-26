@@ -94,8 +94,13 @@
     console.log('Xumm SDK ready');
     btn.disabled = false;
   });
-
-  btn.addEventListener('click', async () => {
+//button function correct
+  btn.addEventListener('click', async () => { if (btn.textContent === 'Disconnect') { return disconnectWallet(); }
+function disconnectWallet() {
+  account = '';
+  statusEl.textContent = 'Not connected';
+}
+//button funtion correct
     statusEl.textContent = 'Connecting...';
     try {
       const auth = await xumm.authorize(); // triggers app/QR
