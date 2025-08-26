@@ -265,7 +265,8 @@ async function disconnectWallet() {
   const XRBC_CODE   = "5852626974636F696E6361736800000000000000";
   const DEFAULT_WSS = "wss://xrplcluster.com";
   const MAX_LEVELS  = 20;
-
+// Allow up to 0.5% slippage on market trades
+const MAX_SLIPPAGE_PCT  = 0.5;
   // DOM refs
   const pairSelect = document.getElementById('xrbc-pair-select');
   const orderbookEl = document.getElementById('xrbc-orderbook');
