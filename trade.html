@@ -96,58 +96,68 @@
 
 <!-- === APP SCRIPT === -->
 <script>
-(function(){
-  'use strict';
+  (function(){
+    'use strict';
 
-  const cfg = JSON.parse(document.getElementById('app-config').textContent);
-  const btn = document.getElementById('connectWalletButton');
-  const statusEl = document.getElementById('walletAddress');
+    // Grab config, button and status elements
+    const cfg       = JSON.parse(document.getElementById('app-config').textContent);
+    const btn       = document.getElementById('connectWalletButton');
+    const statusEl  = document.getElementById('walletAddress');
 
-  // Init Xumm SDK
-  const xumm = new Xumm(cfg.xummApiKey);
-
-  xumm.on('ready', () => {
-    console.log('Xumm SDK ready');
-    btn.disabled = false;
-  });
- //added disconnect button now visable
-async function disconnectWallet() {
-  try {
-    // End the Xumm session and clear auth
-    await xumm.logout();
-
-    // Update UI to show a safe disconnect
-    statusEl.textContent = '✅ Your wallet has disconnected safely.';
-    btn.textContent = 'Connect Wallet';
-
-    // If you want, trigger any follow‑up UI like a ledger receipt here
-    // showLedgerReceipt();
-  } catch (err) {
-    console.error('Error disconnecting wallet:', err);
-    statusEl.textContent = '⚠ Could not disconnect — see console for details.';
-  }
-}
-//added disconnect button now visable
-
-//button function correct
-  btn.addEventListener('click', async () => { if (btn.textContent.trim() === 'Disconnect') { return disconnectWallet(); }
-  statusEl.textContent = 'Not connected';
-//button funtion correct
-    statusEl.textContent = 'Connecting...';
-    try {
-      const auth = await xumm.authorize(); // triggers app/QR
-      const account = await xumm.user.account;
-      statusEl.textContent = 'Connected: ' + account;
- //button disconect    
-      btn.textContent = 'Disconnect';
- //button disconect
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent = 'Status: Not connected';
+    // --- PERSISTENCE START ---
+    // Restore UI if address stored from a prior session
+    const storedAddress = localStorage.getItem('xummAddress');
+    if (storedAddress) {
+      statusEl.textContent = 'Connected: ' + storedAddress;
+      btn.textContent      = 'Disconnect';
     }
-  });
-})();
+    // --- PERSISTENCE END ---
+
+    // Initialize Xumm SDK
+    const xumm = new Xumm(cfg.xummApiKey);
+    xumm.on('ready', () => {
+      console.log('Xumm SDK ready');
+      btn.disabled = false;
+    });
+
+    // Disconnect helper
+    async function disconnectWallet() {
+      try {
+        await xumm.logout();
+        statusEl.textContent = '✅ Your wallet has disconnected safely.';
+        btn.textContent      = 'Connect Wallet';
+
+        // --- CLEAR PERSISTED ADDRESS ---
+        localStorage.removeItem('xummAddress');
+      } catch (err) {
+        console.error('Error disconnecting wallet:', err);
+        statusEl.textContent = '⚠ Could not disconnect — see console.';
+      }
+    }
+
+    // Main Connect/Disconnect button handler
+    btn.addEventListener('click', async () => {
+      if (btn.textContent.trim() === 'Disconnect') {
+        return disconnectWallet();
+      }
+
+      statusEl.textContent = 'Connecting...';
+      try {
+        await xumm.authorize();             // triggers QR/app
+        const account = await xumm.user.account;
+        statusEl.textContent = 'Connected: ' + account;
+        btn.textContent      = 'Disconnect';
+
+        // --- SAVE PERSISTED ADDRESS ---
+        localStorage.setItem('xummAddress', account);
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = 'Status: Not connected';
+      }
+    });
+  })();
 </script>
+
 <!-- PART 1 — XRBC DEX Module: HTML + CSS -->
 <style id="xrbc-dex-styles">
   :root {
