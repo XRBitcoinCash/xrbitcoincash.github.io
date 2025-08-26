@@ -96,134 +96,43 @@
     btn.disabled = false;
   });
  //added disconnect button now visable
-<script>
-// … your router code above …
+async function disconnectWallet() {
+  try {
+    // End the Xumm session and clear auth
+    await xumm.logout();
 
-async function renderSettings() {
-  // 1) Overwrite the entire #app area with both Wallet UI and the DEX panel
-  document.getElementById('app').innerHTML = `
-    <!-- Wallet Connect Section -->
-    <section class="section">
-      <h2>Wallet Connect</h2>
-      <button id="btn-connect">Connect Wallet</button>
-      <div id="status">Status: Not connected</div>
-    </section>
+    // Update UI to show a safe disconnect
+    statusEl.textContent = '✅ Your wallet has disconnected safely.';
+    btn.textContent = 'Connect Wallet';
 
-    <!-- XRBC ↔ XRP Decentralized Exchange Section -->
-    <section class="section" id="dex-section">
-      <h2>Decentralized Exchange</h2>
-      <div style="display:flex;gap:1rem;align-items:center;">
-        <label for="dex-pair">Pair:</label>
-        <select id="dex-pair">
-          <option value="XRBC:XRP">XRBC ↔ XRP</option>
-        </select>
-        <button id="dex-load" class="btn">Load Order Book</button>
-      </div>
-      <pre id="dex-book"
-           style="margin-top:1rem;max-height:200px;overflow:auto;font-family:monospace;">
-      </pre>
-      <div style="display:flex;gap:1rem;align-items:center;margin-top:1rem;">
-        <input id="dex-amount" type="number" placeholder="Amount" style="flex:1;">
-        <button id="dex-swap" class="btn">Place Order</button>
-      </div>
-      <div id="dex-status"
-           style="margin-top:0.5rem;color:var(--accent);font-family:monospace;">
-        Status: Ready
-      </div>
-    </section>
-  `;
-
-  // 2) Wallet connect / disconnect logic
-  const btn     = document.getElementById('btn-connect');
-  const status  = document.getElementById('status');
-
-  async function disconnectWallet() {
-    try {
-      await xumm.logout();
-      status.textContent = '✅ Your wallet has disconnected safely.';
-      btn.textContent    = 'Connect Wallet';
-    } catch (err) {
-      console.error(err);
-      status.textContent = '⚠ Could not disconnect — check console.';
-    }
+    // If you want, trigger any follow‑up UI like a ledger receipt here
+    // showLedgerReceipt();
+  } catch (err) {
+    console.error('Error disconnecting wallet:', err);
+    statusEl.textContent = '⚠ Could not disconnect — see console for details.';
   }
-
-  btn.addEventListener('click', async () => {
-    if (btn.textContent.trim() === 'Disconnect') {
-      return disconnectWallet();
-    }
-    status.textContent = 'Connecting...';
-    try {
-      await xumm.authorize();          // opens QR/app
-      const account = await xumm.user.account;
-      status.textContent = 'Connected: ' + account;
-      btn.textContent    = 'Disconnect';
-    } catch (err) {
-      console.error(err);
-      status.textContent = 'Status: Not connected';
-    }
-  });
-
-  // 3) DEX logic
-  const client       = new xrpl.Client(XRPC);
-  const pairSel      = document.getElementById('dex-pair');
-  const loadBtn      = document.getElementById('dex-load');
-  const bookEl       = document.getElementById('dex-book');
-  const amtInput     = document.getElementById('dex-amount');
-  const swapBtn      = document.getElementById('dex-swap');
-  const statusEl2    = document.getElementById('dex-status');
-
-  async function loadOrderBook() {
-    statusEl2.textContent = 'Loading…';
-    await client.connect();
-    const [gets, pays] = pairSel.value.split(':');
-    const req = {
-      command:    'book_offers',
-      taker_gets:  gets === 'XRP'
-                     ? { currency:'XRP' }
-                     : { currency:CURRENCY, issuer:ISSUER },
-      taker_pays:  pays === 'XRP'
-                     ? { currency:'XRP' }
-                     : { currency:CURRENCY, issuer:ISSUER },
-      limit:      5
-    };
-    const res = await client.request(req);
-    client.disconnect();
-    bookEl.textContent    = JSON.stringify(res.result.offers, null, 2);
-    statusEl2.textContent = 'Ready';
-  }
-
-  loadBtn.addEventListener('click', loadOrderBook);
-  loadOrderBook(); // initial load
-
-  swapBtn.addEventListener('click', async () => {
-    const amt = parseFloat(amtInput.value);
-    if (!amt) {
-      return statusEl2.textContent = '⚠ Enter valid amount';
-    }
-    statusEl2.textContent = 'Building TX…';
-    const [gets, pays] = pairSel.value.split(':');
-    const tx = {
-      TransactionType:'OfferCreate',
-      Account:         await xumm.user.account,
-      TakerGets:       gets==='XRP'
-                         ? { currency:'XRP', value:amt.toString() }
-                         : { currency:CURRENCY, issuer:ISSUER, value:amt.toString() },
-      TakerPays:       pays==='XRP'
-                         ? { currency:'XRP', value:'0' }
-                         : { currency:CURRENCY, issuer:ISSUER, value:'0' },
-      Flags:           0
-    };
-    const payload = await xumm.payload.create({ txjson:tx, options:{ submit:true } });
-    window.open(payload.next.always, '_blank');
-    statusEl2.textContent = '✅ Sent to your wallet';
-  });
 }
+//added disconnect button now visable
 
-// … your router’s route() function calls renderSettings() when hash==#/settings …
-
+//button function correct
+  btn.addEventListener('click', async () => { if (btn.textContent.trim() === 'Disconnect') { return disconnectWallet(); }
+  statusEl.textContent = 'Not connected';
+//button funtion correct
+    statusEl.textContent = 'Connecting...';
+    try {
+      const auth = await xumm.authorize(); // triggers app/QR
+      const account = await xumm.user.account;
+      statusEl.textContent = 'Connected: ' + account;
+ //button disconect    
+      btn.textContent = 'Disconnect';
+ //button disconect
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Status: Not connected';
+    }
+  });
+})();
 </script>
-
 
 </body>
 </html>
