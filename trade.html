@@ -94,10 +94,25 @@
     console.log('Xumm SDK ready');
     btn.disabled = false;
   });
-  //added disconnect button now visable
-  function disconnectWallet() {
-  statusEl.textContent = 'Not connected';
-  btn.textContent = 'Connect Wallet';
+ //added disconnect button now visable
+async function disconnectWallet() {
+  try {
+    // End the Xumm session and clear auth
+    await xumm.logout();
+
+    // Update UI to show a safe disconnect
+    statusEl.textContent = '✅ Your wallet has disconnected safely.';
+    btn.textContent = 'Connect Wallet';
+
+    // If you want, trigger any follow‑up UI like a ledger receipt here
+    // showLedgerReceipt();
+  } catch (err) {
+    console.error('Error disconnecting wallet:', err);
+    statusEl.textContent = '⚠ Could not disconnect — see console for details.';
+  }
+}
+//added disconnect button now visable
+
 }
 //added disconnect button now visable
 //button function correct
