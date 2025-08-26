@@ -94,12 +94,15 @@
     console.log('Xumm SDK ready');
     btn.disabled = false;
   });
-//button function correct
-  btn.addEventListener('click', async () => { if (btn.textContent === 'Disconnect') { return disconnectWallet(); }
-function disconnectWallet() {
-  account = '';
+  //added disconnect button now visable
+  function disconnectWallet() {
   statusEl.textContent = 'Not connected';
+  btn.textContent = 'Connect Wallet';
 }
+//added disconnect button now visable
+//button function correct
+  btn.addEventListener('click', async () => { if (btn.textContent.trim() === 'Disconnect') { return disconnectWallet(); }
+  statusEl.textContent = 'Not connected';
 //button funtion correct
     statusEl.textContent = 'Connecting...';
     try {
