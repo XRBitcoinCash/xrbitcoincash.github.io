@@ -1,517 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- favicon… -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/favicon.png">
-</head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced XRPL DEX</title>
 
-  <title>XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/xrpl@2.11.0/build/xrpl-latest-min.js"></script>
+<script src="https://unpkg.com/xumm-sdk/dist/xumm.min.js"></script>
 
-  <!-- Icons -->
-  <link rel="icon" href="https://xrbitcoincash.com/xrbc-nft.png" type="image/png" />
-  <link rel="apple-touch-icon" href="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- Primary SEO -->
-  <meta name="description" content="Trusted XRPL DEX portal for XRBitcoinCash (XRBC). Swap, provide liquidity, and explore order books on XRPL AMMs like Sologenic. Low fees, ~3s finality, non-custodial." />
-  <meta name="keywords" content="XRBitcoinCash DEX, XRBC trading, XRPL AMM, Sologenic, liquidity pool, on-ledger exchange, crypto swap, XRP Ledger" />
-  <link rel="canonical" href="https://xrbitcoincash.com/dex.html" />
-  <meta name="robots" content="index,follow" />
-  <meta name="theme-color" content="#0F1C2E" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)" />
-  <meta property="og:description" content="Swap and provide liquidity for XRBC on XRPL via Sologenic and other AMMs. Low fees, ~3s finality, and non‑custodial control." />
-  <meta property="og:url" content="https://xrbitcoincash.com/dex.html" />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-  <meta property="og:image:alt" content="XRBitcoinCash DEX trading interface preview" />
-  <meta property="og:site_name" content="XRBitcoinCash" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBitcoinCash DEX — Trade XRBC on XRPL AMM (Sologenic)" />
-  <meta name="twitter:description" content="Trade XRBC with low fees and ~3s finality on XRPL's built‑in DEX." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- JSON‑LD Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"WebPage",
-    "name":"XRBitcoinCash DEX",
-    "url":"https://xrbitcoincash.com/dex.html",
-    "description":"Trusted XRPL DEX portal for XRBitcoinCash (XRBC). Swap, provide liquidity, and explore order books on XRPL AMMs like Sologenic.",
-    "image":"https://xrbitcoincash.com/xrbc-nft.png",
-    "publisher":{
-      "@type":"Organization",
-      "name":"XRBitcoinCash",
-      "logo":"https://xrbitcoincash.com/xrbc-nft.png",
-      "url":"https://xrbitcoincash.com"
-    }
-  }
-  </script>
-
-  <!-- Security headers (best‑effort on static hosting) -->
-  <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self';
-                 img-src 'self' https: data:;
-                 style-src 'self' 'unsafe-inline';
-                 script-src 'self' 'unsafe-inline';
-                 connect-src 'self' wss://s1.ripple.com wss://s2.ripple.com;
-                 frame-src https://xrpl.to;
-                 object-src 'none';
-                 base-uri 'none';
-                 form-action 'none';
-                 upgrade-insecure-requests;">
-  <meta http-equiv="Referrer-Policy" content="no-referrer" />
-  <meta http-equiv="Permissions-Policy"
-        content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()" />
-
-  <!-- Page Styles -->
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    :root {
-      --bg: #0f1c2e;
-      --ink: #eaf2ff;
-      --muted: #9fb3c8;
-      --accent: #ffd166;
-      --accent-ink: #17202a;
-      --panel: #f6f8fa;
-      --panel-ink: #0b1220;
-      --stroke: rgba(255,255,255,0.12);
-      --card: rgba(255,255,255,0.06);
-      --frame-bg: #0b1524;
-    }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
-      color: var(--ink);
-      background: radial-gradient(1200px 600px at 50% -200px, #1b2a41 0%, #0f1c2e 45%, #0f1c2e 100%);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Top area with Home button (same layout feel as your About page) */
-    header {
-      padding: 32px 16px 12px;
-    }
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    .home-cta {
-      display: inline-block;
-      padding: 12px 18px;
-      background: var(--accent);
-      color: var(--accent-ink);
-      text-decoration: none;
-      font-weight: 800;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(255, 209, 102, 0.2);
-      letter-spacing: 0.2px;
-    }
-
-    main {
-      flex: 1;
-      padding: 20px 0 48px;
-    }
-    .section {
-      margin: 22px auto;
-    }
-    h1 {
-      margin: 12px 0 8px;
-      font-size: clamp(2rem, 4vw + 0.5rem, 3rem);
-      letter-spacing: -0.02em;
-      font-weight: 800;
-      line-height: 1.1;
-    }
-    .lead {
-      margin: 0 auto;
-      max-width: 900px;
-      color: var(--muted);
-      font-size: clamp(1rem, 1vw + 0.7rem, 1.2rem);
-      line-height: 1.7;
-    }
-
-    /* Action buttons */
-    .btn-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin: 24px auto 8px;
-      max-width: 700px;
-    }
-    @media (min-width: 720px) {
-      .btn-row { grid-template-columns: 1fr 1fr; }
-    }
-    .btn {
-      display: inline-block;
-      padding: 14px 22px;
-      border-radius: 10px;
-      background: #e9eef3;
-      color: #0b1220;
-      text-decoration: none;
-      font-weight: 700;
-      box-shadow: 0 10px 25px rgba(20, 30, 60, 0.25);
-    }
-
-    /* Embedded XRPL explorer (trusted read-only, sandboxed) */
-    .explorer {
-      margin: 26px auto 10px;
-      max-width: 1100px;
-    }
-    iframe.explorer-frame {
-      display: block;
-      width: 100%;
-      height: 900px;
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      background: var(--frame-bg);
-    }
-
-    /* Read-only order book panel (live from XRPL public nodes) */
-    .panel {
-      margin: 24px auto;
-      max-width: 1100px;
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: left;
-    }
-    .panel h2 {
-      margin: 6px 0 4px;
-      text-align: center;
-      font-size: 1.4rem;
-    }
-    .panel .subtle { color: var(--muted); text-align: center; margin: 0 0 12px; }
-    .flex {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    @media (min-width: 720px) {
-      .flex { grid-template-columns: 1fr 1fr; }
-    }
-    .table {
-      border: 1px solid var(--stroke);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .table table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95rem;
-      color: var(--ink);
-    }
-    .table thead th {
-      text-align: left;
-      background: rgba(255,255,255,0.06);
-      padding: 10px 12px;
-      font-weight: 700;
-    }
-    .table tbody td {
-      padding: 8px 12px;
-      border-top: 1px solid var(--stroke);
-    }
-    .controls {
-      display: grid;
-      gap: 10px;
-      margin: 10px 0 16px;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 720px) {
-      .controls { grid-template-columns: 1fr 1fr 1fr 1fr; }
-    }
-    .controls input, .controls button {
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--stroke);
-      background: rgba(255,255,255,0.06);
-      color: var(--ink);
-      font-size: 0.95rem;
-    }
-    .controls button {
-      background: var(--accent);
-      color: var(--accent-ink);
-      border: 0;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Bottom TOML verification block */
-    .toml {
-      background: var(--panel);
-      color: var(--panel-ink);
-      padding: 28px 16px 40px;
-      border-top: 1px solid rgba(27, 42, 65, 0.12);
-    }
-    .toml .wrap { text-align: center; }
-    .toml .link {
-      display: inline-block;
-      padding: 10px 16px;
-      border-radius: 8px;
-      background: #e9eef3;
-      color: #0b1220;
-      text-decoration: none;
-      font-weight: 600;
-    }
-  </style>
+<style>
+body { font-family: Arial,sans-serif; margin:0; background:#111; color:#fff; }
+header { padding:1rem; background:#222; display:flex; justify-content:space-between; align-items:center; }
+header h1 { margin:0; font-size:1.5rem; }
+.container { display:grid; grid-template-columns:2fr 1fr; gap:1rem; padding:1rem; }
+.orderbook, .order-form, .charts { background:#222; border-radius:10px; padding:1rem; }
+.orderbook table { width:100%; border-collapse:collapse; }
+.orderbook th, .orderbook td { padding:0.25rem 0.5rem; text-align:right; }
+.bid { color:#0f0; font-weight:bold; }
+.ask { color:#f00; font-weight:bold; }
+button { padding:0.5rem 1rem; margin:0.25rem; border-radius:5px; border:none; cursor:pointer; }
+button.connect { background:#09f; color:#fff; }
+button.disconnect { background:#f09; color:#fff; }
+.metrics { margin-top:1rem; }
+.notification { position:fixed; bottom:1rem; right:1rem; padding:1rem; border-radius:10px; background:#333; display:none; }
+@media(max-width:768px){ .container{grid-template-columns:1fr;} }
+</style>
 </head>
 <body>
-  <!-- Top: Home button -->
-  <header>
-    <div class="wrap">
-      <a class="home-cta" href="index.html" aria-label="Go to Home">Home</a>
-    </div>
-  </header>
 
-  <main>
-    <div class="wrap section">
-      <h1>XRPL DEX portal</h1>
-      <p class="lead">
-        Trusted, read‑only market access for XRBitcoinCash (XRBC) on the XRP Ledger.
-        No private keys are ever requested or stored. Use reputable front‑ends to trade.
-      </p>
+<header>
+<h1>XRPL DEX</h1>
+<div>
+<button class="connect" id="connectWallet">Connect Wallet</button>
+<button class="disconnect" id="disconnectWallet">Disconnect</button>
+<span id="walletAddress"></span>
+</div>
+</header>
 
-      <!-- Primary venues (open in new tab with security attributes) -->
-      <div class="btn-row" role="navigation" aria-label="Trading venues">
-        <a class="btn" href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
-           target="_blank" rel="noopener noreferrer" aria-label="Open Sologenic XRBC/XRP market">
-          Trade on Sologenic →
-        </a>
-        <a class="btn" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-           target="_blank" rel="noopener noreferrer" aria-label="Open XPMarket XRBC page">
-          View on XPMarket →
-        </a>
-      </div>
-    </div>
+<div class="container">
+<div class="orderbook">
+<h2>Orderbook</h2>
+<table id="orderbookTable">
+<thead><tr><th>Price</th><th>Amount</th><th>Total</th></tr></thead>
+<tbody></tbody>
+</table>
+<div class="metrics">
+<p>Best Bid: <span id="bestBid">0</span></p>
+<p>Best Ask: <span id="bestAsk">0</span></p>
+<p>Spread: <span id="spread">0</span></p>
+<p>Top Depth: <span id="topDepth">0</span></p>
+</div>
+</div>
 
-    <!-- Safe, sandboxed XRPL tokens explorer (navigable, metadata-friendly) -->
-    <div class="explorer" aria-label="XRPL tokens explorer">
-      <iframe
-        class="explorer-frame"
-        title="XRPL Tokens Explorer"
-        src="https://xrpl.to/?embed=1"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        sandbox="allow-scripts allow-same-origin allow-popups">
-      </iframe>
-    </div>
+<div class="order-form">
+<h2>Place Order</h2>
+<select id="pairSelect">
+<option value="XRBC/XRP">XRBC/XRP</option>
+<option value="USD/XRP">USD/XRP</option>
+</select>
+<div>
+<label>Type:</label>
+<select id="orderType">
+<option value="limit">Limit</option>
+<option value="market">Market</option>
+</select>
+</div>
+<div>
+<label>Amount:</label>
+<input type="number" id="orderAmount" placeholder="Amount">
+</div>
+<div>
+<label>Price:</label>
+<input type="number" id="orderPrice" placeholder="Price">
+</div>
+<button id="submitOrder">Submit Order</button>
+<p id="slippageInfo"></p>
+</div>
 
-    <!-- Read-only order book pulled directly from XRPL public nodes -->
-    <section class="panel" aria-labelledby="orderbook-title">
-      <h2 id="orderbook-title">Live order book (read‑only)</h2>
-      <p class="subtle">Data from public XRPL nodes. No wallet connection required.</p>
+<div class="charts">
+<h2>Charts</h2>
+<canvas id="candlestickChart"></canvas>
+<canvas id="depthChart"></canvas>
+</div>
+</div>
 
-      <div class="controls">
-        <!-- Base asset (you are selling base to get counter on asks; buying base with counter on bids) -->
-        <input id="base-currency" type="text" placeholder="Base currency (e.g., XRP or 40‑hex)" value="5852626974636F696E6361736800000000000000" aria-label="Base currency code or 40-hex" />
-        <input id="base-issuer" type="text" placeholder="Base issuer (account, blank for XRP)" value="rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" aria-label="Base issuer account (leave empty for XRP)" />
+<div class="notification" id="notification"></div>
 
-        <!-- Counter asset -->
-        <input id="counter-currency" type="text" placeholder="Counter currency (e.g., XRP or 40‑hex)" value="XRP" aria-label="Counter currency code or 40-hex" />
-        <input id="counter-issuer" type="text" placeholder="Counter issuer (account, blank for XRP)" value="" aria-label="Counter issuer account (leave empty for XRP)" />
-      </div>
+<script>
+const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233');
+client.connect().then(()=>console.log('XRPL connected'));
 
-      <div class="controls">
-        <button id="refresh-book" type="button" aria-label="Refresh order book">Refresh order book</button>
-        <span id="last-updated" class="subtle" aria-live="polite">Last updated: —</span>
-      </div>
+const xumm = new XummSdk({apiKey:"YOUR_XUMM_API_KEY",apiSecret:"YOUR_XUMM_API_SECRET"});
+let wallet = null;
 
-      <div class="flex">
-        <div class="table" aria-label="Asks">
-          <table>
-            <thead>
-              <tr><th>Ask price (counter/base)</th><th>Base amount</th><th>Counter amount</th></tr>
-            </thead>
-            <tbody id="asks-body">
-              <tr><td colspan="3">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="table" aria-label="Bids">
-          <table>
-            <thead>
-              <tr><th>Bid price (counter/base)</th><th>Base amount</th><th>Counter amount</th></tr>
-            </thead>
-            <tbody id="bids-body">
-              <tr><td colspan="3">—</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+const orderbookTable = document.querySelector('#orderbookTable tbody');
+const bestBidElem = document.getElementById('bestBid');
+const bestAskElem = document.getElementById('bestAsk');
+const spreadElem = document.getElementById('spread');
+const topDepthElem = document.getElementById('topDepth');
+const walletAddressElem = document.getElementById('walletAddress');
+const notificationElem = document.getElementById('notification');
 
-  <!-- Bottom: XRPL TOML verification -->
-  <footer class="toml" role="contentinfo">
-    <div class="wrap">
-      <h3>Verify project identity</h3>
-      <p>Explorers and automated services can verify our domain and metadata here:</p>
-      <a class="link" href="/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a>
-    </div>
-  </footer>
+const candlestickCtx = document.getElementById('candlestickChart').getContext('2d');
+const depthCtx = document.getElementById('depthChart').getContext('2d');
+let candlestickChart, depthChart;
 
-  <script>
-    // Trusted read-only XRPL order book fetcher (no keys, no writes)
-    (function () {
-      const asksBody = document.getElementById('asks-body');
-      const bidsBody = document.getElementById('bids-body');
-      const baseCurrencyEl = document.getElementById('base-currency');
-      const baseIssuerEl = document.getElementById('base-issuer');
-      const counterCurrencyEl = document.getElementById('counter-currency');
-      const counterIssuerEl = document.getElementById('counter-issuer');
-      const refreshBtn = document.getElementById('refresh-book');
-      const lastUpdated = document.getElementById('last-updated');
+function notify(msg){ notificationElem.textContent=msg; notificationElem.style.display='block'; setTimeout(()=>notificationElem.style.display='none',3000); }
 
-      const WS_ENDPOINTS = ["wss://s1.ripple.com", "wss://s2.ripple.com"];
+document.getElementById('connectWallet').onclick=async()=>{
+try{
+const payload=await xumm.payload.create({txjson:{TransactionType:"AccountSet",Account:"rXXXXXXXXXXXXXXXXXXXX"}});
+window.open(payload.next.always,'_blank');
+wallet={account:"rXXXXXXXXXXXXXXXXXXXX"};
+walletAddressElem.textContent=wallet.account;
+notify("Wallet connected");
+}catch(e){console.error(e);notify("Wallet connection failed");}
+};
 
-      function dropsToXRP(drops) {
-        // amounts as string of drops (1 XRP = 1,000,000 drops)
-        const n = Number(drops);
-        return isFinite(n) ? n / 1e6 : NaN;
-        }
-      function amtToValue(a) {
-        // object {currency, issuer, value} OR string drops for XRP
-        if (typeof a === 'string') return dropsToXRP(a);
-        return Number(a?.value);
-      }
+document.getElementById('disconnectWallet').onclick=()=>{
+wallet=null; walletAddressElem.textContent=''; notify("Wallet disconnected");
+};
 
-      function makeSpec(currency, issuer) {
-        const isXRP = String(currency).toUpperCase() === 'XRP';
-        if (isXRP) return { currency: 'XRP' };
-        // Accept 3‑5 letter codes (not used here) or 40-hex. We pass through as provided.
-        return issuer ? { currency: currency, issuer: issuer } : { currency: currency };
-      }
+let currentPair='XRBC/XRP';
+let ws=null;
 
-      function renderRows(el, offers, orientation) {
-        // orientation: 'asks' where price = counter/base = gets/pays
-        //             'bids' where price = counter/base = pays/gets
-        el.innerHTML = '';
-        if (!offers || !offers.length) {
-          el.innerHTML = '<tr><td colspan="3">No data</td></tr>';
-          return;
-        }
-        const rows = offers.slice(0, 10).map(off => {
-          const pays = amtToValue(off.TakerPays);
-          const gets = amtToValue(off.TakerGets);
-          if (!isFinite(pays) || !isFinite(gets) || pays <= 0 || gets <= 0) return null;
+async function updateOrderbook(){
+if(ws) ws.close();
+const [base,quote]=currentPair.split('/');
+ws=new WebSocket('wss://s.altnet.rippletest.net:51233');
+ws.onopen=()=>{ ws.send(JSON.stringify({command:"subscribe",id:"1",streams:["book"],books:[{taker_gets:{currency:quote},taker_pays:{currency:base},snapshot:true}]})) };
+ws.onmessage=(event)=>{
+const data=JSON.parse(event.data);
+if(!data||!data.result||!data.result.offers) return;
+renderOrderbook(data.result.offers);
+};
+}
 
-          let price, baseAmt, counterAmt;
-          if (orientation === 'asks') {
-            // seller pays base, gets counter → price = counter/base = gets/pays
-            price = gets / pays;
-            baseAmt = pays;
-            counterAmt = gets;
-          } else {
-            // buyer pays counter, gets base → price = counter/base = pays/gets
-            price = pays / gets;
-            baseAmt = gets;
-            counterAmt = pays;
-          }
-          return `<tr>
-              <td>${price.toPrecision(6)}</td>
-              <td>${baseAmt.toPrecision(6)}</td>
-              <td>${counterAmt.toPrecision(6)}</td>
-            </tr>`;
-        }).filter(Boolean);
+function renderOrderbook(offers){
+orderbookTable.innerHTML='';
+let bestBid=0,bestAsk=0,topDepth=0;
+offers.forEach(offer=>{
+const tr=document.createElement('tr');
+const price=parseFloat(offer.quality);
+const amount=parseFloat(offer.taker_gets.value);
+const total=price*amount;
+tr.innerHTML=`<td class="${price>0?'bid':'ask'}">${price}</td><td>${amount}</td><td>${total}</td>`;
+orderbookTable.appendChild(tr);
+if(price>bestBid) bestBid=price;
+if(!bestAsk||price<bestAsk) bestAsk=price;
+topDepth+=amount;
+});
+bestBidElem.textContent=bestBid;
+bestAskElem.textContent=bestAsk;
+spreadElem.textContent=(bestAsk-bestBid).toFixed(6);
+topDepthElem.textContent=topDepth;
+updateCharts(offers);
+}
 
-        el.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="3">No parsable data</td></tr>';
-      }
+function updateCharts(offers){
+const labels=offers.map((o,i)=>i+1);
+const bids=offers.map(o=>parseFloat(o.quality));
+const asks=offers.map(o=>parseFloat(o.quality));
+if(!candlestickChart) candlestickChart=new Chart(candlestickCtx,{type:'line',data:{labels,datasets:[{label:'Price',data:bids}]},options:{}});
+else{ candlestickChart.data.datasets[0].data=bids; candlestickChart.update(); }
+if(!depthChart) depthChart=new Chart(depthCtx,{type:'bar',data:{labels,datasets:[{label:'Depth',data:asks}]}});
+else{ depthChart.data.datasets[0].data=asks; depthChart.update(); }
+}
 
-      async function fetchBook(wsUrl, base, counter) {
-        // Two calls: asks (sell base for counter), bids (buy base with counter)
-        const ws = new WebSocket(wsUrl);
-        const once = (socket, type) => new Promise((resolve, reject) => {
-          const timer = setTimeout(() => reject(new Error('timeout')), 10000);
-          socket.addEventListener('message', (ev) => {
-            try {
-              const msg = JSON.parse(ev.data);
-              if (msg.type === type || msg.id === 1 || msg.id === 2) {
-                clearTimeout(timer);
-                resolve(msg);
-              }
-            } catch (e) { /* ignore non-json */ }
-          });
-          socket.addEventListener('error', reject);
-        });
+document.getElementById('pairSelect').onchange=(e)=>{ currentPair=e.target.value; updateOrderbook(); };
 
-        await new Promise((res, rej) => {
-          ws.addEventListener('open', res);
-          ws.addEventListener('error', rej);
-        });
+document.getElementById('submitOrder').onclick=async()=>{
+if(!wallet) return notify("Connect wallet first");
+const type=document.getElementById('orderType').value;
+const amount=parseFloat(document.getElementById('orderAmount').value);
+let price=parseFloat(document.getElementById('orderPrice').value);
+const slippage=0.005; // simulate
+document.getElementById('slippageInfo').textContent=`Estimated Slippage: ${(slippage*100).toFixed(2)}%`;
 
-        // ASKS: taker_pays = base, taker_gets = counter
-        ws.send(JSON.stringify({
-          id: 1,
-          command: 'book_offers',
-          ledger_index: 'current',
-          limit: 40,
-          taker_pays: base,
-          taker_gets: counter
-        }));
-        const asks = await once(ws, 'response');
+if(type==='market'){
+const offers=Array.from(orderbookTable.rows).map(r=>({price:parseFloat(r.cells[0].textContent),amount:parseFloat(r.cells[1].textContent)}));
+let remaining=amount; let totalPrice=0;
+for(let o of offers){ if(remaining<=0) break; let tradeAmt=Math.min(o.amount,remaining); totalPrice+=tradeAmt*o.price; remaining-=tradeAmt; }
+price=totalPrice/amount;
+}
 
-        // BIDS: taker_pays = counter, taker_gets = base
-        ws.send(JSON.stringify({
-          id: 2,
-          command: 'book_offers',
-          ledger_index: 'current',
-          limit: 40,
-          taker_pays: counter,
-          taker_gets: base
-        }));
-        const bids = await once(ws, 'response');
+try{
+const payload=await xumm.payload.create({txjson:{
+TransactionType:"OfferCreate",
+Account:wallet.account,
+TakerGets:{currency:currentPair.split('/')[1],value:amount.toString()},
+TakerPays:{currency:currentPair.split('/')[0],value:(price*amount).toFixed(6)}
+}});
+window.open(payload.next.always,'_blank');
+notify(`Order submitted: ${amount} ${currentPair} @ ${price}`);
+}catch(e){ console.error(e); notify("Order failed"); }
+};
 
-        try { ws.close(); } catch (e) {}
-
-        return {
-          asks: Array.isArray(asks?.result?.offers) ? asks.result.offers : [],
-          bids: Array.isArray(bids?.result?.offers) ? bids.result.offers : []
-        };
-      }
-
-      async function loadBook() {
-        const base = makeSpec(baseCurrencyEl.value.trim(), baseIssuerEl.value.trim());
-        const counter = makeSpec(counterCurrencyEl.value.trim(), counterIssuerEl.value.trim());
-
-        // Try first node, fall back to second
-        try {
-          const data = await fetchBook(WS_ENDPOINTS[0], base, counter);
-          renderRows(asksBody, data.asks, 'asks');
-          renderRows(bidsBody, data.bids, 'bids');
-        } catch (e1) {
-          try {
-            const data = await fetchBook(WS_ENDPOINTS[1], base, counter);
-            renderRows(asksBody, data.asks, 'asks');
-            renderRows(bidsBody, data.bids, 'bids');
-          } catch (e2) {
-            asksBody.innerHTML = '<tr><td colspan="3">Error loading order book</td></tr>';
-            bidsBody.innerHTML = '<tr><td colspan="3">Error loading order book</td></tr>';
-          }
-        }
-        const t = new Date();
-        lastUpdated.textContent = 'Last updated: ' + t.toLocaleTimeString();
-      }
-
-      refreshBtn.addEventListener('click', loadBook);
-      // Initial load
-      loadBook();
-    })();
-  </script>
+updateOrderbook();
+</script>
 </body>
 </html>
-
