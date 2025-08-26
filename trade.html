@@ -1075,6 +1075,7 @@ xumm.on('logout', () => {
     // --------------------------------
     function bindUI() {
       $('#btnTheme').addEventListener('click', () => applyTheme(state.theme==='dark'?'light':'dark'));
-      $('#btnConnect').addEventListener('click', () => xumm.authorize().catch(e => setStatus('Auth error: '+e.message,'error')));
+     $('#connectWalletButton').addEventListener('click', () => xumm.authorize()…);
+
       $('#btnAuthorize').addEventListener('click', () => xumm.authorize().catch(e => setStatus('Auth error: '+e.message,'error')));
       $('#btnLogout').addEventListener('click', () => xumm.logout());
