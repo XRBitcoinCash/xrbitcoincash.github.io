@@ -625,31 +625,78 @@
     </footer>
   </div>
 
-  <!-- =========================
-       CONFIG (INLINE JSON)
-       ========================= -->
-  <script type="application/json" id="app-config">
-  {
-    "issuerAddress": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    "tokenCode": "XRbitcoincash",
-    "tokenLimit": "20999999.999999996",
-    "rpcEndpoint": "wss://YOUR_XRPL_RPC_ENDPOINT",
-    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "sologenicApiBase": "https://api.sologenic.org",
-    "networkName": "XRPL Mainnet"
+<!-- =========================
+     CONFIG (INLINE JSON)
+   ========================= -->
+<script type="application/json" id="app-config">
+{
+  "issuerAddress":     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+  "tokenCode":         "XRbitcoincash",
+  "tokenLimit":        "20999999.999999996",
+  "rpcEndpoint":       "wss://s1.ripple.com",                  ← your real RPC
+  "xummApiKey":        "2abde023-0df1-49a2-a4dc-86d776f6318d",  ← your real key
+  "sologenicApiBase":  "https://api.sologenic.org",
+  "networkName":       "XRPL Mainnet"
+}
+</script>
+
+<!-- =========================
+     XUMM SDK
+   ========================= -->
+<script src="https://unpkg.com/xumm-sdk@latest/dist/xumm.sdk.umd.min.js"></script>
+
+<!-- =========================
+     XRPL CLIENT
+   ========================= -->
+<script src="https://unpkg.com/xrpl/dist/xrpl.min.js"></script>
+<script>
+;(function(){
+  'use strict';
+
+  // Parse config
+  const cfg = JSON.parse(document.getElementById('app-config').textContent);
+
+  // Instantiate the SDK
+  // Note: The UMD build exposes `XummSdk`, not `Xumm`
+  const xumm = new XummSdk({ appKey: cfg.xummApiKey, network: 'mainnet' });
+
+  // When the SDK is ready, enable the button
+  xumm.on('ready', () => {
+    document.getElementById('btnConnect').disabled = false;
+    console.log('Xumm SDK ready');
+  });
+
+  // On success, show the user’s account
+  xumm.on('success', async () => {
+    const acct = (await xumm.user.account()).address;
+    document.getElementById('walletAddress').textContent = acct;
+    console.log('Connected:', acct);
+  });
+
+  // On logout, reset UI
+  xumm.on('logout', () => {
+    document.getElementById('walletAddress').textContent = 'Not connected';
+    console.log('Logged out');
+  });
+
+  // Wire the Connect button
+  const btn = document.getElementById('btnConnect');
+  btn.disabled = true;  // start disabled
+  btn.addEventListener('click', () => {
+    xumm.authorize().catch(err => console.error('Auth Error', err));
+  });
+
+  // Wire a Logout button if you have one
+  const btnLogout = document.getElementById('btnLogout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      xumm.logout().catch(err => console.error('Logout Error', err));
+    });
   }
-  </script>
 
-  <!-- =========================
-       EXTERNAL LIBS (SDKs)
-       ========================= -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script src="https://unpkg.com/xrpl/dist/xrpl.min.js"></script>
+})();
+</script>
 
-  <!-- =========================
-       APP SCRIPT
-       ========================= -->
-  <script>
   ;(function(){
     'use strict';
 
