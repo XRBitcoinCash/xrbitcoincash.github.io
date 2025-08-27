@@ -226,7 +226,39 @@
     // Konstanter
     const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
     const XRBC_CODE = "XRbitcoincash";
-    const DEFAULT_WSS = "wss://xrplcluster.com";
+// Define primary and fallback WebSocket endpoints
+const PRIMARY_WSS = "wss://s1.ripple.com";
+const FALLBACK_WSS = "wss://s2.ripple.com";
+let xrplClient = null;
+
+// Function to connect to XRPL with fallback
+async function connectXRPL() {
+  try {
+    xrplClient = new xrpl.Client(PRIMARY_WSS);
+    await xrplClient.connect();
+    console.log("Connected to primary XRPL node:", PRIMARY_WSS);
+    nodeStatusEl.textContent = 'connected';
+    xrplNodeStatus.textContent = 'connected';
+    return;
+  } catch (err) {
+    console.warn("Primary XRPL node failed:", PRIMARY_WSS, err);
+  }
+
+  try {
+    xrplClient = new xrpl.Client(FALLBACK_WSS);
+    await xrplClient.connect();
+    console.log("Connected to fallback XRPL node:", FALLBACK_WSS);
+    nodeStatusEl.textContent = 'connected (fallback)';
+    xrplNodeStatus.textContent = 'connected (fallback)';
+  } catch (err2) {
+    console.error("Fallback XRPL node also failed:", FALLBACK_WSS, err2);
+    nodeStatusEl.textContent = 'connection failed';
+    xrplNodeStatus.textContent = 'connection failed';
+    throw new Error("All XRPL nodes failed");
+  }
+}
+
+
     const MAX_LEVELS = 20;
     const MAX_SPREAD_ALLOWED = 0.25; // i XRP — regelen du ba om
 
@@ -256,7 +288,8 @@
       const c = document.getElementById('app-config');
       if (c) siteCfg = JSON.parse(c.textContent || '{}');
     } catch(e){ console.warn('app-config parse error', e); }
-// Prevent runtime config tampering
+
+    // Prevent runtime config tampering
 Object.freeze(siteCfg);
 
 // Validate endpoint before connect
@@ -281,27 +314,29 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
       return Number(drops) / 1_000_000;
     }
 
-    // Initialize clients: XRPL node + Xumm
-    async function initClients(){
-      // XRPL client
-      try {
-        const endpoint = (siteCfg.rpcEndpoint && siteCfg.rpcEndpoint !== 'wss://YOUR_XRPL_RPC_ENDPOINT') ? siteCfg.rpcEndpoint : DEFAULT_WSS;
-        xrplClient = new xrpl.Client(endpoint);
-        await xrplClient.connect();
-        nodeStatusEl.textContent = 'connected';
-        xrplNodeStatus.textContent = 'connected';
-      } catch (err) {
-        nodeStatusEl.textContent = 'connection failed';
-        xrplNodeStatus.textContent = 'connection failed';
-        console.error('XRPL connect error', err);
-      }
+// Initialize clients: XRPL node + Xumm
+async function initClients(){
+  // XRPL client with fallback
+  await connectXRPL();
 
-      // Xumm init
+  // Xumm init
+  try {
+    const apiKey = siteCfg.xummApiKey || null;
+    if (window.Xumm) {
       try {
-        const apiKey = siteCfg.xummApiKey || null;
-        if (window.Xumm) {
-          try { xumm = new Xumm(apiKey); } catch(e){ xumm = window.Xumm; }
-        } else {
+        xumm = new Xumm(apiKey);
+      } catch(e){
+        xumm = window.Xumm;
+      }
+    } else {
+      console.error("Xumm library not loaded");
+    }
+    console.log("Xumm initialized");
+  } catch(e){
+    console.error("Xumm init error", e);
+  }
+}
+
           // fallback: try older exported name
           xumm = window.Xumm || null;
         }
