@@ -690,5 +690,30 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
 
   })();
   </script>
+<script>
+(function(){
+  'use strict';
+
+  // --- Auto-refresh orderbook and metrics ---
+  const REFRESH_INTERVAL_MS = 5000; // refresh every 5 seconds
+
+  async function autoRefresh() {
+    if (window.__xrbcDex && typeof window.__xrbcDex.loadOrderbook === 'function') {
+      try {
+        await window.__xrbcDex.loadOrderbook();
+      } catch(e){
+        console.error('Auto-refresh orderbook failed', e);
+      }
+    }
+  }
+
+  // Kick off interval
+  setInterval(autoRefresh, REFRESH_INTERVAL_MS);
+
+  // Optional: refresh immediately on load
+  autoRefresh();
+})();
+</script>
+
 </body>
 </html>
