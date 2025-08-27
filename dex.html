@@ -302,25 +302,26 @@ let userAccount = null;
     }
 
 async function initClients() {
-  // Connect to XRPL
-  await connectXRPL();
+  // Start XRPL connection but don't block Xumm
+  connectXRPL().catch(e => console.warn('XRPL init failed', e));
 
-  // Initialize Xumm SDK
+  // Initialize Xumm SDK independently
   try {
     if (window.Xumm) {
       const apiKey = siteCfg?.xummApiKey || "7737775c-1645-4a4e-a92d-ffe51530a348";
       xumm = new Xumm(apiKey);
       console.log("Xumm initialized");
-
-      // Enable connect wallet button
       connectWalletBtn.disabled = false;
     } else {
       console.error("Xumm SDK not loaded");
+      connectWalletBtn.disabled = true;
     }
   } catch (e) {
     console.error("Xumm init error:", e);
+    connectWalletBtn.disabled = true;
   }
 }
+
 
 
     // Load orderbook fra XRPL (book_offers)
