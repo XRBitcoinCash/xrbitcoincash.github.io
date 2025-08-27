@@ -220,14 +220,33 @@
 
 
   <script>
-  (function(){
+  // --- Step 1: Site Config & Endpoint Validation ---
+let siteCfg = {};
+try {
+  const c = document.getElementById('app-config');
+  if (c) siteCfg = JSON.parse(c.textContent || '{}');
+} catch(e){ 
+  console.warn('app-config parse error', e); 
+}
+
+// Prevent runtime config tampering
+Object.freeze(siteCfg);
+
+// Validate RPC endpoint before connecting to XRPL
+if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
+  console.error("Invalid XRPL endpoint");
+  throw new Error("Blocked unsafe endpoint");
+}
+
+
+    (function(){
     'use strict';
 
     // Konstanter
     const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
     const XRBC_CODE = "XRbitcoincash";
 
-const PRIMARY_WSS = siteCfg.rpcEndpoint || "wss://s1.ripple.com";
+
 
 let xrplClient = null;
 
@@ -270,15 +289,7 @@ async function connectXRPL() {
     const connectWalletBtn = document.getElementById('connectWalletButton');
     const walletStatusSpan = document.getElementById('walletAddress');
 // read site config safely
-    let siteCfg = {};
-    try {
-      const c = document.getElementById('app-config');
-      if (c) siteCfg = JSON.parse(c.textContent || '{}');
-    } catch(e){ console.warn('app-config parse error', e); }
-
-    // Prevent runtime config tampering
-Object.freeze(siteCfg);
-
+  
 // Validate endpoint before connect
 if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
   console.error("Invalid XRPL endpoint");
