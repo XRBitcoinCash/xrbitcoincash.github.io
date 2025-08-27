@@ -207,22 +207,18 @@
   <!-- Legg til xrpl.js CDN for node-tilgang -->
   <script src="https://unpkg.com/xrpl/dist/xrpl.min.js"></script>
 
- <script>
+<script>
 (function(){
   'use strict';
 
-  // -------------------------------
-  // Constants & config
-  // -------------------------------
+  // --- Constants ---
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
   const XRBC_CODE = "XRbitcoincash";
   const DEFAULT_WSS = "wss://s1.ripple.com/";
   const MAX_LEVELS = 20;
-  const MAX_SPREAD_ALLOWED = 0.25; // XRP
+  const MAX_SPREAD_ALLOWED = 0.25;
 
-  // -------------------------------
-  // DOM refs
-  // -------------------------------
+  // --- DOM References ---
   const pairSelect = document.getElementById('xrbc-pair-select');
   const orderbookEl = document.getElementById('xrbc-orderbook');
   const walletAddrEl = document.getElementById('xrbc-wallet-addr');
@@ -242,111 +238,117 @@
   const connectWalletBtn = document.getElementById('connectWalletButton');
   const walletStatusSpan = document.getElementById('walletAddress');
 
-  // -------------------------------
-  // Read config
-  // -------------------------------
+  // --- Config ---
   let siteCfg = {};
   try {
     const c = document.getElementById('app-config');
     if (c) siteCfg = JSON.parse(c.textContent || '{}');
   } catch(e){ console.warn('app-config parse error', e); }
 
-  // -------------------------------
-  // Runtime state
-  // -------------------------------
+  // --- Runtime State ---
   let xrplClient = null;
   let xumm = null;
   let userAccount = null;
-  let lastOrderbook = null;
+  let lastOrderbook = [];
   let bestBid = null, bestAsk = null;
 
-  // -------------------------------
-  // Utils
-  // -------------------------------
+  // --- Utilities ---
   function toDrops(xrp) {
     if (window.xrpl && typeof xrpl.xrpToDrops === 'function') return xrpl.xrpToDrops(String(xrp));
     return String(Math.round(Number(xrp) * 1_000_000));
   }
   function fromDrops(drops) {
     if (!drops) return 0;
-    return Number(drops) / 1_000_000;
+    return Number(drops)/1_000_000;
   }
 
-  // -------------------------------
-  // Init XRPL client + Xumm
-  // -------------------------------
-  async function initClients(){
-    // --- XRPL client ---
-    try {
-      const endpoint = siteCfg.rpcEndpoint || DEFAULT_WSS;
-      xrplClient = new xrpl.Client(endpoint);
-      await xrplClient.connect();
-      nodeStatusEl.textContent = 'connected';
-    } catch(err){
-      console.error('XRPL connect error', err);
-      nodeStatusEl.textContent = 'connection failed';
+  // --- XRPL Client Manager ---
+  const xrplManager = (() => {
+    let client = null;
+
+    async function connect(endpoint) {
+      if (client && client.isConnected && client.isConnected()) return client;
+      const wss = endpoint || siteCfg.rpcEndpoint || DEFAULT_WSS;
+      try {
+        client = new xrpl.Client(wss);
+        await client.connect();
+        nodeStatusEl.textContent = 'connected';
+        console.log('XRPL connected at', wss);
+        return client;
+      } catch(err) {
+        console.error('XRPL connection failed', err);
+        nodeStatusEl.textContent = 'connection failed';
+        client = null;
+        return null;
+      }
     }
 
-    // --- Xumm init ---
-    try {
-      const apiKey = siteCfg.xummApiKey || null;
-      if (window.Xumm) xumm = new Xumm(apiKey);
-      if (xumm) connectWalletBtn.disabled = false;
-      else connectWalletBtn.disabled = true;
-    } catch(err){ console.error('Xumm init error', err); }
-  }
+    function getClient() { return client; }
+    async function disconnect() {
+      if (client && client.isConnected && client.isConnected()) {
+        await client.disconnect();
+        nodeStatusEl.textContent = 'disconnected';
+        client = null;
+      }
+    }
 
-  // -------------------------------
-  // Load orderbook
-  // -------------------------------
-  async function loadOrderbook(){
+    return { connect, disconnect, getClient };
+  })();
+
+  // --- Load orderbook ---
+  async function loadOrderbook() {
     orderbookEl.innerHTML = "<div class='xrbc-row'><em>Loading orderbook…</em></div>";
-    if (!xrplClient || !xrplClient.isConnected()) {
-      orderbookEl.innerHTML = "<div class='xrbc-row' style='color:red'>XRPL node not connected.</div>";
+    xrplClient = xrplManager.getClient();
+    if (!xrplClient) {
+      orderbookEl.innerHTML = "<div class='xrbc-row' style='color:var(--xrbc-danger)'>XRPL node not connected.</div>";
       return;
     }
+
     const req = {
       command: "book_offers",
       taker_gets: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
       taker_pays: { currency: "XRP" },
       limit: MAX_LEVELS
     };
+
     try {
       const res = await xrplClient.request(req);
       const offers = (res && res.result && res.result.offers) ? res.result.offers : [];
       lastOrderbook = offers;
       renderOrderbook(offers);
       computeMetrics(offers);
-    } catch(err){
+    } catch (err) {
       console.error('book_offers error', err);
-      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:red'>Orderbook error: ${err.message || err}</div>`;
+      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error: ${err.message || err}</div>`;
     }
   }
 
   function renderOrderbook(offers){
     if (!offers || !offers.length) {
-      orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers</em></div>";
+      orderbookEl.innerHTML = "<div class='xrbc-row'><em>Ingen offers funnet</em></div>";
       bestBid = bestAsk = null;
       return;
     }
+
     const container = document.createElement('div');
     const head = document.createElement('div');
     head.className = 'xrbc-row';
     head.innerHTML = "<strong>Side</strong><strong>Pris</strong><strong>Amount</strong>";
     container.appendChild(head);
 
-    offers.forEach((o)=>{
+    offers.forEach(o => {
       const quality = o.quality ? parseFloat(o.quality) : null;
       let amount = '—';
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = parseFloat(o.TakerGets.value);
-      else if (o.TakerGets && !isNaN(o.TakerGets)) amount = fromDrops(o.TakerGets);
+      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
+
       let type = 'Buy';
-      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) type='Sell';
-      else if (o.Flags && (o.Flags & 0x00080000)) type='Sell';
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) type = 'Sell';
+      else if (o.Flags && (o.Flags & 0x00080000)) type = 'Sell';
 
       const row = document.createElement('div');
       row.className = 'xrbc-row';
-      row.innerHTML = `<div class="${type==='Buy'?'xrbc-bid':'xrbc-ask'}">${type}</div><div>${quality?quality.toFixed(6):'—'}</div><div>${amount}</div>`;
+      row.innerHTML = `<div class="${type==='Buy'?'xrbc-bid':'xrbc-ask'}">${type}</div><div>${quality ? Number(quality).toFixed(6) : '—'}</div><div>${amount}</div>`;
       container.appendChild(row);
     });
 
@@ -356,206 +358,101 @@
 
   function computeMetrics(offers){
     if (!offers || !offers.length) {
-      spreadEl.textContent = '—'; bestBidEl.textContent = '—'; bestAskEl.textContent = '—'; depthEl.textContent = '—';
+      spreadEl.textContent = '—';
+      bestBidEl.textContent = '—';
+      bestAskEl.textContent = '—';
+      depthEl.textContent = '—';
       bestBid = bestAsk = null;
       return;
     }
-    const asks=[], bids=[];
-    offers.forEach(o=>{
+
+    const asks = [], bids = [];
+    offers.forEach(o => {
       const price = o.quality ? Number(o.quality) : null;
       let amount = 0;
-      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount=Number(o.TakerGets.value);
-      else if (o.TakerGets) amount=fromDrops(o.TakerGets);
+      if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
+      else if (o.TakerGets) amount = fromDrops(o.TakerGets);
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) asks.push({price, amount});
       else bids.push({price, amount});
     });
-    asks.sort((a,b)=>a.price-b.price);
-    bids.sort((a,b)=>b.price-a.price);
 
-    bestAsk = asks.length>0?asks[0].price:null;
-    bestBid = bids.length>0?bids[0].price:null;
-    bestAskEl.textContent = bestAsk?bestAsk.toFixed(6):'—';
-    bestBidEl.textContent = bestBid?bestBid.toFixed(6):'—';
-    spreadEl.textContent = (bestAsk!==null && bestBid!==null)?(bestAsk-bestBid).toFixed(6):'—';
+    asks.sort((a,b)=>a.price - b.price);
+    bids.sort((a,b)=>b.price - a.price);
 
-    const topBids=bids.slice(0,5).reduce((s,x)=>s+(x.amount||0),0);
-    const topAsks=asks.slice(0,5).reduce((s,x)=>s+(x.amount||0),0);
-    depthEl.textContent=`${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
+    bestAsk = asks.length>0 ? asks[0].price : null;
+    bestBid = bids.length>0 ? bids[0].price : null;
+
+    bestAskEl.textContent = bestAsk ? bestAsk.toFixed(6) : '—';
+    bestBidEl.textContent = bestBid ? bestBid.toFixed(6) : '—';
+    spreadEl.textContent = (bestAsk && bestBid) ? (bestAsk - bestBid).toFixed(6) : '—';
+    const topBids = bids.slice(0,5).reduce((s,x)=>s + (x.amount || 0),0);
+    const topAsks = asks.slice(0,5).reduce((s,x)=>s + (x.amount || 0),0);
+    depthEl.textContent = `${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
   }
 
-  // -------------------------------
-  // Estimate market fill
-  // -------------------------------
-  function estimateMarketFill(side, amountXRBC){
-    if (!lastOrderbook || !lastOrderbook.length) return {error:'No orderbook'};
-    const asks=[], bids=[];
-    lastOrderbook.forEach(o=>{
-      const price=o.quality?Number(o.quality):null;
-      let amount=0;
-      if (o.TakerGets && typeof o.TakerGets==='object' && o.TakerGets.value) amount=Number(o.TakerGets.value);
-      else if(o.TakerGets) amount=fromDrops(o.TakerGets);
-      if(o.TakerGets && typeof o.TakerGets==='object' && o.TakerGets.currency===XRBC_CODE) asks.push({price,amount});
-      else bids.push({price,amount});
-    });
-    asks.sort((a,b)=>a.price-b.price);
-    bids.sort((a,b)=>b.price-a.price);
-
-    const levels=(side==='buy')?asks:bids;
-    let remaining=Number(amountXRBC);
-    if(remaining<=0) return {error:'Amount must be positive'};
-    let filledValue=0;
-    const trace=[];
-    for(const lvl of levels){
-      if(remaining<=0) break;
-      const take=Math.min(remaining,lvl.amount||0);
-      filledValue+=take*lvl.price;
-      trace.push({price:lvl.price,qty:take});
-      remaining-=take;
-    }
-    if(remaining>0) return {error:'Insufficient depth'};
-    const avgPrice=filledValue/Number(amountXRBC);
-    return {avgPrice,filledValue,trace};
-  }
-
-  // -------------------------------
-  // Create offer via Xumm
-  // -------------------------------
-  async function createOfferViaXumm(side, amount, price){
-    if(!xumm) { orderFeedbackEl.textContent='Xumm SDK not available'; return; }
-    if(!userAccount){
-      try { userAccount=await xumm.user.account; if(userAccount) walletAddrEl.textContent=userAccount; } catch(e){}
-      if(!userAccount){ orderFeedbackEl.textContent='Wallet not connected'; return; }
-    }
-    let takerGets, takerPays;
-    if(side==='buy'){
-      takerGets=toDrops(Number(price)*Number(amount));
-      takerPays={currency:XRBC_CODE,issuer:XRBC_ISSUER,value:Number(amount).toFixed(6)};
-    }else{
-      takerGets={currency:XRBC_CODE,issuer:XRBC_ISSUER,value:Number(amount).toFixed(6)};
-      takerPays=toDrops(Number(price)*Number(amount));
-    }
-    const tx={TransactionType:"OfferCreate",Account:userAccount,TakerGets:takerGets,TakerPays:takerPays,Flags:(side==='sell')?0x00080000:0};
-    orderFeedbackEl.textContent='Sending Xumm signature request…';
-    try{
-      const sub=await xumm.payload.createAndSubscribe({txjson:tx},(evt)=>{
-        if(evt?.data?.signed===true){ orderFeedbackEl.textContent='Order signed & submitted.'; return true; }
-        if(evt?.data?.signed===false){ orderFeedbackEl.textContent='User rejected signature.'; return false; }
-      });
-      if(sub?.created?.next?.alternative_url) orderFeedbackEl.innerHTML=`Open Xumm to sign: <a target="_blank" href="${sub.created.next.alternative_url}">Open Xumm</a>`;
-    }catch(err){ console.error(err); orderFeedbackEl.textContent=`Error: ${err.message||err}`; }
-  }
-
-  // -------------------------------
-  // Price validation
-  // -------------------------------
-  function validatePriceWithinSpreadRule(price){
-    if(bestAsk===null||bestBid===null) return {ok:true,warning:'Mid-price not available'};
-    const mid=(bestAsk+bestBid)/2;
-    const diff=Math.abs(Number(price)-mid);
-    if(diff>MAX_SPREAD_ALLOWED) return {ok:false,message:`Price differs ${diff.toFixed(6)} XRP from mid-price`};
-    return {ok:true};
-  }
-
-  // -------------------------------
-  // Order flow
-  // -------------------------------
-  async function placeOrderFlow(){
-    const mode=orderModeEl.value;
-    const side=orderSideEl.value;
-    const amount=Number(orderAmountEl.value);
-    const priceInput=Number(orderPriceEl.value);
-    if(!amount||amount<=0){ orderFeedbackEl.textContent='Invalid amount'; return; }
-
-    let priceToUse=null;
-
-    if(mode==='limit'){
-      if(!priceInput||priceInput<=0){ orderFeedbackEl.textContent='Enter valid price'; return; }
-      priceToUse=priceInput;
-      const v=validatePriceWithinSpreadRule(priceToUse);
-      if(!v.ok){ orderFeedbackEl.textContent=`Order rejected: ${v.message}`; return; }
-      if(v.warning) orderFeedbackEl.textContent=`Warning: ${v.warning}`;
-      await createOfferViaXumm(side,amount,priceToUse);
-    }else{
-      const est=estimateMarketFill(side,amount);
-      if(est.error){ orderFeedbackEl.textContent=`Market order failed: ${est.error}`; return; }
-      priceToUse=(side==='buy')?bestAsk:bestBid;
-      const v=validatePriceWithinSpreadRule(priceToUse);
-      if(!v.ok){ orderFeedbackEl.textContent=`Market order rejected: ${v.message}`; return; }
-      if(v.warning) orderFeedbackEl.textContent=`Warning: ${v.warning}`;
-      orderFeedbackEl.textContent=`Market estimate avg ${est.avgPrice.toFixed(6)} XRP — sending to Xumm…`;
-      await createOfferViaXumm(side,amount,priceToUse);
-    }
-  }
-
-  // -------------------------------
-  // Estimate button
-  // -------------------------------
-  function estimateHandler(){
-    const mode=orderModeEl.value;
-    const side=orderSideEl.value;
-    const amount=Number(orderAmountEl.value);
-    const priceInput=Number(orderPriceEl.value);
-    if(!amount||amount<=0){ orderFeedbackEl.textContent='Enter valid amount'; return; }
-    const est=estimateMarketFill(side,amount);
-    if(est.error){ orderFeedbackEl.textContent=`Estimate: ${est.error}`; return; }
-    if(mode==='limit'){
-      const slippagePct=((est.avgPrice-priceInput)/priceInput)*100;
-      orderFeedbackEl.textContent=`Estimated slippage vs your price: ${slippagePct.toFixed(4)}%`;
-    }else orderFeedbackEl.textContent=`Market estimate: avg ${est.avgPrice.toFixed(6)} XRP (fills ${est.trace.length} levels)`;
-  }
-
-  // -------------------------------
-  // Event bindings
-  // -------------------------------
-  refreshBtn.addEventListener('click',()=>loadOrderbook());
-  submitBtn.addEventListener('click',()=>placeOrderFlow());
-  calcBtn.addEventListener('click',()=>estimateHandler());
-  orderModeEl.addEventListener('change',()=>{
-    const pr=document.getElementById('xrbc-price-row');
-    pr.style.display=(orderModeEl.value==='limit')?'block':'none';
-  });
-  if(orderModeEl.value!=='limit') document.getElementById('xrbc-price-row').style.display='none';
-
-  connectWalletBtn.addEventListener('click', async ()=>{
-    if(!xumm){ walletStatusSpan.textContent='Xumm SDK not loaded'; return; }
-    if(connectWalletBtn.textContent.trim()==='Disconnect'){
-      try{ await xumm.logout(); userAccount=null; walletAddrEl.textContent='Ikke koblet'; walletStatusSpan.textContent='Wallet disconnected'; connectWalletBtn.textContent='Connect Wallet'; }
-      catch(e){ console.error(e); walletStatusSpan.textContent='Logout failed'; }
+  // --- Xumm wallet ---
+  async function initXumm() {
+    const apiKey = siteCfg.xummApiKey || null;
+    if (window.Xumm) xumm = new Xumm(apiKey);
+    if (!xumm) {
+      console.warn('Xumm SDK not loaded');
+      connectWalletBtn.disabled = true;
       return;
     }
-    connectWalletBtn.disabled=true;
-    walletStatusSpan.textContent='Connecting…';
-    try{
-      const auth=await xumm.authorize();
-      if(auth && xumm.user) { userAccount=await xumm.user.account; walletAddrEl.textContent=userAccount; walletStatusSpan.textContent='Connected: '+userAccount; connectWalletBtn.textContent='Disconnect'; }
-    }catch(e){ console.error(e); walletStatusSpan.textContent='Connection failed'; }
-    finally{ connectWalletBtn.disabled=false; }
+    connectWalletBtn.disabled = false;
+  }
+
+  connectWalletBtn.addEventListener('click', async ()=>{
+    if (!xumm) return;
+    if (connectWalletBtn.textContent.trim() === 'Disconnect') {
+      await xumm.logout?.();
+      userAccount = null;
+      walletAddrEl.textContent = 'Ikke koblet';
+      walletStatusSpan.textContent = '✅ Lommebok frakoblet';
+      connectWalletBtn.textContent = 'Connect Wallet';
+      return;
+    }
+
+    try {
+      connectWalletBtn.disabled = true;
+      walletStatusSpan.textContent = 'Connecting…';
+      const auth = await xumm.authorize?.();
+      if (auth?.account) {
+        userAccount = auth.account;
+        walletAddrEl.textContent = userAccount;
+        walletStatusSpan.textContent = 'Connected: ' + userAccount;
+        connectWalletBtn.textContent = 'Disconnect';
+      }
+    } catch(err) {
+      console.error(err);
+      walletStatusSpan.textContent = '⚠ Feil ved tilkobling';
+    } finally {
+      connectWalletBtn.disabled = false;
+    }
   });
 
-  // -------------------------------
-  // Kickoff
-  // -------------------------------
-  initClients().then(()=>{
+  // --- Event bindings ---
+  refreshBtn.addEventListener('click', loadOrderbook);
+  submitBtn.addEventListener('click', async ()=>{ /* Your order submission logic */ });
+  calcBtn.addEventListener('click', ()=>{ /* Estimate logic */ });
 
-      loadOrderbook();
-      // rask wallet detect hvis Xumm SDK tilbyr
-      try {
-        if ((xumm && xumm.user && typeof xumm.user.account !== 'undefined')) {
-          xumm.user.account.then(a=>{ if (a) { userAccount = a; walletAddrEl.textContent = a; walletStatusSpan.textContent = 'Connected: ' + a; connectWalletBtn.textContent = 'Disconnect'; }});
-        }
-      } catch(e){}
-    });
+  orderModeEl.addEventListener('change', ()=>{
+    document.getElementById('xrbc-price-row').style.display = orderModeEl.value === 'limit' ? 'block' : 'none';
+  });
+  if (orderModeEl.value !== 'limit') document.getElementById('xrbc-price-row').style.display = 'none';
 
-    // Eksponer debug API
-    window.__xrbcDex = {
-      loadOrderbook,
-      estimateMarketFill,
-      lastOrderbook: ()=> lastOrderbook,
-      bestBid: ()=> bestBid,
-      bestAsk: ()=> bestAsk
-    };
-
+  // --- Kickoff ---
+  (async ()=>{
+    await initXumm();
+    xrplClient = await xrplManager.connect();
+    if (xrplClient) await loadOrderbook();
   })();
-  </script>
+
+  // --- Debug API ---
+  window.__xrbcDex = { loadOrderbook, lastOrderbook: ()=>lastOrderbook, bestBid: ()=>bestBid, bestAsk: ()=>bestAsk };
+
+})();
+</script>
+
 </body>
 </html>
