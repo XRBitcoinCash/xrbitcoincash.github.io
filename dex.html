@@ -227,16 +227,16 @@
     const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
     const XRBC_CODE = "XRbitcoincash";
 
-const PRIMARY_WSS = "wss://s1.ripple.com";
+const PRIMARY_WSS = siteCfg.rpcEndpoint || "wss://s1.ripple.com";
 
 let xrplClient = null;
 
 // Function to connect to XRPL
 async function connectXRPL() {
   try {
-    xrplClient = new xrpl.Client("wss://s1.ripple.com");
+    xrplClient = new xrpl.Client(PRIMARY_WSS);
     await xrplClient.connect();
-    console.log("Connected to XRPL node");
+    console.log("Connected to XRPL node at", PRIMARY_WSS);
     nodeStatusEl.textContent = 'connected';
     xrplNodeStatus.textContent = 'connected';
   } catch (err) {
