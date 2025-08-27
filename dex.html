@@ -226,7 +226,7 @@
     // Konstanter
     const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
     const XRBC_CODE = "XRbitcoincash";
-// Define primary and fallback WebSocket endpoints
+
 const PRIMARY_WSS = "wss://s1.ripple.com";
 
 let xrplClient = null;
@@ -245,10 +245,7 @@ async function connectXRPL() {
     xrplNodeStatus.textContent = 'connection failed';
   }
 }
-
-
-
-    const MAX_LEVELS = 20;
+ const MAX_LEVELS = 20;
     const MAX_SPREAD_ALLOWED = 0.25; // i XRP — regelen du ba om
 
     // DOM refs
