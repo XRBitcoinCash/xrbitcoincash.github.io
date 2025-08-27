@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XRPL Node Test</title>
+</head>
+<body>
+  <h2>XRPL Node Test</h2>
+  <pre id="output">Connecting…</pre>
+
+  <script>
+    (function() {
+      const output = document.getElementById('output');
+      const ws = new WebSocket("wss://s1.ripple.com");
+
+      ws.onopen = () => {
+        output.textContent = "Connected to XRPL WebSocket!\nSending server_info request…";
+
+        // send a simple server_info request
+        ws.send(JSON.stringify({ id: 1, command: "server_info" }));
+      };
+
+      ws.onerror = (err) => {
+        output.textContent = "WebSocket Error: " + err;
+        console.error("WebSocket Error:", err);
+      };
+
+      ws.onmessage = (msg) => {
+        try {
+          const data = JSON.parse(msg.data);
+          output.textContent = "Received from XRPL:\n" + JSON.stringify(data, null, 2);
+          console.log("Received:", data);
+        } catch(e) {
+          output.textContent = "Error parsing message: " + e;
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
