@@ -228,35 +228,24 @@
     const XRBC_CODE = "XRbitcoincash";
 // Define primary and fallback WebSocket endpoints
 const PRIMARY_WSS = "wss://s1.ripple.com";
-const FALLBACK_WSS = "wss://s2.ripple.com";
+
 let xrplClient = null;
 
-// Function to connect to XRPL with fallback
+// Function to connect to XRPL
 async function connectXRPL() {
   try {
     xrplClient = new xrpl.Client(PRIMARY_WSS);
     await xrplClient.connect();
-    console.log("Connected to primary XRPL node:", PRIMARY_WSS);
+    console.log("Connected to XRPL node:", PRIMARY_WSS);
     nodeStatusEl.textContent = 'connected';
     xrplNodeStatus.textContent = 'connected';
-    return;
   } catch (err) {
-    console.warn("Primary XRPL node failed:", PRIMARY_WSS, err);
-  }
-
-  try {
-    xrplClient = new xrpl.Client(FALLBACK_WSS);
-    await xrplClient.connect();
-    console.log("Connected to fallback XRPL node:", FALLBACK_WSS);
-    nodeStatusEl.textContent = 'connected (fallback)';
-    xrplNodeStatus.textContent = 'connected (fallback)';
-  } catch (err2) {
-    console.error("Fallback XRPL node also failed:", FALLBACK_WSS, err2);
+    console.error("Failed to connect to XRPL node:", PRIMARY_WSS, err);
     nodeStatusEl.textContent = 'connection failed';
     xrplNodeStatus.textContent = 'connection failed';
-    throw new Error("All XRPL nodes failed");
   }
 }
+
 
 
     const MAX_LEVELS = 20;
@@ -297,10 +286,10 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
   console.error("Invalid XRPL endpoint");
   throw new Error("Blocked unsafe endpoint");
 }
-  // runtime state
-    let xrplClient = null;
-    let xumm = null;
-    let userAccount = null;
+// runtime state
+let xumm = null;
+let userAccount = null;
+
     let lastOrderbook = null; // raw offers array
     let bestBid = null, bestAsk = null;
 
