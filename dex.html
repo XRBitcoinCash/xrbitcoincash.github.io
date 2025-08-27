@@ -679,16 +679,12 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
       } catch(e){}
     });
 
-    // Eksponer debug API
-    window.__xrbcDex = {
-      loadOrderbook,
-      estimateMarketFill,
-      lastOrderbook: ()=> lastOrderbook,
-      bestBid: ()=> bestBid,
-      bestAsk: ()=> bestAsk
-    };
-
+    <script>
+  // Simple XRPL WebSocket test
+  (function(){
+    const ws = new WebSocket("wss://xrplcluster.com");
+    ws.onopen = () => console.log("Connected to XRPL WebSocket!");
+    ws.onerror = (err) => console.error("WebSocket Error:", err);
+    ws.onmessage = (msg) => console.log("Received:", msg.data);
   })();
-  </script>
-</body>
-</html>
+</script>
