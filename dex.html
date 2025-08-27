@@ -298,6 +298,40 @@
         console.error('Xumm init error', err);
       }
     }
+// === XRPL Node Manager ===
+const xrplManager = (() => {
+  let client = null;
+  const statusEl = document.getElementById('xrbc-node-status');
+
+  async function connect(endpoint) {
+    if (client && client.isConnected && client.isConnected()) return client;
+    const wss = endpoint || siteCfg.rpcEndpoint || "wss://xrplcluster.com";
+    try {
+      client = new xrpl.Client(wss);
+      await client.connect();
+      console.log('XRPL connected at', wss);
+      statusEl.textContent = 'connected';
+      return client;
+    } catch (err) {
+      console.error('XRPL connection failed', err);
+      statusEl.textContent = 'connection failed';
+      client = null;
+      return null;
+    }
+  }
+
+  function disconnect() {
+    if (client && client.isConnected && client.isConnected()) {
+      client.disconnect();
+      statusEl.textContent = 'disconnected';
+      client = null;
+    }
+  }
+
+  function getClient() { return client; }
+
+  return { connect, disconnect, getClient };
+})();
 
     // Load orderbook fra XRPL (book_offers)
     async function loadOrderbook(){
