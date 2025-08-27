@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="no" data-theme="dark">
 <head>
-
-  
-  <meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self'; 
-               script-src 'self' https://xumm.app https://xaman.app https://unpkg.com 'unsafe-inline'; 
-               connect-src 'self' https://xumm.app https://xaman.app wss://xrplcluster.com; 
-               style-src 'self' 'unsafe-inline'; 
-               img-src 'self' data: https://xumm.app https://xaman.app; 
-               frame-src https://xumm.app https://xaman.app;">
-
-  
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash · Wallet Connect</title>
@@ -196,7 +185,7 @@
                 </div>
                 <div id="xrbc-order-feedback" class="xrbc-small" style="margin-top:8px;color:var(--xrbc-muted);">Status: idle</div>
                 <div id="xrbc-status" class="xrbc-small" style="margin-top:10px;">Node: <span id="xrbc-node-status">disconnecting…</span></div>
-                <div class="xrbc-small" style="margin-top:6px;color:var(--xrbc-muted);">Rule: orders must be within ±0.25 XRP from mid-price (when mid-price is available).</div>
+                <div class="xrbc-small" style="margin-top:6px;color:var(--xrbc-muted);">Regel: ordre må være innen ±0.25 XRP fra mid-price (når mid-price er tilgjengelig).</div>
               </div>
             </div>
           </aside>
@@ -209,7 +198,7 @@
   <script type="application/json" id="app-config">
   {
     "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "rpcEndpoint": "wss://xrplcluster.com"
+    "rpcEndpoint": "wss://YOUR_XRPL_RPC_ENDPOINT"
   }
   </script>
 
@@ -249,21 +238,15 @@
     const xrplNodeStatus = document.getElementById('xrbc-node-status');
     const connectWalletBtn = document.getElementById('connectWalletButton');
     const walletStatusSpan = document.getElementById('walletAddress');
-// read site config safely
+
+    // read site config safely
     let siteCfg = {};
     try {
       const c = document.getElementById('app-config');
       if (c) siteCfg = JSON.parse(c.textContent || '{}');
     } catch(e){ console.warn('app-config parse error', e); }
-// Prevent runtime config tampering
-Object.freeze(siteCfg);
 
-// Validate endpoint before connect
-if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
-  console.error("Invalid XRPL endpoint");
-  throw new Error("Blocked unsafe endpoint");
-}
-  // runtime state
+    // runtime state
     let xrplClient = null;
     let xumm = null;
     let userAccount = null;
@@ -679,12 +662,16 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
       } catch(e){}
     });
 
-    <script>
-  // Simple XRPL WebSocket test
-  (function(){
-    const ws = new WebSocket("wss://xrplcluster.com");
-    ws.onopen = () => console.log("Connected to XRPL WebSocket!");
-    ws.onerror = (err) => console.error("WebSocket Error:", err);
-    ws.onmessage = (msg) => console.log("Received:", msg.data);
+    // Eksponer debug API
+    window.__xrbcDex = {
+      loadOrderbook,
+      estimateMarketFill,
+      lastOrderbook: ()=> lastOrderbook,
+      bestBid: ()=> bestBid,
+      bestAsk: ()=> bestAsk
+    };
+
   })();
-</script>
+  </script>
+</body>
+</html>
