@@ -245,17 +245,34 @@ if (!/^wss:\/\/[a-z0-9\.-]+(:[0-9]+)?$/i.test(siteCfg.rpcEndpoint)) {
 let xrplClient = null;
 
 // Function to connect to XRPL
-async function connectXRPL() {
+async function initClients() {
+  // Await XRPL connection
   try {
-    xrplClient = new xrpl.Client(PRIMARY_WSS);
-    await xrplClient.connect();
-    console.log("Connected to XRPL node at", PRIMARY_WSS);
-   nodeStatusEl.textContent = 'connected';
-  } catch (err) {
-    console.error("XRPL connection failed:", err);
-   nodeStatusEl.textContent = 'connection failed';
+    await connectXRPL();
+  } catch(e) {
+    console.warn('XRPL init failed', e);
   }
+
+  // Initialize Xumm SDK
+  try {
+    if (window.Xumm) {
+      const apiKey = siteCfg?.xummApiKey;
+      xumm = new Xumm(apiKey);
+      console.log("Xumm initialized");
+      connectWalletBtn.disabled = false;
+    } else {
+      console.error("Xumm SDK not loaded");
+      connectWalletBtn.disabled = true;
+    }
+  } catch (e) {
+    console.error("Xumm init error:", e);
+    connectWalletBtn.disabled = true;
+  }
+
+  // Only now load orderbook
+  await loadOrderbook();
 }
+
 
  const MAX_LEVELS = 20;
     const MAX_SPREAD_ALLOWED = 0.25; // i XRP — regelen du ba om
