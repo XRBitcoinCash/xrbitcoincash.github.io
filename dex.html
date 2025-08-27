@@ -215,9 +215,8 @@
   </script>
 
   <!-- External libs: Xumm + xrpl -->
-<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-<script src="https://unpkg.com/xrpl/dist/xrpl.min.js"></script>
-
+<script src="https://xaman.app/assets/cdn/xumm.min.js" defer></script>
+<script src="https://unpkg.com/xrpl/dist/xrpl.min.js" defer></script>
 
   <script>
   // --- Step 1: Site Config & Endpoint Validation ---
@@ -228,6 +227,8 @@ try {
 } catch(e){ 
   console.warn('app-config parse error', e); 
 }
+// --- Fix: define primary XRPL endpoint ---
+const PRIMARY_WSS = siteCfg.rpcEndpoint;
 
 // Prevent runtime config tampering
 Object.freeze(siteCfg);
@@ -256,12 +257,10 @@ async function connectXRPL() {
     xrplClient = new xrpl.Client(PRIMARY_WSS);
     await xrplClient.connect();
     console.log("Connected to XRPL node at", PRIMARY_WSS);
-    nodeStatusEl.textContent = 'connected';
-    xrplNodeStatus.textContent = 'connected';
+   nodeStatusEl.textContent = 'connected';
   } catch (err) {
     console.error("XRPL connection failed:", err);
-    nodeStatusEl.textContent = 'connection failed';
-    xrplNodeStatus.textContent = 'connection failed';
+   nodeStatusEl.textContent = 'connection failed';
   }
 }
 
@@ -285,7 +284,7 @@ async function connectXRPL() {
     const orderAmountEl = document.getElementById('xrbc-order-amount');
     const orderPriceEl = document.getElementById('xrbc-order-price');
     const orderFeedbackEl = document.getElementById('xrbc-order-feedback');
-    const xrplNodeStatus = document.getElementById('xrbc-node-status');
+  
     const connectWalletBtn = document.getElementById('connectWalletButton');
     const walletStatusSpan = document.getElementById('walletAddress');
 // read site config safely
