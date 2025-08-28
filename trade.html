@@ -90,13 +90,14 @@
   "rpcEndpoint": "wss://s1.ripple.com"
 }
 </script>
-
-<!-- === EXTERNAL LIBS === -->
+<!-- === LIBRARIES === -->
+<!-- === INITIALIZATION: Xumm === -->
 <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-<!-- === XRPL LIBRARY === -->
+<!-- === INITIALIZATION: XRPL === -->
 <script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0/dist/npm/xrpl.min.js"></script>
-<!-- === APP SCRIPT === -->
-<script>
+<!-- === LIBRARIES === -->
+  <!-- === APPLICATION SCRIPT: xumm xam  === -->
+ <script>
 (function(){
   'use strict';
 
@@ -196,6 +197,40 @@ async function disconnectWallet() {
       <button id="xrbc-refresh-btn" class="xrbc-btn xrbc-btn-ghost" title="Refresh market data">Refresh</button>
     </div>
   </div>
+ <!-- === step 2 === -->
+  <!-- === APPLICATION SCRIPT: DEX & UI LOGIC === -->
+  <script>
+(async () => {
+  'use strict';
+
+  // === CONFIG ===
+  const DEFAULT_WSS = "wss://s1.ripple.com"; // XRPL public node
+  const xrplNodeBtn = document.getElementById('xrpl-node-btn');
+
+  // === CREATE CLIENT ===
+  const xrplClient = new xrpl.Client(DEFAULT_WSS);
+
+  // === CONNECT FUNCTION ===
+  async function connectXRPL() {
+    try {
+      await xrplClient.connect();
+      console.log("✅ XRPL Node connected!");
+      xrplNodeBtn.style.backgroundColor = 'green';
+      xrplNodeBtn.textContent = 'XRPL Node: Connected';
+    } catch (err) {
+      console.error("❌ XRPL Node connection failed:", err);
+      xrplNodeBtn.style.backgroundColor = 'red';
+      xrplNodeBtn.textContent = 'XRPL Node: Disconnected';
+    }
+  }
+  // === step 3 ===
+  // === CALL CONNECT ===
+  await connectXRPL();
+
+  // Optional: expose client globally for other modules
+  window.xrplClient = xrplClient;
+})();
+</script>
 
 <!-- XRPL Node Status Button -->
 <button id="xrpl-node-btn" style="background-color:red;color:white;">
