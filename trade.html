@@ -272,26 +272,27 @@ async function disconnectWallet() {
   const MAX_LEVELS = 20;
 
   // DOM refs
-const xrplNodeBtn = document.getElementById('xrpl-node-btn'); // new button reference
+const xrplNodeBtn = document.getElementById('xrpl-node-btn') || null;
 
-  const pairSelect = document.getElementById('xrbc-pair-select');
-  const orderbookEl = document.getElementById('xrbc-orderbook');
-  const walletAddrEl = document.getElementById('xrbc-wallet-addr');
-  const nodeStatusEl = document.getElementById('xrbc-node-status');
- const xrplNodeStatus = document.getElementById('xrbc-xrpl-node-status'); // <-- add this line
-  const spreadEl = document.getElementById('xrbc-metric-spread');
-  const bestBidEl = document.getElementById('xrbc-metric-bestbid');
-  const bestAskEl = document.getElementById('xrbc-metric-bestask');
-  const depthEl = document.getElementById('xrbc-metric-depth');
-  const simAmountEl = document.getElementById('xrbc-sim-amount');
-  const simResultEl = document.getElementById('xrbc-sim-result');
-  const refreshBtn = document.getElementById('xrbc-refresh-btn');
-  const submitBtn = document.getElementById('xrbc-submit-order');
-  const simulateBtn = document.getElementById('xrbc-simulate-btn');
-  const orderSideEl = document.getElementById('xrbc-order-side');
-  const orderAmountEl = document.getElementById('xrbc-order-amount');
-  const orderPriceEl = document.getElementById('xrbc-order-price');
-  const orderFeedbackEl = document.getElementById('xrbc-order-feedback');
+const pairSelect = document.getElementById('xrbc-pair-select') || null;
+const orderbookEl = document.getElementById('xrbc-orderbook') || null;
+const walletAddrEl = document.getElementById('xrbc-wallet-addr') || null;
+const nodeStatusEl = document.getElementById('xrbc-node-status') || null;
+const xrplNodeStatus = document.getElementById('xrbc-xrpl-node-status') || null;
+const spreadEl = document.getElementById('xrbc-metric-spread') || null;
+const bestBidEl = document.getElementById('xrbc-metric-bestbid') || null;
+const bestAskEl = document.getElementById('xrbc-metric-bestask') || null;
+const depthEl = document.getElementById('xrbc-metric-depth') || null;
+const simAmountEl = document.getElementById('xrbc-sim-amount') || null;
+const simResultEl = document.getElementById('xrbc-sim-result') || null;
+const refreshBtn = document.getElementById('xrbc-refresh-btn') || null;
+const submitBtn = document.getElementById('xrbc-submit-order') || null;
+const simulateBtn = document.getElementById('xrbc-simulate-btn') || null;
+const orderSideEl = document.getElementById('xrbc-order-side') || null;
+const orderAmountEl = document.getElementById('xrbc-order-amount') || null;
+const orderPriceEl = document.getElementById('xrbc-order-price') || null;
+const orderFeedbackEl = document.getElementById('xrbc-order-feedback') || null;
+
 // Function to update XRP Node status button
 function updateXrplNodeButton(connected) {
   if (!xrplNodeBtn) return;
