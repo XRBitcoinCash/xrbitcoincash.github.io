@@ -292,6 +292,53 @@ const xrplNodeBtn = document.getElementById('xrpl-node-btn'); // new button refe
   const orderAmountEl = document.getElementById('xrbc-order-amount');
   const orderPriceEl = document.getElementById('xrbc-order-price');
   const orderFeedbackEl = document.getElementById('xrbc-order-feedback');
+// Function to update XRP Node status button
+function updateXrplNodeButton(connected) {
+  if (!xrplNodeBtn) return;
+  if (connected) {
+    xrplNodeBtn.style.backgroundColor = 'green';
+    xrplNodeBtn.textContent = 'XRP Node Connected';
+  } else {
+    xrplNodeBtn.style.backgroundColor = 'red';
+    xrplNodeBtn.textContent = 'XRP Node Disconnected';
+  }
+}
+
+// Initialize XRPL client and update button accordingly
+async function initClients() {
+  console.log("initClients() started");
+  try {
+    const endpoint = DEFAULT_WSS;
+    xrplClient = new xrpl.Client(endpoint);
+
+    const statusEl = document.getElementById("xrbc-orderbook-card");
+    const statusText = statusEl.querySelector("em");
+    if (statusText) statusText.textContent = "Connecting to XRPL node...";
+
+    await xrplClient.connect();
+
+    if (statusText) statusText.textContent = "Connected ✅";
+    if (nodeStatusEl) nodeStatusEl.textContent = 'connected';
+    if (xrplNodeStatus) xrplNodeStatus.textContent = 'connected';
+
+    // ✅ Update the button here
+    updateXrplNodeButton(true);
+
+    loadOrderBook();
+  } catch (err) {
+    console.error("XRPL connect error", err);
+
+    const statusEl = document.getElementById("xrbc-orderbook-card");
+    const statusText = statusEl.querySelector("em");
+    if (statusText) statusText.textContent = "Connection failed ❌";
+
+    if (nodeStatusEl) nodeStatusEl.textContent = 'connection failed';
+    if (xrplNodeStatus) xrplNodeStatus.textContent = 'connection failed';
+
+    // ✅ Update the button on failure
+    updateXrplNodeButton(false);
+  }
+}
 
   // read site config safely
   let siteCfg = {};
