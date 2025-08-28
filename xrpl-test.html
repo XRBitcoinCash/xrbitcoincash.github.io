@@ -1,69 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XRPL Node Connection Test</title>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; background:#f5f5f5; }
-    #status { font-weight: bold; margin-top: 1rem; }
-    pre { background:#eee; padding:1rem; overflow-x:auto; }
-    button { padding:0.5rem 1rem; margin-bottom: 1rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XRBC Test DEX - Minimal</title>
+<style>
+body { font-family: Arial, sans-serif; background: #121212; color: #f0f0f0; }
+button { padding: 0.5em 1em; margin: 0.5em 0; }
+#xrpl-status { margin-bottom: 1em; }
+.xrbc-row { display: flex; justify-content: space-between; padding: 0.25em 0; border-bottom: 1px solid #333; }
+.xrbc-bid { color: #4caf50; }
+.xrbc-ask { color: #f44336; }
+</style>
 </head>
 <body>
-  <h1>XRPL Node Connection Test</h1>
-  <button id="connectBtn">Connect to XRPL Node</button>
-  <div id="status">Disconnected ❌</div>
-  <pre id="log"></pre>
 
-  <script>
-    const connectBtn = document.getElementById('connectBtn');
-    const statusEl = document.getElementById('status');
-    const logEl = document.getElementById('log');
+<h2>XRBC Test DEX - Minimal</h2>
+<div id="xrpl-status">XRPL Node: Disconnected ❌</div>
+<button id="connect-btn">Connect to XRPL Node</button>
 
-    function log(msg) {
-      console.log(msg);
-      logEl.textContent += msg + "\n";
+<h3>Orderbook</h3>
+<div id="orderbook">
+  <em>Not loaded</em>
+</div>
+<button id="refresh-btn">Refresh Orderbook</button>
+
+<script src="https://cdn.jsdelivr.net/npm/xrpl@2.10.0/dist/xrpl.min.js"></script>
+<script>
+(async function(){
+  'use strict';
+
+  const XRBC_CODE = 'XRbitcoincash';
+  const XRBC_ISSUER = 'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw';
+  const DEFAULT_WSS = 'wss://s1.ripple.com';
+  const MAX_LEVELS = 20;
+
+  let xrplClient = null;
+  let lastOrderbook = [];
+
+  const statusEl = document.getElementById('xrpl-status');
+  const connectBtn = document.getElementById('connect-btn');
+  const orderbookEl = document.getElementById('orderbook');
+  const refreshBtn = document.getElementById('refresh-btn');
+
+  // --- Helper functions ---
+  function updateStatus(connected) {
+    statusEl.textContent = 'XRPL Node: ' + (connected ? 'Connected ✅' : 'Disconnected ❌');
+  }
+
+  function dropsToXrp(d) { return Number(d)/1_000_000; }
+
+  function renderOrderbook(offers) {
+    if(!offers || !offers.length) {
+      orderbookEl.innerHTML = "<em>No offers found</em>";
+      return;
+    }
+    const container = document.createElement('div');
+    offers.forEach(o=>{
+      const price = o.quality ? Number(o.quality).toFixed(6) : '—';
+      let amount = 0;
+      if(o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.value) amount = Number(o.TakerGets.value);
+      else if(o.TakerGets) amount = dropsToXrp(o.TakerGets);
+      const side = (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) ? 'Sell' : 'Buy';
+      const row = document.createElement('div');
+      row.className = 'xrbc-row ' + (side==='Buy'?'xrbc-bid':'xrbc-ask');
+      row.textContent = `${side} — Price: ${price} XRP — Amount: ${amount}`;
+      container.appendChild(row);
+    });
+    orderbookEl.innerHTML = '';
+    orderbookEl.appendChild(container);
+  }
+
+  // --- Connect XRPL ---
+  async function connectXRPL() {
+    if(xrplClient && xrplClient.isConnected()){
+      console.log('XRPL already connected');
+      updateStatus(true);
+      return xrplClient;
     }
 
-    connectBtn.addEventListener('click', () => {
-      statusEl.textContent = "Connecting… ⏳";
+    try {
+      xrplClient = new xrpl.Client(DEFAULT_WSS);
+      await xrplClient.connect();
+      updateStatus(true);
+      console.log('✅ XRPL connected:', DEFAULT_WSS);
 
-      const wsUrl = "wss://s1.ripple.com"; // public XRPL node
-      let ws;
+      // Test server_info
+      const serverInfo = await xrplClient.request({ command: 'server_info' });
+      console.log('server_info test:', serverInfo);
 
-      try {
-        ws = new WebSocket(wsUrl);
+      return xrplClient;
+    } catch(err){
+      console.error('❌ XRPL connection failed:', err);
+      updateStatus(false);
+    }
+  }
 
-        ws.onopen = () => {
-          statusEl.textContent = "Connected ✅";
-          log("WebSocket opened successfully.");
-
-          // Send a simple server_info request
-          const request = JSON.stringify({ command: "server_info" });
-          ws.send(request);
-          log("Sent server_info request...");
-        };
-
-        ws.onmessage = (evt) => {
-          log("Received message:\n" + evt.data);
-        };
-
-        ws.onerror = (err) => {
-          statusEl.textContent = "Connection error ❌";
-          log("WebSocket error: " + (err.message || "Unknown error"));
-        };
-
-        ws.onclose = (evt) => {
-          statusEl.textContent = "Disconnected ❌";
-          log("WebSocket closed. Code: " + evt.code + ", Reason: " + evt.reason);
-        };
-      } catch (e) {
-        statusEl.textContent = "Connection failed ❌";
-        log("Exception: " + e.message);
+  // --- Load orderbook ---
+  async function loadOrderbook(){
+    if(!xrplClient || !xrplClient.isConnected()){
+      await connectXRPL();
+      if(!xrplClient || !xrplClient.isConnected()){
+        orderbookEl.innerHTML = "<em>XRPL node not connected.</em>";
+        return;
       }
-    });
-  </script>
+    }
+
+    const req = {
+      command: 'book_offers',
+      taker_gets: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
+      taker_pays: { currency: 'XRP' },
+      limit: MAX_LEVELS
+    };
+
+    try {
+      const res = await xrplClient.request(req);
+      const offers = res.result?.offers || [];
+      lastOrderbook = offers;
+      renderOrderbook(offers);
+    } catch(err) {
+      console.error('book_offers error:', err);
+      orderbookEl.innerHTML = `<em>Orderbook error: ${err.message||err}</em>`;
+    }
+  }
+
+  // --- Events ---
+  connectBtn.addEventListener('click', connectXRPL);
+  refreshBtn.addEventListener('click', loadOrderbook);
+
+})();
+</script>
 </body>
 </html>
