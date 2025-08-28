@@ -210,7 +210,6 @@
 
 <!-- === WALLET: KEEPING YOUR EXISTING BEHAVIOR === -->
 <script>
-
 (async function() {
   'use strict';
 
@@ -235,22 +234,22 @@
     nodeStatusEl.textContent = connected ? 'connected' : 'disconnected';
   }
 
-  // Config
+  // XRPL Testnet endpoint
   const RPC_ENDPOINT = 'wss://s.altnet.rippletest.net';
 
   // Create XRPL client
   const client = new xrpl.Client(RPC_ENDPOINT);
-  window.xrplClient = client; // expose globally
+  window.xrplClient = client;
 
-  // Event listeners
+  // Set event listeners BEFORE connecting
   client.on('connected', () => { console.log('✅ XRPL connected'); updateNodeUI(true); });
   client.on('disconnected', (code) => { console.warn('⚠ XRPL disconnected', code); updateNodeUI(false); });
   client.on('error', (err) => { console.error('❌ XRPL error', err); updateNodeUI(false); });
 
-  // Connect
+  // Connect to the node
   try {
     await client.connect();
-    console.log('XRPL testnet connection successful:', RPC_ENDPOINT);
+    console.log('XRPL Testnet connection successful');
     console.log('client.isConnected():', client.isConnected());
     updateNodeUI(client.isConnected());
   } catch (err) {
@@ -259,6 +258,7 @@
   }
 })();
 </script>
+
 
 
 
