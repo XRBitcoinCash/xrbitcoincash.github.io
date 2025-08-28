@@ -302,6 +302,7 @@ async function disconnectWallet() {
   let lastOrderbook = null;
 
 async function initClients() {
+  console.log("initClients() started");  // <-- add this line
   try {
     const endpoint = "wss://s1.ripple.com";
     xrplClient = new xrpl.Client(endpoint);
@@ -602,10 +603,11 @@ async function initClients() {
   }
 
   // Kickoff
-  initClients().then(()=>{
-    detectWalletQuick();
-    loadOrderbook();
-  });
+window.addEventListener('DOMContentLoaded', async () => {
+  await initClients();
+  detectWalletQuick();
+  loadOrderbook();
+});
 
   // small API for dev/debug
   window.__xrbcDex = {
