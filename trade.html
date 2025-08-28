@@ -194,29 +194,45 @@ async function disconnectWallet() {
       <button id="xrbc-refresh-btn" class="xrbc-btn xrbc-btn-ghost" title="Refresh market data">Refresh</button>
     </div>
   </div>
- <!-- === step 2 === -->
-  <!-- === APPLICATION SCRIPT: DEX & UI LOGIC === -->
-  <script>
+<!-- === step 2 === -->
+<!-- === APPLICATION SCRIPT: DEX & UI LOGIC === -->
+<script>
 (async () => {
   'use strict';
 
+  // Step 2: Grab UI button
   const xrplNodeBtn = document.getElementById('xrpl-node-btn');
-  const xrplClient = new xrpl.Client("wss://s1.ripple.com");
 
+  // Step 5: XRPL client globally declared
+  let xrplClient = null;
+
+  // Step 5: Connect function
   async function connectXRPL() {
+    const endpoint = 'wss://s1.ripple.com';
+    xrplClient = new xrpl.Client(endpoint);
+
     try {
       await xrplClient.connect();
       console.log("✅ XRPL Node connected!");
-      xrplNodeBtn.style.backgroundColor = 'green';
-      xrplNodeBtn.textContent = 'XRPL Node: Connected';
+
+      if (xrplNodeBtn) {
+        xrplNodeBtn.style.backgroundColor = 'green';
+        xrplNodeBtn.textContent = 'XRPL Node: Connected';
+      }
+
+      // Make globally accessible
+      window.xrplClient = xrplClient;
+
     } catch (err) {
       console.error("❌ XRPL Node connection failed:", err);
-      xrplNodeBtn.style.backgroundColor = 'red';
-      xrplNodeBtn.textContent = 'XRPL Node: Disconnected';
+      if (xrplNodeBtn) {
+        xrplNodeBtn.style.backgroundColor = 'red';
+        xrplNodeBtn.textContent = 'XRPL Node: Disconnected';
+      }
     }
   }
 
-  // === Step 3: Call Connect ===
+  // Step 3: Call Connect
   await connectXRPL();
 
   // Optional: expose client globally for other modules
