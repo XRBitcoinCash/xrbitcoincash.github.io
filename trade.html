@@ -301,22 +301,33 @@ async function disconnectWallet() {
   let userAccount = null;
   let lastOrderbook = null;
 
-  // Init clients (xrpl and xumm) defensively
-  async function initClients(){
-    // xrpl client
-    try {
-      if (hasXrpl) {
-        xrplClient = new xrpl.Client(siteCfg.rpcEndpoint || DEFAULT_WSS);
-        await xrplClient.connect();
-        nodeStatusEl.textContent = 'connected';
-      } else {
-        nodeStatusEl.textContent = 'xrpl.js not present';
-        console.warn('xrpl.js is not available on page. Include xrpl.js for node access.');
-      }
-    } catch (err) {
-      nodeStatusEl.textContent = 'connection failed';
-      console.error('XRPL connect error', err);
-    }
+async function initClients() {
+  try {
+    const endpoint = "wss://s1.ripple.com";
+    xrplClient = new xrpl.Client(endpoint);
+
+    const statusEl = document.getElementById("xrbc-orderbook-card");
+    const statusText = statusEl.querySelector("em");
+    if (statusText) statusText.textContent = "Connecting to XRPL node...";
+
+    await xrplClient.connect();
+
+    if (statusText) statusText.textContent = "Connected ✅";
+    if (nodeStatusEl) nodeStatusEl.textContent = 'connected';
+    if (xrplNodeStatus) xrplNodeStatus.textContent = 'connected';
+
+    loadOrderBook();
+  } catch (err) {
+    console.error("XRPL connect error", err);
+    const statusEl = document.getElementById("xrbc-orderbook-card");
+    const statusText = statusEl.querySelector("em");
+    if (statusText) statusText.textContent = "Connection failed ❌";
+
+    if (nodeStatusEl) nodeStatusEl.textContent = 'connection failed';
+    if (xrplNodeStatus) xrplNodeStatus.textContent = 'connection failed';
+  }
+}
+
 
     // xumm client
     try {
