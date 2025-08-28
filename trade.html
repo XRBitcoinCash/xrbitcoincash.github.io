@@ -234,7 +234,7 @@ async function disconnectWallet() {
 
   // Step 3: Call Connect
   await connectXRPL();
-
+<script>
   // Optional: expose client globally for other modules
   window.xrplClient = xrplClient;
 
@@ -245,11 +245,6 @@ async function disconnectWallet() {
     console.warn("⚠ XRPL Client is not connected!");
   }
 
-
-<!-- XRPL Node Status Button -->
-<button id="xrpl-node-btn" style="background-color:red;color:white;">
-  XRPL Node: Disconnected
-</button>
 
   
   <div id="xrbc-dex-grid">
@@ -291,7 +286,10 @@ async function disconnectWallet() {
         </div>
       </div>
     </div>
-
+<!-- XRPL Node Status Button -->
+<button id="xrpl-node-btn" style="background-color:red;color:white;">
+  XRPL Node: Disconnected
+</button>
     <!-- RIGHT: Order form -->
     <aside>
       <div id="xrbc-order-form-card">
