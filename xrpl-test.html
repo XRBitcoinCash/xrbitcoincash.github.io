@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XRBC Test DEX - Minimal</title>
+  <title>XRBC Test DEX - Minimal Module</title>
   <style>
     body { font-family: sans-serif; padding: 2rem; background:#111;color:#eee; }
     #status { font-weight: bold; margin-top: 1rem; }
@@ -11,13 +11,13 @@
   </style>
 </head>
 <body>
-  <h1>XRBC Test DEX - Minimal Connection</h1>
+  <h1>XRBC Test DEX - Minimal Module</h1>
   <div id="status">XRPL Node: Disconnected</div>
   <button id="connectBtn">Connect to XRPL Node</button>
 
-  <!-- Include pre-bundled XRPL client -->
-  <script src="https://unpkg.com/xrpl@2.9.0/dist/npm/xrpl.min.js"></script>
-  <script>
+  <script type="module">
+    import { Client } from 'https://cdn.jsdelivr.net/npm/xrpl@2.9.0/dist/npm/es/xrpl.mjs';
+
     const statusEl = document.getElementById('status');
     const connectBtn = document.getElementById('connectBtn');
     let xrplClient = null;
@@ -25,7 +25,7 @@
     async function connectXRPL() {
       statusEl.textContent = 'Connecting…';
       try {
-        xrplClient = new xrpl.Client('wss://s1.ripple.com');
+        xrplClient = new Client('wss://s1.ripple.com');
         await xrplClient.connect();
         if (xrplClient.isConnected()) {
           statusEl.textContent = 'XRPL Node: Connected ✅';
@@ -40,9 +40,6 @@
     }
 
     connectBtn.addEventListener('click', connectXRPL);
-
-    // Optional: auto-connect on page load
-    // window.addEventListener('DOMContentLoaded', connectXRPL);
   </script>
 </body>
 </html>
