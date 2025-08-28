@@ -1,25 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XRBC Test DEX - Auto Connect</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #xrpl-status { margin-bottom: 10px; font-weight: bold; }
+    button { padding: 8px 16px; margin-right: 10px; }
+  </style>
+</head>
 <body>
-<h2>XRPL WS Test</h2>
-<div id="status">Connecting…</div>
 
-<script>
-const statusEl = document.getElementById('status');
-const ws = new WebSocket('wss://s1.ripple.com');
+<h2>XRBC Test DEX - Minimal</h2>
 
-ws.onopen = () => {
-  statusEl.textContent = 'Connected ✅';
-  console.log('WebSocket opened');
-  ws.send(JSON.stringify({ command: 'server_info' }));
-};
+<div id="xrpl-status">XRPL Node: Connecting…</div>
+<button id="connect-wallet" disabled>Connect Wallet (Manual)</button>
 
-ws.onmessage = (msg) => console.log('Received:', msg.data);
-ws.onerror = (e) => {
-  statusEl.textContent = 'Connection failed ❌';
-  console.error('WebSocket error', e);
-};
-ws.onclose = () => console.log('WebSocket closed');
+<script type="module">
+import xrpl from 'https://cdn.jsdelivr.net/npm/xrpl@3.2.0/dist/xrpl.mjs';
+
+let xrplClient = null;
+const statusEl = document.getElementById('xrpl-status');
+const connectWalletBtn = document.getElementById('connect-wallet');
+
+async function connectXRPL() {
+  const WSS_URL = 'wss://s1.ripple.com';
+  try {
+    xrplClient = new xrpl.Client(WSS_URL);
+    await xrplClient.connect();
+    statusEl.textContent = 'XRPL Node: Connected ✅';
+    console.log('WebSocket opened successfully.');
+
+    // Test server_info request
+    const serverInfo = await xrplClient.request({ command: 'server_info' });
+    console.log('Received server_info:', serverInfo);
+
+    // Enable wallet button only after node connection
+    connectWalletBtn.disabled = false;
+  } catch (err) {
+    statusEl.textContent = 'XRPL Node: Connection failed ❌';
+    console.error('XRPL connection error:', err);
+  }
+}
+
+// Manual wallet connection placeholder
+connectWalletBtn.addEventListener('click', () => {
+  alert('Wallet connection would be initialized here manually.');
+});
+
+// Auto-connect on page load
+window.addEventListener('DOMContentLoaded', connectXRPL);
 </script>
+
 </body>
 </html>
