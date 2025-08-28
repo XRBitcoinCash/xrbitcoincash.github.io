@@ -211,48 +211,55 @@
 <!-- === WALLET: KEEPING YOUR EXISTING BEHAVIOR === -->
 <script>
 <script>
-(async function(){
+(async function() {
   'use strict';
-  // Read config
-  const cfg = JSON.parse(document.getElementById('app-config').textContent||'{}');
-  const DEFAULT_WSS = cfg.rpcEndpoint || 'wss://s.altnet.rippletest.net';
-  const xrplNodeBtn = document.getElementById('xrpl-node-btn');
-  const nodeStatusEl = document.getElementById('xrbc-node-status');
 
-  // Helper to update UI
-  function updateNodeUI(connected){
-    if(!xrplNodeBtn || !nodeStatusEl) return;
+  // Wait for DOM elements
+  const waitFor = (selector) => new Promise(resolve => {
+    const el = document.querySelector(selector);
+    if (el) return resolve(el);
+    const observer = new MutationObserver(() => {
+      const el2 = document.querySelector(selector);
+      if (el2) { observer.disconnect(); resolve(el2); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+
+  const xrplNodeBtn = await waitFor('#xrpl-node-btn');
+  const nodeStatusEl = await waitFor('#xrbc-node-status');
+
+  function updateNodeUI(connected) {
     xrplNodeBtn.textContent = connected ? 'XRPL Node: Connected' : 'XRPL Node: Disconnected';
     xrplNodeBtn.style.backgroundColor = connected ? '#1f3a2a' : '#3a1f1f';
     xrplNodeBtn.style.borderColor = connected ? '#2e7d32' : '#6d2b2b';
     nodeStatusEl.textContent = connected ? 'connected' : 'disconnected';
   }
 
+  // Config
+  const RPC_ENDPOINT = 'wss://s.altnet.rippletest.net';
+
   // Create XRPL client
-  const xrplClient = new xrpl.Client(DEFAULT_WSS);
-  window.xrplClient = xrplClient; // expose globally
+  const client = new xrpl.Client(RPC_ENDPOINT);
+  window.xrplClient = client; // expose globally
 
+  // Event listeners
+  client.on('connected', () => { console.log('✅ XRPL connected'); updateNodeUI(true); });
+  client.on('disconnected', (code) => { console.warn('⚠ XRPL disconnected', code); updateNodeUI(false); });
+  client.on('error', (err) => { console.error('❌ XRPL error', err); updateNodeUI(false); });
+
+  // Connect
   try {
-    await xrplClient.connect();
-    console.log('✅ XRPL Testnet connected:', DEFAULT_WSS);
-    updateNodeUI(true);
-  } catch(err) {
-    console.error('❌ XRPL connection failed:', err);
+    await client.connect();
+    console.log('XRPL testnet connection successful:', RPC_ENDPOINT);
+    console.log('client.isConnected():', client.isConnected());
+    updateNodeUI(client.isConnected());
+  } catch (err) {
+    console.error('Failed to connect to XRPL:', err);
     updateNodeUI(false);
-    return;
   }
-
-  // Optional: Reconnect logic
-  xrplClient.on('disconnected', code => {
-    console.warn('⚠ XRPL disconnected, code:', code);
-    updateNodeUI(false);
-  });
-  xrplClient.on('error', err => {
-    console.error('⚠ XRPL error:', err);
-    updateNodeUI(false);
-  });
 })();
 </script>
+
 
 
 <!-- === CONSOLE NOTES === -->
