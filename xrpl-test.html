@@ -3,55 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XRBC Test DEX - Auto Connect</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    #xrpl-status { margin-bottom: 10px; font-weight: bold; }
-    button { padding: 8px 16px; margin-right: 10px; }
-  </style>
+  <title>XRPL WS Debug</title>
 </head>
 <body>
-
-<h2>XRBC Test DEX - Minimal</h2>
-
-<div id="xrpl-status">XRPL Node: Connecting…</div>
-<button id="connect-wallet" disabled>Connect Wallet (Manual)</button>
+<h2>XRPL WS Debug Test</h2>
+<div id="status">Connecting…</div>
 
 <script type="module">
 import xrpl from 'https://cdn.jsdelivr.net/npm/xrpl@3.2.0/dist/xrpl.mjs';
 
-let xrplClient = null;
-const statusEl = document.getElementById('xrpl-status');
-const connectWalletBtn = document.getElementById('connect-wallet');
+const statusEl = document.getElementById('status');
+let client = null;
 
-async function connectXRPL() {
-  const WSS_URL = 'wss://s1.ripple.com';
+async function testConnect() {
+  const url = 'wss://s1.ripple.com';
   try {
-    xrplClient = new xrpl.Client(WSS_URL);
-    await xrplClient.connect();
-    statusEl.textContent = 'XRPL Node: Connected ✅';
-    console.log('WebSocket opened successfully.');
+    console.log('Creating client…');
+    client = new xrpl.Client(url);
 
-    // Test server_info request
-    const serverInfo = await xrplClient.request({ command: 'server_info' });
-    console.log('Received server_info:', serverInfo);
+    client.on('error', (err) => console.error('WebSocket error:', err));
+    client.on('disconnected', (code) => console.log('Disconnected with code', code));
+    client.on('connected', () => console.log('WebSocket connected event fired'));
 
-    // Enable wallet button only after node connection
-    connectWalletBtn.disabled = false;
-  } catch (err) {
-    statusEl.textContent = 'XRPL Node: Connection failed ❌';
-    console.error('XRPL connection error:', err);
+    console.log('Connecting…');
+    await client.connect();
+    console.log('Connection promise resolved');
+    statusEl.textContent = 'Connected ✅';
+
+    console.log('Sending server_info request…');
+    const info = await client.request({ command: 'server_info' });
+    console.log('Server info received:', info);
+
+  } catch (e) {
+    statusEl.textContent = 'Connection failed ❌';
+    console.error('XRPL connect failed:', e);
   }
 }
 
-// Manual wallet connection placeholder
-connectWalletBtn.addEventListener('click', () => {
-  alert('Wallet connection would be initialized here manually.');
-});
-
-// Auto-connect on page load
-window.addEventListener('DOMContentLoaded', connectXRPL);
+window.addEventListener('DOMContentLoaded', testConnect);
 </script>
-
 </body>
 </html>
