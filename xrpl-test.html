@@ -2,39 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>XRPL Node Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XRPL WebSocket Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #121212; color: #fff; }
+    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; }
+    #status { margin-top: 10px; }
+    pre { background: #1e1e1e; padding: 10px; overflow-x: auto; }
+  </style>
 </head>
 <body>
-  <h2>XRPL Node Test</h2>
-  <pre id="output">Connecting…</pre>
+  <h1>XRPL WebSocket Connection Test</h1>
+  <button id="connectBtn">Connect to XRPL Node</button>
+  <div id="status">Status: Not connected</div>
+  <h2>Response:</h2>
+  <pre id="response"></pre>
 
   <script>
-    (function() {
-      const output = document.getElementById('output');
-      const ws = new WebSocket("wss://s1.ripple.com");
+    const connectBtn = document.getElementById('connectBtn');
+    const statusEl = document.getElementById('status');
+    const responseEl = document.getElementById('response');
+
+    connectBtn.addEventListener('click', () => {
+      const ws = new WebSocket('wss://s1.ripple.com'); // Public XRPL node
+
+      statusEl.textContent = 'Status: Connecting...';
 
       ws.onopen = () => {
-        output.textContent = "Connected to XRPL WebSocket!\nSending server_info request…";
+        statusEl.textContent = 'Status: Connected';
+        console.log('WebSocket connected');
 
-        // send a simple server_info request
-        ws.send(JSON.stringify({ id: 1, command: "server_info" }));
+        // Send a simple server_info request
+        const request = {
+          "id": 1,
+          "command": "server_info"
+        };
+        ws.send(JSON.stringify(request));
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        responseEl.textContent = JSON.stringify(data, null, 2);
+        console.log('Received:', data);
       };
 
       ws.onerror = (err) => {
-        output.textContent = "WebSocket Error: " + err;
-        console.error("WebSocket Error:", err);
+        statusEl.textContent = 'Status: Error';
+        console.error('WebSocket error:', err);
       };
 
-      ws.onmessage = (msg) => {
-        try {
-          const data = JSON.parse(msg.data);
-          output.textContent = "Received from XRPL:\n" + JSON.stringify(data, null, 2);
-          console.log("Received:", data);
-        } catch(e) {
-          output.textContent = "Error parsing message: " + e;
-        }
+      ws.onclose = () => {
+        statusEl.textContent = 'Status: Disconnected';
+        console.log('WebSocket closed');
       };
-    })();
+    });
   </script>
 </body>
 </html>
