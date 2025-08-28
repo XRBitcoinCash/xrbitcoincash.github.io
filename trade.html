@@ -226,11 +226,17 @@ async function disconnectWallet() {
   // === step 3 ===
   // === CALL CONNECT ===
   await connectXRPL();
+ // Optional:step 4
+// Optional: expose client globally for other modules
+window.xrplClient = xrplClient;
 
-  // Optional: expose client globally for other modules
-  window.xrplClient = xrplClient;
-})();
-</script>
+// === Step 4: Verify Connection ===
+if (xrplClient.isConnected()) {
+  console.log("✅ XRPL Client is connected and ready");
+} else {
+  console.warn("⚠ XRPL Client is not connected!");
+}
+
 
 <!-- XRPL Node Status Button -->
 <button id="xrpl-node-btn" style="background-color:red;color:white;">
