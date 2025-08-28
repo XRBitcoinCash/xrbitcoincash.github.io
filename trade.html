@@ -317,11 +317,19 @@ function updateNodeButton(connected){
   if(nodeStatusEl) nodeStatusEl.textContent = connected? 'connected' : 'disconnected';
 }
 
-// XRPL connect (fixed for xrpl.js 2.x)
-async function connectXRPL(){
+// XRPL connect (fixed for xrpl.js 2.x and browser)
+async function connectXRPL() {
+  if (!window.xrpl) {
+    console.error('XRPL library not loaded.');
+    updateNodeButton(false);
+    return;
+  }
+
   try {
+    // Create client using app-config endpoint
     xrplClient = new xrpl.Client(DEFAULT_WSS);
 
+    // Event handlers
     xrplClient.on('connected', () => {
       console.log('✅ XRPL connected via WebSocket:', DEFAULT_WSS);
       updateNodeButton(true);
@@ -332,13 +340,26 @@ async function connectXRPL(){
       updateNodeButton(false);
     });
 
+    xrplClient.on('error', (err) => {
+      console.error('⚠ XRPL error:', err);
+      updateNodeButton(false);
+    });
+
+    // Connect
     await xrplClient.connect();
-    window.xrplClient = xrplClient; // expose globally
-  } catch(err){
+
+    // Expose globally
+    window.xrplClient = xrplClient;
+
+    // Load orderbook once connected
+    await loadOrderbook();
+
+  } catch (err) {
     console.error('❌ XRPL connection failed', err);
     updateNodeButton(false);
   }
 }
+
 
 
   // Load orderbook (XRBC/XRP)
