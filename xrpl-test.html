@@ -8,6 +8,7 @@
     body { font-family: sans-serif; padding: 2rem; background:#f5f5f5; }
     #status { font-weight: bold; margin-top: 1rem; }
     pre { background:#eee; padding:1rem; overflow-x:auto; }
+    button { padding:0.5rem 1rem; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
@@ -23,34 +24,46 @@
 
     function log(msg) {
       console.log(msg);
-      logEl.textContent += msg + '\n';
+      logEl.textContent += msg + "\n";
     }
 
     connectBtn.addEventListener('click', () => {
-      statusEl.textContent = 'Connecting… ⏳';
-      const wsUrl = 'wss://s1.ripple.com'; // public XRPL node
+      statusEl.textContent = "Connecting… ⏳";
+
+      const wsUrl = "wss://s1.ripple.com"; // public XRPL node
       let ws;
 
       try {
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
-          statusEl.textContent = 'Connected ✅';
-          log('WebSocket opened successfully.');
-          // Test server_info
+          statusEl.textContent = "Connected ✅";
+          log("WebSocket opened successfully.");
+
+          // Send a simple server_info request
           const request = JSON.stringify({ command: "server_info" });
           ws.send(request);
+          log("Sent server_info request...");
         };
 
         ws.onmessage = (evt) => {
-          log('Received message:\n' + evt.data);
+          log("Received message:\n" + evt.data);
         };
 
         ws.onerror = (err) => {
-          statusEl.textContent = 'Connection error ❌';
-          log('WebSocket error: ' + err.message);
+          statusEl.textContent = "Connection error ❌";
+          log("WebSocket error: " + (err.message || "Unknown error"));
         };
 
         ws.onclose = (evt) => {
-          statusEl.textContent = 'Disconnected ❌';
-          log('WebSocket closed. Code: ' + evt.code + ', Reason: ' + evt.reaso
+          statusEl.textContent = "Disconnected ❌";
+          log("WebSocket closed. Code: " + evt.code + ", Reason: " + evt.reason);
+        };
+      } catch (e) {
+        statusEl.textContent = "Connection failed ❌";
+        log("Exception: " + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
