@@ -203,14 +203,9 @@ async function disconnectWallet() {
 (async () => {
   'use strict';
 
-  // === CONFIG ===
-  const DEFAULT_WSS = "wss://s1.ripple.com"; // XRPL public node
   const xrplNodeBtn = document.getElementById('xrpl-node-btn');
+  const xrplClient = new xrpl.Client("wss://s1.ripple.com");
 
-  // === CREATE CLIENT ===
-  const xrplClient = new xrpl.Client(DEFAULT_WSS);
-
-  // === CONNECT FUNCTION ===
   async function connectXRPL() {
     try {
       await xrplClient.connect();
@@ -223,20 +218,21 @@ async function disconnectWallet() {
       xrplNodeBtn.textContent = 'XRPL Node: Disconnected';
     }
   }
-  // === step 3 ===
-  // === CALL CONNECT ===
+
+  // === Step 3: Call Connect ===
   await connectXRPL();
- // Optional:step 4
-// Optional: expose client globally for other modules
-window.xrplClient = xrplClient;
 
-// === Step 4: Verify Connection ===
-if (xrplClient.isConnected()) {
-  console.log("✅ XRPL Client is connected and ready");
-} else {
-  console.warn("⚠ XRPL Client is not connected!");
-}
+  // Optional: expose client globally for other modules
+  window.xrplClient = xrplClient;
 
+  // === Step 4: Verify Connection ===
+  if (xrplClient.isConnected()) {
+    console.log("✅ XRPL Client is connected and ready");
+  } else {
+    console.warn("⚠ XRPL Client is not connected!");
+  }
+
+})();
 
 <!-- XRPL Node Status Button -->
 <button id="xrpl-node-btn" style="background-color:red;color:white;">
