@@ -1,45 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XRBC Test DEX - Minimal Module</title>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; background:#111;color:#eee; }
-    #status { font-weight: bold; margin-top: 1rem; }
-    button { padding: 0.5rem 1rem; margin-top: 1rem; }
-  </style>
+  <title>XRPL Node Test</title>
 </head>
 <body>
-  <h1>XRBC Test DEX - Minimal Module</h1>
-  <div id="status">XRPL Node: Disconnected</div>
-  <button id="connectBtn">Connect to XRPL Node</button>
+<h2>XRPL Node Connection Test</h2>
+<div id="status">Connecting…</div>
 
-  <script type="module">
-    import { Client } from 'https://cdn.jsdelivr.net/npm/xrpl@2.9.0/dist/npm/es/xrpl.mjs';
+<script>
+const statusEl = document.getElementById('status');
+const nodeURL = 'wss://s1.ripple.com'; // public XRPL node
 
-    const statusEl = document.getElementById('status');
-    const connectBtn = document.getElementById('connectBtn');
-    let xrplClient = null;
+try {
+  const ws = new WebSocket(nodeURL);
+  
+  ws.onopen = () => statusEl.textContent = 'Connected ✅';
+  ws.onclose = () => statusEl.textContent = 'Disconnected ❌';
+  ws.onerror = (e) => statusEl.textContent = 'Error ❌ ' + e.message;
 
-    async function connectXRPL() {
-      statusEl.textContent = 'Connecting…';
-      try {
-        xrplClient = new Client('wss://s1.ripple.com');
-        await xrplClient.connect();
-        if (xrplClient.isConnected()) {
-          statusEl.textContent = 'XRPL Node: Connected ✅';
-          console.log('XRPL connected:', xrplClient);
-        } else {
-          statusEl.textContent = 'XRPL Node: Disconnected ❌';
-        }
-      } catch (err) {
-        console.error('Connection error:', err);
-        statusEl.textContent = 'XRPL Node: Connection failed ❌';
-      }
-    }
+  // Optional: send a simple server_info request
+  ws.onopen = () => {
+    statusEl.textContent = 'Connected, sending server_info…';
+    ws.send(JSON.stringify({ command: 'server_info' }));
+  };
 
-    connectBtn.addEventListener('click', connectXRPL);
-  </script>
+  ws.onmessage = (msg) => {
+    statusEl.textContent = 'Response received ✅ ' + msg.data.slice(0,100) + '…';
+    ws.close();
+  };
+} catch(e){
+  statusEl.textContent = 'Failed to connect ❌ ' + e.message;
+}
+</script>
 </body>
 </html>
