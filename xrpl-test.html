@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>XRBC Test DEX - Minimal Connection</title>
+  <title>XRBC Test DEX - Auto Node Connect</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     #xrpl-status { margin-bottom: 10px; font-weight: bold; }
@@ -14,8 +14,7 @@
 
 <h2>XRBC Test DEX - Minimal</h2>
 
-<div id="xrpl-status">XRPL Node: Disconnected ❌</div>
-<button id="connect-node">Connect to XRPL Node</button>
+<div id="xrpl-status">XRPL Node: Connecting…</div>
 <button id="connect-wallet" disabled>Connect Wallet (Manual)</button>
 
 <script type="module">
@@ -23,13 +22,11 @@ import xrpl from 'https://cdn.jsdelivr.net/npm/xrpl@3.2.0/dist/xrpl.mjs';
 
 let xrplClient = null;
 const statusEl = document.getElementById('xrpl-status');
-const connectNodeBtn = document.getElementById('connect-node');
 const connectWalletBtn = document.getElementById('connect-wallet');
 
-// XRPL connection
-async function connectXRPL() {
+// Automatically connect to XRPL node on page load
+async function autoConnectXRPL() {
   const WSS_URL = 'wss://s1.ripple.com'; // public XRPL node
-  statusEl.textContent = 'Connecting to XRPL Node…';
   try {
     xrplClient = new xrpl.Client(WSS_URL);
     await xrplClient.connect();
@@ -54,9 +51,11 @@ async function connectWallet() {
   alert('Wallet connection would be initialized here manually.');
 }
 
-// Button events
-connectNodeBtn.addEventListener('click', connectXRPL);
+// Button event for wallet
 connectWalletBtn.addEventListener('click', connectWallet);
+
+// Trigger XRPL auto-connect on page load
+window.addEventListener('DOMContentLoaded', autoConnectXRPL);
 </script>
 
 </body>
