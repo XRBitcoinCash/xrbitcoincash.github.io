@@ -1,201 +1,147 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <title>Terms of Service — XRBitcoinCash</title>
-
-  <!-- Favicon -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
-
-  <!-- Primary SEO -->
-  <meta name="description" content="XRBitcoinCash Terms of Service. Collectibles on the XRP Ledger are not securities, not investments, and not for gambling — intended only for nostalgic and educational purposes." />
-  <meta name="keywords" content="XRBitcoinCash, XRPL, Terms of Service, collectibles, NFT, educational, nostalgic" />
-  <link rel="canonical" href="https://xrbitcoincash.com/terms.html" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Terms of Service — XRBitcoinCash" />
-  <meta property="og:description" content="Collectibles on the XRP Ledger are for nostalgic and educational purposes only. Not a security, not an investment." />
-  <meta property="og:image" content="https://xrbitcoincash.com/assets/og-image-terms.png" />
-  <meta property="og:url" content="https://xrbitcoincash.com/terms.html" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Terms of Service — XRBitcoinCash" />
-  <meta name="twitter:description" content="Collectibles on the XRP Ledger are for nostalgic and educational purposes only. Not a security, not an investment." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/assets/og-image-terms.png" />
-
-  <!-- Styles (merged index + TOS minimal overrides) -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustLine Widget Test</title>
   <style>
     :root {
-      --bg:#0B1020;--card:#0F1724;--ink:#ECF3FF;--muted:#9EB2D0;--accent:#00E5FF;
+      --bg: #0B1020;
+      --card: #0F1724;
+      --ink: #ECF3FF;
+      --muted: #9EB2D0;
+      --accent: #00E5FF;
     }
-    * {box-sizing:border-box;}
-    html,body {height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,system-ui,Arial;color:var(--ink);background:var(--bg);}
-    .bg-blob {position:fixed;inset:0;z-index:0;pointer-events:none;background:
-      radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
-      radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
-      filter:blur(28px);animation:blob 22s linear infinite;}
-    @keyframes blob {0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
-    header {position: fixed; top: 0; width: 100%; background: rgba(11, 16, 32, 0.8); backdrop-filter: blur(8px); z-index: 999; padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 8px;}
-    .brand {display:flex;gap:12px;align-items:center;}
-    .brand img {width:44px;height:44px;border-radius:8px;}
-    .brand h1 {font-size:1.05rem;margin:0;}
-    nav a {color:var(--muted);text-decoration:none;margin-left:0;margin-top:8px;font-weight:600;}
-    nav a.cta {background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;padding:8px 12px;border-radius:10px;}
-    main {position:relative;z-index:2;max-width:1000px;margin:100px auto 60px;padding:24px;}
-    h1,h2,h3,p,a {color:var(--ink);}
-    h1 {font-size:2rem;margin-bottom:0.5rem;}
-    h2 {font-size:1.25rem;margin-top:1.5rem;color:var(--accent);}
-    p {margin:0.75rem 0;line-height:1.5;}
-    section {margin-bottom:1.5rem;}
-    a {color:var(--accent);}
-    #agree-section {display:flex;align-items:center;margin-top:2rem;}
-    #agree-section input {margin-right:0.5rem;}
-    #connectBtn {margin-left:auto;padding:0.5rem 1.25rem;background:var(--accent);color:#00121a;border:none;font-weight:600;cursor:not-allowed;opacity:0.6;}
-    #connectBtn.enabled {cursor:pointer;opacity:1;}
-    footer {text-align:center;margin:3rem 0;color:var(--muted);font-size:0.85rem;}
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, system-ui, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
 
-    /* Particles overlay */
-    .particles {position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
-    .particle {position:absolute;width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 6px var(--accent);animation:float 6s infinite ease-in-out;}
-    @keyframes float {0%{transform:translateY(0) scale(1);opacity:1}50%{transform:translateY(-20px) scale(1.2);opacity:0.6}100%{transform:translateY(0) scale(1);opacity:1}}
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), #00b6d0);
+      color: #00121a;
+      box-shadow: 0 4px 12px rgba(0,229,255,0.3);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,229,255,0.5);
+    }
+
+    /* === WIDGET === */
+    .widget-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+    }
+
+    .widget {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      width: 90%;
+      max-width: 700px;
+      height: 70%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 40px rgba(0,229,255,0.25);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .widget-close {
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      font-size: 1.5rem;
+      align-self: flex-end;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .widget-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .widget-content iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 0 0 14px 14px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
-  <div class="bg-blob"></div>
 
-  <header>
-    <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBC logo" />
-      <h1>XRBitcoinCash <span class="muted small">— XRBC on XRPL</span></h1>
+  <!-- TrustLine Button -->
+  <a href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" 
+     class="btn" 
+     id="trustlineBtn">
+     Open a TrustLine
+  </a>
+
+  <!-- Widget Modal -->
+  <div class="widget-overlay" id="widgetOverlay">
+    <div class="widget">
+      <button class="widget-close" id="widgetClose">&times;</button>
+      <div class="widget-content" id="widgetContent"></div>
     </div>
-    <nav>
-      <a href="/index.html">Home</a>
-      <a href="/whitepaper.html">Whitepaper</a>
-      <a href="/terms.html">Terms of Service</a>
-      <a href="/privacy.html">Privacy Policy</a>
-    </nav>
-  </header>
-
-  <main>
-    <div class="particles">
-      <div class="particle" style="top:20%;left:10%;animation-delay:0s"></div>
-      <div class="particle" style="top:50%;left:30%;animation-delay:1s"></div>
-      <div class="particle" style="top:80%;left:50%;animation-delay:2s"></div>
-      <div class="particle" style="top:40%;left:70%;animation-delay:3s"></div>
-      <div class="particle" style="top:60%;left:90%;animation-delay:4s"></div>
-    </div>
-
-    <h1>Terms of Service</h1>
-    <p>Last updated: August 25, 2025</p>
-
-    <section>
-      <h2>1. Acceptance of Terms</h2>
-      <p>By accessing or using XRBitcoinCash services, you agree to these Terms. If you do not agree, please leave immediately.</p>
-    </section>
-
-    <section>
-      <h2>2. Nature of Collectibles</h2>
-      <p>XRBitcoinCash digital items are collectibles on the XRP Ledger. They are not securities, not an investment, not for gambling, and do not represent ownership of any company. Their value is purely nostalgic, educational, and subject to individual perception.</p>
-    </section>
-
-    <section>
-      <h2>3. Eligibility</h2>
-      <p>Use is limited to individuals 18 years or older and capable of forming a binding contract in their jurisdiction.</p>
-    </section>
-
-    <section>
-      <h2>4. User Responsibilities</h2>
-      <p>You are responsible for safeguarding your wallet credentials. XRBitcoinCash is non-custodial—losing your keys or recovery phrase means losing access permanently.</p>
-    </section>
-
-    <section>
-      <h2>5. Third-Party Services</h2>
-      <p>Links or integrations (Xaman, XUMM, WalletConnect, etc.) are provided for convenience. We are not responsible for third-party service availability or actions.</p>
-    </section>
-
-    <section>
-      <h2>6. Intellectual Property</h2>
-      <p>All text, graphics, code, and artwork are the property of XRBitcoinCash™ and its licensors. Unauthorized use is prohibited.</p>
-    </section>
-
-    <section>
-      <h2>7. Disclaimers & Warranties</h2>
-      <p>THE SITE AND COLLECTIBLES ARE PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND. XRBITCOINCASH DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>
-    </section>
-
-    <section>
-      <h2>8. Limitation of Liability</h2>
-      <p>UNDER NO CIRCUMSTANCES WILL XRBITCOINCASH BE LIABLE FOR ANY INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING FROM YOUR USE OF THIS SITE OR ANY COLLECTIBLES.</p>
-    </section>
-
-    <section>
-      <h2>9. Indemnification</h2>
-      <p>You agree to indemnify XRBitcoinCash against any claims, losses, or damages resulting from your violation of these Terms.</p>
-    </section>
-
-    <section>
-      <h2>10. Changes to Terms</h2>
-      <p>We may update these Terms at any time. The revised date will appear at the top. Continued use constitutes acceptance of the new Terms.</p>
-    </section>
-
-    <section>
-      <h2>11. Governing Law</h2>
-      <p>These Terms are governed by the laws of Missouri, USA, without regard to conflict-of-laws principles.</p>
-    </section>
-
-    <section>
-      <h2>12. Contact Information</h2>
-      <p>For questions about these Terms, email <a href="mailto:support@xrbitcoincash.com">support@xrbitcoincash.com</a>.</p>
-    </section>
-
-    <!-- Agreement & Wallet Connect -->
-    <section id="agree-section">
-      <input type="checkbox" id="agreeCheckbox">
-      <label for="agreeCheckbox">I have read and agree to the Terms of Service</label>
-      <button id="connectBtn" disabled>Connect Wallet</button>
-    </section>
-
-  </main>
-
-  <footer>
-    &copy; 2025 XRBitcoinCash™ — Built on the XRP Ledger
-  </footer>
-
-  <!-- Wallet Injection (from index) -->
-  <script src="https://cdn.xaman.app/xrpl-injection-api.min.js" data-project-id="YOUR_PROJECT_ID"></script>
+  </div>
 
   <script>
-    // Enable Connect when Terms are accepted
-    const checkbox = document.getElementById('agreeCheckbox');
-    const connectBtn = document.getElementById('connectBtn');
-    checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        connectBtn.disabled = false;
-        connectBtn.classList.add('enabled');
+    const trustlineBtn = document.getElementById("trustlineBtn");
+    const widgetOverlay = document.getElementById("widgetOverlay");
+    const widgetContent = document.getElementById("widgetContent");
+    const widgetClose = document.getElementById("widgetClose");
+
+    const trustlineURL = trustlineBtn.getAttribute("href");
+
+    function isMobile() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    trustlineBtn.addEventListener("click", function(e) {
+      if (isMobile()) {
+        // On mobile, allow normal behavior (opens wallet)
+        return;
       } else {
-        connectBtn.disabled = true;
-        connectBtn.classList.remove('enabled');
+        // On desktop, prevent navigation and open widget
+        e.preventDefault();
+        widgetOverlay.style.display = "flex";
+        widgetContent.innerHTML = `<iframe src="${trustlineURL}"></iframe>`;
       }
     });
 
-    // Wallet connect flow via Xaman
-    async function openWallet() {
-      if (!window.xrpl) {
-        alert('XRPL provider not found. Please install or enable your wallet.');
-        return;
-      }
-      const { address } = await window.xrpl.connect();
-      // Redirect or display account
-      window.location.href = `/trade.html?account=${encodeURIComponent(address)}`;
-    }
-
-    connectBtn.addEventListener('click', openWallet);
+    widgetClose.addEventListener("click", () => {
+      widgetOverlay.style.display = "none";
+      widgetContent.innerHTML = "";
+    });
   </script>
 </body>
 </html>
