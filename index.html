@@ -159,12 +159,6 @@ footer {max-width:1000px;margin:28px auto 60px;padding:18px;text-align:center;co
      <a class="cta" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Sologenic Liquidity Pool</a>
   </nav>
 </header>
-<!-- Countdown reminder for security.txt & CSAF expiry -->
-<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
-  <strong>Security File Update:</strong>
-  <div id="updateCountdown"></div>
-  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
-</div>
 
 <script>
 // ===== CONFIGURE EXPIRY DATE HERE =====
@@ -207,7 +201,9 @@ setInterval(updateTimer, 60000); // update every minute
       <div class="actions">
         <a class="btn primary" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank">Trade XRBC Now</a>
         <a class="btn primary" href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" target="_blank">Open a TrustLine</a>
-   
+        <a href="blockchain-specs.html" class="btn secondary">Blockchain Specs</a>
+        <a href="https://sologenic.org/amm/..." class="btn secondary">Sologenic Liquidity Pool</a>
+
 
         <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
       </div>
@@ -255,6 +251,12 @@ setInterval(updateTimer, 60000); // update every minute
   <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
 </footer>
 <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
+<!-- Countdown reminder for security.txt & CSAF expiry -->
+<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
+  <strong>Security File Update:</strong>
+  <div id="updateCountdown"></div>
+  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
+</div>
 <script>
 (() => {
   "use strict";
