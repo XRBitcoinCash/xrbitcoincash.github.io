@@ -191,49 +191,14 @@
       <p>For questions about these Terms, email <a href="mailto:xrbitcoincash@gmail.com">support@xrbitcoincash.com</a>.</p>
     </section>
 
-    <!-- Agreement & Wallet Connect -->
-    <section id="agree-section">
-      <input type="checkbox" id="agreeCheckbox">
-      <label for="agreeCheckbox">I have read and agree to the Terms of Service</label>
-      <button id="connectBtn" disabled>Connect Wallet</button>
-    </section>
-
+  
   </main>
 
   <footer>
     &copy; 2025 XRBitcoinCash™ — Built on the XRP Ledger
   </footer>
 
-  <!-- Xaman Wallet Injection -->
-  <script src="https://cdn.xaman.app/xrpl-injection-api.min.js" data-project-id="2abde023-0df1-49a2-a4dc-86d776f6318d"></script>
 
-  <script>
-    // Enable Connect when Terms are accepted
-    const checkbox = document.getElementById('agreeCheckbox');
-    const connectBtn = document.getElementById('connectBtn');
-    checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        connectBtn.disabled = false;
-        connectBtn.classList.add('enabled');
-      } else {
-        connectBtn.disabled = true;
-        connectBtn.classList.remove('enabled');
-      }
-    });
-
-    // Wallet connect flow via Xaman
-    async function openWallet() {
-      if (!window.xrpl) {
-        alert('XRPL provider not found. Please install or enable your wallet.');
-        return;
-      }
-      const { address } = await window.xrpl.connect();
-      // Redirect or display account
-      window.location.href = `/trade.html?account=${encodeURIComponent(address)}`;
-    }
-
-    connectBtn.addEventListener('click', openWallet);
-  </script>
 
 </body>
 </html>
