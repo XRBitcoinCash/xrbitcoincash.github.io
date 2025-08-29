@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrustLine Widget with QR</title>
+  <title>TrustLine Widget with QR + Copy</title>
   <style>
     :root {
       --bg: #0B1020;
@@ -51,16 +51,20 @@
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 14px;
       width: 90%;
-      max-width: 400px;
+      max-width: 420px;
       padding: 20px;
       text-align: center;
       box-shadow: 0 8px 40px rgba(0,229,255,0.25);
       animation: fadeIn 0.3s ease;
+      position: relative;
     }
     .widget h2 {
-      margin-top: 0;
-      margin-bottom: 12px;
+      margin: 0 0 8px;
       color: var(--accent);
+    }
+    .widget p {
+      margin: 6px 0 14px;
+      color: var(--muted);
     }
     .widget-close {
       background: transparent;
@@ -68,14 +72,36 @@
       color: var(--ink);
       font-size: 1.5rem;
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 14px;
+      right: 14px;
       cursor: pointer;
     }
     .widget img {
       width: 100%;
-      max-width: 300px;
+      max-width: 280px;
       border-radius: 8px;
+      margin: 0 auto 14px;
+      display: block;
+    }
+    .copy-btn {
+      background: var(--accent);
+      border: none;
+      color: #00121a;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,229,255,0.3);
+      transition: transform 0.2s ease;
+    }
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,229,255,0.5);
+    }
+    .link-preview {
+      font-size: 0.8rem;
+      word-break: break-all;
+      color: var(--muted);
       margin-top: 10px;
     }
     @keyframes fadeIn {
@@ -100,6 +126,8 @@
       <h2>Scan to Open TrustLine</h2>
       <p>Scan with your XRPL Wallet app:</p>
       <img id="qrCode" src="" alt="TrustLine QR Code">
+      <button class="copy-btn" id="copyBtn">Copy Link</button>
+      <div class="link-preview" id="linkPreview"></div>
     </div>
   </div>
 
@@ -108,6 +136,8 @@
     const widgetOverlay = document.getElementById("widgetOverlay");
     const widgetClose = document.getElementById("widgetClose");
     const qrCode = document.getElementById("qrCode");
+    const copyBtn = document.getElementById("copyBtn");
+    const linkPreview = document.getElementById("linkPreview");
 
     const trustlineURL = trustlineBtn.getAttribute("href");
 
@@ -117,19 +147,26 @@
 
     trustlineBtn.addEventListener("click", function(e) {
       if (isMobile()) {
-        // On mobile, go directly
-        return;
+        return; // normal navigation on mobile
       } else {
-        // On desktop, show QR widget
         e.preventDefault();
         widgetOverlay.style.display = "flex";
         qrCode.src = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(trustlineURL)}`;
+        linkPreview.textContent = trustlineURL;
       }
     });
 
     widgetClose.addEventListener("click", () => {
       widgetOverlay.style.display = "none";
       qrCode.src = "";
+      linkPreview.textContent = "";
+    });
+
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(trustlineURL).then(() => {
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => copyBtn.textContent = "Copy Link", 1500);
+      });
     });
   </script>
 </body>
