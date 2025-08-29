@@ -13,26 +13,78 @@
   <meta name="theme-color" content="#0b1118" />
 
   <style>
-    /* (Your existing CSS unchanged) */
-    :root { --bg:#0b1118; --panel:#0f1722; --text:#e7eef8; --brand:#a7ff83; --ink:#e7eef8; --accent:#a7ff83; }
-    body{ margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,Roboto,Arial; color:var(--text); background:var(--bg); }
-    header.appbar{ padding:14px 18px; background:linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6)); display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(167,255,131,0.15); }
-    .btn{ border:1px solid rgba(167,255,131,0.25); background:linear-gradient(180deg,var(--panel), #121c2a); color:var(--text); font-weight:700; padding:10px 14px; border-radius:12px; cursor:pointer; }
-    .btn:hover{ border-color:var(--brand); } #walletAddress{ margin-left:1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    :root {
+      --bg: #0b1118;
+      --panel: #0f1722;
+      --text: #e7eef8;
+      --brand: #a7ff83;
+      --ink: #e7eef8;
+      --accent: #a7ff83;
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header.appbar {
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(167,255,131,0.15);
+    }
+    .btn {
+      border: 1px solid rgba(167,255,131,0.25);
+      background: linear-gradient(180deg, var(--panel), #121c2a);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--brand); }
+    #walletAddress { margin-left: 1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
     @keyframes glowPulse { from { box-shadow: 0 0 4px var(--accent); } to { box-shadow: 0 0 14px var(--accent); } }
 
-    :root { --xrbc-bg:#0f1722; --xrbc-panel:#121827; --xrbc-text:#e7eef8; --xrbc-accent:#7ef09a; --xrbc-danger:#ff6b6b; --xrbc-muted:#98a2b3; }
-    #xrbc-dex-container{ max-width:1024px; margin:28px auto; padding:18px; background:linear-gradient(180deg,var(--xrbc-panel), #0b1320); border-radius:14px; color:var(--xrbc-text); font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial; box-shadow:0 8px 30px rgba(3,8,14,0.6); border:1px solid rgba(126,240,154,0.06); }
-    #xrbc-dex-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; } #xrbc-dex-header h2{ margin:0; color:var(--xrbc-accent); font-size:1.05rem; }
-    #xrbc-dex-grid{ display:grid; grid-template-columns: 1fr 340px; gap:18px; margin-top:14px; }
-    #xrbc-orderbook-card, #xrbc-metrics-card, #xrbc-order-form-card{ background:linear-gradient(180deg,#0b1220, #0f1726); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.05); }
-    #xrbc-orderbook{ height:360px; overflow:auto; font-size:0.92rem; color:var(--xrbc-text); border-radius:8px; }
-    .xrbc-row{ display:flex; justify-content:space-between; padding:6px 8px; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.06); }
-    .xrbc-bid{ color:#2ecc71; } .xrbc-ask{ color:#ff6b6b; }
-    #xrbc-order-form { display:flex; flex-direction:column; gap:10px; } #xrbc-order-form input, #xrbc-order-form select{ padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:var(--xrbc-text); width:100%; }
-    .xrbc-btn{ padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; } .xrbc-btn-primary{ background:linear-gradient(180deg,#2b7fff,#1f4fd6); color:white; } .xrbc-btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.12); color:var(--xrbc-text); }
-    #xrbc-status{ font-size:0.92rem; color:var(--xrbc-muted); } .xrbc-small{ font-size:0.86rem; color:var(--xrbc-muted); }
-    @media (max-width:920px){ #xrbc-dex-grid{ grid-template-columns:1fr; } }
+    /* === DEX === */
+    :root {
+      --xrbc-bg: #0f1722;
+      --xrbc-panel: #121827;
+      --xrbc-text: #e7eef8;
+      --xrbc-accent: #7ef09a;
+      --xrbc-danger: #ff6b6b;
+      --xrbc-muted: #98a2b3;
+    }
+    #xrbc-dex-container {
+      max-width: 1024px;
+      margin: 28px auto;
+      padding: 18px;
+      background: linear-gradient(180deg,var(--xrbc-panel), #0b1320);
+      border-radius: 14px;
+      color: var(--xrbc-text);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      box-shadow: 0 8px 30px rgba(3,8,14,0.6);
+      border: 1px solid rgba(126,240,154,0.06);
+    }
+    #xrbc-dex-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    #xrbc-dex-header h2 { margin:0; color:var(--xrbc-accent); font-size:1.05rem; }
+    #xrbc-dex-grid { display:grid; grid-template-columns: 1fr 340px; gap:18px; margin-top:14px; }
+    #xrbc-orderbook-card, #xrbc-metrics-card, #xrbc-order-form-card { background: linear-gradient(180deg,#0b1220, #0f1726); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.05); }
+    #xrbc-orderbook { height: 360px; overflow:auto; font-size:0.92rem; color:var(--xrbc-text); border-radius: 8px; }
+    .xrbc-row { display:flex; justify-content:space-between; padding:6px 8px; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.06); }
+    .xrbc-bid { color:#2ecc71; }
+    .xrbc-ask { color:#ff6b6b; }
+    #xrbc-order-form { display:flex; flex-direction:column; gap:10px; }
+    #xrbc-order-form input, #xrbc-order-form select { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:var(--xrbc-text); width:100%; }
+    .xrbc-btn { padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+    .xrbc-btn-primary { background:linear-gradient(180deg,#2b7fff,#1f4fd6); color:white; }
+    .xrbc-btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.12); color:var(--xrbc-text); }
+    #xrbc-status { font-size:0.92rem; color:var(--xrbc-muted); }
+    .xrbc-small { font-size:0.86rem; color:var(--xrbc-muted); }
+    @media (max-width: 920px) { #xrbc-dex-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -48,9 +100,9 @@
 <header style="display:flex; align-items:center; padding:12px 18px; gap:12px;">
   <a href="/index.html" style="display:flex; align-items:center; text-decoration:none;">
     <img src="/xrbc-nft.png" alt="XRBC Home" style="width:44px; height:44px; border-radius:8px; animation: glowPulse 2.5s infinite alternate;" />
-    <span style="margin-left:12px; font-weight:600; color:var(--ink);">Home</span>
+    <span style="margin-left: 12px; font-weight: 600; color: var(--ink);">Home</span>
   </a>
-  <button id="xrpl-node-btn" class="btn" style="margin-left:auto; background:#3a1f1f; border-color:#6d2b2b;">XRPL Node: Disconnected</button>
+  <button id="xrpl-node-btn" class="btn" style="margin-left:auto; background: #3a1f1f; border-color:#6d2b2b;">XRPL Node: Disconnected</button>
 </header>
 
 <main style="padding:20px;">
@@ -123,7 +175,7 @@
               <input id="xrbc-order-price" type="number" step="0.000001" min="0" placeholder="e.g., 0.50">
             </div>
             <div style="display:flex;gap:8px; flex-wrap:wrap;">
-              <button id="xrbc-submit-order" class="xrbc-btn xrbc-btn-primary">Create Offer (Local Vault/Xumm)</button>
+              <button id="xrbc-submit-order" class="xrbc-btn xrbc-btn-primary">Create Offer (Xumm)</button>
               <button id="xrbc-simulate-btn" class="xrbc-btn xrbc-btn-ghost">Simulate</button>
             </div>
             <div id="xrbc-order-feedback" class="xrbc-small" style="margin-top:8px;color:var(--xrbc-muted);">Status: idle</div>
@@ -141,11 +193,7 @@
   "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
   "rpcEndpoint": "wss://s1.ripple.com",
   "assetCode": "XRbitcoincash",
-  "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-  "localAgent": {
-    "wss": "wss://localhost:8443",
-    "ws": "ws://localhost:3001"
-  }
+  "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 }
 </script>
 
@@ -153,18 +201,85 @@
 <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0/dist/npm/xrpl.min.js"></script>
 
-<!-- === WALLET & DEX: LOCAL-AGENT SUPPORT ADDED === -->
+<!-- === WALLET: KEEPING YOUR EXISTING BEHAVIOR === -->
 <script>
 (function(){
   'use strict';
   const cfg = JSON.parse(document.getElementById('app-config').textContent||'{}');
-  // Keep original Xumm init
-  const xumm = new Xumm(cfg.xummApiKey);
-
-  // DOM references (kept from your original file)
   const btn = document.getElementById('connectWalletButton');
   const statusEl = document.getElementById('walletAddress');
   const walletAddrEl = document.getElementById('xrbc-wallet-addr');
+
+  // Init Xumm SDK
+  const xumm = new Xumm(cfg.xummApiKey);
+
+  function setBtn(state){
+    if(state==='connect'){ btn.textContent='Connect Wallet'; btn.disabled=false; }
+    if(state==='disconnect'){ btn.textContent='Disconnect'; btn.disabled=false; }
+    if(state==='busy'){ btn.disabled=true; }
+  }
+
+  xumm.on('ready', () => {
+    console.log('Xumm SDK ready');
+    setBtn('connect');
+  });
+
+  async function disconnectWallet(){
+    try {
+      await xumm.logout();
+      statusEl.textContent = '✅ Your wallet has disconnected safely.';
+      setBtn('connect');
+      if (walletAddrEl) walletAddrEl.textContent = 'Not connected';
+      window.__xrbcState.userAccount = null;
+    } catch (err) {
+      console.error('Error disconnecting wallet:', err);
+      statusEl.textContent = '⚠ Could not disconnect — see console for details.';
+    }
+  }
+
+  btn.addEventListener('click', async () => {
+    if (btn.textContent.trim() === 'Disconnect') return disconnectWallet();
+    statusEl.textContent = 'Connecting...';
+    setBtn('busy');
+    try {
+      const auth = await xumm.authorize(); // QR on desktop, deep link on mobile
+      const account = await xumm.user.account;
+      statusEl.textContent = 'Connected: ' + account;
+      if (walletAddrEl) walletAddrEl.textContent = account;
+      window.__xrbcState.userAccount = account;
+      setBtn('disconnect');
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Status: Not connected';
+      setBtn('connect');
+    }
+  });
+
+  // expose for DEX
+  window.__xrbcState = window.__xrbcState || {};
+  window.__xrbcState.xumm = xumm;
+})();
+</script>
+
+<!-- === DEX & XRPL NODE === -->
+<script>
+(function(){
+  'use strict';
+  // Read config
+  let siteCfg = {};
+  try { siteCfg = JSON.parse(document.getElementById('app-config').textContent||'{}'); } catch(e){ siteCfg={}; }
+
+  // Constants
+  const XRBC_CODE  = siteCfg.assetCode || 'XRbitcoincash';
+  const XRBC_ISSUER= siteCfg.issuer    || 'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw';
+  const DEFAULT_WSS= siteCfg.rpcEndpoint || 'wss://s1.ripple.com';
+  const MAX_LEVELS = 20;
+
+  // State
+  let xrplClient = null;
+  let lastOrderbook = [];
+
+  // DOM
   const xrplNodeBtn   = document.getElementById('xrpl-node-btn');
   const nodeStatusEl  = document.getElementById('xrbc-node-status');
   const orderbookEl   = document.getElementById('xrbc-orderbook');
@@ -185,291 +300,86 @@
   const tabLimit      = document.getElementById('tab-limit');
   const limitPriceRow = document.getElementById('limit-price-row');
 
-  // App constants
-  const XRBC_CODE  = cfg.assetCode || 'XRbitcoincash';
-  const XRBC_ISSUER= cfg.issuer || 'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw';
-  const DEFAULT_WSS = cfg.rpcEndpoint || 'wss://s1.ripple.com';
-  const LOCAL_WSS = (cfg.localAgent && cfg.localAgent.wss) || 'wss://localhost:8443';
-  const LOCAL_WS  = (cfg.localAgent && cfg.localAgent.ws)  || 'ws://localhost:3001';
-  const MAX_LEVELS = 20;
-
-  // state
-  let xrplClient = null;           // xrpl.Client instance when using public node fallback
-  let localSocket = null;          // WebSocket to local agent when in use
-  let lastOrderbook = [];
-  let usingLocalAgent = false;
-
   // UI helpers
-  function updateNodeButton(connected, label){
+  function updateNodeButton(connected){
     if(!xrplNodeBtn) return;
     xrplNodeBtn.style.background = connected? '#1f3a2a' : '#3a1f1f';
     xrplNodeBtn.style.borderColor= connected? '#2e7d32' : '#6d2b2b';
-    xrplNodeBtn.textContent = label || (connected? 'XRPL Node: Connected' : 'XRPL Node: Disconnected');
+    xrplNodeBtn.textContent = connected? 'XRPL Node: Connected' : 'XRPL Node: Disconnected';
     if(nodeStatusEl) nodeStatusEl.textContent = connected? 'connected' : 'disconnected';
   }
 
-  // Xumm SDK initial wiring (unchanged)
-  function setBtn(state){
-    if(state==='connect'){ btn.textContent='Connect Wallet'; btn.disabled=false; }
-    if(state==='disconnect'){ btn.textContent='Disconnect'; btn.disabled=false; }
-    if(state==='busy'){ btn.disabled=true; }
-  }
-  xumm.on('ready', ()=>{ console.log('Xumm SDK ready'); setBtn('connect'); });
-
-  async function disconnectWallet(){
-    try {
-      await xumm.logout();
-      statusEl.textContent = '✅ Your wallet has disconnected safely.';
-      setBtn('connect');
-      if (walletAddrEl) walletAddrEl.textContent = 'Not connected';
-      window.__xrbcState.userAccount = null;
-    } catch (err) {
-      console.error('Error disconnecting wallet:', err);
-      statusEl.textContent = '⚠ Could not disconnect — see console for details.';
+  // === XRPL CONNECT ===
+async function connectXRPL(){
+  try {
+    if(window.xrplClient && window.xrplClient.isConnected()){
+      console.log('XRPL already connected');
+      updateNodeButton(true);
+      return window.xrplClient;
     }
+    xrplClient = new xrpl.Client(DEFAULT_WSS);
+    await xrplClient.connect();
+    window.xrplClient = xrplClient; // expose globally
+    updateNodeButton(true);
+    console.log('✅ XRPL connected:', DEFAULT_WSS);
+
+    // Optional: test server_info immediately
+    const serverInfo = await xrplClient.request({ command: 'server_info' });
+    console.log('XRPL server_info test:', serverInfo);
+
+    return xrplClient;
+  } catch(err){
+    console.error('❌ XRPL connection failed:', err);
+    updateNodeButton(false);
   }
-  btn.addEventListener('click', async ()=>{
-    if (btn.textContent.trim() === 'Disconnect') return disconnectWallet();
-    statusEl.textContent = 'Connecting...';
-    setBtn('busy');
-    try {
-      const auth = await xumm.authorize(); // QR/deep link
-      const account = await xumm.user.account;
-      statusEl.textContent = 'Connected: ' + account;
-      if (walletAddrEl) walletAddrEl.textContent = account;
-      window.__xrbcState.userAccount = account;
-      setBtn('disconnect');
-    } catch (err) {
-      console.error(err);
-      statusEl.textContent = 'Status: Not connected';
-      setBtn('connect');
-    }
-  });
+}
 
-  // Expose for debugging
-  window.__xrbcState = window.__xrbcState || {};
-  window.__xrbcState.xumm = xumm;
 
-  /************************************************************************
-   Local-wallet / Local-agent protocol (browser <> local agent)
-   ------------------------------------------------------------------------
-   The local-agent (a process you run on your machine) speaks a tiny JSON
-   WebSocket protocol:
+  // Load orderbook (XRBC/XRP)
+async function loadOrderbook(){
+  if(!orderbookEl) return;
+  orderbookEl.innerHTML = "<div class='xrbc-row'><em>Loading orderbook…</em></div>";
 
-   Client -> Agent (examples)
-   { type: 'subscribe_book', pair: { base:{currency:'XRBC', issuer:'r....'}, quote:{currency:'XRP'} }, limit: 20 }
-   { type: 'get_server_info' }
-   { type: 'sign_tx', tx: { TransactionType:'OfferCreate', ... } }
-
-   Agent -> Client
-   { type: 'book_snapshot', offers: [...] }         // response to subscribe_book (initial)
-   { type: 'book_update', offers: [...] }           // incremental or replacements
-   { type: 'ledger_close', ledger_index: 12345, txn_count: 3 }
-   { type: 'signed', result: { signed:true, txid:'...' } } // response to sign_tx
-   { type: 'error', message: '...' }
-   ************************************************************************/
-
-  // Try to connect to local agent (secure first)
-  function tryLocalAgent() {
-    return new Promise((resolve) => {
-      // prefer secure local wss (only works for https pages)
-      const pageIsSecure = location.protocol === 'https:';
-      const tryUrls = pageIsSecure ? [LOCAL_WSS, LOCAL_WS] : [LOCAL_WS, LOCAL_WSS];
-
-      let connected = false;
-      let socket = null;
-      let tries = 0;
-
-      function tryUrl() {
-        if(connected || tries >= tryUrls.length) return resolve(null);
-        const url = tryUrls[tries++];
-        try {
-          socket = new WebSocket(url);
-        } catch (e) {
-          console.warn('Local agent WS open error', e);
-          setTimeout(tryUrl, 150);
-          return;
-        }
-
-        socket.onopen = () => {
-          connected = true;
-          usingLocalAgent = true;
-          localSocket = socket;
-          console.log('Connected to local agent at', url);
-          updateNodeButton(true, 'Local Vault: Connected');
-          attachLocalHandlers(socket);
-          resolve(socket);
-        };
-        socket.onerror = (ev) => {
-          console.warn('Local agent connection error to', url, ev);
-          socket.close?.();
-          setTimeout(tryUrl, 150);
-        };
-        socket.onclose = () => {
-          if(!connected) { /* try next url */ setTimeout(tryUrl, 150); }
-        };
-      }
-      tryUrl();
-      // timeout fallback in 1s -> resolve(null)
-      setTimeout(()=>{ if(!connected) resolve(null); }, 1200);
-    });
-  }
-
-  function attachLocalHandlers(socket){
-    socket.onmessage = (evt)=>{
-      try {
-        const data = JSON.parse(evt.data);
-        if(!data.type) return;
-        switch(data.type){
-          case 'book_snapshot':
-            lastOrderbook = data.offers || [];
-            renderOrderbook(lastOrderbook);
-            computeMetrics(lastOrderbook);
-            break;
-          case 'book_update':
-            lastOrderbook = data.offers || lastOrderbook;
-            renderOrderbook(lastOrderbook);
-            computeMetrics(lastOrderbook);
-            break;
-          case 'ledger_close':
-            // optionally show ledger info
-            console.log('ledger_close', data);
-            break;
-          case 'signed':
-            if(data.result && data.result.signed===true){
-              orderFeedbackEl.textContent = 'Order signed by local vault. TxID: ' + (data.result.txid || 'unknown');
-              // Suggest refreshing
-              loadOrderbook();
-            } else {
-              orderFeedbackEl.textContent = 'Local vault rejection or failure.';
-            }
-            break;
-          case 'error':
-            console.error('Local agent error:', data.message);
-            break;
-          default:
-            console.log('Local agent message', data);
-        }
-      } catch(err){
-        console.error('Invalid local agent message', err);
-      }
-    };
-    socket.onclose = ()=> {
-      console.warn('Local agent disconnected');
-      usingLocalAgent = false;
-      localSocket = null;
-      updateNodeButton(false);
-      // fallback: connect to public rippled for reads
-      connectXRPL().then(()=>loadOrderbook());
-    };
-  }
-
-  // If local agent is present, ask it to subscribe to the pair
-  function subscribeLocalBook(){
-    if(!localSocket || localSocket.readyState !== WebSocket.OPEN) return;
-    const payload = {
-      type: 'subscribe_book',
-      pair: {
-        base: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
-        quote: { currency: 'XRP' }
-      },
-      limit: MAX_LEVELS
-    };
-    try { localSocket.send(JSON.stringify(payload)); } catch(e){ console.error('send failed', e); }
-  }
-
-  // Local-agent signing helper (sends a sign request to local vault)
-  async function signWithLocalVault(txjson){
-    if(!localSocket || localSocket.readyState !== WebSocket.OPEN){ orderFeedbackEl.textContent = 'Local vault not connected.'; return null; }
-    return new Promise((resolve) => {
-      const id = 'id_' + Date.now() + '_' + Math.floor(Math.random()*9999);
-      const handler = (evt) => {
-        try {
-          const d = JSON.parse(evt.data);
-          if(d.type==='signed' && d.id === id){
-            localSocket.removeEventListener('message', handler);
-            resolve(d.result);
-          }
-        } catch(e){}
-      };
-      localSocket.addEventListener('message', handler);
-      const payload = { type:'sign_tx', id, tx: txjson };
-      try { localSocket.send(JSON.stringify(payload)); } catch(e){ resolve(null); }
-      // timeout 45s
-      setTimeout(()=>{ localSocket.removeEventListener('message', handler); resolve(null); }, 45000);
-    });
-  }
-
-  /************************************************************************
-   XRPL fallback (public rippled) for read-only market data
-   ************************************************************************/
-  async function connectXRPL(){
-    try {
-      if(window.xrplClient && window.xrplClient.isConnected()){
-        updateNodeButton(true, 'Public Node: Connected');
-        return window.xrplClient;
-      }
-      // create a new client
-      xrplClient = new xrpl.Client(DEFAULT_WSS);
-      await xrplClient.connect();
-      window.xrplClient = xrplClient;
-      updateNodeButton(true, 'Public Node: Connected');
-      console.log('✅ XRPL connected:', DEFAULT_WSS);
-      return xrplClient;
-    } catch(err){
-      console.error('XRPL connection failed:', err);
-      updateNodeButton(false);
-      return null;
-    }
-  }
-
-  // Load orderbook via public node
-  async function loadOrderbook(){
-    if(!orderbookEl) return;
-    orderbookEl.innerHTML = "<div class='xrbc-row'><em>Loading orderbook…</em></div>";
-
-    // If local agent is connected, ask it to subscribe (it will send snapshot)
-    if(usingLocalAgent && localSocket){
-      subscribeLocalBook();
+  if(!xrplClient || !xrplClient.isConnected()){
+    await connectXRPL(); // automatically connect if not connected
+    if(!xrplClient || !xrplClient.isConnected()){
+      orderbookEl.innerHTML = "<div class='xrbc-row' style='color:var(--xrbc-danger)'>XRPL node not connected.</div>";
       return;
     }
-
-    // otherwise fallback to public node
-    if(!xrplClient || !xrplClient.isConnected()){
-      await connectXRPL();
-      if(!xrplClient || !xrplClient.isConnected()){
-        orderbookEl.innerHTML = "<div class='xrbc-row' style='color:var(--xrbc-danger)'>XRPL node not connected.</div>";
-        return;
-      }
-    }
-
-    const req = {
-      command: 'book_offers',
-      taker_gets: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
-      taker_pays: { currency: 'XRP' },
-      limit: MAX_LEVELS
-    };
-    try {
-      const res = await xrplClient.request(req);
-      const offers = res.result?.offers || [];
-      lastOrderbook = offers;
-      renderOrderbook(offers);
-      computeMetrics(offers);
-    } catch(err){
-      console.error('book_offers error:', err);
-      orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error: ${err.message||err}</div>`;
-    }
   }
 
-  // helper conversion fns
+  const req = {
+    command: 'book_offers',
+    taker_gets: { currency: XRBC_CODE, issuer: XRBC_ISSUER },
+    taker_pays: { currency: 'XRP' },
+    limit: MAX_LEVELS
+  };
+
+  try {
+    const res = await xrplClient.request(req);
+    const offers = res.result?.offers || [];
+    lastOrderbook = offers;
+    renderOrderbook(offers);
+    computeMetrics(offers);
+  } catch(err){
+    console.error('book_offers error:', err);
+    orderbookEl.innerHTML = `<div class='xrbc-row' style='color:var(--xrbc-danger)'>Orderbook error: ${err.message||err}</div>`;
+  }
+}
+
+
   function dropsToXrp(d){ return Number(d)/1_000_000; }
   function xrpToDrops(x){ return String(Math.round(Number(x)*1_000_000)); }
 
-  // render & metrics same as your original code (kept)
+  // Render orderbook
   function renderOrderbook(offers){
-    if(!offers || !offers.length){ orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers found</em></div>"; return; }
+    if(!offers || !offers.length){
+      orderbookEl.innerHTML = "<div class='xrbc-row'><em>No offers found</em></div>";
+      return;
+    }
     const container = document.createElement('div');
-    const head = document.createElement('div'); head.className='xrbc-row';
+    const head = document.createElement('div');
+    head.className = 'xrbc-row';
     head.innerHTML = "<strong>Side</strong><strong>Price (XRP)</strong><strong>Amount (XRBC)</strong>";
     container.appendChild(head);
     offers.forEach(o=>{
@@ -479,7 +389,8 @@
       else if (o.TakerGets && !isNaN(o.TakerGets)) amount = dropsToXrp(o.TakerGets);
       let side = 'Buy';
       if (o.TakerGets && typeof o.TakerGets === 'object' && o.TakerGets.currency === XRBC_CODE) side = 'Sell';
-      const row = document.createElement('div'); row.className='xrbc-row';
+      const row = document.createElement('div');
+      row.className = 'xrbc-row';
       row.innerHTML = `<div class='${side==='Buy'?'xrbc-bid':'xrbc-ask'}'>${side}</div><div>${price? price.toFixed(6): '—'}</div><div>${amount}</div>`;
       container.appendChild(row);
     });
@@ -487,6 +398,7 @@
     orderbookEl.appendChild(container);
   }
 
+  // Metrics
   function computeMetrics(offers){
     const asks=[], bids=[];
     (offers||[]).forEach(o=>{
@@ -508,7 +420,7 @@
     depthEl.textContent = `${topBids.toFixed(6)} / ${topAsks.toFixed(6)}`;
   }
 
-  // slippage simulator (kept)
+  // Slippage simulator
   function simulateSlippage(side, amountXRBC){
     if(!lastOrderbook || !lastOrderbook.length) return 'No orderbook';
     const asks=[], bids=[];
@@ -523,7 +435,7 @@
     bids.sort((a,b)=>b.price-a.price);
     const levels = side==='buy'? asks : bids;
     let remaining = Number(amountXRBC); if(remaining<=0) return 'Enter a positive amount';
-    let filledValue=0;
+    let filledValue=0; // sum(price*qty)
     for(const lvl of levels){
       if(remaining<=0) break;
       const take=Math.min(remaining, lvl.amount||0);
@@ -538,14 +450,14 @@
     return `Avg ${avgPrice.toFixed(6)} XRP — slippage ${slipPct.toFixed(4)}%`;
   }
 
-  // Offer creation: now tries local vault first, then Xumm as fallback
+  // Offer creation (Market/Limit)
   async function createOffer(side, amount, priceOrNull, type){
-    const xummInstance = window.__xrbcState?.xumm || xumm;
+    const xumm = window.__xrbcState?.xumm;
     let userAccount = window.__xrbcState?.userAccount || null;
     orderFeedbackEl.textContent = 'Preparing offer…';
-
+    if(!xumm){ orderFeedbackEl.textContent='Xumm SDK not available'; return; }
     if(!userAccount){
-      try { userAccount = await xummInstance.user.account; window.__xrbcState.userAccount = userAccount; } catch(e){}
+      try { userAccount = await xumm.user.account; window.__xrbcState.userAccount=userAccount; } catch(e){}
     }
     if(!userAccount){ orderFeedbackEl.textContent='Wallet not connected.'; return; }
 
@@ -562,50 +474,39 @@
     let TakerGets, TakerPays, Flags = 0;
     const totalXrp = Number(usePrice) * Number(amount);
     if(side==='buy'){
+      // Spend XRP (drops), receive IOU
       TakerGets = xrpToDrops(totalXrp);
       TakerPays = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
     } else {
+      // Sell IOU, receive XRP
       TakerGets = { currency: XRBC_CODE, issuer: XRBC_ISSUER, value: Number(amount).toFixed(6) };
       TakerPays = xrpToDrops(totalXrp);
-      Flags |= 0x00080000; // tfSell
+      Flags |= 0x00080000; // tfSell for clarity
     }
     if(type==='market') Flags |= 0x00020000; // tfImmediateOrCancel
 
     const tx = { TransactionType:'OfferCreate', Account:userAccount, TakerGets, TakerPays, Flags };
 
-    // First, try local vault signing if present
-    if(usingLocalAgent && localSocket){
-      orderFeedbackEl.textContent = 'Sending sign request to local vault…';
-      try {
-        const res = await signWithLocalVault(tx);
-        if(res && res.signed===true){
-          orderFeedbackEl.textContent = 'Signed by local vault. TxID: ' + (res.txid || 'unknown');
-          return;
-        } else {
-          orderFeedbackEl.textContent = 'Local vault rejected or timed out; falling back to Xumm.';
-        }
-      } catch(err){
-        console.error('Local vault sign error', err);
-        orderFeedbackEl.textContent = 'Local vault error; falling back to Xumm.';
-      }
-    }
-
-    // Fallback to Xumm payload
-    try {
+    try{
       orderFeedbackEl.textContent = 'Sending sign request to Xumm…';
       if(xumm.payload?.createAndSubscribe){
         const sub = await xumm.payload.createAndSubscribe({ txjson: tx }, (evt)=>{
           if(!evt?.data) return;
-          if(evt.data.signed===true){ orderFeedbackEl.textContent='Order signed (Xumm) and placed.'; return true; }
+          if(evt.data.signed===true){ orderFeedbackEl.textContent='Order signed and placed.'; return true; }
           if(evt.data.signed===false){ orderFeedbackEl.textContent='Signature rejected.'; return false; }
         });
         const deeplink = sub?.created?.next?.alternative_url;
-        if(deeplink){ const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); if(isMobile) window.location.href = deeplink; else orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${deeplink}">Open Xumm</a>`; }
+        if(deeplink){
+          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          if(isMobile) window.location.href = deeplink; else orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${deeplink}">Open Xumm</a>`;
+        }
       } else if (xumm.payload?.create){
         const created = await xumm.payload.create({ txjson: tx });
         const deeplink = created?.next?.alternative_url;
-        if(deeplink){ const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); if(isMobile) window.location.href = deeplink; else orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${deeplink}">Open Xumm</a>`; }
-        else { orderFeedbackEl.textContent='Payload created; follow Xumm flow.'; }
+        if(deeplink){
+          const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+          if(isMobile) window.location.href = deeplink; else orderFeedbackEl.innerHTML = `Open Xumm to sign: <a target="_blank" rel="noopener" href="${deeplink}">Open Xumm</a>`;
+        } else { orderFeedbackEl.textContent='Payload created; follow Xumm flow.'; }
       } else {
         orderFeedbackEl.textContent='Xumm payload API unavailable.';
       }
@@ -615,7 +516,7 @@
     }
   }
 
-  // UI event bindings
+  // Events
   if(refreshBtn) refreshBtn.addEventListener('click', loadOrderbook);
   if(simulateBtn) simulateBtn.addEventListener('click', ()=>{
     const amt = Number(orderAmountEl.value || simAmountEl.value || 0);
@@ -634,6 +535,7 @@
     await createOffer(side, amount, price, type);
   });
 
+  // Tabs
   function activateTab(which){
     if(which==='market'){
       tabMarket.className='xrbc-btn xrbc-btn-primary'; tabMarket.setAttribute('aria-pressed','true');
@@ -648,30 +550,21 @@
   tabMarket?.addEventListener('click', ()=>activateTab('market'));
   tabLimit?.addEventListener('click', ()=>activateTab('limit'));
 
-  // Initialization: try local agent first, then fallback to public node
-  window.addEventListener('DOMContentLoaded', async () => {
-    activateTab('market');
-    orderFeedbackEl.textContent = 'Initializing market data…';
-    const local = await tryLocalAgent();
-    if(local){
-      // local agent will push snapshot if subscribed
-      subscribeLocalBook();
-    } else {
-      // fallback to public rippled
-      await connectXRPL();
-      await loadOrderbook();
-    }
-  });
+  // Init
+window.addEventListener('DOMContentLoaded', async () => {
+  activateTab('market');
+  await connectXRPL(); // ensure node is connected
+  await loadOrderbook(); // populate orderbook immediately
+});
 
-  // quick debug API
-  window.__xrbcDex = { loadOrderbook, simulateSlippage: (side, amt)=>simulateSlippage(side, amt), lastOrderbook: ()=>lastOrderbook, usingLocalAgent: ()=>usingLocalAgent };
+  // Dev API
+  window.__xrbcDex = { loadOrderbook, simulateSlippage: (side, amt)=>simulateSlippage(side, amt), lastOrderbook: ()=>lastOrderbook };
 })();
 </script>
 
-<!-- === NOTES / links (visible in page for convenience) === -->
+<!-- === CONSOLE NOTES === -->
 <script>
-console.info('XRBC DEX loaded. local agent preference:', JSON.parse(document.getElementById('app-config').textContent||'{}').localAgent);
-console.info('Local-agent protocol: subscribe_book, book_snapshot, book_update, ledger_close, sign_tx, signed');
+console.info('XRBC DEX loaded. Configure values in <script id="app-config">. For debug: window.__xrbcDex');
 </script>
 
 </body>
