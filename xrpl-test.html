@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrustLine Widget Test</title>
+  <title>TrustLine Widget with QR</title>
   <style>
     :root {
       --bg: #0B1020;
@@ -12,10 +12,9 @@
       --muted: #9EB2D0;
       --accent: #00E5FF;
     }
-    *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: Inter, Segoe UI, Roboto, system-ui, Arial, sans-serif;
+      font-family: Inter, sans-serif;
       color: var(--ink);
       background: var(--bg);
       display: flex;
@@ -23,31 +22,23 @@
       justify-content: center;
       height: 100vh;
     }
-
-    /* Button */
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       padding: 14px 20px;
       border-radius: 12px;
       font-weight: 700;
-      text-decoration: none;
       cursor: pointer;
       background: linear-gradient(180deg, var(--accent), #00b6d0);
       color: #00121a;
       box-shadow: 0 4px 12px rgba(0,229,255,0.3);
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      text-decoration: none;
     }
     .btn:hover {
-      transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0,229,255,0.5);
     }
 
     /* === WIDGET === */
     .widget-overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0,0,0,0.75);
       backdrop-filter: blur(6px);
       display: none;
@@ -55,42 +46,38 @@
       justify-content: center;
       z-index: 3000;
     }
-
     .widget {
       background: var(--card);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 14px;
       width: 90%;
-      max-width: 700px;
-      height: 70%;
-      display: flex;
-      flex-direction: column;
+      max-width: 400px;
+      padding: 20px;
+      text-align: center;
       box-shadow: 0 8px 40px rgba(0,229,255,0.25);
       animation: fadeIn 0.3s ease;
     }
-
+    .widget h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
     .widget-close {
       background: transparent;
       border: none;
       color: var(--ink);
       font-size: 1.5rem;
-      align-self: flex-end;
-      padding: 12px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
       cursor: pointer;
     }
-
-    .widget-content {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .widget-content iframe {
+    .widget img {
       width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 0 0 14px 14px;
+      max-width: 300px;
+      border-radius: 8px;
+      margin-top: 10px;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
@@ -110,15 +97,17 @@
   <div class="widget-overlay" id="widgetOverlay">
     <div class="widget">
       <button class="widget-close" id="widgetClose">&times;</button>
-      <div class="widget-content" id="widgetContent"></div>
+      <h2>Scan to Open TrustLine</h2>
+      <p>Scan with your XRPL Wallet app:</p>
+      <img id="qrCode" src="" alt="TrustLine QR Code">
     </div>
   </div>
 
   <script>
     const trustlineBtn = document.getElementById("trustlineBtn");
     const widgetOverlay = document.getElementById("widgetOverlay");
-    const widgetContent = document.getElementById("widgetContent");
     const widgetClose = document.getElementById("widgetClose");
+    const qrCode = document.getElementById("qrCode");
 
     const trustlineURL = trustlineBtn.getAttribute("href");
 
@@ -128,19 +117,19 @@
 
     trustlineBtn.addEventListener("click", function(e) {
       if (isMobile()) {
-        // On mobile, allow normal behavior (opens wallet)
+        // On mobile, go directly
         return;
       } else {
-        // On desktop, prevent navigation and open widget
+        // On desktop, show QR widget
         e.preventDefault();
         widgetOverlay.style.display = "flex";
-        widgetContent.innerHTML = `<iframe src="${trustlineURL}"></iframe>`;
+        qrCode.src = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(trustlineURL)}`;
       }
     });
 
     widgetClose.addEventListener("click", () => {
       widgetOverlay.style.display = "none";
-      widgetContent.innerHTML = "";
+      qrCode.src = "";
     });
   </script>
 </body>
