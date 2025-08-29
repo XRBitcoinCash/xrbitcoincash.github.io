@@ -1,64 +1,29 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoinCash · Wallet Connect</title>
-  <meta name="description" content="Connect Xaman wallet to XRBitcoinCash for XRPL trading and liquidity." />
-  <meta name="theme-color" content="#0b1118" />
+<!-- Put this in your static site (no backend needed to read the book) -->
+<script type="module">
+import { Client } from "https://cdn.jsdelivr.net/npm/xrpl@2.0.0/dist/xrpl.mjs";
 
-  <!-- Important: allow WebSocket + Xaman SDK -->
-  <meta http-equiv="Content-Security-Policy"
-    content="
-      default-src 'self';
-      script-src 'self' https://cdn.jsdelivr.net https://xaman.app;
-      connect-src 'self' wss://s1.ripple.com wss://xrplcluster.com https://xaman.app;
-      img-src 'self' data:;
-      style-src 'self' 'unsafe-inline';
-    ">
+const client = new Client("wss://s1.ripple.com"); // public rippled websocket
+await client.connect();
 
-  <style>
-    /* keep your styling (unchanged) */
-  </style>
-</head>
-<body>
+const taker_gets = { currency: "XRBC", issuer: "rPT...ISSUER_ADDR" }; // replace
+const taker_pays = "XRP";
 
-<header class="appbar">
-  <div class="brand"><strong>XRBitcoinCash</strong> · Wallet Connect</div>
-  <div class="actions">
-    <button id="connectWalletButton" type="button" class="btn">Connect Wallet</button>
-    <span id="walletAddress">Status: Not connected</span>
-  </div>
-</header>
+const subscription = {
+  command: "book_offers",
+  taker_gets,
+  taker_pays,
+  limit: 20
+};
 
-<main style="padding:20px;">
-  <div id="xrbc-dex-container">
-    <!-- UI: orderbook, metrics, order form -->
-    <!-- (unchanged, you can keep your HTML markup) -->
-  </div>
-</main>
+const resp = await client.request(subscription);
+console.log("Initial book:", resp.result);
 
-<!-- === CONFIG === -->
-<script type="application/json" id="app-config">
-{
-  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-  "rpcEndpoint": "wss://xrplcluster.com",
-  "assetCode": "58524243415348",  // "XRBCASH" hex, not plain text
-  "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-}
+client.on("transaction", (tx) => {
+  // optional: watch fill events if watching account or ledger
+  // client emits 'transaction' for incoming transaction stream if subscribed
+  console.log("tx event", tx);
+});
+
+// For realtime updates you'd poll book_offers on intervals or re-request after ledger close
+// (or subscribe to ledger and refresh the book each ledger close).
 </script>
-
-<!-- === LIBRARIES === -->
-<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0/dist/npm/xrpl.min.js"></script>
-
-<!-- === APP SCRIPT === -->
-<script>
-/* keep your logic — 
-   only change: assetCode must be HEX
-   you can generate it using: xrpl.convertStringToHex("XRBCASH") 
-*/
-</script>
-
-</body>
-</html>
