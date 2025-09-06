@@ -3,20 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XRBC Coin Toss</title>
+<title>XRBC Coin Slingshot</title>
 <style>
-  body { margin: 0; overflow: hidden; background: #222; }
-  canvas { display: block; margin: 0 auto; background: #87CEEB; }
-  #score { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 20px; }
+  body { margin:0; overflow:hidden; background:#222; }
+  canvas { display:block; margin:0 auto; background:#87CEEB; }
 </style>
 </head>
 <body>
-<div id="score">Score: 0</div>
 <canvas id="gameCanvas"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script>
-const { Engine, Render, World, Bodies, Body, Events, Constraint, Vector } = Matter;
+const { Engine, Render, World, Bodies, Body, Constraint, Mouse, MouseConstraint, Vector } = Matter;
 
 // --- Engine & Renderer ---
 const engine = Engine.create();
@@ -31,153 +29,30 @@ const render = Render.create({
     options: { width: width, height: height, wireframes: false, background: '#87CEEB' }
 });
 
-// --- Score ---
-let score = 0;
-const updateScore = (points) => {
-    score += points;
-    document.getElementById('score').textContent = `Score: ${score}`;
-}
+// --- Ground ---
+const ground = Bodies.rectangle(width/2, height-10, width, 20, { isStatic:true });
+World.add(world, ground);
 
-// --- Boundaries ---
-const ground = Bodies.rectangle(width/2, height+10, width, 20, { isStatic: true });
-const leftWall = Bodies.rectangle(-10, height/2, 20, height, { isStatic: true });
-const rightWall = Bodies.rectangle(width+10, height/2, 20, height, { isStatic: true });
-const ceiling = Bodies.rectangle(width/2, -10, width, 20, { isStatic: true });
-World.add(world, [ground, leftWall, rightWall, ceiling]);
+// --- Catapult base ---
+const base = Bodies.rectangle(200, height-100, 40, 20, { isStatic:true });
+World.add(world, base);
 
-// --- Platforms (Cliffs) ---
-const platforms = [
-    Bodies.rectangle(width/2, height/2, 300, 20, { isStatic: true, render:{fillStyle:'#654321'} }),
-    Bodies.rectangle(width/3, height/3, 200, 20, { isStatic: true, render:{fillStyle:'#654321'} }),
-    Bodies.rectangle(2*width/3, height/3 + 100, 250, 20, { isStatic: true, render:{fillStyle:'#654321'} })
-];
-World.add(world, platforms);
+// --- Coin ---
+let coin = Bodies.circle(base.position.x, base.position.y - 50, 15, { restitution:0.8 });
+World.add(world, coin);
 
-// --- Human Ragdoll ---
-class Human {
-    constructor(x, y, scale = 1) {
-        const s = scale;
-        this.hp = 100;
-
-        this.torso = Bodies.rectangle(x, y, 20*s, 50*s, { label: 'torso', render:{fillStyle:'#8d5524'} });
-        this.head = Bodies.circle(x, y - 35*s, 12*s, { label: 'head', render:{fillStyle:'#ffdbac'} });
-        this.leftArm = Bodies.rectangle(x - 20*s, y - 10*s, 10*s, 40*s, { label:'arm', render:{fillStyle:'#ffdbac'} });
-        this.rightArm = Bodies.rectangle(x + 20*s, y - 10*s, 10*s, 40*s, { label:'arm', render:{fillStyle:'#ffdbac'} });
-        this.leftLeg = Bodies.rectangle(x - 8*s, y + 40*s, 10*s, 40*s, { label:'leg', render:{fillStyle:'#0000ff'} });
-        this.rightLeg = Bodies.rectangle(x + 8*s, y + 40*s, 10*s, 40*s, { label:'leg', render:{fillStyle:'#0000ff'} });
-
-        this.constraints = [
-            Constraint.create({ bodyA:this.head, bodyB:this.torso, length:20*s, stiffness:0.8 }),
-            Constraint.create({ bodyA:this.leftArm, bodyB:this.torso, length:25*s, stiffness:0.6 }),
-            Constraint.create({ bodyA:this.rightArm, bodyB:this.torso, length:25*s, stiffness:0.6 }),
-            Constraint.create({ bodyA:this.leftLeg, bodyB:this.torso, length:35*s, stiffness:0.7 }),
-            Constraint.create({ bodyA:this.rightLeg, bodyB:this.torso, length:35*s, stiffness:0.7 })
-        ];
-
-        this.parts = [this.head, this.torso, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg];
-        this.parts.forEach(p => p.restitution = 0.5);
-        World.add(world, this.parts.concat(this.constraints));
-    }
-
-    swat(coin) {
-        const distLeft = Vector.magnitude(Vector.sub(this.leftArm.position, coin.position));
-        const distRight = Vector.magnitude(Vector.sub(this.rightArm.position, coin.position));
-        const forceMagnitude = 0.05;
-
-        if(distLeft < distRight) {
-            Body.applyForce(coin, coin.position, { x:(coin.position.x-this.leftArm.position.x)*forceMagnitude, y:(coin.position.y-this.leftArm.position.y)*forceMagnitude });
-        } else {
-            Body.applyForce(coin, coin.position, { x:(coin.position.x-this.rightArm.position.x)*forceMagnitude, y:(coin.position.y-this.rightArm.position.y)*forceMagnitude });
-        }
-    }
-
-    takeDamage(amount) {
-        this.hp -= amount;
-        if(this.hp <=0){
-            updateScore(50);
-            this.parts.forEach(p=>World.remove(world,p));
-            this.constraints.forEach(c=>World.remove(world,c));
-            const index = characters.indexOf(this);
-            if(index>-1) characters.splice(index,1);
-        }
-    }
-}
-
-// --- Characters ---
-const characters = [
-    new Human(width/2, height/2 - 50),
-    new Human(width/3, height/3 - 50),
-    new Human(2*width/3, height/3 + 50)
-];
-
-// --- Coins ---
-const coins = [];
-let currentCoin = null;
-
-// --- Catapult ---
-const catapultBase = Bodies.rectangle(150, height-100, 100, 20, { isStatic:true });
-World.add(world, catapultBase);
-
-const catapultArm = Bodies.rectangle(150, height-120, 100, 20, { density:0.002 });
-World.add(world, catapultArm);
-
-const catapultConstraint = Constraint.create({
-    bodyA: catapultArm,
-    pointB: { x:150, y:height-120 },
-    length:0,
-    stiffness:1
+// --- Slingshot constraint ---
+let slingshot = Constraint.create({
+    pointA: { x: base.position.x, y: base.position.y - 50 },
+    bodyB: coin,
+    stiffness: 0.05,
+    length: 0
 });
-World.add(world, catapultConstraint);
+World.add(world, slingshot);
 
-let dragging = false;
-let dragStart = null;
-let currentMouseX = 0, currentMouseY = 0;
-const springMaxLength = 150;
+let isDragging = false;
 
-// --- Functions ---
-function placeCoin() {
-    if(currentCoin) return;
-    currentCoin = Bodies.circle(catapultArm.position.x + 50, catapultArm.position.y, 15, { restitution:0.9, label:'coin' });
-    World.add(world, currentCoin);
-    coins.push(currentCoin);
-}
-
-function scheduleNextCoin() {
-    setTimeout(()=>{ placeCoin(); }, 3000);
-}
-
-// --- Drag Events ---
-const startDrag = (e) => {
-    e.preventDefault();
-    const x = e.clientX || e.touches[0].clientX;
-    const y = e.clientY || e.touches[0].clientY;
-    const dist = Math.hypot(x-catapultArm.position.x, y-catapultArm.position.y);
-    if(dist < 50 && currentCoin){
-        dragging = true;
-        dragStart = { x, y };
-    }
-};
-const duringDrag = (e) => {
-    if(!dragging) return;
-    currentMouseX = e.clientX || e.touches[0].clientX;
-    currentMouseY = e.clientY || e.touches[0].clientY;
-    // move arm visually
-    Body.setPosition(catapultArm, { x:currentMouseX, y:currentMouseY });
-};
-const endDrag = (e) => {
-    if(!dragging) return;
-    dragging = false;
-    const x = e.clientX || e.changedTouches[0].clientX;
-    const y = e.clientY || e.changedTouches[0].clientY;
-    const dx = dragStart.x - x;
-    const dy = dragStart.y - y;
-    const forceMultiplier = 0.002;
-    Body.applyForce(currentCoin, currentCoin.position, { x:dx*forceMultiplier, y:dy*forceMultiplier });
-    currentCoin = null;
-    Body.setPosition(catapultArm, { x:150, y:height-120 });
-    scheduleNextCoin();
-};
-
+// --- Mouse / touch control ---
 canvas.addEventListener('mousedown', startDrag);
 canvas.addEventListener('mousemove', duringDrag);
 canvas.addEventListener('mouseup', endDrag);
@@ -185,61 +60,42 @@ canvas.addEventListener('touchstart', startDrag);
 canvas.addEventListener('touchmove', duringDrag);
 canvas.addEventListener('touchend', endDrag);
 
-// --- Collision ---
-Events.on(engine, 'collisionStart', (event)=>{
-    event.pairs.forEach(pair=>{
-        const coin = pair.bodyA.label==='coin'? pair.bodyA: (pair.bodyB.label==='coin'? pair.bodyB:null);
-        if(!coin) return;
-        const human = characters.find(h=>h.parts.includes(pair.bodyA) || h.parts.includes(pair.bodyB));
-        if(!human) return;
-        if(pair.bodyA.label==='arm' || pair.bodyB.label==='arm'){
-            human.takeDamage(10);
-            updateScore(-5);
-        } else if(pair.bodyA.label==='torso' || pair.bodyB.label==='torso' || pair.bodyA.label==='head' || pair.bodyB.label==='head'){
-            updateScore(10);
-        }
-    });
-});
+function startDrag(e){
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+    const distance = Vector.magnitude(Vector.sub({x,y}, coin.position));
+    if(distance < 30) isDragging = true;
+}
 
-// --- Character AI ---
-setInterval(()=>{
-    coins.forEach(coin=>{
-        characters.forEach(c=>{
-            const dist = Vector.magnitude(Vector.sub(c.torso.position, coin.position));
-            if(dist<100) c.swat(coin);
+function duringDrag(e){
+    if(!isDragging) return;
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+    Body.setPosition(coin, { x, y });
+}
+
+function endDrag(e){
+    if(!isDragging) return;
+    isDragging = false;
+    // release coin by removing constraint
+    World.remove(world, slingshot);
+    // spawn new coin after 3 seconds
+    setTimeout(()=>{
+        coin = Bodies.circle(base.position.x, base.position.y - 50, 15, { restitution:0.8 });
+        World.add(world, coin);
+        slingshot = Constraint.create({
+            pointA: { x: base.position.x, y: base.position.y - 50 },
+            bodyB: coin,
+            stiffness: 0.05,
+            length: 0
         });
-    });
-},500);
+        World.add(world, slingshot);
+    }, 3000);
+}
 
-// --- Render Spring ---
-Events.on(render, 'afterRender', ()=>{
-    if(!currentCoin) return;
-    const ctx = render.context;
-    // spring line
-    ctx.beginPath();
-    const dx = dragStart ? dragStart.x-currentMouseX : 0;
-    const dy = dragStart ? dragStart.y-currentMouseY : 0;
-    const dist = Math.min(Math.hypot(dx, dy), springMaxLength);
-    const percent = dist/springMaxLength;
-    ctx.strokeStyle = percent<0.5?'green':percent<0.8?'yellow':'red';
-    ctx.lineWidth = 5;
-    ctx.moveTo(catapultBase.position.x, catapultBase.position.y-10);
-    ctx.lineTo(catapultArm.position.x, catapultArm.position.y);
-    ctx.stroke();
-    // numeric 1-10
-    ctx.fillStyle="white";
-    ctx.font="20px sans-serif";
-    const num = Math.ceil(percent*10);
-    ctx.fillText(num, catapultBase.position.x-10, catapultBase.position.y-30);
-});
-
-// --- Start Engine ---
+// --- Run engine ---
 Engine.run(engine);
 Render.run(render);
-
-// --- Place first coin ---
-placeCoin();
-
 </script>
 </body>
 </html>
