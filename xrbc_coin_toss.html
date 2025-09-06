@@ -18,10 +18,9 @@
 <script>
 const { Engine, Render, World, Bodies, Body, Events, Constraint, Vector } = Matter;
 
-// --- Setup engine & renderer ---
+// --- Engine & Renderer ---
 const engine = Engine.create();
 const world = engine.world;
-
 const canvas = document.getElementById('gameCanvas');
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -46,113 +45,37 @@ const rightWall = Bodies.rectangle(width+10, height/2, 20, height, { isStatic: t
 const ceiling = Bodies.rectangle(width/2, -10, width, 20, { isStatic: true });
 World.add(world, [ground, leftWall, rightWall, ceiling]);
 
-// --- Platforms ---
+// --- Platforms (Cliffs) ---
 const platforms = [
-    Bodies.rectangle(width/2, height/2, 300, 20, { isStatic: true }),
-    Bodies.rectangle(width/3, height/3, 200, 20, { isStatic: true }),
-    Bodies.rectangle(2*width/3, height/3 + 100, 250, 20, { isStatic: true })
+    Bodies.rectangle(width/2, height/2, 300, 20, { isStatic: true, render:{fillStyle:'#654321'} }),
+    Bodies.rectangle(width/3, height/3, 200, 20, { isStatic: true, render:{fillStyle:'#654321'} }),
+    Bodies.rectangle(2*width/3, height/3 + 100, 250, 20, { isStatic: true, render:{fillStyle:'#654321'} })
 ];
 World.add(world, platforms);
-// --- Catapult ---
-const catapultBase = Bodies.rectangle(150, height - 100, 100, 20, { isStatic: true });
-World.add(world, catapultBase);
 
-const catapultArm = Bodies.rectangle(150, height - 120, 100, 20, { density: 0.002 });
-World.add(world, catapultArm);
-
-const catapultConstraint = Constraint.create({
-    bodyA: catapultArm,
-    pointB: { x: 150, y: height - 120 },
-    length: 0,
-    stiffness: 1
-});
-World.add(world, catapultConstraint);
-
-let dragging = false;
-let dragStart = null;
-
-// Mouse/Touch down
-const startDrag = (e) => {
-    e.preventDefault();
-    const x = e.clientX || e.touches[0].clientX;
-    const y = e.clientY || e.touches[0].clientY;
-
-    const dist = Math.hypot(x - catapultArm.position.x, y - catapultArm.position.y);
-    if (dist < 50) {  // Only start drag if near arm
-        dragging = true;
-        dragStart = { x, y };
-    }
-};
-
-// Mouse/Touch move
-const duringDrag = (e) => {
-    if(!dragging) return;
-    const x = e.clientX || e.touches[0].clientX;
-    const y = e.clientY || e.touches[0].clientY;
-
-    Body.setPosition(catapultArm, { x, y });
-};
-
-// Mouse/Touch up
-const endDrag = (e) => {
-    if(!dragging) return;
-    dragging = false;
-    const x = e.clientX || e.changedTouches[0].clientX;
-    const y = e.clientY || e.changedTouches[0].clientY;
-
-    const dx = dragStart.x - x;
-    const dy = dragStart.y - y;
-    const forceMultiplier = 0.002;  // Adjust strength
-    const coin = Bodies.circle(catapultArm.position.x, catapultArm.position.y, 15, { restitution: 0.9, label: 'coin' });
-    World.add(world, coin);
-    coins.push(coin);
-
-    Body.applyForce(coin, coin.position, { x: dx * forceMultiplier, y: dy * forceMultiplier });
-
-    // Reset arm to original position
-    Body.setPosition(catapultArm, { x: 150, y: height - 120 });
-};
-
-canvas.addEventListener('mousedown', startDrag);
-canvas.addEventListener('mousemove', duringDrag);
-canvas.addEventListener('mouseup', endDrag);
-
-canvas.addEventListener('touchstart', startDrag);
-canvas.addEventListener('touchmove', duringDrag);
-canvas.addEventListener('touchend', endDrag);
-
-// --- Human Ragdoll Class ---
+// --- Human Ragdoll ---
 class Human {
     constructor(x, y, scale = 1) {
-        this.scale = scale;
         const s = scale;
-
         this.hp = 100;
 
-        // Torso
-        this.torso = Bodies.rectangle(x, y, 20*s, 50*s, { label: 'torso', render: { fillStyle: '#8d5524' } });
-        // Head
-        this.head = Bodies.circle(x, y - 35*s, 12*s, { label: 'head', render: { fillStyle: '#ffdbac' } });
-        // Arms
-        this.leftArm = Bodies.rectangle(x - 20*s, y - 10*s, 10*s, 40*s, { label: 'arm', render: { fillStyle: '#ffdbac' } });
-        this.rightArm = Bodies.rectangle(x + 20*s, y - 10*s, 10*s, 40*s, { label: 'arm', render: { fillStyle: '#ffdbac' } });
-        // Legs
-        this.leftLeg = Bodies.rectangle(x - 8*s, y + 40*s, 10*s, 40*s, { label: 'leg', render: { fillStyle: '#0000ff' } });
-        this.rightLeg = Bodies.rectangle(x + 8*s, y + 40*s, 10*s, 40*s, { label: 'leg', render: { fillStyle: '#0000ff' } });
+        this.torso = Bodies.rectangle(x, y, 20*s, 50*s, { label: 'torso', render:{fillStyle:'#8d5524'} });
+        this.head = Bodies.circle(x, y - 35*s, 12*s, { label: 'head', render:{fillStyle:'#ffdbac'} });
+        this.leftArm = Bodies.rectangle(x - 20*s, y - 10*s, 10*s, 40*s, { label:'arm', render:{fillStyle:'#ffdbac'} });
+        this.rightArm = Bodies.rectangle(x + 20*s, y - 10*s, 10*s, 40*s, { label:'arm', render:{fillStyle:'#ffdbac'} });
+        this.leftLeg = Bodies.rectangle(x - 8*s, y + 40*s, 10*s, 40*s, { label:'leg', render:{fillStyle:'#0000ff'} });
+        this.rightLeg = Bodies.rectangle(x + 8*s, y + 40*s, 10*s, 40*s, { label:'leg', render:{fillStyle:'#0000ff'} });
 
-        // Constraints
         this.constraints = [
-            Constraint.create({ bodyA: this.head, bodyB: this.torso, length: 20*s, stiffness: 0.8 }),
-            Constraint.create({ bodyA: this.leftArm, bodyB: this.torso, length: 25*s, stiffness: 0.6 }),
-            Constraint.create({ bodyA: this.rightArm, bodyB: this.torso, length: 25*s, stiffness: 0.6 }),
-            Constraint.create({ bodyA: this.leftLeg, bodyB: this.torso, length: 35*s, stiffness: 0.7 }),
-            Constraint.create({ bodyA: this.rightLeg, bodyB: this.torso, length: 35*s, stiffness: 0.7 })
+            Constraint.create({ bodyA:this.head, bodyB:this.torso, length:20*s, stiffness:0.8 }),
+            Constraint.create({ bodyA:this.leftArm, bodyB:this.torso, length:25*s, stiffness:0.6 }),
+            Constraint.create({ bodyA:this.rightArm, bodyB:this.torso, length:25*s, stiffness:0.6 }),
+            Constraint.create({ bodyA:this.leftLeg, bodyB:this.torso, length:35*s, stiffness:0.7 }),
+            Constraint.create({ bodyA:this.rightLeg, bodyB:this.torso, length:35*s, stiffness:0.7 })
         ];
 
         this.parts = [this.head, this.torso, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg];
-
-        this.parts.forEach(part => part.restitution = 0.5);
-
+        this.parts.forEach(p => p.restitution = 0.5);
         World.add(world, this.parts.concat(this.constraints));
     }
 
@@ -162,73 +85,160 @@ class Human {
         const forceMagnitude = 0.05;
 
         if(distLeft < distRight) {
-            Body.applyForce(coin, coin.position, { 
-                x: (coin.position.x - this.leftArm.position.x) * forceMagnitude, 
-                y: (coin.position.y - this.leftArm.position.y) * forceMagnitude 
-            });
+            Body.applyForce(coin, coin.position, { x:(coin.position.x-this.leftArm.position.x)*forceMagnitude, y:(coin.position.y-this.leftArm.position.y)*forceMagnitude });
         } else {
-            Body.applyForce(coin, coin.position, { 
-                x: (coin.position.x - this.rightArm.position.x) * forceMagnitude, 
-                y: (coin.position.y - this.rightArm.position.y) * forceMagnitude 
-            });
+            Body.applyForce(coin, coin.position, { x:(coin.position.x-this.rightArm.position.x)*forceMagnitude, y:(coin.position.y-this.rightArm.position.y)*forceMagnitude });
         }
     }
 
     takeDamage(amount) {
         this.hp -= amount;
-        if(this.hp <= 0) {
+        if(this.hp <=0){
             updateScore(50);
-            this.parts.forEach(p => World.remove(world, p));
-            this.constraints.forEach(c => World.remove(world, c));
+            this.parts.forEach(p=>World.remove(world,p));
+            this.constraints.forEach(c=>World.remove(world,c));
             const index = characters.indexOf(this);
-            if(index > -1) characters.splice(index, 1);
+            if(index>-1) characters.splice(index,1);
         }
     }
 }
 
-// --- Create Characters ---
+// --- Characters ---
 const characters = [
     new Human(width/2, height/2 - 50),
     new Human(width/3, height/3 - 50),
     new Human(2*width/3, height/3 + 50)
 ];
 
+// --- Coins ---
+const coins = [];
+let currentCoin = null;
 
+// --- Catapult ---
+const catapultBase = Bodies.rectangle(150, height-100, 100, 20, { isStatic:true });
+World.add(world, catapultBase);
 
-// --- Collision Events ---
-Events.on(engine, 'collisionStart', (event) => {
-    event.pairs.forEach(pair => {
-        const coin = pair.bodyA.label === 'coin' ? pair.bodyA : (pair.bodyB.label === 'coin' ? pair.bodyB : null);
+const catapultArm = Bodies.rectangle(150, height-120, 100, 20, { density:0.002 });
+World.add(world, catapultArm);
+
+const catapultConstraint = Constraint.create({
+    bodyA: catapultArm,
+    pointB: { x:150, y:height-120 },
+    length:0,
+    stiffness:1
+});
+World.add(world, catapultConstraint);
+
+let dragging = false;
+let dragStart = null;
+let currentMouseX = 0, currentMouseY = 0;
+const springMaxLength = 150;
+
+// --- Functions ---
+function placeCoin() {
+    if(currentCoin) return;
+    currentCoin = Bodies.circle(catapultArm.position.x + 50, catapultArm.position.y, 15, { restitution:0.9, label:'coin' });
+    World.add(world, currentCoin);
+    coins.push(currentCoin);
+}
+
+function scheduleNextCoin() {
+    setTimeout(()=>{ placeCoin(); }, 3000);
+}
+
+// --- Drag Events ---
+const startDrag = (e) => {
+    e.preventDefault();
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+    const dist = Math.hypot(x-catapultArm.position.x, y-catapultArm.position.y);
+    if(dist < 50 && currentCoin){
+        dragging = true;
+        dragStart = { x, y };
+    }
+};
+const duringDrag = (e) => {
+    if(!dragging) return;
+    currentMouseX = e.clientX || e.touches[0].clientX;
+    currentMouseY = e.clientY || e.touches[0].clientY;
+    // move arm visually
+    Body.setPosition(catapultArm, { x:currentMouseX, y:currentMouseY });
+};
+const endDrag = (e) => {
+    if(!dragging) return;
+    dragging = false;
+    const x = e.clientX || e.changedTouches[0].clientX;
+    const y = e.clientY || e.changedTouches[0].clientY;
+    const dx = dragStart.x - x;
+    const dy = dragStart.y - y;
+    const forceMultiplier = 0.002;
+    Body.applyForce(currentCoin, currentCoin.position, { x:dx*forceMultiplier, y:dy*forceMultiplier });
+    currentCoin = null;
+    Body.setPosition(catapultArm, { x:150, y:height-120 });
+    scheduleNextCoin();
+};
+
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('mousemove', duringDrag);
+canvas.addEventListener('mouseup', endDrag);
+canvas.addEventListener('touchstart', startDrag);
+canvas.addEventListener('touchmove', duringDrag);
+canvas.addEventListener('touchend', endDrag);
+
+// --- Collision ---
+Events.on(engine, 'collisionStart', (event)=>{
+    event.pairs.forEach(pair=>{
+        const coin = pair.bodyA.label==='coin'? pair.bodyA: (pair.bodyB.label==='coin'? pair.bodyB:null);
         if(!coin) return;
-
-        const human = characters.find(h => h.parts.includes(pair.bodyA) || h.parts.includes(pair.bodyB));
+        const human = characters.find(h=>h.parts.includes(pair.bodyA) || h.parts.includes(pair.bodyB));
         if(!human) return;
-
-        if(pair.bodyA.label === 'arm' || pair.bodyB.label === 'arm') {
+        if(pair.bodyA.label==='arm' || pair.bodyB.label==='arm'){
             human.takeDamage(10);
             updateScore(-5);
-        } else if(pair.bodyA.label === 'torso' || pair.bodyB.label === 'torso' || pair.bodyA.label === 'head' || pair.bodyB.label === 'head') {
+        } else if(pair.bodyA.label==='torso' || pair.bodyB.label==='torso' || pair.bodyA.label==='head' || pair.bodyB.label==='head'){
             updateScore(10);
         }
     });
 });
 
-// --- Game Loop ---
+// --- Character AI ---
+setInterval(()=>{
+    coins.forEach(coin=>{
+        characters.forEach(c=>{
+            const dist = Vector.magnitude(Vector.sub(c.torso.position, coin.position));
+            if(dist<100) c.swat(coin);
+        });
+    });
+},500);
+
+// --- Render Spring ---
+Events.on(render, 'afterRender', ()=>{
+    if(!currentCoin) return;
+    const ctx = render.context;
+    // spring line
+    ctx.beginPath();
+    const dx = dragStart ? dragStart.x-currentMouseX : 0;
+    const dy = dragStart ? dragStart.y-currentMouseY : 0;
+    const dist = Math.min(Math.hypot(dx, dy), springMaxLength);
+    const percent = dist/springMaxLength;
+    ctx.strokeStyle = percent<0.5?'green':percent<0.8?'yellow':'red';
+    ctx.lineWidth = 5;
+    ctx.moveTo(catapultBase.position.x, catapultBase.position.y-10);
+    ctx.lineTo(catapultArm.position.x, catapultArm.position.y);
+    ctx.stroke();
+    // numeric 1-10
+    ctx.fillStyle="white";
+    ctx.font="20px sans-serif";
+    const num = Math.ceil(percent*10);
+    ctx.fillText(num, catapultBase.position.x-10, catapultBase.position.y-30);
+});
+
+// --- Start Engine ---
 Engine.run(engine);
 Render.run(render);
 
-// --- Character AI ---
-setInterval(() => {
-    coins.forEach(coin => {
-        characters.forEach(c => {
-            const torsoPos = c.torso.position;
-            const dist = Vector.magnitude(Vector.sub(torsoPos, coin.position));
-            if(dist < 100) {
-                c.swat(coin);
-            }
-        });
-    });
-}, 500);
+// --- Place first coin ---
+placeCoin();
 
 </script>
 </body>
