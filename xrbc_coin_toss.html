@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XRBC Coin Toss</title>
+<style>
+  body { margin: 0; overflow: hidden; background: #222; }
+  canvas { display: block; margin: 0 auto; background: #87CEEB; }
+  #score { position: absolute; top: 10px; left: 10px; color: white; font-family: sans-serif; font-size: 20px; }
+</style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<canvas id="gameCanvas"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+const { Engine, Render, World, Bodies, Body, Events, Composite, Constraint, Vector, Mouse, MouseConstraint } = Matter;
+
+// --- Setup engine & renderer ---
+const engine = Engine.create();
+const world = engine.world;
+
+const canvas = document.getElementById('gameCanvas');
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+const render = Render.create({
+    canvas: canvas,
+    engine: engine,
+    options: { width: width, height: height, wireframes: false, background: '#87CEEB' }
+});
+
+// --- Score ---
+let score = 0;
+const updateScore = (points) => {
+    score += points;
+    document.getElementById('score').textContent = `Score: ${score}`;
+}
+
+// --- Boundaries ---
+const ground = Bodies.rectangle(width/2, height+10, width, 20, { isStatic: true });
+const leftWall = Bodies.rectangle(-10, height/2, 20, height, { isStatic: true });
+const rightWall = Bodies.rectangle(width+10, height/2, 20, height, { isStatic: true });
+const ceiling = Bodies.rectangle(width/2, -10, width, 20, { isStatic: true });
+World.add(world, [ground, leftWall, rightWall, ceiling]);
+
+// --- Platforms ---
+const platforms = [
+    Bodies.rectangle(width/2, height/2, 300, 20, { isStatic: true }),
+    Bodies.rectangle(width/3, height/3, 200, 20, { isStatic: true }),
+    Bodies.rectangle(2*width/3, height/3 + 100, 250, 20, { isStatic: true })
+];
+World.add(world, platforms);
+
+// --- Characters ---
+class Character {
+    constructor(x, y) {
+        this.body = Bodies.circle(x, y, 30, { restitution: 0.5, label: 'character' });
+        this.hp = 100;
+        this.appendage = Bodies.rectangle(x, y, 60, 10, { isStatic: false, label: 'appendage' });
+        World.add(world, [this.body, this.appendage]);
+
+        // Constraint to connect appendage to body
+        this.constraint = Constraint.create({
+            bodyA: this.body,
+            bodyB: this.appendage,
+            length: 30,
+            stiffness: 0.9
+        });
+        World.add(world, this.constraint);
+    }
+
+    // Swat coin
+    swat(coin) {
+        const direction = Vector.normalise(Vector.sub(coin.position, this.body.position));
+        Body.applyForce(coin, coin.position, { x: direction.x*0.05, y: direction.y* -0.05 });
+    }
+
+    // Take damage
+    takeDamage(amount) {
+        this.hp -= amount;
+        if(this.hp <= 0) {
+            updateScore(50); // Bonus for knock out
+            World.remove(world, [this.body, this.appendage, this.constraint]);
+        }
+    }
+}
+
+const characters = [
+    new Character(width/2, height/2 - 50),
+    new Character(width/3, height/3 - 50),
+    new Character(2*width/3, height/3 + 50)
+];
+
+// --- Coin throwing ---
+const coins = [];
+canvas.addEventListener('mousedown', (e) => {
+    const coin = Bodies.circle(100, height - 100, 15, { restitution: 0.9, label: 'coin' });
+    World.add(world, coin);
+    coins.push(coin);
+
+    const mouseMove = (moveEvent) => {
+        Body.setPosition(coin, { x: moveEvent.clientX, y: moveEvent.clientY });
+    };
+    const mouseUp = (upEvent) => {
+        const forceX = (coin.position.x - upEvent.clientX) * -0.002;
+        const forceY = (coin.position.y - upEvent.clientY) * -0.002;
+        Body.applyForce(coin, coin.position, { x: forceX, y: forceY });
+        window.removeEventListener('mousemove', mouseMove);
+        window.removeEventListener('mouseup', mouseUp);
+    };
+    window.addEventListener('mousemove', mouseMove);
+    window.addEventListener('mouseup', mouseUp);
+});
+
+// --- Collision events ---
+Events.on(engine, 'collisionStart', (event) => {
+    event.pairs.forEach(pair => {
+        const labels = [pair.bodyA.label, pair.bodyB.label];
+        // Coin hits character appendage
+        if(labels.includes('coin') && labels.includes('appendage')) {
+            const character = characters.find(c => c.appendage === pair.bodyA || c.appendage === pair.bodyB);
+            if(character) {
+                character.takeDamage(10);
+                updateScore(-5);
+            }
+        }
+        // Coin hits character body
+        if(labels.includes('coin') && labels.includes('character')) {
+            const character = characters.find(c => c.body === pair.bodyA || c.body === pair.bodyB);
+            if(character) {
+                updateScore(10);
+            }
+        }
+    });
+});
+
+// --- Game loop ---
+Engine.run(engine);
+Render.run(render);
+
+// --- Character AI ---
+setInterval(() => {
+    coins.forEach(coin => {
+        characters.forEach(c => {
+            const dist = Vector.magnitude(Vector.sub(c.body.position, coin.position));
+            if(dist < 100) {
+                c.swat(coin);
+            }
+        });
+    });
+}, 500);
+
+</script>
+</body>
+</html>
