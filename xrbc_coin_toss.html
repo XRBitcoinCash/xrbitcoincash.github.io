@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XRBC Coin Slingshot</title>
+<title>XRBC Coin Chaos</title>
 <style>
   body { margin:0; overflow:hidden; background:#222; }
   canvas { display:block; margin:0 auto; background:#87CEEB; }
+  #score { position:absolute; top:10px; left:10px; color:white; font-family:sans-serif; font-size:24px; }
 </style>
 </head>
 <body>
+<div id="score">Score: 0</div>
 <canvas id="gameCanvas"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script>
-const { Engine, Render, World, Bodies, Body, Constraint, Vector, Events } = Matter;
+const { Engine, Render, World, Bodies, Body, Constraint, Vector, Events, Composite } = Matter;
 
 // --- Engine & Renderer ---
 const engine = Engine.create();
@@ -22,12 +24,21 @@ const world = engine.world;
 const canvas = document.getElementById('gameCanvas');
 const width = window.innerWidth;
 const height = window.innerHeight;
-
 const render = Render.create({
     canvas: canvas,
     engine: engine,
     options: { width, height, wireframes: false, background: '#87CEEB' }
 });
+Engine.run(engine);
+Render.run(render);
+
+// --- Score ---
+let score = 0;
+const scoreDiv = document.getElementById('score');
+function addScore(points){
+    score += points;
+    scoreDiv.textContent = `Score: ${score}`;
+}
 
 // --- Borders ---
 const wallThickness = 50;
@@ -39,28 +50,50 @@ const walls = [
 ];
 World.add(world, walls);
 
-// --- Catapult base ---
-const base = Bodies.rectangle(200, height-100, 40, 20, { isStatic:true });
+// --- Catapult Base ---
+const base = Bodies.rectangle(200, height-150, 40, 20, { isStatic:true });
 World.add(world, base);
 
 // --- Coin & Slingshot ---
 let coin = null;
 let slingshot = null;
 let isDragging = false;
-let dragStart = null;
 const maxPullback = 150;
 
-// --- Create new coin ---
+// --- Platform and target creation ---
+const platforms = [];
+function spawnPlatform(x, y, w=100, h=20){
+    const plat = Bodies.rectangle(x, y, w, h, { isStatic:true, render:{ fillStyle:"#654321" } });
+    platforms.push(plat);
+    World.add(world, plat);
+    return plat;
+}
+
+// --- Targets ---
+const targets = [];
+function spawnTarget(x, y, radius=20){
+    const target = Bodies.circle(x, y, radius, { restitution:0.6, render:{ fillStyle:"#FFD700" } });
+    targets.push(target);
+    World.add(world, target);
+    return target;
+}
+
+// --- Generate random platforms and targets ---
+function generateLevel(){
+    for(let i=1; i<10; i++){
+        const px = width + i*300;
+        const py = height-100 - Math.random()*200;
+        spawnPlatform(px, py, 100, 20);
+        spawnTarget(px, py-40);
+    }
+}
+generateLevel();
+
+// --- Create coin ---
 function placeCoin(){
     coin = Bodies.circle(base.position.x, base.position.y - 50, 20, {
         restitution:0.8,
-        render:{
-            sprite:{
-                texture:"xrbc-nft.png",
-                xScale:0.15,
-                yScale:0.15
-            }
-        }
+        render:{ sprite:{ texture:"xrbc-nft.png", xScale:0.15, yScale:0.15 } }
     });
     World.add(world, coin);
 
@@ -82,28 +115,21 @@ canvas.addEventListener('touchstart', startDrag);
 canvas.addEventListener('touchmove', duringDrag);
 canvas.addEventListener('touchend', endDrag);
 
-function getMousePos(e){
-    return { x:e.clientX || e.touches[0].clientX, y:e.clientY || e.touches[0].clientY };
-}
+function getMousePos(e){ return { x:e.clientX || e.touches[0].clientX, y:e.clientY || e.touches[0].clientY }; }
 
 function startDrag(e){
     if(!coin) return;
     const pos = getMousePos(e);
     const dist = Vector.magnitude(Vector.sub(pos, coin.position));
-    if(dist < 30){
-        isDragging = true;
-        dragStart = pos;
-    }
+    if(dist < 30) isDragging = true;
 }
 
 function duringDrag(e){
     if(!isDragging) return;
     const pos = getMousePos(e);
-    // restrict drag to backward (left) only
     let dx = pos.x - slingshot.pointA.x;
-    if(dx > 0) dx = 0; // cannot drag forward
-    // clamp maximum pullback
-    if(dx < -maxPullback) dx = -maxPullback;
+    if(dx > 0) dx = 0; // one-direction pull
+    if(dx < -maxPullback) dx = -maxPullback; 
     const dy = pos.y - slingshot.pointA.y;
     Body.setPosition(coin, { x: slingshot.pointA.x + dx, y: slingshot.pointA.y + dy });
 }
@@ -111,23 +137,52 @@ function duringDrag(e){
 function endDrag(e){
     if(!isDragging) return;
     isDragging = false;
-    // calculate force based on distance
     const dx = slingshot.pointA.x - coin.position.x;
     const dy = slingshot.pointA.y - coin.position.y;
-    const forceMultiplier = 0.002;
+    const forceMultiplier = 0.0025;
     Body.applyForce(coin, coin.position, { x: dx*forceMultiplier, y: dy*forceMultiplier });
-    // remove slingshot
     World.remove(world, slingshot);
     slingshot = null;
     coin = null;
     setTimeout(placeCoin, 3000);
 }
 
-// --- Render slingshot visual and guide line ---
+// --- Move level left continuously to simulate forward motion ---
+Events.on(engine, 'beforeUpdate', ()=>{
+    platforms.forEach(p=>Body.translate(p, { x:-2, y:0 }));
+    targets.forEach(t=>Body.translate(t, { x:-2, y:0 }));
+
+    // recycle platforms & targets when offscreen
+    platforms.forEach((p,i)=>{
+        if(p.position.x < -200){
+            const newX = width + Math.random()*500;
+            const newY = height-100 - Math.random()*200;
+            Body.setPosition(p, { x:newX, y:newY });
+            Body.setVelocity(p, {x:0, y:0});
+            Body.setAngle(p, 0);
+            // reposition corresponding target
+            const t = targets[i];
+            Body.setPosition(t, { x:newX, y:newY-40 });
+            Body.setVelocity(t, {x:0, y:0});
+        }
+    });
+});
+
+// --- Collision detection for scoring ---
+Events.on(engine, 'collisionStart', (event)=>{
+    event.pairs.forEach(pair=>{
+        const labels = [pair.bodyA.label, pair.bodyB.label];
+        // detect coin hitting target
+        if((pair.bodyA===coin || pair.bodyB===coin) && targets.includes(pair.bodyA) || targets.includes(pair.bodyB)){
+            addScore(10);
+        }
+    });
+});
+
+// --- Render slingshot and trajectory ---
 Events.on(render, 'afterRender', ()=>{
     const ctx = render.context;
     if(coin && isDragging){
-        // draw slingshot bands
         ctx.beginPath();
         ctx.strokeStyle = "#654321";
         ctx.lineWidth = 6;
@@ -137,26 +192,23 @@ Events.on(render, 'afterRender', ()=>{
         ctx.lineTo(coin.position.x, coin.position.y);
         ctx.stroke();
 
-        // draw dotted guide line for trajectory
+        // dotted trajectory guide
         ctx.beginPath();
         ctx.setLineDash([5,5]);
         ctx.strokeStyle = "#ffffff";
-        ctx.moveTo(coin.position.x, coin.position.y);
         const dx = slingshot.pointA.x - coin.position.x;
         const dy = slingshot.pointA.y - coin.position.y;
+        ctx.moveTo(coin.position.x, coin.position.y);
         ctx.lineTo(coin.position.x + dx*5, coin.position.y + dy*5);
         ctx.stroke();
         ctx.setLineDash([]);
     }
 
-    // draw slingshot base
+    // slingshot base
     ctx.fillStyle = "#654321";
     ctx.fillRect(base.position.x-20, base.position.y-10, 40, 20);
 });
 
-// --- Run engine ---
-Engine.run(engine);
-Render.run(render);
 </script>
 </body>
 </html>
