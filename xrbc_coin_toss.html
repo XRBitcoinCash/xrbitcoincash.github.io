@@ -68,17 +68,58 @@ const catapultConstraint = Constraint.create({
 });
 World.add(world, catapultConstraint);
 
-function launchCoin() {
-    const coin = Bodies.circle(catapultArm.position.x + 50, catapultArm.position.y, 15, { restitution: 0.9, label: 'coin' });
+let dragging = false;
+let dragStart = null;
+
+// Mouse/Touch down
+const startDrag = (e) => {
+    e.preventDefault();
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+
+    const dist = Math.hypot(x - catapultArm.position.x, y - catapultArm.position.y);
+    if (dist < 50) {  // Only start drag if near arm
+        dragging = true;
+        dragStart = { x, y };
+    }
+};
+
+// Mouse/Touch move
+const duringDrag = (e) => {
+    if(!dragging) return;
+    const x = e.clientX || e.touches[0].clientX;
+    const y = e.clientY || e.touches[0].clientY;
+
+    Body.setPosition(catapultArm, { x, y });
+};
+
+// Mouse/Touch up
+const endDrag = (e) => {
+    if(!dragging) return;
+    dragging = false;
+    const x = e.clientX || e.changedTouches[0].clientX;
+    const y = e.clientY || e.changedTouches[0].clientY;
+
+    const dx = dragStart.x - x;
+    const dy = dragStart.y - y;
+    const forceMultiplier = 0.002;  // Adjust strength
+    const coin = Bodies.circle(catapultArm.position.x, catapultArm.position.y, 15, { restitution: 0.9, label: 'coin' });
     World.add(world, coin);
     coins.push(coin);
 
-    Body.applyForce(coin, coin.position, { x: 0.05, y: -0.05 });
-}
+    Body.applyForce(coin, coin.position, { x: dx * forceMultiplier, y: dy * forceMultiplier });
 
-setInterval(() => {
-    launchCoin();
-}, 2000);
+    // Reset arm to original position
+    Body.setPosition(catapultArm, { x: 150, y: height - 120 });
+};
+
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('mousemove', duringDrag);
+canvas.addEventListener('mouseup', endDrag);
+
+canvas.addEventListener('touchstart', startDrag);
+canvas.addEventListener('touchmove', duringDrag);
+canvas.addEventListener('touchend', endDrag);
 
 // --- Human Ragdoll Class ---
 class Human {
