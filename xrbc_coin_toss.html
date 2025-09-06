@@ -53,6 +53,32 @@ const platforms = [
     Bodies.rectangle(2*width/3, height/3 + 100, 250, 20, { isStatic: true })
 ];
 World.add(world, platforms);
+// --- Catapult ---
+const catapultBase = Bodies.rectangle(150, height - 100, 100, 20, { isStatic: true });
+World.add(world, catapultBase);
+
+const catapultArm = Bodies.rectangle(150, height - 120, 100, 20, { density: 0.002 });
+World.add(world, catapultArm);
+
+const catapultConstraint = Constraint.create({
+    bodyA: catapultArm,
+    pointB: { x: 150, y: height - 120 },
+    length: 0,
+    stiffness: 1
+});
+World.add(world, catapultConstraint);
+
+function launchCoin() {
+    const coin = Bodies.circle(catapultArm.position.x + 50, catapultArm.position.y, 15, { restitution: 0.9, label: 'coin' });
+    World.add(world, coin);
+    coins.push(coin);
+
+    Body.applyForce(coin, coin.position, { x: 0.05, y: -0.05 });
+}
+
+setInterval(() => {
+    launchCoin();
+}, 2000);
 
 // --- Human Ragdoll Class ---
 class Human {
@@ -126,26 +152,7 @@ const characters = [
     new Human(2*width/3, height/3 + 50)
 ];
 
-// --- Coin Throwing ---
-const coins = [];
-canvas.addEventListener('mousedown', (e) => {
-    const coin = Bodies.circle(100, height - 100, 15, { restitution: 0.9, label: 'coin' });
-    World.add(world, coin);
-    coins.push(coin);
 
-    const mouseMove = (moveEvent) => {
-        Body.setPosition(coin, { x: moveEvent.clientX, y: moveEvent.clientY });
-    };
-    const mouseUp = (upEvent) => {
-        const forceX = (coin.position.x - upEvent.clientX) * -0.002;
-        const forceY = (coin.position.y - upEvent.clientY) * -0.002;
-        Body.applyForce(coin, coin.position, { x: forceX, y: forceY });
-        window.removeEventListener('mousemove', mouseMove);
-        window.removeEventListener('mouseup', mouseUp);
-    };
-    window.addEventListener('mousemove', mouseMove);
-    window.addEventListener('mouseup', mouseUp);
-});
 
 // --- Collision Events ---
 Events.on(engine, 'collisionStart', (event) => {
