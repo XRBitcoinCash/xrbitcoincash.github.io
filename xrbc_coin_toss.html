@@ -16,7 +16,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script>
-const { Engine, Render, World, Bodies, Body, Events, Composite, Constraint, Vector, Mouse, MouseConstraint } = Matter;
+const { Engine, Render, World, Bodies, Body, Events, Constraint, Vector } = Matter;
 
 // --- Setup engine & renderer ---
 const engine = Engine.create();
@@ -54,22 +54,21 @@ const platforms = [
 ];
 World.add(world, platforms);
 
-// --- Characters ---
+// --- Human Ragdoll Class ---
 class Human {
     constructor(x, y, scale = 1) {
         this.scale = scale;
         const s = scale;
 
+        this.hp = 100;
+
         // Torso
         this.torso = Bodies.rectangle(x, y, 20*s, 50*s, { label: 'torso', render: { fillStyle: '#8d5524' } });
-
         // Head
         this.head = Bodies.circle(x, y - 35*s, 12*s, { label: 'head', render: { fillStyle: '#ffdbac' } });
-
         // Arms
         this.leftArm = Bodies.rectangle(x - 20*s, y - 10*s, 10*s, 40*s, { label: 'arm', render: { fillStyle: '#ffdbac' } });
         this.rightArm = Bodies.rectangle(x + 20*s, y - 10*s, 10*s, 40*s, { label: 'arm', render: { fillStyle: '#ffdbac' } });
-
         // Legs
         this.leftLeg = Bodies.rectangle(x - 8*s, y + 40*s, 10*s, 40*s, { label: 'leg', render: { fillStyle: '#0000ff' } });
         this.rightLeg = Bodies.rectangle(x + 8*s, y + 40*s, 10*s, 40*s, { label: 'leg', render: { fillStyle: '#0000ff' } });
@@ -80,55 +79,54 @@ class Human {
             Constraint.create({ bodyA: this.leftArm, bodyB: this.torso, length: 25*s, stiffness: 0.6 }),
             Constraint.create({ bodyA: this.rightArm, bodyB: this.torso, length: 25*s, stiffness: 0.6 }),
             Constraint.create({ bodyA: this.leftLeg, bodyB: this.torso, length: 35*s, stiffness: 0.7 }),
-            Constraint.create({ bodyA: this.rightLeg, bodyB: this.torso, length: 35*s, stiffness: 0.7 }),
+            Constraint.create({ bodyA: this.rightLeg, bodyB: this.torso, length: 35*s, stiffness: 0.7 })
         ];
 
-        // Group all parts for easy management
         this.parts = [this.head, this.torso, this.leftArm, this.rightArm, this.leftLeg, this.rightLeg];
+
         this.parts.forEach(part => part.restitution = 0.5);
 
-        // Add to world
         World.add(world, this.parts.concat(this.constraints));
     }
 
-    // Swat coins with arms
     swat(coin) {
         const distLeft = Vector.magnitude(Vector.sub(this.leftArm.position, coin.position));
         const distRight = Vector.magnitude(Vector.sub(this.rightArm.position, coin.position));
         const forceMagnitude = 0.05;
 
         if(distLeft < distRight) {
-            Body.applyForce(coin, coin.position, { x: (coin.position.x - this.leftArm.position.x)*forceMagnitude, y: (coin.position.y - this.leftArm.position.y)*forceMagnitude });
+            Body.applyForce(coin, coin.position, { 
+                x: (coin.position.x - this.leftArm.position.x) * forceMagnitude, 
+                y: (coin.position.y - this.leftArm.position.y) * forceMagnitude 
+            });
         } else {
-            Body.applyForce(coin, coin.position, { x: (coin.position.x - this.rightArm.position.x)*forceMagnitude, y: (coin.position.y - this.rightArm.position.y)*forceMagnitude });
+            Body.applyForce(coin, coin.position, { 
+                x: (coin.position.x - this.rightArm.position.x) * forceMagnitude, 
+                y: (coin.position.y - this.rightArm.position.y) * forceMagnitude 
+            });
         }
     }
-}
 
-
-    // Swat coin
-    swat(coin) {
-        const direction = Vector.normalise(Vector.sub(coin.position, this.body.position));
-        Body.applyForce(coin, coin.position, { x: direction.x*0.05, y: direction.y* -0.05 });
-    }
-
-    // Take damage
     takeDamage(amount) {
         this.hp -= amount;
         if(this.hp <= 0) {
-            updateScore(50); // Bonus for knock out
-            World.remove(world, [this.body, this.appendage, this.constraint]);
+            updateScore(50);
+            this.parts.forEach(p => World.remove(world, p));
+            this.constraints.forEach(c => World.remove(world, c));
+            const index = characters.indexOf(this);
+            if(index > -1) characters.splice(index, 1);
         }
     }
 }
 
+// --- Create Characters ---
 const characters = [
-    new Character(width/2, height/2 - 50),
-    new Character(width/3, height/3 - 50),
-    new Character(2*width/3, height/3 + 50)
+    new Human(width/2, height/2 - 50),
+    new Human(width/3, height/3 - 50),
+    new Human(2*width/3, height/3 + 50)
 ];
 
-// --- Coin throwing ---
+// --- Coin Throwing ---
 const coins = [];
 canvas.addEventListener('mousedown', (e) => {
     const coin = Bodies.circle(100, height - 100, 15, { restitution: 0.9, label: 'coin' });
@@ -149,29 +147,25 @@ canvas.addEventListener('mousedown', (e) => {
     window.addEventListener('mouseup', mouseUp);
 });
 
-// --- Collision events ---
+// --- Collision Events ---
 Events.on(engine, 'collisionStart', (event) => {
     event.pairs.forEach(pair => {
-        const labels = [pair.bodyA.label, pair.bodyB.label];
-        // Coin hits character appendage
-        if(labels.includes('coin') && labels.includes('appendage')) {
-            const character = characters.find(c => c.appendage === pair.bodyA || c.appendage === pair.bodyB);
-            if(character) {
-                character.takeDamage(10);
-                updateScore(-5);
-            }
-        }
-        // Coin hits character body
-        if(labels.includes('coin') && labels.includes('character')) {
-            const character = characters.find(c => c.body === pair.bodyA || c.body === pair.bodyB);
-            if(character) {
-                updateScore(10);
-            }
+        const coin = pair.bodyA.label === 'coin' ? pair.bodyA : (pair.bodyB.label === 'coin' ? pair.bodyB : null);
+        if(!coin) return;
+
+        const human = characters.find(h => h.parts.includes(pair.bodyA) || h.parts.includes(pair.bodyB));
+        if(!human) return;
+
+        if(pair.bodyA.label === 'arm' || pair.bodyB.label === 'arm') {
+            human.takeDamage(10);
+            updateScore(-5);
+        } else if(pair.bodyA.label === 'torso' || pair.bodyB.label === 'torso' || pair.bodyA.label === 'head' || pair.bodyB.label === 'head') {
+            updateScore(10);
         }
     });
 });
 
-// --- Game loop ---
+// --- Game Loop ---
 Engine.run(engine);
 Render.run(render);
 
@@ -179,7 +173,8 @@ Render.run(render);
 setInterval(() => {
     coins.forEach(coin => {
         characters.forEach(c => {
-            const dist = Vector.magnitude(Vector.sub(c.body.position, coin.position));
+            const torsoPos = c.torso.position;
+            const dist = Vector.magnitude(Vector.sub(torsoPos, coin.position));
             if(dist < 100) {
                 c.swat(coin);
             }
