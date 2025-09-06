@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XRBC Coin Chaos</title>
+<title>XRBC Coin Madness</title>
 <style>
   body { margin:0; overflow:hidden; background:#222; }
   canvas { display:block; margin:0 auto; background:#87CEEB; }
   #score { position:absolute; top:10px; left:10px; color:white; font-family:sans-serif; font-size:24px; }
+  #level { position:absolute; top:40px; left:10px; color:white; font-family:sans-serif; font-size:20px; }
 </style>
 </head>
 <body>
 <div id="score">Score: 0</div>
+<div id="level">Level: 1</div>
 <canvas id="gameCanvas"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -24,6 +26,7 @@ const world = engine.world;
 const canvas = document.getElementById('gameCanvas');
 const width = window.innerWidth;
 const height = window.innerHeight;
+
 const render = Render.create({
     canvas: canvas,
     engine: engine,
@@ -32,13 +35,13 @@ const render = Render.create({
 Engine.run(engine);
 Render.run(render);
 
-// --- Score ---
+// --- Score & Level ---
 let score = 0;
+let level = 1;
 const scoreDiv = document.getElementById('score');
-function addScore(points){
-    score += points;
-    scoreDiv.textContent = `Score: ${score}`;
-}
+const levelDiv = document.getElementById('level');
+function addScore(points){ score += points; scoreDiv.textContent = `Score: ${score}`; }
+function setLevel(l){ level = l; levelDiv.textContent = `Level: ${level}`; }
 
 // --- Borders ---
 const wallThickness = 50;
@@ -50,50 +53,29 @@ const walls = [
 ];
 World.add(world, walls);
 
-// --- Catapult Base ---
+// --- Slingshot Base ---
 const base = Bodies.rectangle(200, height-150, 40, 20, { isStatic:true });
 World.add(world, base);
 
-// --- Coin & Slingshot ---
+// --- Ground / Lava ---
+let groundHeight = 30;
+const ground = Bodies.rectangle(width/2, height-groundHeight/2, width, groundHeight, { isStatic:true, render:{ fillStyle:"#ff4500" } });
+World.add(world, ground);
+let groundRiseSpeed = 0.05; // will increase with levels
+
+// --- Coin Mechanics ---
+const colors = ["#FFD700","#FF0000","#00FF00","#0000FF","#FF69B4"];
 let coin = null;
 let slingshot = null;
 let isDragging = false;
 const maxPullback = 150;
+const meltedCoins = []; // track melted coins
 
-// --- Platform and target creation ---
-const platforms = [];
-function spawnPlatform(x, y, w=100, h=20){
-    const plat = Bodies.rectangle(x, y, w, h, { isStatic:true, render:{ fillStyle:"#654321" } });
-    platforms.push(plat);
-    World.add(world, plat);
-    return plat;
-}
-
-// --- Targets ---
-const targets = [];
-function spawnTarget(x, y, radius=20){
-    const target = Bodies.circle(x, y, radius, { restitution:0.6, render:{ fillStyle:"#FFD700" } });
-    targets.push(target);
-    World.add(world, target);
-    return target;
-}
-
-// --- Generate random platforms and targets ---
-function generateLevel(){
-    for(let i=1; i<10; i++){
-        const px = width + i*300;
-        const py = height-100 - Math.random()*200;
-        spawnPlatform(px, py, 100, 20);
-        spawnTarget(px, py-40);
-    }
-}
-generateLevel();
-
-// --- Create coin ---
 function placeCoin(){
+    const color = colors[Math.floor(Math.random()*colors.length)];
     coin = Bodies.circle(base.position.x, base.position.y - 50, 20, {
         restitution:0.8,
-        render:{ sprite:{ texture:"xrbc-nft.png", xScale:0.15, yScale:0.15 } }
+        render:{ fillStyle: color }
     });
     World.add(world, coin);
 
@@ -116,70 +98,96 @@ canvas.addEventListener('touchmove', duringDrag);
 canvas.addEventListener('touchend', endDrag);
 
 function getMousePos(e){ return { x:e.clientX || e.touches[0].clientX, y:e.clientY || e.touches[0].clientY }; }
-
 function startDrag(e){
     if(!coin) return;
     const pos = getMousePos(e);
     const dist = Vector.magnitude(Vector.sub(pos, coin.position));
     if(dist < 30) isDragging = true;
 }
-
 function duringDrag(e){
     if(!isDragging) return;
     const pos = getMousePos(e);
     let dx = pos.x - slingshot.pointA.x;
-    if(dx > 0) dx = 0; // one-direction pull
-    if(dx < -maxPullback) dx = -maxPullback; 
+    if(dx > 0) dx = 0;
+    if(dx < -maxPullback) dx = -maxPullback;
     const dy = pos.y - slingshot.pointA.y;
     Body.setPosition(coin, { x: slingshot.pointA.x + dx, y: slingshot.pointA.y + dy });
 }
-
 function endDrag(e){
     if(!isDragging) return;
     isDragging = false;
     const dx = slingshot.pointA.x - coin.position.x;
     const dy = slingshot.pointA.y - coin.position.y;
-    const forceMultiplier = 0.0025;
-    Body.applyForce(coin, coin.position, { x: dx*forceMultiplier, y: dy*forceMultiplier });
+    Body.applyForce(coin, coin.position, { x: dx*0.003, y: dy*0.003 });
     World.remove(world, slingshot);
     slingshot = null;
     coin = null;
     setTimeout(placeCoin, 3000);
 }
 
-// --- Move level left continuously to simulate forward motion ---
-Events.on(engine, 'beforeUpdate', ()=>{
-    platforms.forEach(p=>Body.translate(p, { x:-2, y:0 }));
-    targets.forEach(t=>Body.translate(t, { x:-2, y:0 }));
+// --- Random Falling Balls ---
+const fallingBalls = [];
+function spawnRandomBalls(count){
+    for(let i=0;i<count;i++){
+        const x = Math.random()*width;
+        const color = colors[Math.floor(Math.random()*colors.length)];
+        const ball = Bodies.circle(x, -50, 15, { restitution:0.5, render:{ fillStyle: color } });
+        fallingBalls.push(ball);
+        World.add(world, ball);
+    }
+}
+spawnRandomBalls(level); // initial count
 
-    // recycle platforms & targets when offscreen
-    platforms.forEach((p,i)=>{
-        if(p.position.x < -200){
-            const newX = width + Math.random()*500;
-            const newY = height-100 - Math.random()*200;
-            Body.setPosition(p, { x:newX, y:newY });
-            Body.setVelocity(p, {x:0, y:0});
-            Body.setAngle(p, 0);
-            // reposition corresponding target
-            const t = targets[i];
-            Body.setPosition(t, { x:newX, y:newY-40 });
-            Body.setVelocity(t, {x:0, y:0});
+// --- Rising Ground ---
+Events.on(engine, 'beforeUpdate', ()=>{
+    Body.translate(ground, { x:0, y:-groundRiseSpeed });
+    if(ground.position.y - groundHeight/2 <= 0){
+        alert("Game Over! Final Score: "+score);
+        window.location.reload();
+    }
+
+    // Check melted coins for ground lowering
+    meltedCoins.forEach((mc,i)=>{
+        if(mc.melted){
+            // lower ground a little for each correct match
+            Body.translate(ground, { x:0, y:1 });
+            meltedCoins.splice(i,1);
         }
     });
 });
 
-// --- Collision detection for scoring ---
+// --- Collision detection ---
 Events.on(engine, 'collisionStart', (event)=>{
     event.pairs.forEach(pair=>{
-        const labels = [pair.bodyA.label, pair.bodyB.label];
-        // detect coin hitting target
-        if((pair.bodyA===coin || pair.bodyB===coin) && targets.includes(pair.bodyA) || targets.includes(pair.bodyB)){
-            addScore(10);
-        }
+        [pair.bodyA, pair.bodyB].forEach(body=>{
+            // Check collision with ground
+            if(body !== ground && body.position.y + body.circleRadius >= ground.position.y - groundHeight/2){
+                if(body.label !== "ground" && body.circleRadius){ // melting coin
+                    body.melted = true;
+                    meltedCoins.push(body);
+                    World.remove(world, body);
+                    addScore(5);
+                }
+            }
+        });
     });
 });
 
-// --- Render slingshot and trajectory ---
+// --- Level progression ---
+let levelTimer = 0;
+Events.on(engine, 'afterUpdate', ()=>{
+    levelTimer += engine.timing.delta;
+    if(levelTimer > 10000){ // every 10 seconds increase level
+        levelTimer = 0;
+        if(level < 100){
+            setLevel(level+1);
+            spawnRandomBalls(level+1);
+            groundRiseSpeed += 0.002; // faster rise
+        }
+    }
+});
+
+// --- Render slingshot ---
 Events.on(render, 'afterRender', ()=>{
     const ctx = render.context;
     if(coin && isDragging){
@@ -192,7 +200,6 @@ Events.on(render, 'afterRender', ()=>{
         ctx.lineTo(coin.position.x, coin.position.y);
         ctx.stroke();
 
-        // dotted trajectory guide
         ctx.beginPath();
         ctx.setLineDash([5,5]);
         ctx.strokeStyle = "#ffffff";
@@ -204,11 +211,9 @@ Events.on(render, 'afterRender', ()=>{
         ctx.setLineDash([]);
     }
 
-    // slingshot base
     ctx.fillStyle = "#654321";
     ctx.fillRect(base.position.x-20, base.position.y-10, 40, 20);
 });
-
 </script>
 </body>
 </html>
