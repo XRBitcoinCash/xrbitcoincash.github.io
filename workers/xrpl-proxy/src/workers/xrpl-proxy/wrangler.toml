@@ -1,8 +1,0 @@
-# workers/xrpl-proxy/wrangler.toml
-name = "xrpl-proxy"
-main = "src/index.js"
-compatibility_date = "2025-09-07" # keep it current
-workers_dev = true
-
-[vars]
-XRPL_TARGET = "https://xrplcluster.com/"  # change if you want to use another node
