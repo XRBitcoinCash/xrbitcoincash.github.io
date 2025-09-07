@@ -2,135 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrustLine QR Widget</title>
-  <style>
-    :root {
-      --bg: #0B1020;
-      --card: #0F1724;
-      --ink: #ECF3FF;
-      --muted: #9EB2D0;
-      --accent: #00E5FF;
-    }
-    body {
-      margin: 0;
-      font-family: Inter, sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .btn {
-      padding: 14px 20px;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      background: linear-gradient(180deg, var(--accent), #00b6d0);
-      color: #00121a;
-      box-shadow: 0 4px 12px rgba(0,229,255,0.3);
-      text-decoration: none;
-    }
-
-    /* === WIDGET === */
-    .widget-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3000;
-    }
-    .widget {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      width: 90%;
-      max-width: 420px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 8px 40px rgba(0,229,255,0.25);
-      animation: fadeIn 0.3s ease;
-      position: relative;
-    }
-    .widget h2 {
-      margin: 0 0 12px;
-      color: var(--accent);
-    }
-    .widget p {
-      margin: 0 0 14px;
-      color: var(--muted);
-    }
-    .widget-close {
-      background: transparent;
-      border: none;
-      color: var(--ink);
-      font-size: 1.5rem;
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      cursor: pointer;
-    }
-    .widget img {
-      width: 100%;
-      max-width: 280px;
-      border-radius: 8px;
-      margin: 0 auto;
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-  </style>
+  <title>XRPL Node Test</title>
 </head>
 <body>
+  <h1>XRPL Node Connection Test</h1>
 
-  <!-- TrustLine Button -->
-  <a href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" 
-     class="btn" 
-     id="trustlineBtn">
-     Open a TrustLine
-  </a>
+  <button id="ledgerBtn">Get Ledger Info</button>
+  <button id="accountBtn">Get Account Info</button>
+  <input type="text" id="accountInput" placeholder="Enter XRPL Account"/>
+  <pre id="output"></pre>
 
-  <!-- Widget Modal -->
-  <div class="widget-overlay" id="widgetOverlay">
-    <div class="widget">
-      <button class="widget-close" id="widgetClose">&times;</button>
-      <h2>Scan to Open TrustLine</h2>
-      <p>Use your XRPL Wallet app:</p>
-      <img id="qrCode" src="" alt="TrustLine QR Code">
-    </div>
-  </div>
+  <!-- Load your existing proxy connector -->
+  <script src="js/xrpl-connector.js"></script>
 
   <script>
-    const trustlineBtn = document.getElementById("trustlineBtn");
-    const widgetOverlay = document.getElementById("widgetOverlay");
-    const widgetClose = document.getElementById("widgetClose");
-    const qrCode = document.getElementById("qrCode");
+    const output = document.getElementById('output');
 
-    const trustlineURL = trustlineBtn.getAttribute("href");
-
-    function isMobile() {
-      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    }
-
-    trustlineBtn.addEventListener("click", function(e) {
-      if (isMobile()) {
-        return; // On mobile, go directly to wallet
-      } else {
-        e.preventDefault();
-        widgetOverlay.style.display = "flex";
-        qrCode.src = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${encodeURIComponent(trustlineURL)}`;
+    // Ledger test
+    document.getElementById('ledgerBtn').addEventListener('click', async () => {
+      output.textContent = 'Fetching ledger info...';
+      try {
+        const ledger = await getLedger();
+        output.textContent = JSON.stringify(ledger, null, 2);
+      } catch (err) {
+        output.textContent = 'Error: ' + err.message;
       }
     });
 
-    widgetClose.addEventListener("click", () => {
-      widgetOverlay.style.display = "none";
-      qrCode.src = "";
+    // Account test
+    document.getElementById('accountBtn').addEventListener('click', async () => {
+      const account = document.getElementById('accountInput').value.trim();
+      if (!account) {
+        output.textContent = 'Please enter an account.';
+        return;
+      }
+      output.textContent = 'Fetching account info...';
+      try {
+        const acctInfo = await getAccount(account);
+        output.textContent = JSON.stringify(acctInfo, null, 2);
+      } catch (err) {
+        output.textContent = 'Error: ' + err.message;
+      }
     });
   </script>
 </body>
 </html>
+
