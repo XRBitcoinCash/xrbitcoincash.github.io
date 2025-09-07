@@ -1,0 +1,13 @@
+{
+  "name": "xrpl-proxy",
+  "version": "1.0.0",
+  "description": "Minimal XRPL proxy for front-end",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.7.2"
+  }
+}
