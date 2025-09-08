@@ -1,53 +1,54 @@
-const express = require('express');
-const axios = require('axios');
+// server.js
+const express = require("express");
+const fetch = require("node-fetch"); // or global fetch in Node 18+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
+// XRPL public endpoint (Clio server)
+const XRPL_NODE = "https://s1.ripple.com:51234";
+
+// Middleware
 app.use(express.json());
 
-// Public XRPL node
-const XRPL_NODE_URL = 'https://s1.ripple.com:51234/';
-
-// Ledger info
-app.get('/api/xrpl/ledger', async (req, res) => {
+// Ledger route
+app.get("/api/xrpl/ledger", async (req, res) => {
   try {
-    const response = await axios.post(XRPL_NODE_URL, {
-      method: "ledger",
-      params: [{ ledger_index: "validated" }]
+    const response = await fetch(XRPL_NODE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        method: "ledger",
+        params: [{ ledger_index: "validated" }]
+      }),
     });
-    res.json(response.data);
+    const data = await response.json();
+    res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch ledger" });
+    console.error("Ledger route error:", err);
+    res.status(500).json({ error: "Ledger fetch failed" });
   }
 });
 
-// Account info
-app.get('/api/xrpl/account/:account', async (req, res) => {
-  const account = req.params.account;
+// Account route
+app.get("/api/xrpl/account/:acct", async (req, res) => {
   try {
-    const response = await axios.post(XRPL_NODE_URL, {
-      method: "account_info",
-      params: [{ account }]
+    const response = await fetch(XRPL_NODE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        method: "account_info",
+        params: [{ account: req.params.acct, ledger_index: "validated" }]
+      }),
     });
-    res.json(response.data);
+    const data = await response.json();
+    res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch account info" });
+    console.error("Account route error:", err);
+    res.status(500).json({ error: "Account fetch failed" });
   }
 });
 
-// Submit transaction
-app.post('/api/xrpl/submit', async (req, res) => {
-  try {
-    const response = await axios.post(XRPL_NODE_URL, {
-      method: "submit",
-      params: [req.body]
-    });
-    res.json(response.data);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to submit transaction" });
-  }
-});
-
+// Start server
 app.listen(PORT, () => {
   console.log(`XRPL proxy running on port ${PORT}`);
 });
