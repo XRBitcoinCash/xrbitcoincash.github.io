@@ -1,43 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>XRPL Node Connection Test</title>
+  <meta charset="utf-8">
+  <title>XRPL Proxy Test</title>
 </head>
 <body>
-  <h1>XRPL Node Connection Test</h1>
+  <h1>XRPL Proxy Test</h1>
   <button id="ledgerBtn">Get Ledger Info</button>
-  <input type="text" id="accountInput" placeholder="Enter XRPL Account">
-  <button id="accountBtn">Get Account Info</button>
   <pre id="output"></pre>
 
-  <!-- Load your proxy connector -->
-  <script src="js/xrpl-connector.js"></script>
-
+  <script src="xrpl-connector.js"></script>
   <script>
     const output = document.getElementById('output');
-
-    // Ledger button
     document.getElementById('ledgerBtn').addEventListener('click', async () => {
-      output.textContent = 'Connecting to XRPL node via proxy...';
+      output.textContent = "Connecting to XRPL via proxy...";
       try {
-        const ledger = await getLedger();
-        output.textContent = 'Ledger info:\n' + JSON.stringify(ledger, null, 2);
+        const ledger = await window.xrplConnector.testLedger();
+        output.textContent = JSON.stringify(ledger, null, 2);
       } catch (err) {
-        output.textContent = 'Connection failed:\n' + err.message;
-      }
-    });
-
-    // Account button
-    document.getElementById('accountBtn').addEventListener('click', async () => {
-      const account = document.getElementById('accountInput').value.trim();
-      if (!account) return alert('Enter an XRPL account');
-      output.textContent = 'Fetching account info...';
-      try {
-        const accountInfo = await getAccount(account);
-        output.textContent = 'Account info:\n' + JSON.stringify(accountInfo, null, 2);
-      } catch (err) {
-        output.textContent = 'Connection failed:\n' + err.message;
+        output.textContent = "Connection failed: " + err.message;
       }
     });
   </script>
