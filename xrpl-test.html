@@ -1,209 +1,40 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>XRBitcoinCash · Wallet Connect</title>
-<meta name="description" content="Connect Xaman/Xumm wallet to XRBitcoinCash for XRPL trading and liquidity." />
-<meta name="robots" content="index, follow" />
-<meta name="theme-color" content="#0b1118" />
-
-<style>
-:root {
-  --bg: #0b1118; --panel: #0f1722; --text: #e7eef8; --brand: #a7ff83; --ink: #e7eef8; --accent: #a7ff83;
-}
-body { margin:0; font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial; color:var(--text); background:var(--bg); }
-header.appbar { padding:14px 18px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(167,255,131,0.15); background:linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6)); }
-.btn { border:1px solid rgba(167,255,131,0.25); background:linear-gradient(180deg, var(--panel), #121c2a); color:var(--text); font-weight:700; padding:10px 14px; border-radius:12px; cursor:pointer; }
-.btn:hover { border-color: var(--brand); }
-#walletAddress { margin-left:1rem; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
-@keyframes glowPulse { from { box-shadow:0 0 4px var(--accent); } to { box-shadow:0 0 14px var(--accent); } }
-
-/* === DEX === */
-:root { --xrbc-bg:#0f1722; --xrbc-panel:#121827; --xrbc-text:#e7eef8; --xrbc-accent:#7ef09a; --xrbc-danger:#ff6b6b; --xrbc-muted:#98a2b3; }
-#xrbc-dex-container { max-width:1024px; margin:28px auto; padding:18px; background: linear-gradient(180deg,var(--xrbc-panel), #0b1320); border-radius:14px; color:var(--xrbc-text); font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; box-shadow:0 8px 30px rgba(3,8,14,0.6); border:1px solid rgba(126,240,154,0.06);}
-#xrbc-dex-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
-#xrbc-dex-header h2 { margin:0; color:var(--xrbc-accent); font-size:1.05rem; }
-#xrbc-dex-grid { display:grid; grid-template-columns:1fr 340px; gap:18px; margin-top:14px; }
-#xrbc-orderbook-card, #xrbc-metrics-card, #xrbc-order-form-card { background: linear-gradient(180deg,#0b1220, #0f1726); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.05); }
-#xrbc-orderbook { height:360px; overflow:auto; font-size:0.92rem; color:var(--xrbc-text); border-radius:8px; }
-.xrbc-row { display:flex; justify-content:space-between; padding:6px 8px; align-items:center; border-bottom:1px dashed rgba(255,255,255,0.06); }
-.xrbc-bid { color:#2ecc71; } .xrbc-ask { color:#ff6b6b; }
-#xrbc-order-form { display:flex; flex-direction:column; gap:10px; }
-#xrbc-order-form input, #xrbc-order-form select { padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background:transparent; color:var(--xrbc-text); width:100%; }
-.xrbc-btn { padding:10px 12px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
-.xrbc-btn-primary { background:linear-gradient(180deg,#2b7fff,#1f4fd6); color:white; }
-.xrbc-btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.12); color:var(--xrbc-text); }
-#xrbc-status { font-size:0.92rem; color:var(--xrbc-muted); }
-.xrbc-small { font-size:0.86rem; color:var(--xrbc-muted); }
-@media(max-width:920px){#xrbc-dex-grid{grid-template-columns:1fr;}}
-#xrpl-test-output { margin-top:12px; font-family: monospace; font-size:0.85rem; background:#121827; padding:10px; border-radius:6px; overflow:auto; max-height:180px; }
-</style>
-</head>
-<body>
-
-<header class="appbar">
-  <div class="brand"><strong>XRBitcoinCash</strong> · Wallet Connect</div>
-  <div class="actions">
-    <button id="connectWalletButton" type="button" class="btn">Connect Wallet</button>
-    <span id="walletAddress">Status: Not connected</span>
-  </div>
-</header>
-
-<header style="display:flex; align-items:center; padding:12px 18px; gap:12px;">
-  <a href="/index.html" style="display:flex; align-items:center; text-decoration:none;">
-    <img src="/xrbc-nft.png" alt="XRBC Home" style="width:44px; height:44px; border-radius:8px; animation: glowPulse 2.5s infinite alternate;" />
-    <span style="margin-left:12px; font-weight:600; color:var(--ink);">Home</span>
-  </a>
-  <button id="xrpl-node-btn" class="btn" style="margin-left:auto; background:#3a1f1f; border-color:#6d2b2b;">XRPL Node: Disconnected</button>
-</header>
-
-<main style="padding:20px;">
-  <div id="xrbc-dex-container">
-    <div id="xrbc-dex-header">
-      <h2>XRBC DEX — Live orderbook & metrics</h2>
-      <div id="xrbc-header-actions" class="xrbc-small">
-        <span id="xrbc-wallet-view">Wallet: <em id="xrbc-wallet-addr">Not connected</em></span>
-        <button id="xrbc-refresh-btn" class="xrbc-btn xrbc-btn-ghost" title="Refresh market data">Refresh</button>
-      </div>
-    </div>
-
-    <div id="xrbc-dex-grid">
-      <div>
-        <div id="xrbc-orderbook-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; gap:12px;">
-            <div>
-              <label for="xrbc-pair-select" class="xrbc-small">Pair</label>
-              <select id="xrbc-pair-select" style="margin-left:8px;padding:6px;border-radius:8px;">
-                <option value="XRBC/XRP">XRBC / XRP</option>
-              </select>
-            </div>
-            <div class="xrbc-small">Top 20 levels</div>
-          </div>
-          <div id="xrbc-orderbook">
-            <div class="xrbc-row"><strong>Side</strong><strong>Price (XRP)</strong><strong>Amount (XRBC)</strong></div>
-            <div class="xrbc-row"><em class="xrbc-small">Load an orderbook to view levels</em></div>
-          </div>
-        </div>
-
-        <div id="xrbc-metrics-card" style="margin-top:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong>Quick metrics</strong>
-            <span class="xrbc-small">Snapshot</span>
-          </div>
-          <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">
-            <div><div class="xrbc-small">Spread</div><div id="xrbc-metric-spread">—</div></div>
-            <div><div class="xrbc-small">Best Bid</div><div id="xrbc-metric-bestbid">—</div></div>
-            <div><div class="xrbc-small">Best Ask</div><div id="xrbc-metric-bestask">—</div></div>
-            <div><div class="xrbc-small">Top Depth (bid/ask)</div><div id="xrbc-metric-depth">—</div></div>
-            <div style="width:100%;margin-top:8px;">
-              <label class="xrbc-small">Simulate slippage for amount (XRBC)</label>
-              <input id="xrbc-sim-amount" type="number" step="0.000001" min="0" placeholder="e.g., 10" style="width:160px;">
-              <div class="xrbc-small" style="margin-top:6px;">Estimated slippage: <strong id="xrbc-sim-result">—</strong></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- === TEST SECTION === -->
-        <div style="margin-top:18px;">
-          <h3 class="xrbc-small">Test Proxy</h3>
-          <input id="xrplAddress" placeholder="Enter XRPL address" style="width:100%; margin-bottom:6px; padding:6px; border-radius:6px;"/>
-          <button id="getLedgerBtn" class="xrbc-btn xrbc-btn-primary">Fetch Ledger via Proxy</button>
-          <button id="getAccountBtn" class="xrbc-btn xrbc-btn-ghost">Fetch Account via Proxy</button>
-          <pre id="xrpl-test-output">Results will appear here...</pre>
-        </div>
-
-      </div>
-
-      <aside>
-        <div id="xrbc-order-form-card">
-          <div style="display:flex; gap:8px; margin-bottom:8px;">
-            <button id="tab-market" class="xrbc-btn xrbc-btn-primary" aria-pressed="true">Market</button>
-            <button id="tab-limit" class="xrbc-btn xrbc-btn-ghost" aria-pressed="false">Limit</button>
-          </div>
-          <div id="xrbc-order-form">
-            <div>
-              <label class="xrbc-small" for="xrbc-order-side">Side</label>
-              <select id="xrbc-order-side">
-                <option value="buy">Buy XRBC (spend XRP)</option>
-                <option value="sell">Sell XRBC (receive XRP)</option>
-              </select>
-            </div>
-            <div>
-              <label class="xrbc-small" for="xrbc-order-amount">Amount (XRBC)</label>
-              <input id="xrbc-order-amount" type="number" step="0.000001" min="0">
-            </div>
-            <div id="limit-price-row" style="display:none;">
-              <label class="xrbc-small" for="xrbc-order-price">Limit price (XRP per XRBC)</label>
-              <input id="xrbc-order-price" type="number" step="0.000001" min="0" placeholder="e.g., 0.50">
-            </div>
-            <div style="display:flex;gap:8px; flex-wrap:wrap;">
-              <button id="xrbc-submit-order" class="xrbc-btn xrbc-btn-primary">Create Offer (Xumm)</button>
-              <button id="xrbc-simulate-btn" class="xrbc-btn xrbc-btn-ghost">Simulate</button>
-            </div>
-            <div id="xrbc-order-feedback" class="xrbc-small" style="margin-top:8px;color:var(--xrbc-muted);">Status: idle</div>
-            <div id="xrbc-status" class="xrbc-small" style="margin-top:10px;">Node: <span id="xrbc-node-status">disconnected</span></div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </div>
-</main>
-
-<!-- === APP CONFIG === -->
-<script type="application/json" id="app-config">
-{
-  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-  "proxyEndpoint": "/xrpl-proxy",
-  "assetCode": "XRbitcoincash",
-  "issuer": "rhUA2R8wku666jgHEetJ4GML32bV8xQpEB"
-}
-</script>
-
-<!-- === LIBRARIES === -->
-<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-
-<!-- === PROXY CONNECTOR === -->
 <script type="module">
-import { getLedgerInfo, getAccountInfo, connectNode } from './xrpl-connector.js';
+  import { fetchLedgerInfo, fetchAccountInfo, fetchServerInfo } from './xrpl-frontend.js';
 
-(async function() {
-  const config = JSON.parse(document.getElementById('app-config').textContent);
-  const nodeStatusEl = document.getElementById('xrbc-node-status');
-  const xrplNodeBtn = document.getElementById('xrpl-node-btn');
+  // Display results in a preformatted block
+  const outputEl = document.getElementById('xrpl-output');
 
-  async function updateNodeUI() {
+  async function displayLedger() {
     try {
-      await connectNode(config.proxyEndpoint);
-      xrplNodeBtn.textContent = 'XRPL Node: Connected';
-      xrplNodeBtn.style.backgroundColor = '#1f3a2a';
-      xrplNodeBtn.style.borderColor = '#2e7d32';
-      nodeStatusEl.textContent = 'connected';
-    } catch {
-      xrplNodeBtn.textContent = 'XRPL Node: Disconnected';
-      xrplNodeBtn.style.backgroundColor = '#3a1f1f';
-      xrplNodeBtn.style.borderColor = '#6d2b2b';
-      nodeStatusEl.textContent = 'disconnected';
-    }
+      const ledger = await fetchLedgerInfo();
+      outputEl.textContent = JSON.stringify(ledger, null, 2);
+    } catch (err) { console.error(err); }
   }
 
-  updateNodeUI();
-
-  const outputEl = document.getElementById('xrpl-test-output');
-  document.getElementById('getLedgerBtn').onclick = async () => {
-    outputEl.textContent = 'Fetching ledger...';
-    const data = await getLedgerInfo(config.proxyEndpoint);
-    outputEl.textContent = JSON.stringify(data, null, 2);
-  };
-  document.getElementById('getAccountBtn').onclick = async () => {
+  async function displayAccount() {
     const address = document.getElementById('xrplAddress').value.trim();
-    if(!address){ outputEl.textContent='Enter a valid address'; return; }
-    outputEl.textContent = 'Fetching account...';
-    const data = await getAccountInfo(config.proxyEndpoint, address);
-    outputEl.textContent = JSON.stringify(data, null, 2);
-  };
-})();
+    if (!address) return alert('Enter XRPL address');
+    try {
+      const account = await fetchAccountInfo(address);
+      outputEl.textContent = JSON.stringify(account, null, 2);
+    } catch (err) { console.error(err); }
+  }
+
+  async function displayServer() {
+    try {
+      const server = await fetchServerInfo();
+      outputEl.textContent = JSON.stringify(server, null, 2);
+    } catch (err) { console.error(err); }
+  }
+
+  // Expose for inline onclick use
+  window.xrplFrontUI = { displayLedger, displayAccount, displayServer };
 </script>
 
-</body>
-</html>
+<div>
+  <input id="xrplAddress" placeholder="XRPL address" />
+  <button onclick="xrplFrontUI.displayAccount()">Account Info</button>
+  <button onclick="xrplFrontUI.displayLedger()">Ledger Info</button>
+  <button onclick="xrplFrontUI.displayServer()">Server Info</button>
+</div>
+<pre id="xrpl-output" style="background:#0b1118;color:#a7ff83;padding:12px;border-radius:8px;"></pre>
