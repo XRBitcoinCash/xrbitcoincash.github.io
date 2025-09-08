@@ -1,36 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<title>XRPL Proxy Test</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XRPL Live Observatory</title>
+  <meta name="description" content="Live Observatory for XRPL: Ledger info, transactions, hot wallets, orderbook.">
+  <meta name="theme-color" content="#0b1118">
+
+  <style>
+    :root {
+      --bg: #0b1118;
+      --panel: #0f1722;
+      --text: #e7eef8;
+      --accent: #a7ff83;
+      --danger: #ff6b6b;
+    }
+    body {
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header.appbar {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(167,255,131,0.15);
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(180deg, var(--panel), #121c2a);
+      color: var(--text);
+      border: 1px solid rgba(167,255,131,0.25);
+    }
+    .btn:hover { border-color: var(--accent); }
+    main { padding: 20px; max-width: 1024px; margin: auto; }
+    section { background: var(--panel); padding: 16px; border-radius: 12px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px 0; color: var(--accent); font-size: 1.1rem; }
+    pre { background: #121c2a; padding: 12px; border-radius: 8px; overflow-x: auto; color: var(--text); font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-<h2>XRPL Proxy Network Status Test</h2>
-<div id="status">Checking...</div>
 
+<header class="appbar">
+  <div><strong>XRPL Live Observatory</strong></div>
+  <button id="refreshBtn" class="btn">Refresh</button>
+</header>
+
+<main>
+  <section>
+    <h2>Network & Server Status</h2>
+    <div id="xrpl-status">Loading...</div>
+  </section>
+</main>
+
+<!-- Include XRPL Connector -->
 <script type="module">
-import { getServerInfo } from './xrpl-connector.js';
+const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com"; 
 
-const statusEl = document.getElementById('status');
-
-async function testConnection() {
+async function xrplRequest(payload) {
   try {
-    const serverInfo = await getServerInfo();
-    if (serverInfo && serverInfo.result) {
-      statusEl.textContent = 'Connected ✅';
-      console.log('Server info:', serverInfo);
-    } else {
-      statusEl.textContent = 'Disconnected ❌';
-    }
+    const response = await fetch(`${PROXY_URL}/api/xrpl`, { // ✅ fixed path
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+    const data = await response.json();
+    if (data.error) throw new Error(`XRPL error: ${JSON.stringify(data.error)}`);
+    return data;
   } catch (err) {
-    statusEl.textContent = 'Disconnected ❌';
-    console.error('Error communicating with proxy:', err);
+    console.error("XRPL request failed:", err);
+    throw err;
   }
 }
 
-// Run the test
-testConnection();
+async function getServerInfo() {
+  return await xrplRequest({ method: "server_info" });
+}
+
+const statusEl = document.getElementById('xrpl-status');
+const refreshBtn = document.getElementById('refreshBtn');
+
+async function checkConnection() {
+  statusEl.textContent = 'Checking...';
+  try {
+    const info = await getServerInfo();
+    console.log('Server info:', info);
+    statusEl.textContent = 'Connected ✅';
+  } catch (err) {
+    statusEl.textContent = 'Disconnected ❌';
+  }
+}
+
+// Initial load
+checkConnection();
+
+// Refresh button
+refreshBtn.addEventListener('click', checkConnection);
 </script>
+
 </body>
 </html>
-
