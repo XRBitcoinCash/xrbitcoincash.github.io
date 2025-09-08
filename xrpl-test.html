@@ -36,7 +36,19 @@
   <pre id="ledger">No data</pre>
 </section>
 
-<script type="module">
+  <!-- ===============================
+     2️⃣ Second Request: Ledger Index Only
+     Description: Lightweight request to check the ledger index separately.
+     Purpose: Demonstrates dual communication with the XRPL via proxy.
+================================= -->
+<section>
+  <h2>Ledger Index Only</h2>
+  <p>Displays only the ledger index to confirm multiple requests work.</p>
+  <div id="ledgerIndex">No data</div>
+</section>
+
+  
+  <script type="module">
   const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com/api/xrpl/ledger";
 
   const statusEl = document.getElementById('status');
