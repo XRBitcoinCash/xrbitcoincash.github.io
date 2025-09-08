@@ -1,27 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XRPL Proxy Connection Test</title>
+  <meta name="theme-color" content="#0b1118">
+  <style>
+    body { margin:0; font-family:Inter,sans-serif; background:#0b1118; color:#e7eef8; padding:20px; }
+    .btn { padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700; background:#121c2a; border:1px solid #a7ff83; color:#e7eef8; }
+    .btn:hover { border-color:#a7ff83; }
+    pre { background:#121c2a; padding:12px; border-radius:8px; overflow-x:auto; }
+  </style>
+</head>
 <body>
-<h2>XRPL Proxy Test</h2>
-<pre id="output">Testing...</pre>
+  <h1>XRPL Proxy Connection Test</h1>
+  <button id="testBtn" class="btn">Test Connection</button>
+  <div style="margin-top:20px;">
+    <strong>Status:</strong> <span id="status">Not tested</span>
+  </div>
+  <pre id="output">Output will appear here...</pre>
 
-<script>
-(async function() {
-  const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com";
+  <!-- Include XRPL Connector -->
+  <script type="module" src="xrpl-connector.js"></script>
 
-  try {
-    const res = await fetch(`${PROXY_URL}/xrpl`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ method: "server_info" })
-    });
+  <script type="module">
+    import { getServerInfo } from './xrpl-connector.js';
 
-    const data = await res.json();
-    document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    document.getElementById("output").textContent = "Error: " + err;
-  }
-})();
-</script>
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+    const testBtn = document.getElementById('testBtn');
+
+    async function testConnection() {
+      statusEl.textContent = 'Testing...';
+      outputEl.textContent = '';
+      try {
+        const serverInfo = await getServerInfo();
+        statusEl.textContent = 'Connected ✅';
+        outputEl.textContent = JSON.stringify(serverInfo, null, 2);
+      } catch (err) {
+        statusEl.textContent = 'Disconnected ❌';
+        outputEl.textContent = 'Error:\n' + err;
+        console.error(err);
+      }
+    }
+
+    testBtn.addEventListener('click', testConnection);
+  </script>
 </body>
 </html>
 
