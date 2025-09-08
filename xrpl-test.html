@@ -223,7 +223,102 @@ checkLedgerIndex();
   // ================================
   renderOrderBooks();
 </script>
-<!-- Secure XRPL JS snippet -->
+<script type="module">
+  // ===============================
+  // Token definitions
+  // Purpose: All tokens with their XRPL issuer addresses
+  // ===============================
+  const tokenPairs = {
+    XRBC: { currency: "XRBC", issuer: "rIssuerAddressXRBC" },
+    XP: { currency: "XP", issuer: "rIssuerAddressXP" },
+    Corium: { currency: "Corium", issuer: "rIssuerAddressCorium" },
+    // Add new tokens easily
+    // Sologenic: { currency: "SLOG", issuer: "rIssuerAddressSLOG" }
+  };
+
+  // ===============================
+  // Order book display pairs
+  // Purpose: Map trading pairs to HTML containers
+  // ===============================
+  const extendedPairs = [
+    { base: "XRBC", counter: "XRP", elementId: "orderBook-XRBC-XRP-extended" },
+    { base: "XP", counter: "XRP", elementId: "orderBook-XP-XRP-extended" },
+    { base: "Corium", counter: "XRP", elementId: "orderBook-Corium-XRP-extended" },
+    // Add new pairs dynamically:
+    // { base: "Sologenic", counter: "XRP", elementId: "orderBook-Sologenic-XRP-extended" }
+  ];
+
+  // Proxy URL for order book requests
+  const PROXY_ORDERBOOK_URL = "https://xrbitcoincash-github-io.onrender.com/api/xrpl/book_offers";
+</script>
+<script type="module">
+  // ===============================
+  // Function: Fetch XRPL Order Book
+  // Purpose: Pull live offers from XRPL via your secure proxy
+  // ===============================
+  async function fetchOrderBook(base, counter) {
+    try {
+      const baseToken = tokenPairs[base];
+      const counterToken = counter === "XRP" ? { currency: "XRP" } : tokenPairs[counter];
+
+      const payload = {
+        method: "book_offers",
+        params: [{
+          taker: "", // empty string = all takers
+          taker_gets: baseToken,
+          taker_pays: counterToken
+        }]
+      };
+
+      const response = await fetch(PROXY_ORDERBOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+      const data = await response.json();
+      return data.result.offers || [];
+
+    } catch (err) {
+      console.error(`Failed to fetch order book for ${base}/${counter}:`, err);
+      return [];
+    }
+  }
+</script>
+<script type="module">
+  // ===============================
+  // Function: Render extended order books
+  // Purpose: Display top 10 live offers for each trading pair
+  // ===============================
+  async function renderExtendedOrderBooks() {
+    for (let pair of extendedPairs) {
+      const offers = await fetchOrderBook(pair.base, pair.counter);
+      const pre = document.getElementById(pair.elementId);
+
+      if (!offers.length) {
+        pre.textContent = "No live offers available";
+      } else {
+        pre.textContent = offers
+          .slice(0, 10) // top 10 offers
+          .map((offer, i) => {
+            const gets = offer.TakerGets.value || offer.TakerGets.currency;
+            const pays = offer.TakerPays.value || offer.TakerPays.currency;
+            return `${i + 1}. Gets: ${gets} | Pays: ${pays}`;
+          })
+          .join("\n");
+      }
+    }
+  }
+
+  // ===============================
+  // Auto-refresh every 5 seconds
+  // ===============================
+  renderExtendedOrderBooks();
+  setInterval(renderExtendedOrderBooks, 5000);
+</script>
+
+  <!-- Secure XRPL JS snippet -->
 <script type="module">
   // Paste secure-xrpl.js code here
   const SECURE_PROXY_URL = 'https://xrbitcoincash-github-io.onrender.com/api/xrpl/ledger';
