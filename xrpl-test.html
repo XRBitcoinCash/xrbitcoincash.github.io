@@ -101,6 +101,41 @@ checkLedgerIndex();
   // Optional: auto-check on load
   checkProxy();
 </script>
+<!-- Main scripts for standard XRPL proxy requests -->
+<script type="module">
+  // ... your existing checkProxy() and checkLedgerIndex() functions
+</script>
+
+<!-- Secure XRPL JS snippet -->
+<script type="module">
+  // Paste secure-xrpl.js code here
+  const SECURE_PROXY_URL = 'https://xrbitcoincash-github-io.onrender.com/api/xrpl/ledger';
+
+  async function secureXrplRequest(payload) {
+    const response = await fetch(SECURE_PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`Secure proxy error: ${response.status}`);
+
+    const data = await response.json();
+    if (data.error) throw new Error(`XRPL error: ${JSON.stringify(data.error)}`);
+    return data.result;
+  }
+
+  async function fetchSecureLedgerInfo() {
+    return await secureXrplRequest({ method: 'ledger', params: [{ ledger_index: 'validated' }] });
+  }
+
+  // Optional: test call
+  fetchSecureLedgerInfo().then(ledger => {
+    console.log('Secure Ledger Info:', ledger);
+  }).catch(err => console.error('Secure fetch failed:', err));
+</script>
 
 </body>
 </html>
