@@ -1,173 +1,198 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XRBitcoinCash · XRPL Live Observatory</title>
-<meta name="description" content="Live XRP Ledger observatory with continuous ledger updates, transactions, and hot wallets.">
-<meta name="theme-color" content="#0b1118">
-<style>
-  :root {
-    --bg: #0b1118; --panel: #0f1722; --text: #e7eef8;
-    --brand: #a7ff83; --accent: #7ef09a; --danger: #ff6b6b; --muted: #98a2b3;
-  }
-  body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial; background: var(--bg); color: var(--text); }
-  header.appbar { padding:14px 18px; background: linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6)); display:flex; justify-content: space-between; align-items:center; border-bottom:1px solid rgba(167,255,131,0.15); }
-  .btn { border:1px solid rgba(167,255,131,0.25); background: linear-gradient(180deg,var(--panel),#121c2a); color: var(--text); font-weight:700; padding:10px 14px; border-radius:12px; cursor:pointer; }
-  .btn:hover { border-color: var(--brand); }
-  #walletAddress { margin-left:1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-  @keyframes glowPulse { from { box-shadow:0 0 4px var(--accent); } to { box-shadow:0 0 14px var(--accent); } }
-  main { padding:20px; max-width:1400px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  .panel { background: linear-gradient(180deg,var(--panel),#0b1320); padding:16px; border-radius:12px; border:1px solid rgba(126,240,154,0.06); box-shadow:0 8px 20px rgba(3,8,14,0.6); max-height:600px; overflow:auto; }
-  h2 { color: var(--accent); margin-bottom:12px; }
-  pre { background:#0b1118; padding:12px; border-radius:8px; overflow:auto; max-height:300px; }
-  .small { font-size:0.86rem; color: var(--muted); }
-  .status { font-weight:700; }
-  .connected { color: var(--brand); }
-  .disconnected { color: var(--danger); }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRPL Live Observatory</title>
+  <meta name="description" content="Live overview of the XRP Ledger including network status, ledger info, transactions, and hot wallets." />
+  <meta name="theme-color" content="#0b1118" />
+
+  <style>
+    :root {
+      --bg: #0b1118;
+      --panel: #0f1722;
+      --text: #e7eef8;
+      --brand: #a7ff83;
+      --accent: #7ef09a;
+      --danger: #ff6b6b;
+      --muted: #98a2b3;
+    }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header.appbar {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(126,240,154,0.1);
+      background: linear-gradient(180deg, rgba(11,17,24,0.92), rgba(11,17,24,0.6));
+    }
+    .btn {
+      border: 1px solid rgba(126,240,154,0.3);
+      background: linear-gradient(180deg, var(--panel), #121c2a);
+      color: var(--text);
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .btn:hover { border-color: var(--brand); }
+
+    main { padding: 20px; max-width: 1024px; margin: auto; }
+    .card {
+      background: linear-gradient(180deg,#0b1220, #0f1726);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card h2 { margin-top:0; color: var(--accent); font-size:1.1rem; }
+    pre { background: rgba(255,255,255,0.05); padding:12px; border-radius:8px; overflow-x:auto; font-size:0.85rem; }
+    .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .small { font-size:0.85rem; color: var(--muted); }
+    .connected { color: var(--brand); font-weight:700; }
+    .disconnected { color: var(--danger); font-weight:700; }
+  </style>
 </head>
 <body>
+  <header class="appbar">
+    <div><strong>XRPL Live Observatory</strong></div>
+    <div>
+      <span id="networkStatus" class="disconnected">Status: Disconnected</span>
+      <button id="refreshBtn" class="btn">Refresh</button>
+    </div>
+  </header>
 
-<header class="appbar">
-  <div class="brand"><strong>XRBitcoinCash</strong> · XRPL Live Observatory</div>
-  <div class="actions">
-    <button id="connectWalletButton" class="btn">Connect Wallet</button>
-    <span id="walletAddress">Not connected</span>
-  </div>
-</header>
+  <main>
+    <div class="card">
+      <h2>Latest Ledger & Hash</h2>
+      <pre id="ledgerInfo">Loading latest ledger...</pre>
+    </div>
 
-<main>
-  <div class="panel">
-    <h2>Network & Server Status</h2>
-    <div>Status: <span id="xrpl-status" class="status disconnected">Disconnected</span></div>
-    <pre id="server-info">Loading...</pre>
-  </div>
+    <div class="card">
+      <h2>Recent Transactions</h2>
+      <pre id="recentTx">Loading recent transactions...</pre>
+    </div>
 
-  <div class="panel">
-    <h2>Latest Ledger & Hash</h2>
-    <pre id="ledger-info">Loading latest ledger...</pre>
-  </div>
+    <div class="card">
+      <h2>Connected Wallet Hot List</h2>
+      <pre id="hotWallets">Loading hot wallets...</pre>
+    </div>
 
-  <div class="panel">
-    <h2>Recent Transactions</h2>
-    <pre id="recent-tx">Loading recent transactions...</pre>
-  </div>
+    <div class="card">
+      <h2>Order Book (XRBC/XRP)</h2>
+      <pre id="orderBook">Loading order book...</pre>
+    </div>
+  </main>
 
-  <div class="panel">
-    <h2>Connected Wallet Hot List</h2>
-    <pre id="hot-wallets">Loading hot wallets...</pre>
-  </div>
+  <!-- Import XRPL Connector -->
+  <script type="module">
+    import { getLedgerInfo, getAccountInfo, getServerInfo } from "./xrpl-connector.js";
 
-  <div class="panel" style="grid-column:span 2;">
-    <h2>Order Book (XRBC/XRP)</h2>
-    <pre id="orderbook">Loading order book...</pre>
-  </div>
-</main>
+    document.addEventListener("DOMContentLoaded", () => {
+      const networkEl = document.getElementById("networkStatus");
+      const ledgerEl = document.getElementById("ledgerInfo");
+      const txEl = document.getElementById("recentTx");
+      const walletsEl = document.getElementById("hotWallets");
+      const orderBookEl = document.getElementById("orderBook");
+      const refreshBtn = document.getElementById("refreshBtn");
 
-<script type="module">
-import { getLedgerInfo, getAccountInfo, getServerInfo } from './xrpl-connector.js';
+      async function updateNetworkStatus() {
+        try {
+          const server = await getServerInfo();
+          networkEl.textContent = "Status: Connected ✔";
+          networkEl.className = "connected";
+        } catch (err) {
+          console.error(err);
+          networkEl.textContent = "Status: Disconnected ❌";
+          networkEl.className = "disconnected";
+        }
+      }
 
-/** Status UI */
-function updateStatus(connected) {
-  const el = document.getElementById('xrpl-status');
-  el.textContent = connected ? 'Connected' : 'Disconnected';
-  el.className = connected ? 'status connected' : 'status disconnected';
-}
+      async function updateLedger() {
+        try {
+          const ledgerData = await getLedgerInfo();
+          ledgerEl.textContent = JSON.stringify(ledgerData, null, 2);
+        } catch (err) {
+          ledgerEl.textContent = "Failed to load ledger info";
+          console.error(err);
+        }
+      }
 
-/** Continuous refresh interval (ms) */
-const POLL_INTERVAL = 5000;
+      async function updateRecentTx() {
+        try {
+          const ledgerData = await getLedgerInfo();
+          const txs = ledgerData?.ledger?.transactions?.slice(-10) || [];
+          txEl.textContent = JSON.stringify(txs, null, 2);
+        } catch (err) {
+          txEl.textContent = "Failed to load recent transactions";
+          console.error(err);
+        }
+      }
 
-/** Fetch server info */
-async function refreshServerInfo() {
-  try {
-    const info = await getServerInfo();
-    document.getElementById('server-info').textContent = JSON.stringify(info, null, 2);
-    updateStatus(true);
-  } catch(e) {
-    console.error(e);
-    updateStatus(false);
-  }
-}
+      async function updateHotWallets() {
+        try {
+          // Example: fetch top accounts (you can expand logic for real “hot” wallets)
+          const accounts = [
+            "rEXAMPLE1",
+            "rEXAMPLE2",
+            "rEXAMPLE3"
+          ];
+          const promises = accounts.map(addr => getAccountInfo(addr));
+          const results = await Promise.all(promises);
+          walletsEl.textContent = JSON.stringify(results, null, 2);
+        } catch (err) {
+          walletsEl.textContent = "Failed to load hot wallets";
+          console.error(err);
+        }
+      }
 
-/** Fetch latest ledger */
-async function fetchLedger() {
-  try {
-    const ledger = await getLedgerInfo();
-    document.getElementById('ledger-info').textContent = JSON.stringify(ledger, null, 2);
-  } catch(e) { console.error(e); }
-}
+      async function updateOrderBook() {
+        try {
+          // Example: using XRPL connector to fetch orderbook for XRBC/XRP
+          const payload = {
+            method: "book_offers",
+            params: [
+              {
+                taker_gets: { currency: "XRP" },
+                taker_pays: { currency: "XRBC", issuer: "rhUA2R8wku666jgHEetJ4GML32bV8xQpEB" },
+                ledger_index: "validated"
+              }
+            ]
+          };
+          const data = await fetch("./xrpl-connector.js", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(payload)
+          }).then(r => r.json());
+          orderBookEl.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          orderBookEl.textContent = "Failed to load order book";
+          console.error(err);
+        }
+      }
 
-/** Hot wallets example (simulated) */
-const hotWalletsList = [
-  "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-  "rU7F7rGkGtwzbdkL9QYNV5BN7eZ6bTxYxA",
-  "rD5U34zRUPm2ZNVm2G2YzYJ2UpHdjxjYK"
-];
-async function fetchHotWallets() {
-  try {
-    const results = [];
-    for (const addr of hotWalletsList) {
-      const info = await getAccountInfo(addr);
-      results.push({ address: addr, balance: info.result.account_data.Balance });
-    }
-    document.getElementById('hot-wallets').textContent = JSON.stringify(results, null, 2);
-  } catch(e){ console.error(e); }
-}
+      async function updateAll() {
+        await updateNetworkStatus();
+        await updateLedger();
+        await updateRecentTx();
+        await updateHotWallets();
+        await updateOrderBook();
+      }
 
-/** Fetch recent transactions (simulated) */
-async function fetchRecentTransactions() {
-  try {
-    // Example: normally would use account_tx or tx method via proxy
-    const sampleTxs = [
-      { hash: "ABC123", from: "rEXAMPLE1", to: "rEXAMPLE2", amount: "100 XRBC" },
-      { hash: "DEF456", from: "rEXAMPLE3", to: "rEXAMPLE4", amount: "50 XRBC" }
-    ];
-    document.getElementById('recent-tx').textContent = JSON.stringify(sampleTxs, null, 2);
-  } catch(e){ console.error(e); }
-}
+      // Initial load
+      updateAll();
 
-/** Fetch order book */
-async function fetchOrderBook() {
-  try {
-    const payload = {
-      method:"book_offers",
-      params:[{
-        taker:"rEXAMPLE",
-        taker_gets:{currency:"XRP"},
-        taker_pays:{currency:"XRBC", issuer:"rhUA2R8wku666jgHEetJ4GML32bV8xQpEB"}
-      }]
-    };
-    const resp = await fetch('./xrpl-connector.js', {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
+      // Refresh button
+      refreshBtn.addEventListener("click", updateAll);
+
+      // Optional: auto-refresh every 30s
+      setInterval(updateAll, 30000);
     });
-    const data = await resp.json();
-    document.getElementById('orderbook').textContent = JSON.stringify(data,null,2);
-  } catch(e){ console.error(e); }
-}
-
-/** Initialize continuous updates */
-function initLiveUpdates() {
-  refreshServerInfo();
-  fetchLedger();
-  fetchHotWallets();
-  fetchRecentTransactions();
-  fetchOrderBook();
-
-  setInterval(() => {
-    refreshServerInfo();
-    fetchLedger();
-    fetchHotWallets();
-    fetchRecentTransactions();
-    fetchOrderBook();
-  }, POLL_INTERVAL);
-}
-
-// Start live observatory
-initLiveUpdates();
-</script>
-
+  </script>
 </body>
 </html>
