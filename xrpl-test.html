@@ -35,7 +35,51 @@
   <h2>Latest Ledger Info</h2>
   <pre id="ledger">No data</pre>
 </section>
+
+  <!-- ===============================
+   4️⃣ DEX Order Book Functional Scaffold
+   Description: Add limit/market buttons & wallet connect functionality
+================================= -->
+<section>
+  <h2>DEX Order Books Extended</h2>
+  <p>Trading pairs with functional scaffold for limit & market orders.</p>
+  <div class="order-book">
+    <!-- XRBC/XRP -->
+    <div class="order-pair" id="pair-XRBC-XRP">
+      <h3>XRBC / XRP</h3>
+      <pre id="orderBook-XRBC-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('XRBC','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('XRBC','XRP')">Place Limit Order</button>
+    </div>
+    <!-- XP/XRP -->
+    <div class="order-pair" id="pair-XP-XRP">
+      <h3>XP / XRP</h3>
+      <pre id="orderBook-XP-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('XP','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('XP','XRP')">Place Limit Order</button>
+    </div>
+    <!-- Corium/XRP -->
+    <div class="order-pair" id="pair-Corium-XRP">
+      <h3>Corium / XRP</h3>
+      <pre id="orderBook-Corium-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('Corium','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('Corium','XRP')">Place Limit Order</button>
+    </div>
+  </div>
+</section>
+
 <!-- ===============================
+   5️⃣ Wallet Connect
+   Description: Connect XRPL wallet placeholder
+================================= -->
+<section>
+  <h2>Wallet Connection</h2>
+  <button id="connectWalletBtn">Connect Wallet</button>
+  <div id="walletStatus">Wallet not connected</div>
+</section>
+
+  
+  <!-- ===============================
    3️⃣ Third Request: XRPL DEX Order Book
    Description: Fetch and display order books for selected trading pairs from the XRPL via proxy.
    Purpose: Demonstrates multi-function capability while keeping the XRPL node stable.
@@ -240,6 +284,60 @@ checkLedgerIndex();
   fetchSecureLedgerInfo().then(ledger => {
     console.log('Secure Ledger Info:', ledger);
   }).catch(err => console.error('Secure fetch failed:', err));
+</script>
+<script type="module">
+  // ===============================
+  // 4️⃣ Market & Limit Order Placeholders
+  // Purpose: Functions to place orders (stubs for now)
+  // ================================
+  function placeMarketOrder(base, counter) {
+    alert(`Market order scaffold for ${base}/${counter}`);
+    // TODO: Connect wallet & submit offer to XRPL
+  }
+
+  function placeLimitOrder(base, counter) {
+    alert(`Limit order scaffold for ${base}/${counter}`);
+    // TODO: Connect wallet & submit limit order to XRPL
+  }
+
+  // ===============================
+  // 5️⃣ Wallet Connect Placeholder
+  // Purpose: Basic wallet connect button scaffold
+  // ================================
+  const connectWalletBtn = document.getElementById('connectWalletBtn');
+  const walletStatusEl = document.getElementById('walletStatus');
+
+  connectWalletBtn.addEventListener("click", () => {
+    walletStatusEl.textContent = "Wallet connected (placeholder)";
+    alert("Wallet connection scaffold activated");
+  });
+
+  // ===============================
+  // 6️⃣ Extended Order Book Rendering
+  // Purpose: Duplicate your existing renderOrderBooks function but target extended pre tags
+  // ================================
+  const extendedPairs = [
+    { base: "XRBC", counter: "XRP", elementId: "orderBook-XRBC-XRP-extended" },
+    { base: "XP", counter: "XRP", elementId: "orderBook-XP-XRP-extended" },
+    { base: "Corium", counter: "XRP", elementId: "orderBook-Corium-XRP-extended" },
+  ];
+
+  async function renderExtendedOrderBooks() {
+    for (let pair of extendedPairs) {
+      const offers = await fetchOrderBook(pair.base, pair.counter);
+      const pre = document.getElementById(pair.elementId);
+      if (!offers.length) {
+        pre.textContent = "No offers available";
+      } else {
+        pre.textContent = offers
+          .slice(0, 5)
+          .map((offer, i) => `${i+1}. Gets: ${offer.TakerGets.value} | Pays: ${offer.TakerPays.value}`)
+          .join("\n");
+      }
+    }
+  }
+
+  renderExtendedOrderBooks();
 </script>
 
 </body>
