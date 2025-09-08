@@ -60,22 +60,28 @@
       ledgerEl.textContent = 'Failed to load ledger info';
     }
   }
- //step 2 request
+// Step 2: Lightweight request to check another field from the ledger
+async function checkLedgerIndex() {
   try {
-  // Single request: latest validated ledger
-  const response = await fetch(PROXY_URL);
-  if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
-  const data = await response.json();
+    const response = await fetch(PROXY_URL);
+    if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+    const data = await response.json();
 
-  console.log('Ledger Info:', data.result); // log for testing
-  ledgerEl.textContent = JSON.stringify(data.result, null, 2); // display on page
-  statusEl.textContent = 'Connected ✅';
+    console.log('Ledger Index:', data.result.ledger_index); // log for testing
+    // Optional: display ledger index separately on page
+    const ledgerIndexEl = document.getElementById('ledgerIndex');
+    if (ledgerIndexEl) {
+      ledgerIndexEl.textContent = `Ledger Index: ${data.result.ledger_index}`;
+    }
 
-} catch (err) {
-  console.error('Single ledger request failed:', err);
-  statusEl.textContent = 'Disconnected ❌';
-  ledgerEl.textContent = 'Failed to load ledger info';
+  } catch (err) {
+    console.error('Ledger index request failed:', err);
+  }
 }
+
+// Run lightweight test after main check
+checkLedgerIndex();
+
 
 
   checkBtn.addEventListener('click', checkProxy);
