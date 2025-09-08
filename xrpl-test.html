@@ -60,21 +60,23 @@
       ledgerEl.textContent = 'Failed to load ledger info';
     }
   }
-async function fetchAccountInfo(address) {
+ //step 2 request
   try {
-    const response = await fetch('https://xrbitcoincash-github-io.onrender.com/api/xrpl/account', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ account: address })
-    });
-    if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
-    const data = await response.json();
-    return data.result;
-  } catch (err) {
-    console.error(`Account fetch failed for ${address}:`, err);
-    return null;
-  }
+  // Single request: latest validated ledger
+  const response = await fetch(PROXY_URL);
+  if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+  const data = await response.json();
+
+  console.log('Ledger Info:', data.result); // log for testing
+  ledgerEl.textContent = JSON.stringify(data.result, null, 2); // display on page
+  statusEl.textContent = 'Connected ✅';
+
+} catch (err) {
+  console.error('Single ledger request failed:', err);
+  statusEl.textContent = 'Disconnected ❌';
+  ledgerEl.textContent = 'Failed to load ledger info';
 }
+
 
   checkBtn.addEventListener('click', checkProxy);
 
