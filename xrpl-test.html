@@ -402,6 +402,151 @@ checkLedgerIndex();
 
   renderExtendedOrderBooks();
 </script>
+<!-- ===============================
+  DEX Order Books with Sologenic
+================================= -->
+<section>
+  <h2>DEX Order Books Extended</h2>
+  <p>Trading pairs with functional scaffold for limit & market orders.</p>
+  <div class="order-book">
+    <!-- XRBC/XRP -->
+    <div class="order-pair" id="pair-XRBC-XRP">
+      <h3>XRBC / XRP</h3>
+      <pre id="orderBook-XRBC-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('XRBC','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('XRBC','XRP')">Place Limit Order</button>
+    </div>
+    <!-- XP/XRP -->
+    <div class="order-pair" id="pair-XP-XRP">
+      <h3>XP / XRP</h3>
+      <pre id="orderBook-XP-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('XP','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('XP','XRP')">Place Limit Order</button>
+    </div>
+    <!-- Corium/XRP -->
+    <div class="order-pair" id="pair-Corium-XRP">
+      <h3>Corium / XRP</h3>
+      <pre id="orderBook-Corium-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('Corium','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('Corium','XRP')">Place Limit Order</button>
+    </div>
+    <!-- Sologenic/XRP -->
+    <div class="order-pair" id="pair-Sologenic-XRP">
+      <h3>Sologenic / XRP</h3>
+      <pre id="orderBook-Sologenic-XRP-extended">Loading...</pre>
+      <button onclick="placeMarketOrder('Sologenic','XRP')">Place Market Order</button>
+      <button onclick="placeLimitOrder('Sologenic','XRP')">Place Limit Order</button>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  // ===============================
+  // Token definitions with issuing addresses
+  // ===============================
+  const tokenPairs = {
+    XRBC: { currency: "XRBC", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" },
+    XP: { currency: "XP", issuer: "rXPMxBeefHGxx2K7g5qmmWq3gFsgawkoa" },
+    Corium: { currency: "Corium", issuer: "rcoreNywaoz2ZCQ8Lg2EbSLnGuRBmun6D" },
+    Sologenic: { currency: "SLOG", issuer: "rsoLo2S1kiGeCcn6hCUXVrCpGMWLrRrLZz" }
+  };
+
+  // ===============================
+  // Map trading pairs to HTML containers
+  // ===============================
+  const extendedPairs = [
+    { base: "XRBC", counter: "XRP", elementId: "orderBook-XRBC-XRP-extended" },
+    { base: "XP", counter: "XRP", elementId: "orderBook-XP-XRP-extended" },
+    { base: "Corium", counter: "XRP", elementId: "orderBook-Corium-XRP-extended" },
+    { base: "Sologenic", counter: "XRP", elementId: "orderBook-Sologenic-XRP-extended" }
+  ];
+
+  const PROXY_ORDERBOOK_URL = "https://xrbitcoincash-github-io.onrender.com/api/xrpl/book_offers";
+
+  // ===============================
+  // Fetch order book via proxy
+  // ===============================
+  async function fetchOrderBook(base, counter) {
+    try {
+      const baseToken = tokenPairs[base];
+      const counterToken = counter === "XRP" ? { currency: "XRP" } : tokenPairs[counter];
+
+      const payload = {
+        method: "book_offers",
+        params: [{
+          taker: "",
+          taker_gets: baseToken,
+          taker_pays: counterToken
+        }]
+      };
+
+      const response = await fetch(PROXY_ORDERBOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+      const data = await response.json();
+      return data.result.offers || [];
+
+    } catch (err) {
+      console.error(`Failed to fetch order book for ${base}/${counter}:`, err);
+      return [];
+    }
+  }
+
+  // ===============================
+  // Render live order books
+  // ===============================
+  async function renderExtendedOrderBooks() {
+    for (let pair of extendedPairs) {
+      const offers = await fetchOrderBook(pair.base, pair.counter);
+      const pre = document.getElementById(pair.elementId);
+
+      if (!offers.length) {
+        pre.textContent = "No live offers available";
+      } else {
+        pre.textContent = offers
+          .slice(0, 10)
+          .map((offer, i) => {
+            const gets = offer.TakerGets.value || offer.TakerGets.currency;
+            const pays = offer.TakerPays.value || offer.TakerPays.currency;
+            return `${i + 1}. Gets: ${gets} | Pays: ${pays}`;
+          })
+          .join("\n");
+      }
+    }
+  }
+
+  // ===============================
+  // Auto-refresh every 5 seconds
+  // ===============================
+  renderExtendedOrderBooks();
+  setInterval(renderExtendedOrderBooks, 5000);
+
+  // ===============================
+  // Market & Limit Order Stubs
+  // ===============================
+  function placeMarketOrder(base, counter) {
+    alert(`Market order scaffold for ${base}/${counter}`);
+  }
+
+  function placeLimitOrder(base, counter) {
+    alert(`Limit order scaffold for ${base}/${counter}`);
+  }
+
+  // ===============================
+  // Wallet Connect Stub
+  // ===============================
+  const connectWalletBtn = document.getElementById('connectWalletBtn');
+  const walletStatusEl = document.getElementById('walletStatus');
+
+  connectWalletBtn.addEventListener("click", () => {
+    walletStatusEl.textContent = "Wallet connected (placeholder)";
+    alert("Wallet connection scaffold activated");
+  });
+</script>
 
 </body>
 </html>
