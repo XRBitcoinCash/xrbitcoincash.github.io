@@ -40,5 +40,31 @@
       }
     }
   </script>
+<script type="module">
+  import { getLedgerInfo, getAccountInfo } from "./xrpl-connector.js";
+
+  // Example: Fetch latest ledger
+  document.getElementById("getLedgerBtn").addEventListener("click", async () => {
+    try {
+      const ledger = await getLedgerInfo();
+      document.getElementById("output").textContent = JSON.stringify(ledger, null, 2);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+  // Example: Fetch account info
+  document.getElementById("getAccountBtn").addEventListener("click", async () => {
+    const address = document.getElementById("xrplAddress").value.trim();
+    if (!address) return alert("Enter XRPL address!");
+    try {
+      const account = await getAccountInfo(address);
+      document.getElementById("output").textContent = JSON.stringify(account, null, 2);
+    } catch (e) {
+      console.error(e);
+    }
+  });
+</script>
+
 </body>
 </html>
