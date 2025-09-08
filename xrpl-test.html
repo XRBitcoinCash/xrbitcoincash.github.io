@@ -35,7 +35,42 @@
   <h2>Latest Ledger Info</h2>
   <pre id="ledger">No data</pre>
 </section>
+<!-- ===============================
+   3️⃣ Third Request: XRPL DEX Order Book
+   Description: Fetch and display order books for selected trading pairs from the XRPL via proxy.
+   Purpose: Demonstrates multi-function capability while keeping the XRPL node stable.
+================================= -->
+<section>
+  <h2>DEX Order Book</h2>
+  <p>Initial trading pairs from XRPL via proxy. Shows a snapshot of offers for each pair.</p>
 
+  <!-- ===============================
+       Order Book Container for XRBC/XRP
+       Purpose: Display the first 5 offers from the XRBC/XRP trading pair
+  ================================ -->
+  <div id="orderBook-XRBC-XRP">
+    <h3>XRBC / XRP</h3>
+    <pre>No data</pre>
+  </div>
+
+  <!-- ===============================
+       Order Book Container for XP/XRP
+       Purpose: Display the first 5 offers from the XP/XRP trading pair
+  ================================ -->
+  <div id="orderBook-XP-XRP">
+    <h3>XP / XRP</h3>
+    <pre>No data</pre>
+  </div>
+
+  <!-- ===============================
+       Order Book Container for Corium/XRP
+       Purpose: Display the first 5 offers from the Corium/XRP trading pair
+  ================================ -->
+  <div id="orderBook-Corium-XRP">
+    <h3>Corium / XRP</h3>
+    <pre>No data</pre>
+  </div>
+</section>
   <!-- ===============================
      2️⃣ Second Request: Ledger Index Only
      Description: Lightweight request to check the ledger index separately.
@@ -105,7 +140,77 @@ checkLedgerIndex();
 <script type="module">
   // ... your existing checkProxy() and checkLedgerIndex() functions
 </script>
+<script type="module">
+  // ===============================
+  // 3️⃣ XRPL Proxy Order Book JS
+  // Description: Fetches order book data via your secure proxy
+  // Purpose: Demonstrates a lightweight, dual-function request setup
+  // ================================
+  const PROXY_ORDERBOOK_URL = "https://xrbitcoincash-github-io.onrender.com/api/xrpl/book_offers";
 
+  // ===============================
+  // Trading Pairs Setup
+  // Purpose: Defines which pairs we want to fetch from XRPL
+  // ================================
+  const tradingPairs = [
+    { base: "XRBC", counter: "XRP", elementId: "orderBook-XRBC-XRP" },
+    { base: "XP", counter: "XRP", elementId: "orderBook-XP-XRP" },
+    { base: "Corium", counter: "XRP", elementId: "orderBook-Corium-XRP" },
+  ];
+
+  // ===============================
+  // Function: Fetch Order Book
+  // Purpose: Sends a POST request to proxy to get offers for a single trading pair
+  // ================================
+  async function fetchOrderBook(base, counter) {
+    try {
+      const response = await fetch(PROXY_ORDERBOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          base: { currency: base },
+          counter: { currency: counter },
+        }),
+      });
+
+      if (!response.ok) throw new Error(`Proxy error: ${response.status}`);
+
+      const data = await response.json();
+      return data.result.offers || [];
+    } catch (err) {
+      console.error(`Failed to fetch order book for ${base}/${counter}:`, err);
+      return [];
+    }
+  }
+
+  // ===============================
+  // Function: Render Order Books
+  // Purpose: Updates the DOM with the first 5 offers for each trading pair
+  // ================================
+  async function renderOrderBooks() {
+    for (let pair of tradingPairs) {
+      const offers = await fetchOrderBook(pair.base, pair.counter);
+      const container = document.querySelector(`#${pair.elementId} pre`);
+      if (offers.length === 0) {
+        container.textContent = "No offers available";
+        continue;
+      }
+      container.textContent = offers
+        .slice(0, 5)
+        .map(
+          (offer, i) =>
+            `${i + 1}. Gets: ${offer.TakerGets.value} | Pays: ${offer.TakerPays.value}`
+        )
+        .join("\n");
+    }
+  }
+
+  // ===============================
+  // Initialization
+  // Purpose: Automatically fetch and render order books on page load
+  // ================================
+  renderOrderBooks();
+</script>
 <!-- Secure XRPL JS snippet -->
 <script type="module">
   // Paste secure-xrpl.js code here
