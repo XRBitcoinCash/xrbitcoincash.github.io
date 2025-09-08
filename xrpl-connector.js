@@ -12,7 +12,7 @@ const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com";
  */
 async function xrplRequest(payload) {
   try {
-    const response = await fetch(`${PROXY_URL}/xrpl`, {
+   const response = await fetch(`${PROXY_URL}/api/xrpl`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
