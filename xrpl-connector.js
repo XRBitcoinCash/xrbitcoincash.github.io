@@ -1,5 +1,5 @@
 // xrpl-connector.js
-const XRPL_PROXY_BASE = "https://<your-render-proxy-url>.onrender.com/api/xrpl"; // Replace with your deployed proxy URL
+const XRPL_PROXY_BASE = "https://xrbitcoincash-github-io.onrender.com/api/xrpl"; //proxy address
 
 async function xrplCall(endpoint = "", options = {}) {
   const url = `${XRPL_PROXY_BASE}/${endpoint}`;
