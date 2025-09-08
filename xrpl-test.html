@@ -1,26 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8" />
   <title>XRPL Proxy Test</title>
+  <script src="xrpl-connector.js"></script>
 </head>
 <body>
   <h1>XRPL Proxy Test</h1>
-  <button id="ledgerBtn">Get Ledger Info</button>
-  <pre id="output"></pre>
 
-  <script src="xrpl-connector.js"></script>
+  <button onclick="testLedger()">Get Ledger Info</button>
+  <pre id="ledgerResult">No data yet</pre>
+
+  <br />
+
+  <input type="text" id="acct" placeholder="Enter XRPL Account" />
+  <button onclick="testAccount()">Get Account Info</button>
+  <pre id="acctResult">No data yet</pre>
+
   <script>
-    const output = document.getElementById('output');
-    document.getElementById('ledgerBtn').addEventListener('click', async () => {
-      output.textContent = "Connecting to XRPL via proxy...";
+    async function testLedger() {
+      document.getElementById("ledgerResult").textContent = "Loading...";
       try {
-        const ledger = await window.xrplConnector.testLedger();
-        output.textContent = JSON.stringify(ledger, null, 2);
+        const data = await getLedgerInfo();
+        document.getElementById("ledgerResult").textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        output.textContent = "Connection failed: " + err.message;
+        document.getElementById("ledgerResult").textContent = "Error: " + err.message;
       }
-    });
+    }
+
+    async function testAccount() {
+      const acct = document.getElementById("acct").value.trim();
+      if (!acct) return alert("Enter an account first");
+      document.getElementById("acctResult").textContent = "Loading...";
+      try {
+        const data = await getAccountInfo(acct);
+        document.getElementById("acctResult").textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById("acctResult").textContent = "Error: " + err.message;
+      }
+    }
   </script>
 </body>
 </html>
