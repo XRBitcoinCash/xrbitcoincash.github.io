@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>XRPL Proxy Test</title>
+<meta charset="utf-8">
+<title>XRPL Proxy Test</title>
 </head>
 <body>
-  <h2>XRPL Proxy Network Status</h2>
-  <div id="status">Checking...</div>
-  <button id="checkBtn">Check Status</button>
+<h2>XRPL Proxy Network Status Test</h2>
+<div id="status">Checking...</div>
 
-  <script type="module">
-    import { getServerInfo } from './xrpl-frontend.js';
+<script type="module">
+import { getServerInfo } from './xrpl-connector.js';
 
-    const statusEl = document.getElementById('status');
-    const btn = document.getElementById('checkBtn');
+const statusEl = document.getElementById('status');
 
-    async function checkStatus() {
-      statusEl.textContent = 'Checking...';
-      try {
-        const info = await getServerInfo();
-        console.log('Server Info:', info);
-        statusEl.textContent = 'Connected ✅';
-      } catch (err) {
-        console.error('Error:', err);
-        statusEl.textContent = 'Disconnected ❌';
-      }
+async function testConnection() {
+  try {
+    const serverInfo = await getServerInfo();
+    if (serverInfo && serverInfo.result) {
+      statusEl.textContent = 'Connected ✅';
+      console.log('Server info:', serverInfo);
+    } else {
+      statusEl.textContent = 'Disconnected ❌';
     }
+  } catch (err) {
+    statusEl.textContent = 'Disconnected ❌';
+    console.error('Error communicating with proxy:', err);
+  }
+}
 
-    btn.addEventListener('click', checkStatus);
-
-    // Optional: check immediately on page load
-    checkStatus();
-  </script>
+// Run the test
+testConnection();
+</script>
 </body>
 </html>
+
