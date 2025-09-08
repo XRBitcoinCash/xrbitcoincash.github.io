@@ -1,141 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>XRPL Live Observatory</title>
-  <meta name="description" content="Live Observatory for XRPL: Ledger info, transactions, hot wallets, orderbook.">
-  <meta name="theme-color" content="#0b1118">
-
-  <style>
-    :root {
-      --bg: #0b1118;
-      --panel: #0f1722;
-      --text: #e7eef8;
-      --accent: #a7ff83;
-      --danger: #ff6b6b;
-    }
-    body {
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      color: var(--text);
-      background: var(--bg);
-    }
-    header.appbar {
-      padding: 14px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(167,255,131,0.15);
-    }
-    .btn {
-      padding: 10px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      background: linear-gradient(180deg, var(--panel), #121c2a);
-      color: var(--text);
-      border: 1px solid rgba(167,255,131,0.25);
-    }
-    .btn:hover { border-color: var(--accent); }
-    main { padding: 20px; max-width: 1024px; margin: auto; }
-    section { background: var(--panel); padding: 16px; border-radius: 12px; margin-bottom: 18px; }
-    h2 { margin: 0 0 10px 0; color: var(--accent); font-size: 1.1rem; }
-    pre { background: #121c2a; padding: 12px; border-radius: 8px; overflow-x: auto; color: var(--text); font-size: 0.9rem; }
-  </style>
-</head>
+<html>
 <body>
+<h2>XRPL Proxy Test</h2>
+<pre id="output">Testing...</pre>
 
-<header class="appbar">
-  <div><strong>XRPL Live Observatory</strong></div>
-  <button id="refreshBtn" class="btn">Refresh</button>
-</header>
-
-<main>
-  <section>
-    <h2>Network & Server Status</h2>
-    <div id="xrpl-status">Loading...</div>
-  </section>
-
-  <section>
-    <h2>Latest Ledger & Hash</h2>
-    <pre id="ledger-info">Loading latest ledger...</pre>
-  </section>
-
-  <section>
-    <h2>Recent Transactions</h2>
-    <pre id="recent-tx">Loading recent transactions...</pre>
-  </section>
-
-  <section>
-    <h2>Connected Wallet Hot List</h2>
-    <pre id="hot-wallets">Loading hot wallets...</pre>
-  </section>
-
-  <section>
-    <h2>Order Book (XRBC/XRP)</h2>
-    <pre id="order-book">Loading order book...</pre>
-  </section>
-</main>
-
-<!-- Include XRPL Connector -->
-<script type="module" src="xrpl-connector.js"></script>
-
-<script type="module">
-import { getLedgerInfo, getAccountInfo, getServerInfo } from './xrpl-connector.js';
-
-const statusEl = document.getElementById('xrpl-status');
-const ledgerEl = document.getElementById('ledger-info');
-const txEl = document.getElementById('recent-tx');
-const walletsEl = document.getElementById('hot-wallets');
-const orderBookEl = document.getElementById('order-book');
-const refreshBtn = document.getElementById('refreshBtn');
-
-// Example hot wallets for display (replace with actual)
-const hotWallets = ["rEXAMPLE1", "rEXAMPLE2", "rEXAMPLE3"];
-
-async function fetchObservatory() {
-  // Reset placeholders
-  statusEl.textContent = 'Loading...';
-  ledgerEl.textContent = 'Loading latest ledger...';
-  txEl.textContent = 'Loading recent transactions...';
-  walletsEl.textContent = 'Loading hot wallets...';
-  orderBookEl.textContent = 'Loading order book...';
+<script>
+(async function() {
+  const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com";
 
   try {
-    // ✅ Check network/server via connector
-    await getServerInfo();
-    statusEl.textContent = 'Connected ✅';
+    const res = await fetch(`${PROXY_URL}/xrpl`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ method: "server_info" })
+    });
 
-    // ✅ Latest ledger info
-    const ledger = await getLedgerInfo();
-    ledgerEl.textContent = JSON.stringify(ledger.ledger, null, 2);
-
-    // ✅ Hot wallets account info
-    const walletInfos = await Promise.all(hotWallets.map(addr => getAccountInfo(addr)));
-    walletsEl.textContent = JSON.stringify(walletInfos, null, 2);
-
-    // Placeholder for future functions:
-    txEl.textContent = "[Recent transactions fetched via connector]";
-    orderBookEl.textContent = "[Order book fetched via connector]";
-
+    const data = await res.json();
+    document.getElementById("output").textContent = JSON.stringify(data, null, 2);
   } catch (err) {
-    console.error('Observatory fetch error:', err);
-    statusEl.textContent = 'Disconnected ❌';
-    ledgerEl.textContent = 'Failed to load ledger info';
-    txEl.textContent = 'Failed to load recent transactions';
-    walletsEl.textContent = 'Failed to load hot wallets';
-    orderBookEl.textContent = 'Failed to load order book';
+    document.getElementById("output").textContent = "Error: " + err;
   }
-}
-
-// Initial load
-fetchObservatory();
-
-// Refresh button
-refreshBtn.addEventListener('click', fetchObservatory);
+})();
 </script>
-
 </body>
 </html>
 
