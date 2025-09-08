@@ -3,49 +3,120 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>XRPL Proxy Connection Test</title>
+  <title>XRPL Live Observatory</title>
+  <meta name="description" content="Live Observatory for XRPL: Ledger info, transactions, hot wallets, orderbook.">
   <meta name="theme-color" content="#0b1118">
+
   <style>
-    body { margin:0; font-family:Inter,sans-serif; background:#0b1118; color:#e7eef8; padding:20px; }
-    .btn { padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700; background:#121c2a; border:1px solid #a7ff83; color:#e7eef8; }
-    .btn:hover { border-color:#a7ff83; }
-    pre { background:#121c2a; padding:12px; border-radius:8px; overflow-x:auto; }
+    :root {
+      --bg: #0b1118;
+      --panel: #0f1722;
+      --text: #e7eef8;
+      --accent: #a7ff83;
+      --danger: #ff6b6b;
+    }
+    body {
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header.appbar {
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(167,255,131,0.15);
+    }
+    .btn {
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(180deg, var(--panel), #121c2a);
+      color: var(--text);
+      border: 1px solid rgba(167,255,131,0.25);
+    }
+    .btn:hover { border-color: var(--accent); }
+    main { padding: 20px; max-width: 1024px; margin: auto; }
+    section { background: var(--panel); padding: 16px; border-radius: 12px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px 0; color: var(--accent); font-size: 1.1rem; }
+    pre { background: #121c2a; padding: 12px; border-radius: 8px; overflow-x: auto; color: var(--text); font-size: 0.9rem; }
   </style>
 </head>
 <body>
-  <h1>XRPL Proxy Connection Test</h1>
-  <button id="testBtn" class="btn">Test Connection</button>
-  <div style="margin-top:20px;">
-    <strong>Status:</strong> <span id="status">Not tested</span>
-  </div>
-  <pre id="output">Output will appear here...</pre>
 
-  <!-- Include XRPL Connector -->
-  <script type="module" src="xrpl-connector.js"></script>
+<header class="appbar">
+  <div><strong>XRPL Live Observatory</strong></div>
+  <button id="refreshBtn" class="btn">Refresh</button>
+</header>
 
-  <script type="module">
-    import { getServerInfo } from './xrpl-connector.js';
+<main>
+  <section>
+    <h2>Network & Server Status</h2>
+    <div id="xrpl-status">Loading...</div>
+  </section>
 
-    const statusEl = document.getElementById('status');
-    const outputEl = document.getElementById('output');
-    const testBtn = document.getElementById('testBtn');
+  <section>
+    <h2>Latest Ledger & Hash</h2>
+    <pre id="ledger-info">Loading latest ledger...</pre>
+  </section>
 
-    async function testConnection() {
-      statusEl.textContent = 'Testing...';
-      outputEl.textContent = '';
-      try {
-        const serverInfo = await getServerInfo();
-        statusEl.textContent = 'Connected ✅';
-        outputEl.textContent = JSON.stringify(serverInfo, null, 2);
-      } catch (err) {
-        statusEl.textContent = 'Disconnected ❌';
-        outputEl.textContent = 'Error:\n' + err;
-        console.error(err);
-      }
+  <section>
+    <h2>Connected Wallet Hot List</h2>
+    <pre id="hot-wallets">Loading hot wallets...</pre>
+  </section>
+</main>
+
+<!-- Include front-end JS -->
+<script type="module" src="xrpl-frontend.js"></script>
+
+<script type="module">
+(async () => {
+  const statusEl = document.getElementById('xrpl-status');
+  const ledgerEl = document.getElementById('ledger-info');
+  const walletsEl = document.getElementById('hot-wallets');
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  // Example hot wallet addresses
+  const hotWallets = ["rEXAMPLE1", "rEXAMPLE2", "rEXAMPLE3"];
+
+  async function updateObservatory() {
+    // Set loading state
+    statusEl.textContent = 'Loading...';
+    ledgerEl.textContent = 'Loading latest ledger...';
+    walletsEl.textContent = 'Loading hot wallets...';
+
+    try {
+      // Get server info
+      await window.xrplFront.fetchServerInfo();
+      statusEl.textContent = 'Connected ✅';
+
+      // Get latest ledger info
+      const ledgerData = await window.xrplFront.fetchLedgerInfo();
+      ledgerEl.textContent = JSON.stringify(ledgerData.ledger, null, 2);
+
+      // Get hot wallets info
+      const walletsInfo = await Promise.all(
+        hotWallets.map(addr => window.xrplFront.fetchAccountInfo(addr))
+      );
+      walletsEl.textContent = JSON.stringify(walletsInfo, null, 2);
+
+    } catch (err) {
+      console.error('Error updating observatory:', err);
+      statusEl.textContent = 'Disconnected ❌';
+      ledgerEl.textContent = 'Failed to load ledger info';
+      walletsEl.textContent = 'Failed to load hot wallets';
     }
+  }
 
-    testBtn.addEventListener('click', testConnection);
-  </script>
+  // Initial load
+  await updateObservatory();
+
+  // Refresh button
+  refreshBtn.addEventListener('click', updateObservatory);
+})();
+</script>
+
 </body>
 </html>
-
