@@ -91,10 +91,11 @@ const walletsEl = document.getElementById('hot-wallets');
 const orderBookEl = document.getElementById('order-book');
 const refreshBtn = document.getElementById('refreshBtn');
 
-// Example hot wallets for display
+// Example hot wallets for display (replace with actual)
 const hotWallets = ["rEXAMPLE1", "rEXAMPLE2", "rEXAMPLE3"];
 
 async function fetchObservatory() {
+  // Reset placeholders
   statusEl.textContent = 'Loading...';
   ledgerEl.textContent = 'Loading latest ledger...';
   txEl.textContent = 'Loading recent transactions...';
@@ -102,25 +103,22 @@ async function fetchObservatory() {
   orderBookEl.textContent = 'Loading order book...';
 
   try {
-    // Check network/server
+    // ✅ Check network/server via connector
     await getServerInfo();
     statusEl.textContent = 'Connected ✅';
 
-    // Latest ledger
+    // ✅ Latest ledger info
     const ledger = await getLedgerInfo();
     ledgerEl.textContent = JSON.stringify(ledger.ledger, null, 2);
 
-    // Hot wallets info
+    // ✅ Hot wallets account info
     const walletInfos = await Promise.all(hotWallets.map(addr => getAccountInfo(addr)));
     walletsEl.textContent = JSON.stringify(walletInfos, null, 2);
 
-    // Placeholder: recent transactions
-    // For real data, implement a connector function for tx history
+    // Placeholder for future functions:
     txEl.textContent = "[Recent transactions fetched via connector]";
-
-    // Placeholder: order book
-    // Implement connector function to fetch XRBC/XRP order book
     orderBookEl.textContent = "[Order book fetched via connector]";
+
   } catch (err) {
     console.error('Observatory fetch error:', err);
     statusEl.textContent = 'Disconnected ❌';
@@ -136,8 +134,8 @@ fetchObservatory();
 
 // Refresh button
 refreshBtn.addEventListener('click', fetchObservatory);
-
 </script>
 
 </body>
 </html>
+
