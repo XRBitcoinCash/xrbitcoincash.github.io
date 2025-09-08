@@ -1,54 +1,55 @@
 // server.js
-const express = require("express");
-const fetch = require("node-fetch"); // or global fetch in Node 18+
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// XRPL public endpoint (Clio server)
-const XRPL_NODE = "https://s1.ripple.com:51234";
+// Allow all origins (easy test mode) — later we can lock down
+app.use(cors());
 
-// Middleware
-app.use(express.json());
+// XRPL JSON-RPC endpoint (mainnet)
+// For Testnet: use 'https://s.altnet.rippletest.net:51234'
+const XRPL_RPC = 'https://s1.ripple.com:51234';
 
-// Ledger route
-app.get("/api/xrpl/ledger", async (req, res) => {
+// POST helper to XRPL node
+async function xrplRpc(body) {
+  const resp = await axios.post(XRPL_RPC, body, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+  return resp.data;
+}
+
+// GET /api/xrpl/ledger
+app.get('/api/xrpl/ledger', async (req, res) => {
   try {
-    const response = await fetch(XRPL_NODE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        method: "ledger",
-        params: [{ ledger_index: "validated" }]
-      }),
+    const data = await xrplRpc({
+      method: 'ledger',
+      params: [{ ledger_index: 'validated' }]
     });
-    const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error("Ledger route error:", err);
-    res.status(500).json({ error: "Ledger fetch failed" });
+    console.error('ledger error', err?.message || err);
+    res.status(500).json({ error: 'Ledger fetch failed', detail: err?.message || String(err) });
   }
 });
 
-// Account route
-app.get("/api/xrpl/account/:acct", async (req, res) => {
+// GET /api/xrpl/account/:acct
+app.get('/api/xrpl/account/:acct', async (req, res) => {
   try {
-    const response = await fetch(XRPL_NODE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        method: "account_info",
-        params: [{ account: req.params.acct, ledger_index: "validated" }]
-      }),
+    const account = req.params.acct;
+    const data = await xrplRpc({
+      method: 'account_info',
+      params: [{ account, ledger_index: 'validated' }]
     });
-    const data = await response.json();
     res.json(data);
   } catch (err) {
-    console.error("Account route error:", err);
-    res.status(500).json({ error: "Account fetch failed" });
+    console.error('account error', err?.message || err);
+    res.status(500).json({ error: 'Account fetch failed', detail: err?.message || String(err) });
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`XRPL proxy running on port ${PORT}`);
 });
