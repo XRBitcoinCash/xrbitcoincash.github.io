@@ -4,35 +4,34 @@ import json
 # -------------------------
 # CONFIG
 # -------------------------
-
-# Proxy URL that connects to your XRPL node (must handle CORS)
+# Your proxy URL that forwards requests to the XRPL node
 PROXY_URL = "https://your-proxy.example.com/xrpl"
 
-# XRBC issuer account
+# Issuer account for XRBC
 ISSUER_ACCOUNT = "rYourIssuerWalletAddress"
 
-# Currency code for XRBC
+# XRBC currency code
 CURRENCY_CODE = "XRBC"
 
-# Total supply of XRBC (from issuance)
-TOTAL_SUPPLY = 21000000 # replace with actual issued XRBC
+# Total issued supply
+TOTAL_SUPPLY = 1000000000  # replace with your issued amount
 
-# Output JSON file
+# Output JSON file name
 OUTPUT_FILE = "xrbc_supply.json"
 
 # -------------------------
-# FUNCTION TO FETCH ACCOUNT LINES
+# FETCH TRUST LINES FROM XRPL
 # -------------------------
-def fetch_account_lines(account):
+def fetch_trust_lines(issuer):
     """
-    Query the proxy to get trust lines for the issuer account.
-    Returns a list of balances for XRBC holders.
+    Calls the XRPL proxy to get all trust lines from the issuer account.
+    Returns a list of trust lines containing XRBC balances.
     """
     payload = {
         "method": "account_lines",
         "params": [
             {
-                "account": account,
+                "account": issuer,
                 "ledger_index": "validated"
             }
         ]
@@ -44,32 +43,41 @@ def fetch_account_lines(account):
         data = response.json()
         return data.get("result", {}).get("lines", [])
     except Exception as e:
-        print(f"Error fetching account lines: {e}")
+        print(f"Error fetching trust lines: {e}")
         return []
+
+# -------------------------
+# CALCULATE CIRCULATING SUPPLY
+# -------------------------
+def calculate_circulating(lines):
+    """
+    Sum balances for XRBC across all holders.
+    """
+    circulating = 0
+    for line in lines:
+        if line.get("currency") == CURRENCY_CODE:
+            circulating += float(line.get("balance", 0))
+    return circulating
 
 # -------------------------
 # MAIN
 # -------------------------
 def main():
-    lines = fetch_account_lines(ISSUER_ACCOUNT)
-    
-    circulating_supply = 0
-    for line in lines:
-        if line.get("currency") == CURRENCY_CODE:
-            balance = float(line.get("balance", 0))
-            circulating_supply += balance
+    trust_lines = fetch_trust_lines(ISSUER_ACCOUNT)
+    circulating_supply = calculate_circulating(trust_lines)
 
-    # Output JSON
-    supply_json = {
+    # Prepare JSON output
+    supply_data = {
         "total_supply": TOTAL_SUPPLY,
         "circulating_supply": circulating_supply
     }
 
+    # Write JSON to file
     with open(OUTPUT_FILE, "w") as f:
-        json.dump(supply_json, f, indent=2)
+        json.dump(supply_data, f, indent=2)
 
     print(f"Circulating supply: {circulating_supply}")
-    print(f"JSON saved to {OUTPUT_FILE}")
+    print(f"JSON file saved: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
