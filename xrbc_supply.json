@@ -1,0 +1,75 @@
+import requests
+import json
+
+# -------------------------
+# CONFIG
+# -------------------------
+
+# Proxy URL that connects to your XRPL node (must handle CORS)
+PROXY_URL = "https://your-proxy.example.com/xrpl"
+
+# XRBC issuer account
+ISSUER_ACCOUNT = "rYourIssuerWalletAddress"
+
+# Currency code for XRBC
+CURRENCY_CODE = "XRBC"
+
+# Total supply of XRBC (from issuance)
+TOTAL_SUPPLY = 21000000 # replace with actual issued XRBC
+
+# Output JSON file
+OUTPUT_FILE = "xrbc_supply.json"
+
+# -------------------------
+# FUNCTION TO FETCH ACCOUNT LINES
+# -------------------------
+def fetch_account_lines(account):
+    """
+    Query the proxy to get trust lines for the issuer account.
+    Returns a list of balances for XRBC holders.
+    """
+    payload = {
+        "method": "account_lines",
+        "params": [
+            {
+                "account": account,
+                "ledger_index": "validated"
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(PROXY_URL, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("result", {}).get("lines", [])
+    except Exception as e:
+        print(f"Error fetching account lines: {e}")
+        return []
+
+# -------------------------
+# MAIN
+# -------------------------
+def main():
+    lines = fetch_account_lines(ISSUER_ACCOUNT)
+    
+    circulating_supply = 0
+    for line in lines:
+        if line.get("currency") == CURRENCY_CODE:
+            balance = float(line.get("balance", 0))
+            circulating_supply += balance
+
+    # Output JSON
+    supply_json = {
+        "total_supply": TOTAL_SUPPLY,
+        "circulating_supply": circulating_supply
+    }
+
+    with open(OUTPUT_FILE, "w") as f:
+        json.dump(supply_json, f, indent=2)
+
+    print(f"Circulating supply: {circulating_supply}")
+    print(f"JSON saved to {OUTPUT_FILE}")
+
+if __name__ == "__main__":
+    main()
