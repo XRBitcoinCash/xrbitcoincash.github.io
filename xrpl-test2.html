@@ -233,14 +233,15 @@ a:hover{ text-decoration: none; filter: brightness(1.1) }
     return await xrplRequest({ method: "server_info" });
   }
 
-// === Build XRBC order book across multiple markets ===
+// === Build XRBC/XRP order book ===
 async function getXrbcOrderBook() {
-  // Currencies you want to show against XRBC
+  const XRBC = {
+    currency: "5852626974636F696E6361736800000000000000", // HEX for XRbitcoincash
+    issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  };
+
   const markets = [
-    { code: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" }, // Bitstamp USD
-    { code: "XRP" }, // native, no issuer
-    { code: "BTC", issuer: "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq" }, // GateHub BTC
-    { code: "ETH", issuer: "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq" }  // GateHub ETH
+    { code: "XRP" } // only XRBC/XRP for now
   ];
 
   const rows = [];
@@ -251,43 +252,47 @@ async function getXrbcOrderBook() {
         method: "book_offers",
         params: [
           {
-            // People paying XRBC, getting other currency
-            taker_gets: { currency: "XRBC", issuer: "rXXXXXXXXXXXXXXXXXXXXXRBCISSUER" },
+            taker_gets: XRBC, // sellers offering XRBC
             taker_pays: mkt.issuer
               ? { currency: mkt.code, issuer: mkt.issuer }
               : { currency: mkt.code },
-            limit: 1
+            limit: 5 // show top 5 offers
           }
         ]
       };
+
       const data = await xrplRequest(payload);
 
       if (data.result && data.result.offers && data.result.offers.length > 0) {
-        const offer = data.result.offers[0];
-        const gets = offer.TakerGets.value
-          ? parseFloat(offer.TakerGets.value)
-          : parseFloat(offer.TakerGets) / 1_000_000; // XRP
-        const pays = offer.TakerPays.value
-          ? parseFloat(offer.TakerPays.value)
-          : parseFloat(offer.TakerPays) / 1_000_000; // XRP
+        for (const offer of data.result.offers) {
+          const gets = offer.TakerGets.value
+            ? parseFloat(offer.TakerGets.value)
+            : parseFloat(offer.TakerGets) / 1_000_000; // XRP in drops
+          const pays = offer.TakerPays.value
+            ? parseFloat(offer.TakerPays.value)
+            : parseFloat(offer.TakerPays) / 1_000_000;
 
-        const price = pays / gets;
-        rows.push(`<tr><td>${mkt.code}</td><td>${price.toFixed(6)}</td></tr>`);
+          const price = pays / gets;
+          rows.push(
+            `<tr><td>${mkt.code}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)} XRBC</td></tr>`
+          );
+        }
       } else {
-        rows.push(`<tr><td>${mkt.code}</td><td>No offers</td></tr>`);
+        rows.push(`<tr><td>${mkt.code}</td><td>No offers</td><td>-</td></tr>`);
       }
     } catch (err) {
-      rows.push(`<tr><td>${mkt.code}</td><td>Error</td></tr>`);
+      rows.push(`<tr><td>${mkt.code}</td><td>Error</td><td>${err.message}</td></tr>`);
     }
   }
 
   return `
     <table class="table">
-      <thead><tr><th>Market</th><th>Price (per XRBC)</th></tr></thead>
+      <thead><tr><th>Market</th><th>Price (per XRBC)</th><th>Amount</th></tr></thead>
       <tbody>${rows.join("")}</tbody>
     </table>
   `;
 }
+
 
   // === Main logic ===
   (async function(){
