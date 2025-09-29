@@ -233,30 +233,24 @@ a:hover{ text-decoration: none; filter: brightness(1.1) }
     return await xrplRequest({ method: "server_info" });
   }
 
-// === Build XRBC/XRP order book ===
+// === Build XRBC/XRP dual-sided order book ===
 async function getXrbcOrderBook() {
   const XRBC = {
     currency: "5852626974636F696E6361736800000000000000", // HEX for XRbitcoincash
     issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
 
-  const markets = [
-    { code: "XRP" } // only XRBC/XRP for now
-  ];
-
-  const rows = [];
-
-  for (const mkt of markets) {
+  // Helper: format one side of the book
+  async function fetchSide(taker_gets, taker_pays, sideName) {
+    const rows = [];
     try {
       const payload = {
         method: "book_offers",
         params: [
           {
-            taker_gets: XRBC, // sellers offering XRBC
-            taker_pays: mkt.issuer
-              ? { currency: mkt.code, issuer: mkt.issuer }
-              : { currency: mkt.code },
-            limit: 5 // show top 5 offers
+            taker_gets,
+            taker_pays,
+            limit: 5
           }
         ]
       };
@@ -267,28 +261,38 @@ async function getXrbcOrderBook() {
         for (const offer of data.result.offers) {
           const gets = offer.TakerGets.value
             ? parseFloat(offer.TakerGets.value)
-            : parseFloat(offer.TakerGets) / 1_000_000; // XRP in drops
+            : parseFloat(offer.TakerGets) / 1_000_000;
           const pays = offer.TakerPays.value
             ? parseFloat(offer.TakerPays.value)
             : parseFloat(offer.TakerPays) / 1_000_000;
 
+          // Price is always quoted as XRP per XRBC
           const price = pays / gets;
+
           rows.push(
-            `<tr><td>${mkt.code}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)} XRBC</td></tr>`
+            `<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)} ${taker_gets.currency === "XRP" ? "XRP" : "XRBC"}</td></tr>`
           );
         }
       } else {
-        rows.push(`<tr><td>${mkt.code}</td><td>No offers</td><td>-</td></tr>`);
+        rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
       }
     } catch (err) {
-      rows.push(`<tr><td>${mkt.code}</td><td>Error</td><td>${err.message}</td></tr>`);
+      rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${err.message}</td></tr>`);
     }
+    return rows;
   }
+
+  // Fetch asks (sell XRBC) and bids (buy XRBC)
+  const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
+  const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
 
   return `
     <table class="table">
-      <thead><tr><th>Market</th><th>Price (per XRBC)</th><th>Amount</th></tr></thead>
-      <tbody>${rows.join("")}</tbody>
+      <thead><tr><th>Side</th><th>Price (XRP per XRBC)</th><th>Amount</th></tr></thead>
+      <tbody>
+        ${asks.join("")}
+        ${bids.join("")}
+      </tbody>
     </table>
   `;
 }
