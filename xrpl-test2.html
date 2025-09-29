@@ -29,7 +29,42 @@
   <script src="xrpl-connector.js"></script>
 
   <script>
-  (async function(){
+  // xrpl-connector.js
+// All XRPL requests go through your Render proxy
+
+const cfgEl = document.getElementById("app-config");
+const cfg = JSON.parse(cfgEl.textContent);
+const PROXY_URL = cfg.proxyUrl;
+
+/**
+ * Send a request to XRPL via proxy
+ */
+async function xrplRequest(payload) {
+  const res = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Proxy error: " + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
+  return data;
+}
+
+// === Common helpers ===
+async function getLedgerInfo() {
+  return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
+}
+
+async function getAccountInfo(address) {
+  return await xrplRequest({ method: "account_info", params: [{ account: address, ledger_index: "validated" }] });
+}
+
+async function getServerInfo() {
+  return await xrplRequest({ method: "server_info" });
+}
+
+    (async function(){
     const cfg = JSON.parse(document.getElementById("app-config").textContent);
 
     // === Xumm SDK ===
