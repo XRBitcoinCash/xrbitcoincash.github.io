@@ -355,7 +355,7 @@ disconnectBtn.addEventListener("click", () => {
       }
     });
  
-  // === Trading UI ===
+// === Trading UI ===
 const placeOfferBtn = document.getElementById("placeOfferBtn");
 const sideEl   = document.getElementById("side");
 const amountEl = document.getElementById("amount");
@@ -379,7 +379,7 @@ placeOfferBtn.addEventListener("click", async () => {
       txjson = {
         TransactionType: "OfferCreate",
         Account: account,
-        TakerGets: { currency: "5852626974636F696E6361736800000000000000", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", value: String(amt) },
+        TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
         TakerPays: toDrops(xrpTotal),
         Flags: 0x00080000 // tfSell
       };
@@ -389,7 +389,7 @@ placeOfferBtn.addEventListener("click", async () => {
         TransactionType: "OfferCreate",
         Account: account,
         TakerGets: toDrops(xrpTotal),
-        TakerPays: { currency: "5852626974636F696E6361736800000000000000", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", value: String(amt) }
+        TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) }
       };
     }
 
@@ -414,9 +414,6 @@ placeOfferBtn.addEventListener("click", async () => {
     tradeMsg.textContent = "Error: " + err.message;
   }
 });
-
-
-});  // <--- end of placeOfferBtn.addEventListener
 
 // === Market Order ===
 const marketOrderBtn = document.getElementById("marketOrderBtn");
@@ -471,9 +468,7 @@ marketOrderBtn.addEventListener("click", async () => {
   }
 });
 
-    
-  
-  })();
-  </script>
+})();   // closes the main async IIFE
+</script>
 </body>
 </html>
