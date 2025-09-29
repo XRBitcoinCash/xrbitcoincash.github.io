@@ -295,12 +295,13 @@ function requireWallet() {
     xumm.on("ready", () => { btn.disabled = false; });
     btn.addEventListener("click", async () => {
       try {
-        await xumm.authorize();
-        const acct = await xumm.user.account;
-        statusEl.textContent = "Connected: " + acct;
-        window.__xrbcWallet = acct;
-     
-      disconnectBtn.disabled = false;
+      await xumm.authorize();
+const acct = xumm.user.account;   // no "await"
+statusEl.textContent = "Connected: " + acct;
+window.__xrbcWallet = acct;
+
+// update buttons
+disconnectBtn.disabled = false;
 btn.disabled = true;
 
       
