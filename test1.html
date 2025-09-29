@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XRPL Test Page 1</title>
+</head>
+<body>
+  <h1>XRPL WebSocket Test #1</h1>
+  <pre id="output">Connecting...</pre>
+
+  <script>
+    async function connectXRPL() {
+      const ws = new WebSocket("wss://s1.ripple.com/");
+
+      ws.onopen = () => {
+        document.getElementById("output").textContent = "Connected. Requesting server_info...";
+        ws.send(JSON.stringify({
+          id: 1,
+          command: "server_info"
+        }));
+      };
+
+      ws.onmessage = (msg) => {
+        const response = JSON.parse(msg.data);
+        document.getElementById("output").textContent = JSON.stringify(response, null, 2);
+        ws.close(); // close after one response to avoid overloading
+      };
+
+      ws.onerror = (err) => {
+        document.getElementById("output").textContent = "Error: " + err.message;
+      };
+
+      ws.onclose = () => {
+        console.log("Connection closed.");
+      };
+    }
+
+    connectXRPL();
+  </script>
+</body>
+</html>
