@@ -147,8 +147,11 @@ pre {
   <h1>XRBitcoinCash Wallet Connect (via Proxy)</h1>
 
   <!-- Wallet connect -->
+<div id="walletControls" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
   <button id="connectWalletBtn" class="btn btn-primary">Connect Wallet</button>
-  <p id="walletStatus">Status: Not connected</p>
+  <button id="disconnectWalletBtn" class="btn" disabled>Disconnect</button>
+  <span id="walletStatus">Status: Not connected</span>
+</div>
 
   <!-- Ledger info -->
   <button id="fetchLedgerBtn" class="btn">Fetch Ledger Info</button>
