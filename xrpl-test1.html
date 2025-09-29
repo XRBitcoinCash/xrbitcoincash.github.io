@@ -159,6 +159,11 @@ pre {
       <p id="walletStatus" class="status-text">Status: Not connected</p>
     </div>
 
+
+<button id="setTrustlineBtn" class="btn btn-primary">Set XRBC Trustline</button>
+<div id="trustlineMsg" class="status-text">—</div>
+
+    
     <!-- Ledger Info -->
     <div class="card" style="margin-bottom:24px;">
       <h2 style="margin-top:0;">Ledger Info</h2>
@@ -468,6 +473,59 @@ marketOrderBtn.addEventListener("click", async () => {
   }
 });
 
+// === Trustline Setup (Local) ===
+const setTrustlineBtn = document.getElementById("setTrustlineBtn");
+const trustlineMsg = document.getElementById("trustlineMsg");
+
+setTrustlineBtn.addEventListener("click", async () => {
+  trustlineMsg.textContent = "Preparing trustline request…";
+
+  try {
+    const account = requireWallet(); // ensure wallet is connected
+
+    const txjson = {
+      TransactionType: "TrustSet",
+      Account: account,
+      LimitAmount: {
+        currency: XRBC.currency,   // ✅ use your hex code
+        issuer: XRBC.issuer,       // ✅ use your issuer
+        value: "1000000"           // trustline limit (adjust if needed)
+      }
+    };
+
+    trustlineMsg.textContent = "Open Xaman to review & sign…";
+
+    const payload = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+      if (ev?.opened) trustlineMsg.textContent = "Payload opened in Xaman…";
+      if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
+    });
+
+    // === QR code for desktop users ===
+    if (payload?.created?.refs?.qr_png) {
+      const qr = document.createElement("img");
+      qr.src = payload.created.refs.qr_png;
+      qr.alt = "Scan with Xaman to set XRBC trustline";
+      qr.style.maxWidth = "240px";
+      qr.style.marginTop = "12px";
+
+      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+      trustlineMsg.appendChild(qr);
+    }
+
+    const result = await payload.resolved;
+    if (!result.signed) {
+      trustlineMsg.textContent = "Trustline not signed.";
+      return;
+    }
+
+    trustlineMsg.textContent = "✅ Trustline set successfully!";
+  } catch (err) {
+    trustlineMsg.textContent = "Error: " + err.message;
+  }
+});
+
+
+    
 })();   // closes the main async IIFE
 </script>
 </body>
