@@ -15,101 +15,80 @@
   <!-- Ledger info -->
   <button id="fetchLedgerBtn">Fetch Ledger Info</button>
   <pre id="ledgerOutput">—</pre>
-<!-- XRP Price -->
-<button id="fetchPriceBtn">Get XRP/USD Price</button>
-<p id="priceOutput">—</p>
 
-<!-- Config -->
-<script type="application/json" id="app-config">
-{
-  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
-}
-</script>
+  <!-- XRP Price -->
+  <button id="fetchPriceBtn">Get XRP/USD Price</button>
+  <p id="priceOutput">—</p>
 
+  <!-- Config -->
+  <script type="application/json" id="app-config">
+  {
+    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+  }
+  </script>
 
   <!-- Libraries -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script src="xrpl-connector.js"></script>
 
   <script>
-// === Common helpers ===
-async function getLedgerInfo() {
-  return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
-}
+  // === Load config ===
+  const cfg = JSON.parse(document.getElementById("app-config").textContent);
+  const PROXY_URL = cfg.proxyUrl;
 
-async function getAccountInfo(address) {
-  return await xrplRequest({ method: "account_info", params: [{ account: address, ledger_index: "validated" }] });
-}
-
-async function getServerInfo() {
-  return await xrplRequest({ method: "server_info" });
-}
-
-// === NEW: Get XRP/USD price from Bitstamp issuer ===
-async function getXrpUsdPrice() {
-  const payload = {
-    method: "book_offers",
-    params: [
-      {
-        taker_gets: { currency: "XRP" },
-        taker_pays: {
-          currency: "USD",
-          issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" // Bitstamp USD issuer
-        },
-        limit: 1
-      }
-    ]
-  };
-  const data = await xrplRequest(payload);
-
-  if (data.result && data.result.offers && data.result.offers.length > 0) {
-    // quality = price per XRP in USD
-    const offer = data.result.offers[0];
-    return parseFloat(offer.quality);
-  } else {
-    throw new Error("No offers found in XRP/USD book");
+  // === Proxy bridge: generic request ===
+  async function xrplRequest(payload) {
+    const res = await fetch(PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error("Proxy error: " + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
+    return data;
   }
-}
-  // xrpl-connector.js
-// All XRPL requests go through your Render proxy
 
-const cfgEl = document.getElementById("app-config");
-const cfg = JSON.parse(cfgEl.textContent);
-const PROXY_URL = cfg.proxyUrl;
+  // === Helpers ===
+  async function getLedgerInfo() {
+    return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
+  }
 
-/**
- * Send a request to XRPL via proxy
- */
-async function xrplRequest(payload) {
-  const res = await fetch(PROXY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error("Proxy error: " + res.status);
-  const data = await res.json();
-  if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
-  return data;
-}
+  async function getAccountInfo(address) {
+    return await xrplRequest({ method: "account_info", params: [{ account: address, ledger_index: "validated" }] });
+  }
 
-// === Common helpers ===
-async function getLedgerInfo() {
-  return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
-}
+  async function getServerInfo() {
+    return await xrplRequest({ method: "server_info" });
+  }
 
-async function getAccountInfo(address) {
-  return await xrplRequest({ method: "account_info", params: [{ account: address, ledger_index: "validated" }] });
-}
+  async function getXrpUsdPrice() {
+    const payload = {
+      method: "book_offers",
+      params: [
+        {
+          taker_gets: { currency: "XRP" },
+          taker_pays: {
+            currency: "USD",
+            issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" // Bitstamp USD issuer
+          },
+          limit: 1
+        }
+      ]
+    };
+    const data = await xrplRequest(payload);
 
-async function getServerInfo() {
-  return await xrplRequest({ method: "server_info" });
-}
+    if (data.result && data.result.offers && data.result.offers.length > 0) {
+      const offer = data.result.offers[0];
+      return parseFloat(offer.quality);
+    } else {
+      throw new Error("No offers found in XRP/USD book");
+    }
+  }
 
-    (async function(){
-    const cfg = JSON.parse(document.getElementById("app-config").textContent);
-
-    // === Xumm SDK ===
+  // === Main logic ===
+  (async function(){
+    // Wallet connect
     const xumm = new Xumm(cfg.xummApiKey);
     const btn = document.getElementById("connectWalletBtn");
     const statusEl = document.getElementById("walletStatus");
@@ -121,7 +100,7 @@ async function getServerInfo() {
 
     btn.addEventListener("click", async () => {
       try {
-        const auth = await xumm.authorize();
+        await xumm.authorize();
         const acct = await xumm.user.account;
         statusEl.textContent = "Connected: " + acct;
         window.__xrbcWallet = acct;
@@ -131,35 +110,35 @@ async function getServerInfo() {
       }
     });
 
- // === Proxy Ledger Fetch ===
-const ledgerBtn = document.getElementById("fetchLedgerBtn");
-const ledgerOut = document.getElementById("ledgerOutput");
+    // Ledger fetch
+    const ledgerBtn = document.getElementById("fetchLedgerBtn");
+    const ledgerOut = document.getElementById("ledgerOutput");
 
-ledgerBtn.addEventListener("click", async () => {
-  ledgerOut.textContent = "Loading ledger…";
-  try {
-    const info = await getLedgerInfo();
-    ledgerOut.textContent = JSON.stringify(info, null, 2);
-  } catch (err) {
-    ledgerOut.textContent = "Error: " + err.message;
-  }
-});
+    ledgerBtn.addEventListener("click", async () => {
+      ledgerOut.textContent = "Loading ledger…";
+      try {
+        const info = await getLedgerInfo();
+        ledgerOut.textContent = JSON.stringify(info, null, 2);
+      } catch (err) {
+        ledgerOut.textContent = "Error: " + err.message;
+      }
+    });
 
-// === Proxy Price Fetch ===
-const priceBtn = document.getElementById("fetchPriceBtn");
-const priceOut = document.getElementById("priceOutput");
+    // Price fetch
+    const priceBtn = document.getElementById("fetchPriceBtn");
+    const priceOut = document.getElementById("priceOutput");
 
-priceBtn.addEventListener("click", async () => {
-  priceOut.textContent = "Loading price…";
-  try {
-    const price = await getXrpUsdPrice();
-    priceOut.textContent = `XRP/USD ≈ $${price}`;
-  } catch (err) {
-    priceOut.textContent = "Error: " + err.message;
-  }
-});
-
+    priceBtn.addEventListener("click", async () => {
+      priceOut.textContent = "Loading price…";
+      try {
+        const price = await getXrpUsdPrice();
+        priceOut.textContent = `XRP/USD ≈ $${price}`;
+      } catch (err) {
+        priceOut.textContent = "Error: " + err.message;
+      }
+    });
   })();
   </script>
 </body>
 </html>
+
