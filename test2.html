@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- favicon… -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <meta name="msapplication-TileImage" content="/favicon.png">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>XRBitcoinCash — Test Page 2</title>
+
+  <!-- SEO -->
+  <meta name="description" content="XRBitcoinCash (XRBC) — Test Page 2 for XRPL ledger info with wallet connect." />
+  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, ledger, trustline, wallet connect" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash — Test Page 2" />
+  <meta property="og:description" content="Testing XRPL ledger info and wallet connect for XRBC." />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:url" content="https://xrbitcoincash.com/" />
+
+  <!-- CSS -->
+  <style>
+    :root {
+      --bg: #0B1020;
+      --card: #0F1724;
+      --ink: #ECF3FF;
+      --muted: #9EB2D0;
+      --accent: #00E5FF;
+    }
+    body {
+      margin: 0; font-family: Inter, Arial, sans-serif;
+      background: var(--bg); color: var(--ink);
+    }
+    header {
+      background: rgba(11,16,32,0.7); padding: 12px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    header img { width: 36px; border-radius: 8px; }
+    h1 { font-size: 1.2rem; margin: 0; }
+    main { max-width: 900px; margin: 60px auto; padding: 20px; }
+    .card {
+      background: var(--card); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 16px; margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 14px; border: none; border-radius: 10px;
+      font-weight: 600; cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), #00b6d0);
+      color: #00121a;
+    }
+    button:hover { opacity: 0.9; }
+    pre {
+      background: #121c2a; padding: 10px; border-radius: 10px;
+      overflow-x: auto; margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="/xrbc-nft.png" alt="XRBC logo" />
+  <h1>XRBitcoinCash — Test Page 2</h1>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Wallet Connection</h2>
+    <p id="walletStatus">Wallet not connected</p>
+    <button id="connectWalletBtn">Connect Wallet</button>
+  </div>
+
+  <div class="card">
+    <h2>XRPL Ledger Info (Current)</h2>
+    <button id="fetchLedger">Fetch Ledger Info</button>
+    <pre id="ledgerOutput">No data</pre>
+  </div>
+</main>
+
+<script type="module">
+  const PROXY_URL = "https://xrbitcoincash-github-io.onrender.com/api/xrpl/ledger";
+
+  // Wallet connect stub
+  const connectWalletBtn = document.getElementById("connectWalletBtn");
+  const walletStatusEl = document.getElementById("walletStatus");
+  connectWalletBtn.addEventListener("click", () => {
+    walletStatusEl.textContent = "Wallet connected (placeholder)";
+    alert("Wallet connect activated (stub)");
+  });
+
+  // Fetch ledger (with ledger_index: current)
+  document.getElementById("fetchLedger").addEventListener("click", async () => {
+    const output = document.getElementById("ledgerOutput");
+    output.textContent = "Loading...";
+    try {
+      const resp = await fetch(PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: "ledger",
+          params: [{ ledger_index: "current" }]
+        })
+      });
+      if (!resp.ok) throw new Error(`Proxy error: ${resp.status}`);
+      const data = await resp.json();
+      output.textContent = JSON.stringify(data.result, null, 2);
+    } catch (err) {
+      output.textContent = "Error: " + err.toString();
+    }
+  });
+</script>
+
+</body>
+</html>
