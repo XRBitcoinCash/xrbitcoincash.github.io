@@ -296,7 +296,13 @@ function requireWallet() {
     btn.addEventListener("click", async () => {
       try {
       await xumm.authorize();
-const acct = xumm.user.account;   // no "await"
+
+        
+        
+        const acct = await xumm.user.account;
+   
+        
+        // no "await"
 statusEl.textContent = "Connected: " + acct;
 window.__xrbcWallet = acct;
 
