@@ -171,7 +171,32 @@ pre {
   <p id="tradeMsg" class="small muted">—</p>
 </div>
 
+<!-- Floating background orbs -->
+<div class="orb"></div><div class="orb"></div><div class="orb"></div>
+<div class="orb"></div><div class="orb"></div><div class="orb"></div>
 
+<div class="container">
+  <h1>XRBitcoinCash Wallet Connect (via Proxy)</h1>
+
+  <!-- Wallet + Ledger row -->
+  <div class="row-flex">
+    <div class="card">
+      <h2>Wallet</h2>
+      <button id="connectWalletBtn" class="btn btn-primary">Connect</button>
+      <button id="disconnectWalletBtn" class="btn btn-secondary">Disconnect</button>
+      <span id="walletStatus" class="status-text">Disconnected</span>
+    </div>
+
+    <div class="card glow">
+      <h2>Ledger Info</h2>
+      <button id="fetchLedgerBtn" class="btn">Fetch</button>
+      <pre id="ledgerOutput">—</pre>
+    </div>
+  </div>
+</div>
+
+
+  
   
   <!-- Order Book -->
   <button id="fetchPriceBtn" class="btn">Get XRBC/XRP Order Book</button>
