@@ -300,11 +300,18 @@ btn.disabled = true;
     });
 // Disconnect wallet
 disconnectBtn.addEventListener("click", () => {
+  // Clear local account
   window.__xrbcWallet = null;
+
+  // Kill Xumm session so it doesn’t auto-connect
+  xumm.logout();
+
+  // Reset UI
   statusEl.textContent = "Status: Disconnected";
   disconnectBtn.disabled = true;
   btn.disabled = false;
 });
+
     // Ledger fetch
     document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
       const ledgerOut = document.getElementById("ledgerOutput");
