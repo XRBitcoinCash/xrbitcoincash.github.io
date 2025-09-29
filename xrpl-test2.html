@@ -313,36 +313,55 @@ async function getXrbcOrderBook() {
       }
     });
 
-    // Ledger fetch
-    const ledgerBtn = document.getElementById("fetchLedgerBtn");
-    const ledgerOut = document.getElementById("ledgerOutput");
+async function getXrbcOrderBook() {
+  const XRBC = {
+    currency: "5852626974636F696E6361736800000000000000", // XRbitcoincash HEX code
+    issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  };
 
-    ledgerBtn.addEventListener("click", async () => {
-      ledgerOut.textContent = "Loading ledger…";
-      try {
-        const info = await getLedgerInfo();
-        ledgerOut.textContent = JSON.stringify(info, null, 2);
-      } catch (err) {
-        ledgerOut.textContent = "Error: " + err.message;
-      }
-    });
-
-   // Order book (XRBC vs multiple markets) — uses xrplRequest -> PROXY_URL
-const priceBtn = document.getElementById("fetchPriceBtn");
-const priceOut = document.getElementById("priceOutput");
-
-priceBtn.addEventListener("click", async () => {
-  // Show a quick loading state
-  priceOut.textContent = "Loading XRBC order book…";
+  const rows = [];
 
   try {
-    // Assumes you added getXrbcOrderBook() in step 2
-    const html = await getXrbcOrderBook();   // <- internally calls xrplRequest(PROXY_URL)
-    priceOut.innerHTML = html;                // render the <table> markup
+    const payload = {
+      method: "book_offers",
+      params: [
+        {
+          taker_gets: XRBC, // sellers offering XRBC
+          taker_pays: { currency: "XRP" }, // buyers paying in XRP
+          limit: 5 // show top 5 offers for depth
+        }
+      ]
+    };
+
+    const data = await xrplRequest(payload);
+
+    if (data.result && data.result.offers && data.result.offers.length > 0) {
+      for (const offer of data.result.offers) {
+        const gets = offer.TakerGets.value
+          ? parseFloat(offer.TakerGets.value)
+          : parseFloat(offer.TakerGets) / 1_000_000; // XRP drops
+        const pays = offer.TakerPays.value
+          ? parseFloat(offer.TakerPays.value)
+          : parseFloat(offer.TakerPays) / 1_000_000;
+
+        const price = pays / gets;
+        rows.push(`<tr><td>XRP</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)} XRBC</td></tr>`);
+      }
+    } else {
+      rows.push(`<tr><td>XRP</td><td>No offers</td><td>-</td></tr>`);
+    }
   } catch (err) {
-    priceOut.textContent = "Error: " + err.message;
+    rows.push(`<tr><td>XRP</td><td>Error</td><td>${err.message}</td></tr>`);
   }
-});
+
+  return `
+    <table class="table">
+      <thead><tr><th>Market</th><th>Price (per XRBC)</th><th>Amount</th></tr></thead>
+      <tbody>${rows.join("")}</tbody>
+    </table>
+  `;
+}
+
 
   })();
   </script>
