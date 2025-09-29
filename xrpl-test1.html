@@ -413,7 +413,63 @@ placeOfferBtn.addEventListener("click", async () => {
   }
 });
 
-  
+
+});  // <--- end of placeOfferBtn.addEventListener
+
+// === Market Order ===
+const marketOrderBtn = document.getElementById("marketOrderBtn");
+marketOrderBtn.addEventListener("click", async () => {
+  try {
+    const account = requireWallet();
+    const side   = sideEl.value; // "buy" or "sell"
+    const amt    = Number(amountEl.value);
+
+    if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
+
+    let txjson;
+    if (side === "sell") {
+      // Sell XRBC at market
+      txjson = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+        TakerPays: "100000000000000000", // huge XRP max
+        Flags: 0x00020000 | 0x00080000 // tfImmediateOrCancel + tfSell
+      };
+    } else {
+      // Buy XRBC at market
+      txjson = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerGets: "100000000000000000", // huge XRP max
+        TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+        Flags: 0x00020000 // tfImmediateOrCancel
+      };
+    }
+
+    tradeMsg.textContent = "Open Xaman to review & sign (Market Order)…";
+
+    const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+      if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
+      if (ev?.signed === false) tradeMsg.textContent = "Order rejected.";
+    });
+
+    const result = await resolved;
+    if (!result.signed) {
+      tradeMsg.textContent = "Market order not signed.";
+      return;
+    }
+
+    tradeMsg.textContent = "Market order executed. Refreshing order book…";
+    const html = await getXrbcOrderBook();
+    document.getElementById("priceOutput").innerHTML = html;
+
+  } catch (err) {
+    tradeMsg.textContent = "Error: " + err.message;
+  }
+});
+
+    
   
   })();
   </script>
