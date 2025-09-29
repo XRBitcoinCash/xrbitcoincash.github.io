@@ -233,29 +233,61 @@ a:hover{ text-decoration: none; filter: brightness(1.1) }
     return await xrplRequest({ method: "server_info" });
   }
 
-  async function getXrpUsdPrice() {
-    const payload = {
-      method: "book_offers",
-      params: [
-        {
-          taker_gets: { currency: "XRP" },
-          taker_pays: {
-            currency: "USD",
-            issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" // Bitstamp USD issuer
-          },
-          limit: 1
-        }
-      ]
-    };
-    const data = await xrplRequest(payload);
+// === Build XRBC order book across multiple markets ===
+async function getXrbcOrderBook() {
+  // Currencies you want to show against XRBC
+  const markets = [
+    { code: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" }, // Bitstamp USD
+    { code: "XRP" }, // native, no issuer
+    { code: "BTC", issuer: "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq" }, // GateHub BTC
+    { code: "ETH", issuer: "rhub8VRN55s94qWKDv6jmDy1pUykJzF3wq" }  // GateHub ETH
+  ];
 
-    if (data.result && data.result.offers && data.result.offers.length > 0) {
-      const offer = data.result.offers[0];
-      return parseFloat(offer.quality);
-    } else {
-      throw new Error("No offers found in XRP/USD book");
+  const rows = [];
+
+  for (const mkt of markets) {
+    try {
+      const payload = {
+        method: "book_offers",
+        params: [
+          {
+            // People paying XRBC, getting other currency
+            taker_gets: { currency: "XRBC", issuer: "rXXXXXXXXXXXXXXXXXXXXXRBCISSUER" },
+            taker_pays: mkt.issuer
+              ? { currency: mkt.code, issuer: mkt.issuer }
+              : { currency: mkt.code },
+            limit: 1
+          }
+        ]
+      };
+      const data = await xrplRequest(payload);
+
+      if (data.result && data.result.offers && data.result.offers.length > 0) {
+        const offer = data.result.offers[0];
+        const gets = offer.TakerGets.value
+          ? parseFloat(offer.TakerGets.value)
+          : parseFloat(offer.TakerGets) / 1_000_000; // XRP
+        const pays = offer.TakerPays.value
+          ? parseFloat(offer.TakerPays.value)
+          : parseFloat(offer.TakerPays) / 1_000_000; // XRP
+
+        const price = pays / gets;
+        rows.push(`<tr><td>${mkt.code}</td><td>${price.toFixed(6)}</td></tr>`);
+      } else {
+        rows.push(`<tr><td>${mkt.code}</td><td>No offers</td></tr>`);
+      }
+    } catch (err) {
+      rows.push(`<tr><td>${mkt.code}</td><td>Error</td></tr>`);
     }
   }
+
+  return `
+    <table class="table">
+      <thead><tr><th>Market</th><th>Price (per XRBC)</th></tr></thead>
+      <tbody>${rows.join("")}</tbody>
+    </table>
+  `;
+}
 
   // === Main logic ===
   (async function(){
@@ -295,19 +327,23 @@ a:hover{ text-decoration: none; filter: brightness(1.1) }
       }
     });
 
-    // Price fetch
-    const priceBtn = document.getElementById("fetchPriceBtn");
-    const priceOut = document.getElementById("priceOutput");
+   // Order book (XRBC vs multiple markets) — uses xrplRequest -> PROXY_URL
+const priceBtn = document.getElementById("fetchPriceBtn");
+const priceOut = document.getElementById("priceOutput");
 
-    priceBtn.addEventListener("click", async () => {
-      priceOut.textContent = "Loading price…";
-      try {
-        const price = await getXrpUsdPrice();
-        priceOut.textContent = `XRP/USD ≈ $${price}`;
-      } catch (err) {
-        priceOut.textContent = "Error: " + err.message;
-      }
-    });
+priceBtn.addEventListener("click", async () => {
+  // Show a quick loading state
+  priceOut.textContent = "Loading XRBC order book…";
+
+  try {
+    // Assumes you added getXrbcOrderBook() in step 2
+    const html = await getXrbcOrderBook();   // <- internally calls xrplRequest(PROXY_URL)
+    priceOut.innerHTML = html;                // render the <table> markup
+  } catch (err) {
+    priceOut.textContent = "Error: " + err.message;
+  }
+});
+
   })();
   </script>
 </body>
