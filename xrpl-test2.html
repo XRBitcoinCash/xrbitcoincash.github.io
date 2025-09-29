@@ -2,86 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>XRBC · Wallet QR Connect</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { background:#0b1118; color:#e7eef8; font-family: Inter, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-    h1 { color:#a7ff83; }
-    #qr { margin:20px; padding:12px; background:white; border-radius:12px; }
-    #status { margin-top:10px; font-size:0.9rem; color:#98a2b3; }
-    button { padding:10px 16px; border-radius:10px; background:#121c2a; color:#e7eef8; border:1px solid #a7ff83; cursor:pointer; font-weight:bold; }
-    button:hover { background:#1d2a3c; }
-  </style>
+  <title>XRBitcoinCash · Proxy Wallet Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
+  <h1>XRBitcoinCash Wallet Connect (via Proxy)</h1>
 
-  <h1>Connect XRBC Wallet</h1>
-  <div id="qr"></div>
-  <div id="status">Waiting to generate QR…</div>
-  <button id="refreshBtn">Generate New QR</button>
+  <!-- Wallet connect -->
+  <button id="connectWalletBtn">Connect Wallet</button>
+  <p id="walletStatus">Status: Not connected</p>
+
+  <!-- Ledger info -->
+  <button id="fetchLedgerBtn">Fetch Ledger Info</button>
+  <pre id="ledgerOutput">—</pre>
 
   <!-- Config -->
   <script type="application/json" id="app-config">
   {
     "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "proxyWss": "wss://your-proxy.example.com" 
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com/xrpl"
   }
   </script>
 
-  <!-- Libs -->
+  <!-- Libraries -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xrpl@2.2.0/dist/npm/xrpl.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="xrpl-connector.js"></script>
 
   <script>
-  (function(){
-    const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  (async function(){
+    const cfg = JSON.parse(document.getElementById("app-config").textContent);
+
+    // === Xumm SDK ===
     const xumm = new Xumm(cfg.xummApiKey);
-    const qrDiv = document.getElementById('qr');
-    const statusEl = document.getElementById('status');
-    const refreshBtn = document.getElementById('refreshBtn');
+    const btn = document.getElementById("connectWalletBtn");
+    const statusEl = document.getElementById("walletStatus");
 
-    async function generateLoginQR(){
-      statusEl.textContent = "Requesting sign-in payload…";
+    xumm.on("ready", () => {
+      console.log("Xumm SDK ready");
+      btn.disabled = false;
+    });
+
+    btn.addEventListener("click", async () => {
       try {
-        const payload = await xumm.payload.create({ txjson:{ TransactionType:"SignIn" }});
-        const qrUrl = payload?.refs?.qr_png || payload?.next?.always;
-
-        if(qrUrl){
-          qrDiv.innerHTML = "";
-          const img = document.createElement('img');
-          img.src = qrUrl;
-          img.style.width="220px";
-          img.style.height="220px";
-          qrDiv.appendChild(img);
-          statusEl.textContent = "Scan this QR with Xaman Wallet on your phone.";
-        } else {
-          statusEl.textContent = "⚠ Could not get QR URL.";
-        }
-      } catch(err){
+        const auth = await xumm.authorize();
+        const acct = await xumm.user.account;
+        statusEl.textContent = "Connected: " + acct;
+        window.__xrbcWallet = acct;
+      } catch (err) {
         console.error(err);
-        statusEl.textContent = "⚠ Error creating login payload.";
+        statusEl.textContent = "Failed to connect wallet";
       }
-    }
+    });
 
-    refreshBtn.addEventListener('click', generateLoginQR);
+    // === Proxy Ledger Fetch ===
+    const ledgerBtn = document.getElementById("fetchLedgerBtn");
+    const ledgerOut = document.getElementById("ledgerOutput");
 
-    // Init: auto-generate on load
-    xumm.on("ready", ()=> generateLoginQR());
-
-    // === Proxy XRPL connect ===
-    async function connectXRPL(){
-      try{
-        const client = new xrpl.Client(cfg.proxyWss);
-        await client.connect();
-        console.log("✅ Connected to XRPL proxy:", cfg.proxyWss);
-        const info = await client.request({ command:"server_info" });
-        console.log("Server info:", info);
-      }catch(e){
-        console.error("❌ Proxy connect error:", e);
+    ledgerBtn.addEventListener("click", async () => {
+      ledgerOut.textContent = "Loading ledger…";
+      try {
+        const info = await getLedgerInfo();
+        ledgerOut.textContent = JSON.stringify(info, null, 2);
+      } catch (err) {
+        ledgerOut.textContent = "Error: " + err.message;
       }
-    }
-    connectXRPL();
+    });
   })();
   </script>
 </body>
