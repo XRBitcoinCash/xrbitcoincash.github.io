@@ -58,6 +58,25 @@
   <button id="fetchLedgerBtn" class="btn">Fetch Ledger Info</button>
   <pre id="ledgerOutput">—</pre>
 
+<hr class="div" />
+
+<!-- XRBC ↔ XRP Trade -->
+<div class="card" style="max-width:680px;padding:16px;margin:12px 0;">
+  <h2 style="margin:0 0 10px;">Trade XRBC ↔ XRP</h2>
+  <div class="row" style="gap:10px;margin-bottom:10px;">
+    <select id="side" class="input" style="max-width:140px;">
+      <option value="sell">Sell XRBC</option>
+      <option value="buy">Buy XRBC</option>
+    </select>
+    <input id="amount" class="input" type="number" step="0.000001" placeholder="Amount (XRBC)" style="max-width:180px;">
+    <input id="price" class="input" type="number" step="0.000001" placeholder="Price (XRP per XRBC)" style="max-width:220px;">
+    <button id="placeOfferBtn" class="btn btn-primary">Place Offer</button>
+  </div>
+  <p id="tradeMsg" class="small muted">—</p>
+</div>
+
+
+  
   <!-- Order Book -->
   <button id="fetchPriceBtn" class="btn">Get XRBC/XRP Order Book</button>
   <p id="priceOutput">—</p>
@@ -97,6 +116,18 @@
     return data;
   }
 
+
+// Drops utils
+const XRP_TO_DROPS = 1_000_000;
+const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
+
+// Guard: ensure wallet is connected
+function requireWallet() {
+  if (!window.__xrbcWallet) throw new Error("Connect your wallet first.");
+  return window.__xrbcWallet;
+}
+
+    
   // === Helpers ===
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
@@ -181,6 +212,69 @@
         priceOut.textContent = "Error: " + err.message;
       }
     });
+ 
+  // === Trading UI ===
+const placeOfferBtn = document.getElementById("placeOfferBtn");
+const sideEl   = document.getElementById("side");
+const amountEl = document.getElementById("amount");
+const priceEl  = document.getElementById("price");
+const tradeMsg = document.getElementById("tradeMsg");
+
+placeOfferBtn.addEventListener("click", async () => {
+  try {
+    const account = requireWallet();
+    const side   = sideEl.value;
+    const amt    = Number(amountEl.value);
+    const price  = Number(priceEl.value);
+
+    if (!amt || !price || amt <= 0 || price <= 0) {
+      throw new Error("Enter valid Amount & Price.");
+    }
+
+    let txjson;
+    if (side === "sell") {
+      const xrpTotal = price * amt;
+      txjson = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerGets: { currency: "5852626974636F696E6361736800000000000000", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", value: String(amt) },
+        TakerPays: toDrops(xrpTotal),
+        Flags: 0x00080000 // tfSell
+      };
+    } else {
+      const xrpTotal = price * amt;
+      txjson = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerGets: toDrops(xrpTotal),
+        TakerPays: { currency: "5852626974636F696E6361736800000000000000", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", value: String(amt) }
+      };
+    }
+
+    tradeMsg.textContent = "Open Xaman to review & sign…";
+
+    const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+      if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
+      if (ev?.signed === false) tradeMsg.textContent = "Offer rejected.";
+    });
+
+    const result = await resolved;
+    if (!result.signed) {
+      tradeMsg.textContent = "Offer not signed.";
+      return;
+    }
+
+    tradeMsg.textContent = "Offer submitted. Refreshing order book…";
+    const html = await getXrbcOrderBook();
+    document.getElementById("priceOutput").innerHTML = html;
+
+  } catch (err) {
+    tradeMsg.textContent = "Error: " + err.message;
+  }
+});
+
+  
+  
   })();
   </script>
 </body>
