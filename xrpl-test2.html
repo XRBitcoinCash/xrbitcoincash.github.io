@@ -2,174 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>XRBitcoinCash · Wallet + Proxy</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <!-- Favicon -->
-  <link rel="icon" href="/xrbc-nft.png" type="image/png">
-  <link rel="shortcut icon" href="/xrbc-nft.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/xrbc-nft.png">
-
-  <!-- Primary SEO -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade XRBC on Sologenic AMM. Non-custodial, transparent, 3s finality." />
-  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket" />
-  <link rel="canonical" href="https://xrbitcoincash.com/" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-  <meta property="og:url" content="https://xrbitcoincash.com/" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta name="twitter:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- CSS -->
-  <style>
-    /* (shortened — your CSS block goes here, same as you pasted) */
-    :root { --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF; }
-    html,body{margin:0;height:100%;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);}
-    .btn{padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;}
-    .btn.primary{background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;}
-    header{padding:10px 18px;display:flex;align-items:center;gap:10px;}
-    .brand img{width:44px;height:44px;border-radius:8px;}
-    .card{background:var(--card);padding:16px;border-radius:12px;margin:12px 0;}
-  </style>
+  <title>XRBitcoinCash · Proxy Wallet Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBC logo" />
-      <h1>XRBitcoinCash — XRBC on XRPL</h1>
-    </div>
-  </header>
+  <h1>XRBitcoinCash Wallet Connect (via Proxy)</h1>
 
-  <main>
-    <div class="card">
-      <button class="btn primary" id="connectWalletBtn">Connect Wallet</button>
-      <p id="walletStatus">Status: Not connected</p>
-    </div>
+  <!-- Wallet connect -->
+  <button id="connectWalletBtn">Connect Wallet</button>
+  <p id="walletStatus">Status: Not connected</p>
 
-    <div class="card">
-      <button class="btn primary" id="fetchLedgerBtn">Fetch Ledger Info</button>
-      <pre id="ledgerOutput">—</pre>
-    </div>
+  <!-- Ledger info -->
+  <button id="fetchLedgerBtn">Fetch Ledger Info</button>
+  <pre id="ledgerOutput">—</pre>
 
-    <div class="card">
-      <button class="btn primary" id="fetchPriceBtn">Get XRBC/USD Price</button>
-      <p id="priceOutput">—</p>
-    </div>
-
-    <div class="card">
-      <h3>XRBC/USD Order Book</h3>
-      <pre id="orderBookOutput">—</pre>
-    </div>
-  </main>
+  <!-- XRP Price -->
+  <button id="fetchPriceBtn">Get XRP/USD Price</button>
+  <p id="priceOutput">—</p>
 
   <!-- Config -->
   <script type="application/json" id="app-config">
   {
     "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "proxyUrl": "https://xrbc-frontend.onrender.com"
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
   }
   </script>
 
-  <!-- Xumm SDK -->
+  <!-- Libraries -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
 
   <script>
-  // === CONFIG ===
-  const cfgEl = document.getElementById("app-config");
-  const cfg = JSON.parse(cfgEl.textContent);
+  // === Load config ===
+  const cfg = JSON.parse(document.getElementById("app-config").textContent);
   const PROXY_URL = cfg.proxyUrl;
 
+  // === Proxy bridge: generic request ===
   async function xrplRequest(payload) {
     const res = await fetch(PROXY_URL, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
     if (!res.ok) throw new Error("Proxy error: " + res.status);
-    return res.json();
+    const data = await res.json();
+    if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
+    return data;
   }
 
-  // === Ledger ===
+  // === Helpers ===
   async function getLedgerInfo() {
-    return xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
+    return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
 
-  // === XRBC/USD Price ===
-  async function getXrbcUsdPrice() {
+  async function getAccountInfo(address) {
+    return await xrplRequest({ method: "account_info", params: [{ account: address, ledger_index: "validated" }] });
+  }
+
+  async function getServerInfo() {
+    return await xrplRequest({ method: "server_info" });
+  }
+
+  async function getXrpUsdPrice() {
     const payload = {
       method: "book_offers",
-      params: [{
-        taker_gets: { currency: "XRBC", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" },
-        taker_pays: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
-        limit: 1
-      }]
+      params: [
+        {
+          taker_gets: { currency: "XRP" },
+          taker_pays: {
+            currency: "USD",
+            issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" // Bitstamp USD issuer
+          },
+          limit: 1
+        }
+      ]
     };
     const data = await xrplRequest(payload);
-    if (data.result?.offers?.length) {
-      return parseFloat(data.result.offers[0].quality);
+
+    if (data.result && data.result.offers && data.result.offers.length > 0) {
+      const offer = data.result.offers[0];
+      return parseFloat(offer.quality);
+    } else {
+      throw new Error("No offers found in XRP/USD book");
     }
-    throw new Error("No XRBC/USD offers found");
   }
 
-  // === Order Book ===
-  async function getOrderBook() {
-    const payload = {
-      method: "book_offers",
-      params: [{
-        taker_gets: { currency: "XRBC", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" },
-        taker_pays: { currency: "USD", issuer: "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B" },
-        limit: 10
-      }]
-    };
-    return xrplRequest(payload);
-  }
-
+  // === Main logic ===
   (async function(){
+    // Wallet connect
     const xumm = new Xumm(cfg.xummApiKey);
-    const statusEl = document.getElementById("walletStatus");
     const btn = document.getElementById("connectWalletBtn");
+    const statusEl = document.getElementById("walletStatus");
 
-    xumm.on("ready", () => { btn.disabled = false; });
+    xumm.on("ready", () => {
+      console.log("Xumm SDK ready");
+      btn.disabled = false;
+    });
 
     btn.addEventListener("click", async () => {
       try {
         await xumm.authorize();
         const acct = await xumm.user.account;
         statusEl.textContent = "Connected: " + acct;
-      } catch { statusEl.textContent = "Failed to connect wallet"; }
+        window.__xrbcWallet = acct;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Failed to connect wallet";
+      }
     });
 
-    // Ledger
-    document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
-      const out = document.getElementById("ledgerOutput");
-      out.textContent = "Loading…";
-      try { out.textContent = JSON.stringify(await getLedgerInfo(), null, 2); }
-      catch (err) { out.textContent = "Error: " + err.message; }
-    });
+    // Ledger fetch
+    const ledgerBtn = document.getElementById("fetchLedgerBtn");
+    const ledgerOut = document.getElementById("ledgerOutput");
 
-    // XRBC Price
-    document.getElementById("fetchPriceBtn").addEventListener("click", async () => {
-      const out = document.getElementById("priceOutput");
-      out.textContent = "Loading…";
-      try { out.textContent = "XRBC/USD ≈ $" + (await getXrbcUsdPrice()); }
-      catch (err) { out.textContent = "Error: " + err.message; }
-    });
-
-    // Order Book
-    setInterval(async () => {
-      const out = document.getElementById("orderBookOutput");
+    ledgerBtn.addEventListener("click", async () => {
+      ledgerOut.textContent = "Loading ledger…";
       try {
-        const ob = await getOrderBook();
-        out.textContent = JSON.stringify(ob.result.offers.slice(0,5), null, 2);
-      } catch (err) { out.textContent = "Order book error: " + err.message; }
-    }, 10000); // refresh every 10s
+        const info = await getLedgerInfo();
+        ledgerOut.textContent = JSON.stringify(info, null, 2);
+      } catch (err) {
+        ledgerOut.textContent = "Error: " + err.message;
+      }
+    });
+
+    // Price fetch
+    const priceBtn = document.getElementById("fetchPriceBtn");
+    const priceOut = document.getElementById("priceOutput");
+
+    priceBtn.addEventListener("click", async () => {
+      priceOut.textContent = "Loading price…";
+      try {
+        const price = await getXrpUsdPrice();
+        priceOut.textContent = `XRP/USD ≈ $${price}`;
+      } catch (err) {
+        priceOut.textContent = "Error: " + err.message;
+      }
+    });
   })();
   </script>
 </body>
