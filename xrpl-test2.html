@@ -179,17 +179,17 @@ a:hover{ text-decoration: none; filter: brightness(1.1) }
 <body>
   <h1>XRBitcoinCash Wallet Connect (via Proxy)</h1>
 
-  <!-- Wallet connect -->
-  <button id="connectWalletBtn">Connect Wallet</button>
-  <p id="walletStatus">Status: Not connected</p>
+<!-- Wallet connect -->
+<button id="connectWalletBtn" class="btn btn-primary">Connect Wallet</button>
+<p id="walletStatus">Status: Not connected</p>
 
-  <!-- Ledger info -->
-  <button id="fetchLedgerBtn">Fetch Ledger Info</button>
-  <pre id="ledgerOutput">—</pre>
+<!-- Ledger info -->
+<button id="fetchLedgerBtn" class="btn btn-secondary">Fetch Ledger Info</button>
+<pre id="ledgerOutput">—</pre>
 
-  <!-- XRP Price -->
-  <button id="fetchPriceBtn">Get XRP/USD Price</button>
-  <p id="priceOutput">—</p>
+<!-- XRP Price -->
+<button id="fetchPriceBtn" class="btn">Get XRP/USD Price</button>
+<p id="priceOutput">—</p>
 
   <!-- Config -->
   <script type="application/json" id="app-config">
