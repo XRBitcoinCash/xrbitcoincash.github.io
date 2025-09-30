@@ -298,8 +298,24 @@ function requireWallet() {
     
     const disconnectBtn = document.getElementById("disconnectWalletBtn");
 
+let hasSavedAcct = false;  // tracks if we restored a prior session
+
+    // Restore persisted connection on refresh (if present)
+const savedAcct = localStorage.getItem("xrbcWallet");
+if (savedAcct) {
+  hasSavedAcct = true;
+  window.__xrbcWallet = savedAcct;
+  statusEl.textContent = "Connected: " + savedAcct;
+  disconnectBtn.disabled = false;
+  btn.disabled = true; // keep "Connect" disabled while connected
+}
+
+
     
-    xumm.on("ready", () => { btn.disabled = false; });
+   xumm.on("ready", () => { if (!hasSavedAcct) btn.disabled = false; });
+
+
+    
     btn.addEventListener("click", async () => {
       try {
       await xumm.authorize();
@@ -309,9 +325,9 @@ function requireWallet() {
         const acct = await xumm.user.account;
    
         
-        // no "await"
-statusEl.textContent = "Connected: " + acct;
+    statusEl.textContent = "Connected: " + acct;
 window.__xrbcWallet = acct;
+localStorage.setItem("xrbcWallet", acct);  // <-- persist to browser
 
 // update buttons
 disconnectBtn.disabled = false;
@@ -324,8 +340,10 @@ btn.disabled = true;
     });
 // Disconnect wallet
 disconnectBtn.addEventListener("click", () => {
-  // Clear local account
-  window.__xrbcWallet = null;
+
+  // Clear local + persistent account
+window.__xrbcWallet = null;
+localStorage.removeItem("xrbcWallet");
 
   // Kill Xumm session so it doesn’t auto-connect
   xumm.logout();
