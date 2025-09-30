@@ -333,6 +333,12 @@ pre {
     </div>
 
   </div>
+<!-- AMM Pool Info -->
+<div class="card" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;">XRBC/XRP AMM Pool</h2>
+  <div id="ammPoolOutput">—</div>
+</div>
+
 </body>
 
   <!-- Config -->
@@ -575,20 +581,48 @@ function recalcTotals() {
 }
 [amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
 
-// Best Price (top-of-book) filler
+// === Best Price from AMM pool ===
 async function fillBestPrice() {
   try {
     const side = sideEl.value; // "buy" or "sell"
-    // For buying XRBC: we take the best Ask (XRBC -> XRP)
-    // For selling XRBC: we take the best Bid (XRP -> XRBC)
-    const params = (side === "buy")
-      ? { taker_gets: XRBC,         taker_pays: { currency: "XRP" } }
-      : { taker_gets: { currency: "XRP" }, taker_pays: XRBC };
 
+    // Query AMM pool info for XRBC/XRP
     const data = await xrplRequest({
-      method: "book_offers",
-      params: [{ ...params, limit: 1 }]
+      method: "amm_info",
+      params: [
+        {
+          asset: { currency: "XRP" },
+          asset2: { currency: XRBC.currency, issuer: XRBC.issuer }
+        }
+      ]
     });
+
+    const amm = data.result?.amm;
+    if (!amm) throw new Error("No AMM found for XRBC/XRP");
+
+    const reserveXrp  = parseFloat(amm.amount);         // XRP side
+    const reserveXrbc = parseFloat(amm.amount2.value);  // XRBC side
+
+    // Price is XRP per XRBC
+    const price = reserveXrp / reserveXrbc;
+
+    priceEl.value = Number(price).toFixed(6);
+    recalcTotals();
+
+    tradeMsg.textContent = "Best price pulled from XRBC/XRP AMM pool.";
+    tradeMsg.classList.remove("err");
+    tradeMsg.classList.add("ok");
+
+    // Also update AMM Pool display
+    updateAmmPool(amm);
+
+  } catch (e) {
+    tradeMsg.textContent = "Could not fetch AMM price: " + e.message;
+    tradeMsg.classList.remove("ok");
+    tradeMsg.classList.add("err");
+  }
+}
+
 
     const offer = data.result?.offers?.[0];
     if (!offer) throw new Error("No quotes available");
@@ -780,6 +814,31 @@ setTrustlineBtn.addEventListener("click", async () => {
   }
 });
 
+// Render AMM pool info in the UI
+function updateAmmPool(amm) {
+  const out = document.getElementById("ammPoolOutput");
+  if (!amm) {
+    out.textContent = "No AMM pool data.";
+    return;
+  }
+
+  const reserveXrp  = parseFloat(amm.amount);
+  const reserveXrbc = parseFloat(amm.amount2.value);
+  const fee         = amm.trading_fee / 1000; // basis points -> %
+
+  out.innerHTML = `
+    <table class="table">
+      <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Fee</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>${reserveXrp.toFixed(2)}</td>
+          <td>${reserveXrbc.toFixed(2)}</td>
+          <td>${fee.toFixed(2)}%</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
 
     
 })();   // closes the main async IIFE
