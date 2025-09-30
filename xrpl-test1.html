@@ -162,14 +162,78 @@ pre {
   max-height: 40px; /* keeps logo from being oversized */
 }
   
-  
+
+/* --- Trade UI polish (does not affect logic) --- */
+.trade-card { display: grid; gap: 12px; text-align: left; }
+
+.tabset { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tab {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #0e1520, #0c131c);
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Force text color */
+.tab.buy  { color: #22c55e; }   /* green text */
+.tab.sell { color: #ef4444; }   /* red text */
+
+.tab.buy.active {
+  border-color: rgba(34,197,94,.5);
+  box-shadow: 0 0 0 2px rgba(34,197,94,.15) inset;
+}
+
+.tab.sell.active {
+  border-color: rgba(239,68,68,.5);
+  box-shadow: 0 0 0 2px rgba(239,68,68,.15) inset;
+}
+
+
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0c131c;
+  color: var(--text);
+}
+.field .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+
+.inline-hint { font-size: 12px; color: var(--muted); }
+
+.total-line {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #0b1119, #0a0f15);
+}
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.amount-row img {
+  max-height: 22px;
+}
+
+.button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 600px) { .button-row { grid-template-columns: 1fr; } }
+
+    
   </style>
 </head>
 
 <header class="site-header">
   <div class="brand" style="flex-direction: column; justify-content: center; text-align: center;">
     <img src="/xrbc-nft.png" alt="XRBC logo" />
-    <h1>XRBitcoinCash <span class="muted small">— XRBC on XRPL</span></h1>
+    <h1>XRBitcoinCash</h1>
     <a href="https://xrbitcoincash.com/" class="btn btn-secondary" style="margin-top: 12px;">Home</a>
   </div>
 </header>
@@ -206,22 +270,60 @@ pre {
       <pre id="ledgerOutput" style="text-align:left;">—</pre>
     </div>
 
-    <!-- Trade Section -->
-    <div class="card" style="margin-bottom:24px;">
-      <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:16px 0;">
-        <select id="side" class="input" style="max-width:140px;">
-          <option value="sell">Sell XRBC</option>
-          <option value="buy">Buy XRBC</option>
-        </select>
-        <input id="amount" class="input" type="number" step="0.000001" placeholder="Amount (XRBC)" style="max-width:180px;">
-        <input id="price" class="input" type="number" step="0.000001" placeholder="Price (XRP per XRBC)" style="max-width:220px;">
-       <button id="placeOfferBtn" class="btn btn-primary glow-btn">Place Offer (Limit)</button>
-<button id="marketOrderBtn" class="btn btn-secondary glow-btn">Market Order</button>
+  <div class="card" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
 
-      </div>
-      <p id="tradeMsg" class="status-text">—</p>
+  <div class="trade-card" id="tradeCard">
+    <!-- Tabs -->
+    <div class="tabset">
+      <button id="buyTab" class="tab buy active" type="button">Buy XRBC</button>
+      <button id="sellTab" class="tab sell" type="button">Sell XRBC</button>
     </div>
+
+<!-- Amount -->
+<div class="field">
+  <label for="amount">Amount (XRBC)</label>
+  <div class="amount-row">
+    <img src="/xrbc-nft.png" alt="XRBC logo">
+    <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
+  </div>
+  <div class="inline-hint">How many XRBC you want to <span id="actionWord">collect</span>.</div>
+</div>
+
+
+
+    <!-- Price -->
+    <div class="field" id="priceField">
+      <label for="price">Price (XRP per XRBC)</label>
+      <div class="row">
+        <input id="price" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.500000">
+        <button class="btn btn-secondary" id="suggestPriceBtn" type="button">Best Price</button>
+      </div>
+      <div class="inline-hint">Limit price. Use <em>Market Order</em> to execute at best available price.</div>
+    </div>
+
+    <!-- Total -->
+    <div class="total-line">
+      <span>Total</span>
+      <strong id="totalXrp">0.000000 XRP</strong>
+    </div>
+
+    <!-- Actions -->
+    <div class="button-row">
+      <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
+      <button id="marketOrderBtn" class="btn btn-secondary" type="button">Market Order</button>
+    </div>
+
+    <p id="tradeMsg" class="status-text">—</p>
+
+    <!-- Keep 'side' for existing JS logic (hidden) -->
+    <select id="side" style="display:none">
+      <option value="buy" selected>Buy</option>
+      <option value="sell">Sell</option>
+    </select>
+  </div>
+</div>
+
 
     <!-- Order Book -->
     <div class="card" style="margin-bottom:24px;">
@@ -231,19 +333,23 @@ pre {
     </div>
 
   </div>
-</body>
+<!-- AMM Pool Info -->
+<div class="card" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;">XRBC/XRP AMM Pool</h2>
+  <div id="ammPoolOutput">—</div>
+</div>
 
-  <!-- Config -->
-  <script type="application/json" id="app-config">
-  {
-    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
-  }
-  </script>
+<!-- Config -->
+<script type="application/json" id="app-config">
+{
+  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+}
+</script>
 
-  <!-- Libraries -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script>
+<!-- Libraries -->
+<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+<script>
   // === Config ===
   const cfg = JSON.parse(document.getElementById("app-config").textContent);
   const PROXY_URL = cfg.proxyUrl;
@@ -389,43 +495,44 @@ localStorage.removeItem("xrbcWallet");
   btn.disabled = false;
 });
 
-   // Ledger fetch
+ // Ledger fetch
 document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
   const ledgerOut = document.getElementById("ledgerOutput");
   let seconds = 0;
-  const maxSeconds = 12;
+  const maxSeconds = 30;
+
+  const messages = [
+    "Initializing secure connection…",
+    "Establishing proxy communication…",
+    "Synchronizing with XRPL Ledger…",
+    "Validating ledger data integrity…",
+    "Establishing secure connection to digital environment…",
+    "Finalizing ledger response…"
+  ];
 
   // Initial message
-  ledgerOut.textContent = "Connecting to XRPL through proxy… please wait";
+  ledgerOut.textContent = messages[0];
   ledgerOut.style.color = "#9fb0c5";
 
-  // Blinking + timer
+  // Cycle through messages
   const interval = setInterval(() => {
     seconds++;
-    ledgerOut.textContent = `Connecting to XRPL through proxy… ${seconds}s elapsed`;
-    ledgerOut.style.visibility = ledgerOut.style.visibility === "hidden" ? "visible" : "hidden";
-
-    if (seconds >= maxSeconds) {
-      clearInterval(interval);
-      ledgerOut.style.visibility = "visible";
-      ledgerOut.style.color = "#f59e0b";
-      ledgerOut.textContent = "Connection is taking longer than expected — proxy or XRPL node may be slow.";
-    }
-  }, 1000);
+    const msgIndex = Math.floor((seconds / 2) % messages.length); 
+    ledgerOut.textContent = messages[msgIndex] + ` (${seconds}s)`;
+  }, 2000);
 
   try {
     const info = await getLedgerInfo();
     clearInterval(interval);
-    ledgerOut.style.visibility = "visible";
-    ledgerOut.style.color = "#a3e4ff"; // back to normal
+    ledgerOut.style.color = "#a3e4ff";
     ledgerOut.textContent = JSON.stringify(info, null, 2);
   } catch (err) {
     clearInterval(interval);
-    ledgerOut.style.visibility = "visible";
-    ledgerOut.style.color = "#ef4444"; // error red
+    ledgerOut.style.color = "#ef4444";
     ledgerOut.textContent = "Error: " + err.message;
   }
 });
+
 
     // Order book
     document.getElementById("fetchPriceBtn").addEventListener("click", async () => {
@@ -446,6 +553,118 @@ const amountEl = document.getElementById("amount");
 const priceEl  = document.getElementById("price");
 const tradeMsg = document.getElementById("tradeMsg");
 
+// --- UX helpers (do not change your order logic) ---
+const tradeCard   = document.getElementById("tradeCard");
+const buyTab      = document.getElementById("buyTab");
+const sellTab     = document.getElementById("sellTab");
+const totalXrpEl  = document.getElementById("totalXrp");
+const suggestBtn  = document.getElementById("suggestPriceBtn");
+const actionWordEl= document.getElementById("actionWord");
+
+// Color/labels + side switcher
+function setSide(side) {
+  sideEl.value = side;
+  buyTab.classList.toggle("active", side === "buy");
+  sellTab.classList.toggle("active", side === "sell");
+  if (actionWordEl) actionWordEl.textContent = side;
+  recalcTotals();
+}
+
+// Live total calculator
+function recalcTotals() {
+  const amt = Number(amountEl.value) || 0;
+  const px  = Number(priceEl.value)  || 0;
+  const total = amt * px;
+  totalXrpEl.textContent = (isFinite(total) ? total : 0).toFixed(6) + " XRP";
+}
+[amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
+
+// === Best Price from AMM pool ===
+async function fillBestPrice() {
+  try {
+    const side   = sideEl.value; // "buy" or "sell"
+    const amount = Number(amountEl.value);
+    if (!amount || amount <= 0) throw new Error("Enter a valid XRBC amount");
+
+    // Query AMM pool info
+    const data = await xrplRequest({
+      method: "amm_info",
+      params: [
+        {
+          asset: { currency: "XRP" },
+          asset2: { currency: XRBC.currency, issuer: XRBC.issuer }
+        }
+      ]
+    });
+
+    const amm = data.result?.amm;
+    if (!amm) throw new Error("No AMM found for XRBC/XRP");
+
+    // ✅ FIXED: convert drops → XRP
+    const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
+    const reserveXrbc = parseFloat(amm.amount2.value);
+    const feeRate     = amm.trading_fee / 1_000_000;
+
+    const k = reserveXrp * reserveXrbc;
+    let effectivePrice;
+
+    if (side === "buy") {
+      const newReserveY = reserveXrbc - amount;
+      if (newReserveY <= 0) throw new Error("Not enough XRBC liquidity");
+      const newReserveX = k / newReserveY;
+      let xrpIn = newReserveX - reserveXrp;
+      const fee = xrpIn * feeRate;
+      xrpIn += fee;
+      effectivePrice = xrpIn / amount;
+    } else {
+      const newReserveY = reserveXrbc + amount;
+      const newReserveX = k / newReserveY;
+      let xrpOut = reserveXrp - newReserveX;
+      const fee = xrpOut * feeRate;
+      xrpOut -= fee;
+      if (xrpOut <= 0) throw new Error("Not enough XRP liquidity");
+      effectivePrice = xrpOut / amount;
+    }
+
+    priceEl.value = Number(effectivePrice).toFixed(6);
+    recalcTotals();
+
+    tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
+    tradeMsg.classList.remove("err");
+    tradeMsg.classList.add("ok");
+
+    updateAmmPool(amm);
+
+  } catch (e) {
+    tradeMsg.textContent = "Could not fetch AMM price: " + e.message;
+    tradeMsg.classList.remove("ok");
+    tradeMsg.classList.add("err");
+  }
+}
+
+
+
+
+  
+// Wire up tabs + default state
+buyTab.addEventListener("click", () => setSide("buy"));
+sellTab.addEventListener("click", () => setSide("sell"));
+if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
+setSide(sideEl.value || "buy"); // initialize
+recalcTotals();
+
+// === Auto-refresh Best Price every 10s ===
+setInterval(() => {
+  // only refresh if user entered a valid amount
+  const amt = Number(amountEl.value);
+  if (amt > 0) {
+    fillBestPrice().catch(err => console.error("Auto-refresh error:", err));
+  }
+}, 10000);
+
+
+    
+    
 placeOfferBtn.addEventListener("click", async () => {
   try {
     const account = requireWallet();
@@ -603,6 +822,32 @@ setTrustlineBtn.addEventListener("click", async () => {
   }
 });
 
+// Render AMM pool info in the UI
+function updateAmmPool(amm) {
+  const out = document.getElementById("ammPoolOutput");
+  if (!amm) {
+    out.textContent = "No AMM pool data.";
+    return;
+  }
+
+  // ✅ FIXED: convert drops → XRP
+  const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
+  const reserveXrbc = parseFloat(amm.amount2.value);
+  const fee         = amm.trading_fee / 1000; // basis points → %
+
+  out.innerHTML = `
+    <table class="table">
+      <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Fee</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>${reserveXrp.toFixed(2)}</td>
+          <td>${reserveXrbc.toFixed(2)}</td>
+          <td>${fee.toFixed(2)}%</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
 
     
 })();   // closes the main async IIFE
