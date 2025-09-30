@@ -654,7 +654,6 @@ async function fillBestPrice() {
     tradeMsg.classList.remove("err");
     tradeMsg.classList.add("ok");
 
-    updateAmmPool(amm);
 
   } catch (e) {
     tradeMsg.textContent = "Could not fetch AMM price: " + e.message;
