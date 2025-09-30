@@ -819,56 +819,48 @@ setTrustlineBtn.addEventListener("click", async () => {
       if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
     });
 
-    // === QR code for desktop users ===
-    if (payload?.created?.refs?.qr_png) {
-      const qr = document.createElement("img");
-      qr.src = payload.created.refs.qr_png;
-      qr.alt = "Scan with Xaman to set XRBC trustline";
-      qr.style.maxWidth = "240px";
-      qr.style.marginTop = "12px";
+ // === QR code for desktop, link for mobile ===
+if (payload?.created?.refs?.qr_png) {
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-      trustlineMsg.appendChild(qr);
-    }
+  if (isMobile) {
+    // 📱 Mobile → show link instead of QR
+    const link = document.createElement("a");
+    link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
+    link.textContent = "👉 Tap here to set XRBC Trustline";
+    link.target = "_blank";
+    link.style.display = "inline-block";
+    link.style.marginTop = "12px";
+    link.style.color = "#60a5fa";
+    link.style.fontWeight = "600";
 
-    const result = await payload.resolved;
-    if (!result.signed) {
-      trustlineMsg.textContent = "Trustline not signed.";
-      return;
-    }
+    trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
+    trustlineMsg.appendChild(link);
+  } else {
+    // 🖥️ Desktop → show QR
+    const qr = document.createElement("img");
+    qr.src = payload.created.refs.qr_png;
+    qr.alt = "Scan with Xaman to set XRBC trustline";
+    qr.style.maxWidth = "240px";
+    qr.style.marginTop = "12px";
 
-    trustlineMsg.textContent = "✅ Trustline set successfully!";
-  } catch (err) {
-    trustlineMsg.textContent = "Error: " + err.message;
+    trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+    trustlineMsg.appendChild(qr);
   }
+}
+
+const result = await payload.resolved;
+if (!result.signed) {
+  trustlineMsg.textContent = "Trustline not signed.";
+  return;
+}
+
+trustlineMsg.textContent = "✅ Trustline set successfully!";
+} catch (err) {
+  trustlineMsg.textContent = "Error: " + err.message;
+}
 });
 
-// Render AMM pool info in the UI
-function updateAmmPool(amm) {
-  const out = document.getElementById("ammPoolOutput");
-  if (!amm) {
-    out.textContent = "No AMM pool data.";
-    return;
-  }
-
-  // ✅ FIXED: convert drops → XRP
-  const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
-  const reserveXrbc = parseFloat(amm.amount2.value);
-  const fee         = amm.trading_fee / 1000; // basis points → %
-
-  out.innerHTML = `
-    <table class="table">
-      <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Fee</th></tr></thead>
-      <tbody>
-        <tr>
-          <td>${reserveXrp.toFixed(2)}</td>
-          <td>${reserveXrbc.toFixed(2)}</td>
-          <td>${fee.toFixed(2)}%</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-}
 
     
 })();   // closes the main async IIFE
