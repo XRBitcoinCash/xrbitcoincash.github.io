@@ -801,7 +801,26 @@ setTrustlineBtn.addEventListener("click", async () => {
 
   try {
     const account = requireWallet(); // ensure wallet is connected
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
+    if (isMobile) {
+      // 📱 Mobile → skip payload, just show link
+      const link = document.createElement("a");
+      link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
+      link.textContent = "👉 Tap here to set XRBC Trustline";
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.style.display = "inline-block";
+      link.style.marginTop = "12px";
+      link.style.color = "#60a5fa";
+      link.style.fontWeight = "600";
+
+      trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
+      trustlineMsg.appendChild(link);
+      return; // ✅ nothing else to do on mobile
+    }
+
+    // 🖥️ Desktop → Xumm payload + QR
     const txjson = {
       TransactionType: "TrustSet",
       Account: account,
@@ -812,48 +831,23 @@ setTrustlineBtn.addEventListener("click", async () => {
       }
     };
 
-    trustlineMsg.textContent = "Open Xaman to review & sign…";
-
     const payload = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
       if (ev?.opened) trustlineMsg.textContent = "Payload opened in Xaman…";
       if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
     });
 
-    // === QR code (desktop) OR Link (mobile) ===
     if (payload?.created?.refs?.qr_png) {
-      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      const qr = document.createElement("img");
+      qr.src = payload.created.refs.qr_png;
+      qr.alt = "Scan with Xaman to set XRBC trustline";
+      qr.style.maxWidth = "240px";
+      qr.style.marginTop = "12px";
 
-      if (isMobile) {
-        // 📱 Mobile → link to external trustline page
-        const link = document.createElement("a");
-        link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
-        link.textContent = "👉 Tap here to set XRBC Trustline";
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.style.display = "inline-block";
-        link.style.marginTop = "12px";
-        link.style.color = "#60a5fa";
-        link.style.fontWeight = "600";
-
-        trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
-        trustlineMsg.appendChild(link);
-
-        // ✅ Don’t wait for resolution on mobile
-        return;
-      } else {
-        // 🖥️ Desktop → show QR code
-        const qr = document.createElement("img");
-        qr.src = payload.created.refs.qr_png;
-        qr.alt = "Scan with Xaman to set XRBC trustline";
-        qr.style.maxWidth = "240px";
-        qr.style.marginTop = "12px";
-
-        trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-        trustlineMsg.appendChild(qr);
-      }
+      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+      trustlineMsg.appendChild(qr);
     }
 
-    // === Wait for user resolution (desktop only) ===
+    // Wait for resolution
     const result = await payload.resolved;
     if (!result.signed) {
       trustlineMsg.textContent = "Trustline not signed.";
@@ -865,6 +859,7 @@ setTrustlineBtn.addEventListener("click", async () => {
     trustlineMsg.textContent = "Error: " + err.message;
   }
 });
+
 
     
 })();   // closes the main async IIFE
