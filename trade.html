@@ -819,16 +819,17 @@ setTrustlineBtn.addEventListener("click", async () => {
       if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
     });
 
- // === QR code for desktop, link for mobile ===
+// === QR code (desktop) OR Link (mobile) ===
 if (payload?.created?.refs?.qr_png) {
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
   if (isMobile) {
-    // 📱 Mobile → show link instead of QR
+    // 📱 Mobile → link to external trustline page
     const link = document.createElement("a");
     link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
     link.textContent = "👉 Tap here to set XRBC Trustline";
     link.target = "_blank";
+    link.rel = "noopener noreferrer";
     link.style.display = "inline-block";
     link.style.marginTop = "12px";
     link.style.color = "#60a5fa";
@@ -837,7 +838,7 @@ if (payload?.created?.refs?.qr_png) {
     trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
     trustlineMsg.appendChild(link);
   } else {
-    // 🖥️ Desktop → show QR
+    // 🖥️ Desktop → show QR code
     const qr = document.createElement("img");
     qr.src = payload.created.refs.qr_png;
     qr.alt = "Scan with Xaman to set XRBC trustline";
@@ -849,6 +850,7 @@ if (payload?.created?.refs?.qr_png) {
   }
 }
 
+// === Wait for user resolution ===
 const result = await payload.resolved;
 if (!result.signed) {
   trustlineMsg.textContent = "Trustline not signed.";
@@ -856,11 +858,6 @@ if (!result.signed) {
 }
 
 trustlineMsg.textContent = "✅ Trustline set successfully!";
-} catch (err) {
-  trustlineMsg.textContent = "Error: " + err.message;
-}
-});
-
 
     
 })();   // closes the main async IIFE
