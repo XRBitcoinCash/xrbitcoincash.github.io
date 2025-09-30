@@ -579,19 +579,19 @@ function recalcTotals() {
 }
 [amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
 
-// === Best Price from AMM pool (uses user amount) ===
+// === Best Price from AMM pool ===
 async function fillBestPrice() {
   try {
     const side   = sideEl.value; // "buy" or "sell"
     const amount = Number(amountEl.value);
-    if (!amount || amount <= 0) throw new Error("Enter a valid amount first.");
+    if (!amount || amount <= 0) throw new Error("Enter a valid XRBC amount");
 
-    // Query AMM pool info for XRBC/XRP
+    // Query AMM pool info
     const data = await xrplRequest({
       method: "amm_info",
       params: [
         {
-          asset:  { currency: "XRP" },
+          asset: { currency: "XRP" },
           asset2: { currency: XRBC.currency, issuer: XRBC.issuer }
         }
       ]
@@ -600,35 +600,34 @@ async function fillBestPrice() {
     const amm = data.result?.amm;
     if (!amm) throw new Error("No AMM found for XRBC/XRP");
 
-    // Pool reserves
-    let reserveXrp  = parseFloat(amm.amount);         // XRP side
-    let reserveXrbc = parseFloat(amm.amount2.value);  // XRBC side
-    const k = reserveXrp * reserveXrbc;               // invariant
+    const reserveXrp  = parseFloat(amm.amount);
+    const reserveXrbc = parseFloat(amm.amount2.value);
+    const feeRate     = amm.trading_fee / 1_000_000; // fee is in millionths
 
-    // Trading fee (parts per million → decimal)
-    const fee = amm.trading_fee / 1_000_000;
-
+    const k = reserveXrp * reserveXrbc;
     let effectivePrice;
 
     if (side === "buy") {
-      const newReserveXrbc = reserveXrbc - amount;
-      if (newReserveXrbc <= 0) throw new Error("Pool too shallow for this trade.");
-
-      const newReserveXrp = k / newReserveXrbc;
-      const xrpIn = newReserveXrp - reserveXrp;
-      const xrpInWithFee = xrpIn / (1 - fee);
-
-      effectivePrice = xrpInWithFee / amount; // XRP per XRBC
+      // Buyer wants `amount` XRBC
+      const newReserveY = reserveXrbc - amount;
+      if (newReserveY <= 0) throw new Error("Not enough XRBC liquidity");
+      const newReserveX = k / newReserveY;
+      let xrpIn = newReserveX - reserveXrp;
+      const fee = xrpIn * feeRate;
+      xrpIn += fee;
+      effectivePrice = xrpIn / amount;
     } else {
-      const newReserveXrbc = reserveXrbc + amount;
-      const newReserveXrp = k / newReserveXrbc;
-      const xrpOut = reserveXrp - newReserveXrp;
-      const xrpOutWithFee = xrpOut * (1 - fee);
-
-      effectivePrice = xrpOutWithFee / amount; // XRP per XRBC
+      // Seller wants to sell `amount` XRBC
+      const newReserveY = reserveXrbc + amount;
+      const newReserveX = k / newReserveY;
+      let xrpOut = reserveXrp - newReserveX;
+      const fee = xrpOut * feeRate;
+      xrpOut -= fee;
+      if (xrpOut <= 0) throw new Error("Not enough XRP liquidity");
+      effectivePrice = xrpOut / amount;
     }
 
-    priceEl.value = effectivePrice.toFixed(6);
+    priceEl.value = Number(effectivePrice).toFixed(6);
     recalcTotals();
 
     tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
@@ -642,6 +641,7 @@ async function fillBestPrice() {
     tradeMsg.classList.remove("ok");
     tradeMsg.classList.add("err");
   }
+}
 }
 
 
