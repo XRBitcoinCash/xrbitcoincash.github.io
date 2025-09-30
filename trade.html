@@ -806,9 +806,9 @@ setTrustlineBtn.addEventListener("click", async () => {
       TransactionType: "TrustSet",
       Account: account,
       LimitAmount: {
-        currency: XRBC.currency,   // ✅ use your hex code
-        issuer: XRBC.issuer,       // ✅ use your issuer
-        value: "1000000"           // trustline limit (adjust if needed)
+        currency: XRBC.currency,
+        issuer: XRBC.issuer,
+        value: "1000000"
       }
     };
 
@@ -819,45 +819,52 @@ setTrustlineBtn.addEventListener("click", async () => {
       if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
     });
 
-// === QR code (desktop) OR Link (mobile) ===
-if (payload?.created?.refs?.qr_png) {
-  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    // === QR code (desktop) OR Link (mobile) ===
+    if (payload?.created?.refs?.qr_png) {
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-  if (isMobile) {
-    // 📱 Mobile → link to external trustline page
-    const link = document.createElement("a");
-    link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
-    link.textContent = "👉 Tap here to set XRBC Trustline";
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.style.display = "inline-block";
-    link.style.marginTop = "12px";
-    link.style.color = "#60a5fa";
-    link.style.fontWeight = "600";
+      if (isMobile) {
+        // 📱 Mobile → link to external trustline page
+        const link = document.createElement("a");
+        link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
+        link.textContent = "👉 Tap here to set XRBC Trustline";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.style.display = "inline-block";
+        link.style.marginTop = "12px";
+        link.style.color = "#60a5fa";
+        link.style.fontWeight = "600";
 
-    trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
-    trustlineMsg.appendChild(link);
-  } else {
-    // 🖥️ Desktop → show QR code
-    const qr = document.createElement("img");
-    qr.src = payload.created.refs.qr_png;
-    qr.alt = "Scan with Xaman to set XRBC trustline";
-    qr.style.maxWidth = "240px";
-    qr.style.marginTop = "12px";
+        trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
+        trustlineMsg.appendChild(link);
 
-    trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-    trustlineMsg.appendChild(qr);
+        // ✅ Don’t wait for resolution on mobile
+        return;
+      } else {
+        // 🖥️ Desktop → show QR code
+        const qr = document.createElement("img");
+        qr.src = payload.created.refs.qr_png;
+        qr.alt = "Scan with Xaman to set XRBC trustline";
+        qr.style.maxWidth = "240px";
+        qr.style.marginTop = "12px";
+
+        trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+        trustlineMsg.appendChild(qr);
+      }
+    }
+
+    // === Wait for user resolution (desktop only) ===
+    const result = await payload.resolved;
+    if (!result.signed) {
+      trustlineMsg.textContent = "Trustline not signed.";
+      return;
+    }
+
+    trustlineMsg.textContent = "✅ Trustline set successfully!";
+  } catch (err) {
+    trustlineMsg.textContent = "Error: " + err.message;
   }
-}
-
-// === Wait for user resolution ===
-const result = await payload.resolved;
-if (!result.signed) {
-  trustlineMsg.textContent = "Trustline not signed.";
-  return;
-}
-
-trustlineMsg.textContent = "✅ Trustline set successfully!";
+});
 
     
 })();   // closes the main async IIFE
