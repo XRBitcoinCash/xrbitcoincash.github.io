@@ -600,15 +600,15 @@ async function fillBestPrice() {
     const amm = data.result?.amm;
     if (!amm) throw new Error("No AMM found for XRBC/XRP");
 
-    const reserveXrp  = parseFloat(amm.amount);
+    // ✅ FIXED: convert drops → XRP
+    const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
     const reserveXrbc = parseFloat(amm.amount2.value);
-    const feeRate     = amm.trading_fee / 1_000_000; // fee is in millionths
+    const feeRate     = amm.trading_fee / 1_000_000;
 
     const k = reserveXrp * reserveXrbc;
     let effectivePrice;
 
     if (side === "buy") {
-      // Buyer wants `amount` XRBC
       const newReserveY = reserveXrbc - amount;
       if (newReserveY <= 0) throw new Error("Not enough XRBC liquidity");
       const newReserveX = k / newReserveY;
@@ -617,7 +617,6 @@ async function fillBestPrice() {
       xrpIn += fee;
       effectivePrice = xrpIn / amount;
     } else {
-      // Seller wants to sell `amount` XRBC
       const newReserveY = reserveXrbc + amount;
       const newReserveX = k / newReserveY;
       let xrpOut = reserveXrp - newReserveX;
@@ -820,9 +819,10 @@ function updateAmmPool(amm) {
     return;
   }
 
-  const reserveXrp  = parseFloat(amm.amount);
+  // ✅ FIXED: convert drops → XRP
+  const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
   const reserveXrbc = parseFloat(amm.amount2.value);
-  const fee         = amm.trading_fee / 1000; // basis points -> %
+  const fee         = amm.trading_fee / 1000; // basis points → %
 
   out.innerHTML = `
     <table class="table">
