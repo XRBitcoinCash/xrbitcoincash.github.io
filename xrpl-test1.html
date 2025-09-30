@@ -336,17 +336,43 @@ disconnectBtn.addEventListener("click", () => {
   btn.disabled = false;
 });
 
-    // Ledger fetch
-    document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
-      const ledgerOut = document.getElementById("ledgerOutput");
-      ledgerOut.textContent = "Loading ledger…";
-      try {
-        const info = await getLedgerInfo();
-        ledgerOut.textContent = JSON.stringify(info, null, 2);
-      } catch (err) {
-        ledgerOut.textContent = "Error: " + err.message;
-      }
-    });
+   // Ledger fetch
+document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
+  const ledgerOut = document.getElementById("ledgerOutput");
+  let seconds = 0;
+  const maxSeconds = 12;
+
+  // Initial message
+  ledgerOut.textContent = "Connecting to XRPL through proxy… please wait";
+  ledgerOut.style.color = "#9fb0c5";
+
+  // Blinking + timer
+  const interval = setInterval(() => {
+    seconds++;
+    ledgerOut.textContent = `Connecting to XRPL through proxy… ${seconds}s elapsed`;
+    ledgerOut.style.visibility = ledgerOut.style.visibility === "hidden" ? "visible" : "hidden";
+
+    if (seconds >= maxSeconds) {
+      clearInterval(interval);
+      ledgerOut.style.visibility = "visible";
+      ledgerOut.style.color = "#f59e0b";
+      ledgerOut.textContent = "Connection is taking longer than expected — proxy or XRPL node may be slow.";
+    }
+  }, 1000);
+
+  try {
+    const info = await getLedgerInfo();
+    clearInterval(interval);
+    ledgerOut.style.visibility = "visible";
+    ledgerOut.style.color = "#a3e4ff"; // back to normal
+    ledgerOut.textContent = JSON.stringify(info, null, 2);
+  } catch (err) {
+    clearInterval(interval);
+    ledgerOut.style.visibility = "visible";
+    ledgerOut.style.color = "#ef4444"; // error red
+    ledgerOut.textContent = "Error: " + err.message;
+  }
+});
 
     // Order book
     document.getElementById("fetchPriceBtn").addEventListener("click", async () => {
