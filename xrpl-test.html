@@ -176,8 +176,21 @@ pre {
   cursor: pointer;
   text-align: center;
 }
-.tab.buy.active  { border-color: rgba(34,197,94,.5);   box-shadow: 0 0 0 2px rgba(34,197,94,.15) inset; }
-.tab.sell.active { border-color: rgba(239,68,68,.5);   box-shadow: 0 0 0 2px rgba(239,68,68,.15) inset; }
+
+/* Force text color */
+.tab.buy  { color: #22c55e; }   /* green text */
+.tab.sell { color: #ef4444; }   /* red text */
+
+.tab.buy.active {
+  border-color: rgba(34,197,94,.5);
+  box-shadow: 0 0 0 2px rgba(34,197,94,.15) inset;
+}
+
+.tab.sell.active {
+  border-color: rgba(239,68,68,.5);
+  box-shadow: 0 0 0 2px rgba(239,68,68,.15) inset;
+}
+
 
 .field { display: grid; gap: 6px; }
 .field label { font-size: 13px; color: var(--muted); }
