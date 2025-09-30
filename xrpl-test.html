@@ -653,6 +653,17 @@ if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
 setSide(sideEl.value || "buy"); // initialize
 recalcTotals();
 
+// === Auto-refresh Best Price every 10s ===
+setInterval(() => {
+  // only refresh if user entered a valid amount
+  const amt = Number(amountEl.value);
+  if (amt > 0) {
+    fillBestPrice().catch(err => console.error("Auto-refresh error:", err));
+  }
+}, 10000);
+
+
+    
     
 placeOfferBtn.addEventListener("click", async () => {
   try {
