@@ -213,6 +213,15 @@ pre {
   border-radius: 10px;
   background: linear-gradient(180deg, #0b1119, #0a0f15);
 }
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.amount-row img {
+  max-height: 22px;
+}
 
 .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 600px) { .button-row { grid-template-columns: 1fr; } }
@@ -271,15 +280,16 @@ pre {
       <button id="sellTab" class="tab sell" type="button">Sell XRBC</button>
     </div>
 
- <!-- Amount -->
+<!-- Amount -->
 <div class="field">
   <label for="amount">Amount (XRBC)</label>
-  <div class="row">
-    <img src="/xrbc-nft.png" alt="XRBC logo" style="max-height:22px; margin:auto 6px auto 0;">
+  <div class="amount-row">
+    <img src="/xrbc-nft.png" alt="XRBC logo">
     <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
   </div>
   <div class="inline-hint">How many XRBC you want to <span id="actionWord">collect</span>.</div>
 </div>
+
 
 
     <!-- Price -->
