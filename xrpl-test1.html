@@ -57,26 +57,7 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Floating Orbs */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--accent-2), transparent 70%);
-  opacity: 0.15;
-  animation: float 20s linear infinite;
-}
-.orb:nth-child(1) { width:300px; height:300px; top:10%; left:5%; animation-duration: 28s; }
-.orb:nth-child(2) { width:220px; height:220px; top:60%; left:20%; animation-duration: 25s; }
-.orb:nth-child(3) { width:280px; height:280px; top:30%; right:10%; animation-duration: 32s; }
-.orb:nth-child(4) { width:150px; height:150px; bottom:10%; right:25%; animation-duration: 20s; }
-.orb:nth-child(5) { width:200px; height:200px; bottom:20%; left:5%; animation-duration: 22s; }
-.orb:nth-child(6) { width:260px; height:260px; top:15%; left:50%; animation-duration: 30s; }
 
-@keyframes float {
-  0%   { transform: translateY(0) translateX(0) scale(1); }
-  50%  { transform: translateY(-40px) translateX(20px) scale(1.05); }
-  100% { transform: translateY(0) translateX(0) scale(1); }
-}
 
 /* Layout */
 .container {
