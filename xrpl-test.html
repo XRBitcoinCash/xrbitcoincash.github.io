@@ -339,19 +339,17 @@ pre {
   <div id="ammPoolOutput">—</div>
 </div>
 
-</body>
+<!-- Config -->
+<script type="application/json" id="app-config">
+{
+  "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+}
+</script>
 
-  <!-- Config -->
-  <script type="application/json" id="app-config">
-  {
-    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
-  }
-  </script>
-
-  <!-- Libraries -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script>
+<!-- Libraries -->
+<script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+<script>
   // === Config ===
   const cfg = JSON.parse(document.getElementById("app-config").textContent);
   const PROXY_URL = cfg.proxyUrl;
@@ -624,31 +622,7 @@ async function fillBestPrice() {
 }
 
 
-    const offer = data.result?.offers?.[0];
-    if (!offer) throw new Error("No quotes available");
-
-    const gets = offer.TakerGets.value
-      ? parseFloat(offer.TakerGets.value)
-      : parseFloat(offer.TakerGets) / XRP_TO_DROPS;
-
-    const pays = offer.TakerPays.value
-      ? parseFloat(offer.TakerPays.value)
-      : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
-
-    const price = pays / gets;
-    priceEl.value = Number(price).toFixed(6);
-    recalcTotals();
-
-    tradeMsg.textContent = "Best price filled from order book.";
-    tradeMsg.classList.remove("err");
-    tradeMsg.classList.add("ok");
-  } catch (e) {
-    tradeMsg.textContent = "Could not fetch best price: " + e.message;
-    tradeMsg.classList.remove("ok");
-    tradeMsg.classList.add("err");
-  }
-}
-
+  
 // Wire up tabs + default state
 buyTab.addEventListener("click", () => setSide("buy"));
 sellTab.addEventListener("click", () => setSide("sell"));
