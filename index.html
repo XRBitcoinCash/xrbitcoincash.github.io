@@ -284,6 +284,42 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
+/* === OVERRIDE BUTTONS === */
+.btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px !important;
+  border-radius: 12px !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  min-width: 200px;
+  text-align: center;
+  color: #00121a !important;
+}
+
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent), #00b6d0) !important;
+  color: #00121a !important;
+  box-shadow: 0 4px 12px rgba(0,229,255,0.3);
+}
+
+.btn.ghost {
+  background: transparent !important;
+  border: 2px solid var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
 
 </style>
 
@@ -334,22 +370,16 @@ setInterval(updateTimer, 60000); // update every minute
   <div>
       <h2>Trade XRBC fast on XRPL</h2>
       <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
-   <div class="button-group">
+  <div class="button-group">
+  <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary">🚀 Trade XRBC Now</a>
+  <a href="https://xrpl.services/?issuer=..." class="btn ghost">Open a TrustLine</a>
+  <a href="https://xrbitcoincash.com/bs/" class="btn primary">Blockchain Specs</a>
+  <a href="https://sologenic.org/amm/..." class="btn primary">Sologenic Liquidity Pool</a>
+  <a href="/whitepaper.html" class="btn ghost">Whitepaper</a>
+  <a href="https://xrbitcoincash.com/xrpl-test2.html" class="btn ghost">About XRBC</a>
+</div>
 
-  <a href="https://xrbitcoincash.github.io/trade.html" class="btn">Trade XRBC Now</a>
-  <a href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" class="btn">Open a TrustLine</a>
-  <a href="https://xrbitcoincash.com/bs/" class="btn">Blockchain Specs</a>
-  <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="btn">Sologenic Liquidity Pool</a>
-  <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
-  <a href="https://xrbitcoincash.com/xrpl-test2.html" class="btn">About XRBC</a>
-   </div>
-        
-      <!-- Countdown reminder for security.txt & CSAF expiry -->            
-      <div class="stats card">
-        <div class="stat"><div class="stat-number" data-target="20999999">0</div><div class="muted small">Max Supply</div></div>
-        <div class="stat"><div class="stat-number" data-target="51200">0</div><div class="muted small">Circulating</div></div>
-        <div class="stat"><div class="stat-number" data-target="152">0</div><div class="muted small">Holders</div></div>
-      </div>
+  
     </div>
     <aside class="card nft">
       <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
@@ -411,193 +441,12 @@ setInterval(updateTimer, 60000); // update every minute
   }, { threshold: 0.2 });
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2. COUNT-UP STATS =====
-  function animateCount(el) {
-    const target = +el.dataset.target;
-    const step   = target / 100;
-    let count    = 0;
-    function update() {
-      count += step;
-      if (count < target) {
-        el.textContent = Math.floor(count).toLocaleString();
-        requestAnimationFrame(update);
-      } else {
-        el.textContent = target.toLocaleString();
-      }
-    }
-    update();
-  }
-  document.querySelectorAll('.stat-number').forEach(el => {
-    const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          animateCount(el);
-          obs.unobserve(el);
-        }
-      });
-    });
-    obs.observe(el);
-  });
 
-  // ===== 3. XRPL REAL-TIME STATS =====
-  const CONFIG = {
-    ISSUER:     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    CURRENCY:   "XRbitcoincash",
-    MAX_SUPPLY: "20999999.999999996",
-    WS_URL:     "wss://xrplcluster.com",
-    REST_URL:   "https://data.ripple.com/v2/accounts/",
-    REFRESH_MS: 60000,
-    TIMEOUT_MS: 8000
-  };
-
-  // Direct references to our three stat spans
-  const elMax     = document.getElementById('stat-max');
-  const elCirc    = document.getElementById('stat-circ');
-  const elHolders = document.getElementById('stat-holders');
-
-  // Helpers
-  const toNum  = x => Number.isFinite(+x) ? +x : 0;
-  const fmtInt = n => Math.round(n).toLocaleString();
-  const fmtDec = s => {
-    const n = Number(s);
-    return Number.isFinite(n)
-      ? n.toLocaleString(undefined, { maximumFractionDigits: 9 })
-      : s;
-  };
-
-  // Fetch trust lines via WebSocket (with pagination)
-  function fetchLinesWS(issuer) {
-    return new Promise((resolve, reject) => {
-      const ws    = new WebSocket(CONFIG.WS_URL);
-      const lines = [];
-      let timer    = setTimeout(() => {
-        ws.close();
-        reject(new Error("WS timeout"));
-      }, CONFIG.TIMEOUT_MS);
-
-      const reqBase = {
-        id:           1,
-        command:      "account_lines",
-        account:      issuer,
-        ledger_index: "validated",
-        limit:        400
-      };
-
-      ws.onopen    = () => ws.send(JSON.stringify(reqBase));
-      ws.onmessage = msg => {
-        const data = JSON.parse(msg.data);
-        if (data.result && Array.isArray(data.result.lines)) {
-          lines.push(...data.result.lines);
-          if (data.result.marker) {
-            ws.send(JSON.stringify({ ...reqBase, marker: data.result.marker }));
-          } else {
-            clearTimeout(timer);
-            ws.close();
-            resolve(lines);
-          }
-        }
-      };
-      ws.onerror = () => {}; // fallback to REST
-    });
-  }
-
-  // REST fallback fetch
-  async function fetchLinesREST(issuer) {
-    const controller = new AbortController();
-    const timer      = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
-    const url        = `${CONFIG.REST_URL}${issuer}/lines?limit=400`;
-
-    try {
-      const res  = await fetch(url, { signal: controller.signal });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error(`REST ${res.status}`);
-      const json = await res.json();
-      return json.lines || [];
-    } catch (err) {
-      clearTimeout(timer);
-      throw new Error("REST failed: " + err.message);
-    }
-  }
-
-  // Compute circulating supply & holder count
-  function computeStats(lines) {
-    let circ = 0, holders = 0;
-    lines.forEach(line => {
-      if (line.currency === CONFIG.CURRENCY && toNum(line.balance) < 0) {
-        circ    += -toNum(line.balance);
-        holders += 1;
-      }
-    });
-    return {
-      maxSupply: CONFIG.MAX_SUPPLY,
-      circulating: circ,
-      holders
-    };
-  }
-
-  // Update DOM & handle error state
-  function updateDom(stats, ok, errorMsg) {
-    elMax.textContent = fmtDec(stats.maxSupply);
-    if (ok) {
-      elCirc.textContent    = fmtInt(stats.circulating);
-      elHolders.textContent = fmtInt(stats.holders);
-      document.body.removeAttribute("data-xrbc-error");
-    } else {
-      document.body.setAttribute(
-        "data-xrbc-error",
-        `${new Date().toLocaleTimeString()}: ${errorMsg}`
-      );
-    }
-  }
-
-  // Exponential backoff state
-  let failureCount    = 0;
-  let currentInterval = CONFIG.REFRESH_MS;
-  let timerId;
-
-  // Main polling loop
-  async function tick() {
-    let lines, ok = false, errMsg = "";
-
-    try {
-      lines = await fetchLinesWS(CONFIG.ISSUER);
-      ok    = Array.isArray(lines) && lines.length > 0;
-    } catch (wsErr) {
-      errMsg = wsErr.message;
-      try {
-        lines = await fetchLinesREST(CONFIG.ISSUER);
-        ok    = Array.isArray(lines) && lines.length > 0;
-        if (ok) errMsg += " | REST ok";
-      } catch (restErr) {
-        errMsg = restErr.message;
-      }
-    }
-
-    if (ok) {
-      failureCount    = 0;
-      currentInterval = CONFIG.REFRESH_MS;
-      updateDom(computeStats(lines), true);
-    } else {
-      failureCount++;
-      if (failureCount >= 3) {
-        currentInterval = Math.min(currentInterval * 2, 300000);
-      }
-      updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, errMsg);
-      console.error("[XRBC] Update failed:", errMsg);
-    }
-
-    clearTimeout(timerId);
-    timerId = setTimeout(tick, currentInterval);
-  }
-
-  // Initial paint & start loop
-  updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, "");
-  tick();
 
 })();
 </script>
-<!-- Proxy --> 
-<script src="js/xrpl-connector.js"></script>
+
+
 
 
 </body>
