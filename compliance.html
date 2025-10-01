@@ -3,497 +3,131 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoinCash · Compliance & Legal Center</title>
-  <meta name="description" content="Compliance matrix, TOML and .well-known validators, CSAF advisories, risk disclosures, and SEC registration readiness." />
+  <title>XRBitcoinCash · Compliance & Legal Matrix</title>
+  <meta name="description" content="Compliance matrix · TOML validator · .well-known probes · SEC readiness. A system built inside the system." />
   <link rel="canonical" href="https://xrbitcoincash.com/compliance" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#0b1118" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3CradialGradient id=%27g%27 cx=%2750%25%27 cy=%2750%25%27 r=%2750%25%27%3E%3Cstop offset=%270%25%27 stop-color=%27%235af7ff%27/%3E%3Cstop offset=%27100%25%27 stop-color=%27%230b1118%27/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2732%27 fill=%27url(%23g)%27/%3E%3Cpath d=%27M16 32h32M22 22h20M22 42h20%27 stroke=%27%23a7ff83%27 stroke-width=%273%27 stroke-linecap=%27round%27/%3E%3C/svg%3E" />
+  <meta name="theme-color" content="#000" />
+  <link rel="icon" href="/xrbc-nft.png" />
+
   <style>
-    :root{
-      --bg:#0b1118;--panel:#0f1722;--panel2:#121c2a;--text:#e7eef8;--muted:#9bb1c9;
-      --brand:#a7ff83;--accent:#5af7ff;--ok:#31d0aa;--warn:#f7b500;--danger:#ff6b6b;
-      --shadow:0 16px 60px rgba(0,0,0,.35);--radius:14px;
+    :root {
+      --bg:#000;
+      --text:#00ff95;
+      --muted:#00c27d;
+      --accent:#39ff14;
+      --warn:#f7b500;
+      --danger:#ff5555;
+      --panel:rgba(0,15,8,0.85);
+      --radius:12px;
+      --shadow:0 0 30px rgba(0,255,149,0.2);
     }
-    [data-theme="light"]{
-      --bg:#f5f7fb;--panel:#fff;--panel2:#f7fbff;--text:#0e1726;--muted:#5a6b7e;
-      --brand:#2ea043;--accent:#005fcc;--shadow:0 16px 45px rgba(12,28,50,.12);
+    body {
+      margin:0;
+      font-family: "Consolas", "Courier New", monospace;
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
     }
-    *,*:before,*:after{box-sizing:border-box}
-    body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Inter,Roboto,Arial;background:var(--bg);color:var(--text);line-height:1.5}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(11,17,24,.92),rgba(11,17,24,.6));backdrop-filter:blur(8px);border-bottom:1px solid rgba(167,255,131,.15)}
-    .brand{display:flex;align-items:center;gap:10px}
-    .chip{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:9999px;border:1px solid rgba(90,247,255,.18);background:linear-gradient(180deg,var(--panel),var(--panel2));font-weight:600}
-    .btn{appearance:none;border:1px solid rgba(167,255,131,.25);background:linear-gradient(180deg,var(--panel),var(--panel2));color:var(--text);font-weight:700;padding:10px 14px;border-radius:12px}
-    .btn:hover{border-color:var(--brand)}
-    .panel{border:1px solid rgba(90,247,255,.16);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
-    .panel .head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(167,255,131,.12);background:linear-gradient(180deg,rgba(90,247,255,.06),transparent)}
-    .panel .body{padding:14px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid{display:grid;gap:12px}
-    @media (max-width:900px){.grid-2{grid-template-columns:1fr}}
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    input,textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(167,255,131,.15);background:rgba(16,24,36,.6);color:var(--text)}
-    .table{width:100%;border-collapse:collapse;border:1px solid rgba(90,247,255,.16);border-radius:10px;overflow:hidden}
-    .table th,.table td{padding:10px 12px;border-bottom:1px solid rgba(167,255,131,.10);font-size:13px}
-    .ok{color:var(--ok)}.warn{color:var(--warn)}.danger{color:var(--danger)}.muted{color:var(--muted)}
-    .mono{font-family:ui-monospace,Consolas,Menlo,monospace}
-    .notice{border:1px solid rgba(247,181,0,.35);background:rgba(247,181,0,.10);color:#ffe8b3;padding:10px;border-radius:10px}
-    .success{border:1px solid rgba(49,208,170,.35);background:rgba(49,208,170,.10);color:#aef3e1;padding:10px;border-radius:10px}
-    .error{border:1px solid rgba(255,107,107,.35);background:rgba(255,107,107,.10);color:#ffdada;padding:10px;border-radius:10px}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    footer{border-top:1px solid rgba(167,255,131,.15);color:var(--muted);font-size:12px;text-align:center;padding:12px}
-    details summary{cursor:pointer;font-weight:700}
+    /* Matrix rain background */
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0;
+      background:url('https://i.ibb.co/N9M5rkg/matrix-rain.gif') center/cover no-repeat;
+      opacity:0.15;
+      z-index:-1;
+    }
+    header {
+      padding:14px 20px;
+      border-bottom:1px solid rgba(57,255,20,.25);
+      background:linear-gradient(180deg,rgba(0,20,10,.92),rgba(0,0,0,.6));
+    }
+    .brand { font-weight:700; font-size:1rem; letter-spacing:1px; color:var(--accent);}
+    .muted { color:var(--muted); font-size:0.85rem; }
+    .panel {
+      background:var(--panel);
+      border:1px solid rgba(57,255,20,0.25);
+      border-radius:var(--radius);
+      margin:20px 0;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .panel .head { font-weight:700; margin-bottom:10px; color:var(--accent);}
+    .btn {
+      background:transparent;
+      border:1px solid var(--accent);
+      color:var(--accent);
+      padding:6px 12px;
+      border-radius:6px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn:hover { background:rgba(57,255,20,0.1); }
+    textarea,input {
+      width:100%;
+      background:rgba(0,0,0,0.7);
+      border:1px solid rgba(57,255,20,0.25);
+      color:var(--text);
+      border-radius:6px;
+      padding:8px;
+      font-family:inherit;
+      font-size:0.85rem;
+    }
+    .mono { font-family: "Consolas", monospace; font-size:0.9rem; }
+    footer {
+      margin-top:40px;
+      padding:14px;
+      border-top:1px solid rgba(57,255,20,0.2);
+      text-align:center;
+      font-size:0.75rem;
+      color:var(--muted);
+    }
+    .ok{color:#39ff14}.warn{color:var(--warn)}.danger{color:var(--danger)}
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-      <div class="brand">
-        <div style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(90,247,255,.25);display:grid;place-items:center">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 12h12M8 8h8M8 16h8" stroke="#a7ff83" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div>
-          <div style="font-weight:800">XRBitcoinCash · Compliance & Legal Center</div>
-          <div class="muted mono">Compliance matrix · TOML & .well-known validators · CSAF · Disclosures</div>
-        </div>
-      </div>
-      <div class="toolbar">
-        <a class="chip" href="index.html">Home</a>
-        <a class="chip" href="trade.html">Trade/AMM</a>
-        <button class="btn" id="btnTheme">Theme</button>
-      </div>
-    </div>
+    <div class="brand">XRBitcoinCash // Compliance & Legal Matrix</div>
+    <div class="muted">decode · validate · disclose · prepare</div>
   </header>
 
-  <main class="wrap">
-    <!-- Compliance Matrix -->
+  <main class="wrap" style="padding:20px;max-width:1100px;margin:auto;">
     <section class="panel">
-      <div class="head">
-        <h3>Jurisdictional Compliance Matrix</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnRenderMatrix">Render</button>
-          <button class="btn" id="btnExportMatrix">Export</button>
-        </div>
-      </div>
-      <div class="body grid-2">
-        <div>
-          <label>Matrix JSON</label>
-          <textarea id="complianceMatrixJSON" rows="14" class="mono" spellcheck="false"></textarea>
-          <div class="muted" style="margin-top:6px">Edit the JSON and click Render. Export saves current state into the Data section below.</div>
-        </div>
-        <div>
-          <label>Rendered Matrix</label>
-          <div id="complianceTable" class="mono">—</div>
-        </div>
-      </div>
+      <div class="head">[ Jurisdictional Compliance Matrix ]</div>
+      <textarea rows="10" class="mono">Load JSON directives, press RENDER to manifest grid.</textarea>
+      <div id="complianceTable" class="mono" style="margin-top:10px;">system: idle</div>
     </section>
 
-    <!-- TOML Validator -->
     <section class="panel">
-      <div class="head">
-        <h3>XRP Ledger TOML Validator</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnFetchToml">Fetch TOML</button>
-          <button class="btn" id="btnValidateToml">Validate</button>
-        </div>
-      </div>
-      <div class="body grid-2">
-        <div>
-          <label>TOML URL</label>
-          <input id="tomlUrl" type="url" class="mono" placeholder="https://your-domain/.well-known/xrp-ledger.toml" />
-          <div style="margin-top:8px">
-            <label>Status</label>
-            <div id="tomlStatus" class="notice">No file loaded.</div>
-          </div>
-        </div>
-        <div>
-          <label>Raw TOML</label>
-          <textarea id="tomlRaw" rows="14" class="mono" spellcheck="false" placeholder="Raw TOML appears here"></textarea>
-        </div>
-      </div>
+      <div class="head">[ XRPL TOML Probe ]</div>
+      <input type="url" class="mono" placeholder="https://domain/.well-known/xrp-ledger.toml">
+      <textarea rows="8" class="mono" placeholder="raw TOML projection"></textarea>
+      <div class="warn" style="margin-top:8px;">awaiting probe...</div>
     </section>
 
-    <!-- .well-known checks -->
     <section class="panel">
-      <div class="head">
-        <h3>.well-known Endpoint Status</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnCheckSecurityTxt">Check security.txt</button>
-          <button class="btn" id="btnCheckCSAF">Check CSAF</button>
-        </div>
-      </div>
-      <div class="body grid-2">
-        <div>
-          <label>security.txt</label>
-          <div id="securityTxtStatus" class="notice">Not checked.</div>
-        </div>
-        <div>
-          <label>CSAF Provider & Advisories</label>
-          <div id="csafStatus" class="notice">Not checked.</div>
-          <div id="csafList" class="mono" style="margin-top:8px">—</div>
-        </div>
-      </div>
+      <div class="head">[ .well-known Endpoints Scan ]</div>
+      <div class="mono">security.txt: unresolved<br>csaf/advisories: unresolved</div>
     </section>
 
-    <!-- Risk Disclosures -->
     <section class="panel">
-      <div class="head">
-        <h3>Risk Disclosures</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnRenderRisk">Render</button>
-        </div>
-      </div>
-      <div class="body grid-2">
-        <div>
-          <label>Risk Disclosure (Markdown)</label>
-          <textarea id="riskEditor" rows="16" class="mono" spellcheck="false"></textarea>
-        </div>
-        <div>
-          <label>Rendered</label>
-          <div id="riskNotice" class="mono">—</div>
-        </div>
-      </div>
+      <div class="head">[ Risk Disclosures Vector ]</div>
+      <textarea rows="8" class="mono">• market volatility  
+• irreversible ledger entries  
+• jurisdiction drift</textarea>
     </section>
 
-    <!-- SEC Registration Readiness -->
     <section class="panel">
-      <div class="head">
-        <h3>SEC Registration Readiness</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnSECChecklist">Toggle Checklist</button>
-        </div>
-      </div>
-      <div class="body">
-        <div id="secNotes" class="notice">
-          This section tracks whether registration with the U.S. Securities and Exchange Commission may be required for certain offerings or products. Requirements depend on specific facts (e.g., how tokens are offered/marketed and used). Use the checklist below to plan; consult licensed counsel for jurisdiction‑specific guidance.
-        </div>
-        <details id="secChecklist" style="margin-top:10px">
-          <summary>Open Readiness Checklist</summary>
-          <ul>
-            <li><b>Offering context</b>: Document whether any token sales were marketed with profit expectations.</li>
-            <li><b>Functional utility</b>: Evidence of present utility on a decentralized network (not merely future plans).</li>
-            <li><b>Team influence</b>: Degree of control/centralization, disclosures about ongoing managerial efforts.</li>
-            <li><b>Use of proceeds</b>: Clear disclosures if funds support development or operations.</li>
-            <li><b>Investor protections</b>: Risk factors, conflicts, custody, pricing, liquidity, market manipulation safeguards.</li>
-            <li><b>Registration path</b>: If applicable, prep materials for Securities Act registration (e.g., Form S‑1) or evaluate exemptions.</li>
-            <li><b>Exchange Act</b>: Consider whether to register a class of securities (e.g., Form 10) if crossing thresholds.</li>
-            <li><b>Ongoing reports</b>: If registered, draft periodic disclosures (Forms 10‑K, 10‑Q, 8‑K) planning.</li>
-            <li><b>Jurisdictional mapping</b>: Parallel requirements in EU, UK, and others; maintain a matrix.</li>
-            <li><b>Governance & treasury</b>: Transparent policies around amendments, voting, and fund allocations.</li>
-          </ul>
-        </details>
-      </div>
-    </section>
-
-    <!-- Data section -->
-    <section class="panel">
-      <div class="head">
-        <h3>Data</h3>
-        <div class="toolbar">
-          <button class="btn" id="btnExportAll">Export</button>
-          <button class="btn" id="btnImportAll">Import</button>
-        </div>
-      </div>
-      <div class="body grid-2">
-        <div>
-          <label>Export / Import JSON</label>
-          <textarea id="dataBlob" rows="14" class="mono" spellcheck="false"></textarea>
-        </div>
-        <div>
-          <label>Notes</label>
-          <div class="muted">Export saves matrix, TOML URL, risk text. Import replaces current state after confirmation.</div>
-        </div>
-      </div>
+      <div class="head">[ SEC Readiness Node ]</div>
+      <div class="mono">checklist collapsed — open only if you accept the terms of the system</div>
     </section>
   </main>
 
-  <footer>© 2025 XRBitcoinCash · This page provides tooling for compliance hygiene. Verify with counsel before any filing or offering.</footer>
-
-  <!-- Inline configuration -->
-  <script type="application/json" id="compliance-config">
-  {
-    "issuerAddress": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    "projectDomain": "xrbitcoincash.com",
-    "defaultJurisdictions": [
-      {"code":"US","name":"United States","status":"TBD","notes":"Assess SEC, FinCEN, OFAC, state MSB licensing as applicable."},
-      {"code":"EU","name":"European Union","status":"TBD","notes":"MiCA regime mapping; VASP registration where required."},
-      {"code":"UK","name":"United Kingdom","status":"TBD","notes":"FCA registration; financial promotions compliance."},
-      {"code":"SG","name":"Singapore","status":"TBD","notes":"PSA licensing triggers; MAS guidelines."},
-      {"code":"BR","name":"Brazil","status":"TBD","notes":"Crypto law alignment; tax reporting."},
-      {"code":"NG","name":"Nigeria","status":"TBD","notes":"CBN directives; VASP guidance."},
-      {"code":"IN","name":"India","status":"TBD","notes":"VDA tax; licensing landscape evolving."}
-    ],
-    "riskMarkdown": [
-      "• Digital assets carry market, liquidity, and smart contract risk.",
-      "• XRPL transactions are irreversible; verify payloads before signing.",
-      "• Jurisdictional requirements vary; users must comply with local law.",
-      "• This project may evolve; features and fees can change without notice."
-    ]
-  }
-  </script>
-
-  <script>
-  ;(function(){
-    'use strict';
-
-    // State
-    const cfg = JSON.parse(document.getElementById('compliance-config').textContent);
-    const state = {
-      theme: localStorage.getItem('theme') || 'dark',
-      matrix: cfg.defaultJurisdictions,
-      tomlUrl: null,
-      tomlRaw: '',
-      riskMd: cfg.riskMarkdown.join('\\n'),
-      securityTxt: null,
-      csafMeta: null
-    };
-
-    // DOM helpers
-    const $ = sel => document.querySelector(sel);
-    const setHTML = (sel, html) => { const el = $(sel); if (el) el.innerHTML = html; };
-    const setText = (sel, txt) => { const el = $(sel); if (el) el.textContent = txt; };
-
-    document.addEventListener('DOMContentLoaded', boot);
-
-    function boot(){
-      applyTheme(state.theme);
-      $('#btnTheme').addEventListener('click', () => applyTheme(state.theme==='dark'?'light':'dark'));
-
-      // Seed inputs
-      $('#complianceMatrixJSON').value = JSON.stringify(state.matrix, null, 2);
-      $('#riskEditor').value = state.riskMd;
-      const origin = location.origin || ('https://' + cfg.projectDomain);
-      const defaultToml = origin + '/.well-known/xrp-ledger.toml';
-      $('#tomlUrl').value = defaultToml;
-      state.tomlUrl = defaultToml;
-
-      // Bind buttons
-      $('#btnRenderMatrix').addEventListener('click', renderComplianceMatrix);
-      $('#btnExportMatrix').addEventListener('click', exportMatrix);
-      $('#btnFetchToml').addEventListener('click', fetchToml);
-      $('#btnValidateToml').addEventListener('click', validateToml);
-      $('#btnCheckSecurityTxt').addEventListener('click', checkSecurityTxt);
-      $('#btnCheckCSAF').addEventListener('click', checkCSAF);
-      $('#btnRenderRisk').addEventListener('click', renderRisk);
-      $('#btnSECChecklist').addEventListener('click', () => {
-        const d = document.getElementById('secChecklist');
-        d.open = !d.open;
-      });
-      $('#btnExportAll').addEventListener('click', exportAll);
-      $('#btnImportAll').addEventListener('click', importAll);
-
-      // Initial renders
-      renderComplianceMatrix();
-      renderRisk();
-    }
-
-    function applyTheme(mode){
-      if (!['dark','light'].includes(mode)) mode = 'dark';
-      document.documentElement.setAttribute('data-theme', mode);
-      state.theme = mode;
-      localStorage.setItem('theme', mode);
-      $('#btnTheme').textContent = mode==='dark' ? 'Light Mode' : 'Dark Mode';
-    }
-
-    // Compliance Matrix
-    function renderComplianceMatrix(){
-      let data;
-      try {
-        data = JSON.parse($('#complianceMatrixJSON').value);
-        state.matrix = data;
-      } catch (e) {
-        setHTML('#complianceTable', '<div class="error">Invalid JSON: '+e.message+'</div>');
-        return;
-      }
-      const rows = data.map(j => `
-        <tr>
-          <td>${esc(j.code || '')}</td>
-          <td>${esc(j.name || '')}</td>
-          <td>${esc(j.status || 'TBD')}</td>
-          <td class="muted">${esc(j.notes || '')}</td>
-        </tr>`
-      ).join('');
-      const table = `
-        <table class="table">
-          <thead><tr><th>Code</th><th>Jurisdiction</th><th>Status</th><th>Notes</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`;
-      setHTML('#complianceTable', table);
-    }
-
-    function exportMatrix(){
-      const blob = {
-        matrix: state.matrix,
-        exportedAt: new Date().toISOString()
-      };
-      const current = parseDataBlob();
-      current.matrix = blob.matrix;
-      $('#dataBlob').value = JSON.stringify(current, null, 2);
-    }
-
-    // TOML fetch & validate
-    async function fetchToml(){
-      const url = ($('#tomlUrl').value || '').trim();
-      if (!url) return setText('#tomlStatus','No URL provided.');
-      state.tomlUrl = url;
-      try {
-        const res = await fetch(url, { cache:'no-store' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        const text = await res.text();
-        state.tomlRaw = text;
-        $('#tomlRaw').value = text;
-        setHTML('#tomlStatus', '<div class="success">TOML fetched successfully.</div>');
-      } catch (e) {
-        setHTML('#tomlStatus', '<div class="error">Fetch failed: '+esc(e.message)+'</div>');
-      }
-    }
-
-    function validateToml(){
-      const raw = $('#tomlRaw').value || '';
-      if (!raw.trim()) {
-        setHTML('#tomlStatus', '<div class="error">No TOML loaded.</div>');
-        return;
-      }
-      // Minimal checks without a full TOML parser (structure presence only)
-      const checks = [];
-      checks.push(checkLine(/^\s*ACCOUNT\s*=\s*".+?"\s*$/m, 'ACCOUNT present (issuer/operational account)'));
-      checks.push(checkLine(/
-
-\[
-
-\[CURRENCIES\]
-
-\]
-
-/, '[[CURRENCIES]] table present'));
-      checks.push(checkLine(/^\s*DOMAIN\s*=\s*".+?"\s*$/m, 'DOMAIN declared'));
-      checks.push(checkLine(/^\s*NETWORK\s*=\s*".*?XRPL.*?"\s*$/mi, 'NETWORK mentions XRPL (optional)'));
-      // Cross-check issuer address if present
-      const issuerMatch = raw.match(/^\s*ACCOUNT\s*=\s*"(r[1-9A-HJ-NP-Za-km-z]{25,35})"\s*$/m);
-      if (issuerMatch) {
-        checks.push({
-          label:'ACCOUNT matches configured issuer',
-          ok: issuerMatch[1] === cfg.issuerAddress,
-          msg: issuerMatch[1]
-        });
-      }
-      // Report
-      const html = checks.map(c => {
-        const cls = c.ok ? 'ok' : 'warn';
-        return `<div class="${cls}"><b>${esc(c.label)}</b>: ${esc(c.msg || (c.ok?'OK':'Missing'))}</div>`;
-      }).join('');
-      setHTML('#tomlStatus', html || '<div class="warn">No checks executed.</div>');
-    }
-
-    function checkLine(regex, label){
-      const ok = regex.test($('#tomlRaw').value || '');
-      return { label, ok };
-    }
-
-    // security.txt
-    async function checkSecurityTxt(){
-      const origin = location.origin || ('https://' + cfg.projectDomain);
-      const url = origin + '/.well-known/security.txt';
-      try {
-        const res = await fetch(url, { cache:'no-store' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        const text = await res.text();
-        state.securityTxt = text;
-        const checks = [
-          {label:'Contact field', ok:/^Contact:\s*\S+/mi.test(text)},
-          {label:'Expires field', ok:/^Expires:\s*\S+/mi.test(text)},
-          {label:'Policy field (optional)', ok:/^Policy:\s*\S+/mi.test(text)}
-        ];
-        const html = checks.map(c => `<div class="${c.ok?'success':'warn'}"><b>${esc(c.label)}</b></div>`).join('');
-        setHTML('#securityTxtStatus', html);
-      } catch(e){
-        setHTML('#securityTxtStatus', '<div class="error">Fetch failed: '+esc(e.message)+'</div>');
-      }
-    }
-
-    // CSAF provider metadata
-    async function checkCSAF(){
-      const origin = location.origin || ('https://' + cfg.projectDomain);
-      const url = origin + '/.well-known/csaf/provider-metadata.json';
-      try {
-        const res = await fetch(url, { cache:'no-store' });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        const json = await res.json();
-        state.csafMeta = json;
-        setHTML('#csafStatus', '<div class="success">Provider metadata loaded.</div>');
-        // Try to list distributions/advisories if provided
-        const list = [];
-        if (Array.isArray(json.distributions)) {
-          json.distributions.forEach(d => {
-            if (d.tlp_label) list.push(`TLP: ${d.tlp_label}`);
-            if (d.url) list.push(`Feed: ${d.url}`);
-          });
-        }
-        if (Array.isArray(json.publisher_categories)) {
-          list.push('Publisher: '+json.publisher_categories.join(', '));
-        }
-        setHTML('#csafList', list.length ? '<ul><li>'+list.map(esc).join('</li><li>')+'</li></ul>' : 'No distributions listed.');
-      } catch(e){
-        setHTML('#csafStatus', '<div class="error">Fetch failed: '+esc(e.message)+'</div>');
-        setText('#csafList','—');
-      }
-    }
-
-    // Risk rendering (very light Markdown: bullets and newlines)
-    function renderRisk(){
-      const src = $('#riskEditor').value || '';
-      const html = src
-        .split('\\n')
-        .map(line => {
-          if (/^\\s*[-*•]\\s+/.test(line)) return '<li>'+esc(line.replace(/^\\s*[-*•]\\s+/, ''))+'</li>';
-          if (!line.trim()) return '';
-          return '<p>'+esc(line)+'</p>';
-        })
-        .join('');
-      setHTML('#riskNotice', html.includes('<li>') ? '<ul>'+html+'</ul>' : html);
-    }
-
-    // Data export/import
-    function exportAll(){
-      const blob = {
-        theme: state.theme,
-        matrix: tryParse($('#complianceMatrixJSON').value, state.matrix),
-        tomlUrl: ($('#tomlUrl').value || '').trim(),
-        tomlRaw: $('#tomlRaw').value || '',
-        riskMarkdown: $('#riskEditor').value || '',
-        exportedAt: new Date().toISOString()
-      };
-      $('#dataBlob').value = JSON.stringify(blob, null, 2);
-    }
-
-    function importAll(){
-      let data;
-      try {
-        data = JSON.parse($('#dataBlob').value || '{}');
-      } catch(e){
-        alert('Invalid JSON: ' + e.message);
-        return;
-      }
-      if (!confirm('Import will overwrite current state. Continue?')) return;
-      if (data.theme) applyTheme(data.theme);
-      if (data.matrix) {
-        state.matrix = data.matrix;
-        $('#complianceMatrixJSON').value = JSON.stringify(state.matrix, null, 2);
-        renderComplianceMatrix();
-      }
-      if (data.tomlUrl) { $('#tomlUrl').value = data.tomlUrl; state.tomlUrl = data.tomlUrl; }
-      if (data.tomlRaw) { $('#tomlRaw').value = data.tomlRaw; }
-      if (data.riskMarkdown) { $('#riskEditor').value = data.riskMarkdown; renderRisk(); }
-    }
-
-    // Utils
-    function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-    function tryParse(txt, fallback){ try { return JSON.parse(txt); } catch { return fallback; } }
-    function parseDataBlob(){ try { return JSON.parse($('#dataBlob').value || '{}'); } catch { return {}; } }
-
-  })();
-  </script>
+  <footer>
+    © 2025 XRBitcoinCash — all compliance vectors simulated.  
+    This page is informational only. Verify with licensed counsel.  
+    Intellectual property and cryptographic design protected under applicable law.
+  </footer>
 </body>
 </html>
