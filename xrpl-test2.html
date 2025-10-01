@@ -1,335 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- favicon… -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <meta name="msapplication-TileImage" content="/favicon.png">
+</head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash (XRBC) – Blockchain Specification</title>
+  <meta name="description" content="Blockchain specification and security/compliance profile for XRBitcoinCash (XRBC) on XRPL, including issuer address, token code, trustline, DEX, TOML, and KYC verification.">
 
-  <!-- Icons -->
-  <link rel="icon" href="/xrbc-nft.png" />
+  <!-- branding -->
+ 
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-  <!-- Primary SEO -->
-  <meta name="description" content="Blockchain specification and security/compliance profile for XRBitcoinCash (XRBC) on XRPL, including issuer address, token code, trustline, DEX, TOML, and KYC verification." />
-  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket" />
-  <link rel="canonical" href="https://xrbitcoincash.com/bs" />
-
-  <!-- Open Graph -->
+  <!-- Open Graph Metadata -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="XRBitcoinCash (XRBC) – Blockchain Specification" />
-  <meta property="og:description" content="XRBC specs and live XRPL-backed metrics (circulating, holders, trustlines)." />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:url" content="https://xrbitcoincash.com/bs" />
+  <meta property="og:title" content="XRBitcoinCash (XRBC) Specification" />
+  <meta property="og:description" content="Blockchain specification, security, DEX/AMM, TOML and compliance profile for XRBitcoinCash (XRBC) on XRPL." />
+  <meta property="og:image" content="https://xrbitcoincash.com/img/xrbc-logo.png" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
 
-  <!-- Twitter -->
+  <!-- Twitter Card Metadata -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBitcoinCash (XRBC) – Blockchain Specification" />
-  <meta name="twitter:description" content="XRBC specs and live XRPL-backed metrics (circulating, holders, trustlines)." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta name="twitter:site" content="@xrbitcoincash" />
+  <meta name="twitter:title" content="XRBitcoinCash (XRBC) Specification" />
+  <meta name="twitter:description" content="Blockchain specification, security, DEX/AMM, TOML and compliance for XRBitcoinCash (XRBC) on XRPL." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/img/xrbc-logo.png" />
 
-  <!-- JSON-LD -->
+  <!-- JSON-LD Schema.org Cryptocurrency -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Cryptocurrency",
     "name": "XRBitcoinCash",
     "alternateName": "XRBC",
-    "image": "https://xrbitcoincash.com/xrbc-nft.png",
+    "image": "https://xrbitcoincash.com/img/xrbc-logo.png",
     "url": "https://xrbitcoincash.com/bs",
-    "identifier": { "@type": "PropertyValue", "name": "XRBitcoinCash", "value": "XRBC" },
-    "sameAs": ["https://xrpl.org","https://xrbitcoincash.com","https://xrptoolkit.com","https://sologenic.org"],
-    "creator": { "@type": "Organization", "name": "XRBitcoinCash Foundation", "url": "https://xrbitcoincash.com" },
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "XRBitcoinCash",
+      "value": "XRBC"
+    },
+    "sameAs": [
+      "https://xrpl.org",
+      "https://xrbitcoincash.com",
+      "https://xrptoolkit.com",
+      "https://sologenic.org"
+    ],
+    "creator": {
+      "@type": "Organization",
+      "name": "XRBitcoinCash Foundation",
+      "url": "https://xrbitcoincash.com"
+    },
     "mainEntityOfPage": "https://xrbitcoincash.com/bs"
   }
   </script>
 
   <style>
 :root {
-  --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
+  --bg:#0B1020;
+  --card:#0F1724;
+  --ink:#ECF3FF;
+  --muted:#9EB2D0;
+  --accent:#00E5FF;
 }
-* { box-sizing: border-box; }
-html,body { height:100%; margin:0; font-family: Inter, Segoe UI, Roboto, system-ui, Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+* {box-sizing:border-box;}
+html,body {
+  height:100%;
+  margin:0;
+  font-family:Inter,Segoe UI,Roboto,system-ui,Arial;
+  color:var(--ink);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.6;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
 
-/* Background / frame */
-.bg-blob{position:fixed;inset:0;z-index:0;pointer-events:none;background:
-  radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
-  radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
-  filter:blur(28px); animation:blob 22s linear infinite;}
-@keyframes blob{0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
-.page-frame{position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,0.10);pointer-events:none;z-index:5}
+.update-status {
+  margin-left: 0.5rem;
+  font-size: 0.9em;
+  color: var(--accent);
+  animation: blink 1s infinite;
+}
 
+
+
+/* Blobby animated BG */
+.bg-blob {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:radial-gradient(600px 300px at 7% 22%, rgba(0,230,255,0.11), transparent),
+              radial-gradient(500px 260px at 85% 77%, rgba(0,150,255,0.08), transparent);
+  filter:blur(30px);
+  animation:blob 22s linear infinite;
+}
+@keyframes blob {
+  0% {transform:translate(0,0);}
+  50% {transform:translate(-6%,3%);}
+  100% {transform:translate(0,0);}
+}
+.page-frame {
+  position:fixed; inset:12px;
+  border-radius:16px;
+  border:2px solid rgba(0,229,255,0.10);
+  pointer-events:none;
+  z-index:5;
+}
 /* Header */
-header{position:sticky;top:12px;z-index:10;background:rgba(11,16,32,0.7);backdrop-filter:blur(8px);
-  padding:10px 18px;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;border-radius:12px}
-.brand{display:flex;gap:12px;align-items:center}
-.brand img{width:44px;height:44px;border-radius:8px;box-shadow:0 0 10px rgba(0,229,255,0.35)}
-.brand h1{font-size:1.05rem;margin:0}
-nav a{color:var(--muted);text-decoration:none;margin-left:18px;font-weight:600;padding:6px 10px;border-radius:8px}
-nav a:hover{background:rgba(255,255,255,0.08);color:var(--ink)}
-nav a.cta{background:linear-gradient(180deg,var(--accent),#00b6d0);color:#00121a;font-weight:700}
+header {
+  position:sticky; top:12px; z-index:10;
+  background:transparent; padding:10px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  max-width:1200px; margin:0 auto;
+}
 
-/* Main / cards */
-main{position:relative;z-index:2;max-width:1040px;margin:36px auto;padding:24px}
-.card{background:var(--card);padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.05);
-  box-shadow:0 4px 18px rgba(0,229,255,0.08);margin-bottom:22px}
-h2,h3{margin:0 0 12px 0;color:var(--accent)}
-.small{font-size:.9rem;color:var(--muted)}
+/* Logo Orbit Animation */
+.brand {
+  display:flex; gap:12px; align-items:center; position:relative;
+}
+.brand img {
+  width:44px; height:44px; border-radius:8px;
+  animation:glowPulse 2.5s infinite alternate;
+  box-shadow:0 0 8px var(--accent);
+  z-index:1;
+}
+@keyframes glowPulse {
+  from { box-shadow:0 0 4px var(--accent); }
+  to { box-shadow:0 0 16px var(--accent); }
+}
+.orbit {
+  position:absolute; left:16px; top:12px; width:60px; height:60px; pointer-events:none; z-index:0;
+}
+.orbit-sat {
+  position:absolute; width:16px; height:16px; background:var(--accent);
+  border-radius:50%; top:22px; left:42px; opacity:0.4;
+  animation:orbitAnim 3.6s linear infinite;
+}
+@keyframes orbitAnim {
+  0%   { transform: rotate(0deg) translateX(22px) rotate(0deg);}
+  100% { transform: rotate(360deg) translateX(22px) rotate(-360deg);}
+}
+.brand h1 {font-size:1.07rem; margin:0;}
+nav a {
+  color:var(--muted); text-decoration:none; margin-left:18px; font-weight:600
+}
+nav a.cta {
+  background:linear-gradient(180deg,var(--accent),#00b6d0);
+  color:#00121a; padding:8px 12px; border-radius:10px
+}
+main {position:relative; z-index:2; max-width:1040px; margin:36px auto; padding:24px;}
+.card {
+  background:var(--card);
+  padding:24px 24px 16px 24px; border-radius:14px;
+  border:1.5px solid rgba(255,255,255,0.04);
+  max-width:97%; margin:0 auto 36px auto;
+  box-shadow:0 4px 20px 0 rgba(0,229,255,0.06);
+}
+h2, h3 {margin-top:0; color:var(--accent);}
+.fade-in {opacity:0; transform:translateY(18px); transition:opacity 0.8s, transform 0.7s;}
+.fade-in.visible {opacity:1; transform:translateY(0);}
+.highlight {color:var(--accent); font-weight:600;}
+.provenance-bar {
+  display:flex; flex-wrap:wrap; gap:20px; padding:0 0 14px 0;
+  margin-bottom:12px; justify-content:center;
+}
+.prov-badge {
+  background: #092031;
+  border:1.2px solid var(--accent); border-radius:8px;
+  color:var(--ink); display:flex; align-items:center;
+  gap:10px; padding:5px 16px; font-size:1rem; margin:4px 0;
+}
+.prov-badge .prov-icon {
+  width:20px; height:20px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.2em; background:var(--accent); color:#072130;
+  box-shadow:0 0 8px 0 rgba(0,229,255,0.10);
+}
 
-/* Spec table */
-.spec-table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02)}
-.spec-table th,.spec-table td{border-bottom:1px solid rgba(255,255,255,0.06);padding:8px 10px;text-align:left}
-.spec-table th{color:var(--muted);font-weight:600}
-.spec-table tr:last-child th,.spec-table tr:last-child td{border-bottom:0}
-.spec-table .value{color:var(--ink);font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+/* Table for specs */
+.spec-table {
+  width:100%;
+  border-collapse:collapse;
+  background:rgba(255,255,255,0.02);
+  margin-bottom:18px;
+}
+.spec-table th, .spec-table td {
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:7.5px 10px; text-align:left;
+}
+.spec-table th {color:var(--muted); font-weight:600;}
+.spec-table tr:last-child th, .spec-table tr:last-child td {border-bottom:0;}
+.spec-table .value {color:var(--ink); font-family:monospace;}
+.strong {font-weight:600;}
 
-/* Progress bar + back to top */
-#progressBar{position:fixed;top:0;left:0;height:4px;background:var(--accent);box-shadow:0 0 12px var(--accent);
-  z-index:999;width:0%;transition:width .17s linear}
-#backToTop{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#00121a;border:none;border-radius:50%;
-  width:46px;height:46px;font-size:22px;cursor:pointer;display:none;box-shadow:0 0 10px var(--accent);z-index:9999}
-#backToTop:hover{background:#00b6d0}
+footer {
+   max-width:1000px; margin:24px auto 60px; padding:20px 0 0 0;
+   text-align:center; color:var(--muted);
+   font-size:1rem;
+}
 
-@media (max-width:700px){.card{padding:14px} .brand h1{font-size:1rem}}
+.small {font-size:0.89rem;}
+/* Back to top button */
+#backToTop {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--accent); color:#00121a;
+  border:none; border-radius:50%;
+  width:46px; height:46px; font-size:22px;
+  cursor:pointer; display:none;
+  box-shadow:0 0 10px var(--accent);
+  z-index:9999;
+}
+#backToTop:hover {background:#00b6d0;}
+
+@media (max-width:700px) {
+  .card {padding:14px;}
+  .brand h1 {font-size:1rem;}
+  .orbit {display:none;}
+  .spec-table th,.spec-table td {padding:7px 2.5vw;}
+}
+
   </style>
 </head>
 <body>
   <div class="bg-blob"></div>
   <div class="page-frame"></div>
-  <div id="progressBar"></div>
-
+  <div class="progress-bar" id="progressBar" style="position:fixed;top:0;left:0;height:4px; background:var(--accent);box-shadow:0 0 12px var(--accent);z-index:999;width:0%;transition:width 0.17s linear;"></div>
   <header>
     <div class="brand">
-      <a href="/"><img src="/xrbc-nft.png" alt="XRBitcoinCash logo" /></a>
-      <h1>XRBitcoinCash <span class="small">— Specification</span></h1>
+      <a href="/"><img src="/xrbc-nft.png" alt="XRBitcoinCash logo, linked to home" /></a>
+      <div class="orbit"><span class="orbit-sat"></span></div>
+      <h1>XRBitcoinCash <span class="small muted">Specification</span></h1>
     </div>
     <nav>
-      <a href="/" class="cta">Home</a>
+      <a href="/" class="cta" aria-label="Home">Home</a>
     </nav>
   </header>
-
   <main>
     <section class="card">
-      <h2>XRBitcoinCash (XRBC) Blockchain Specs</h2>
-      <table class="spec-table" aria-label="XRBC token specification">
-        <tr><th>Token Name</th><td class="value">XRBitcoinCash</td></tr>
-        <tr><th>Token Code</th><td class="value">XRBC (Hex: 5852626974636F696E6361736800000000000000)</td></tr>
-        <tr><th>Issuer Address</th><td class="value"><code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></td></tr>
-        <tr><th>Blackholed</th><td class="value">YES (irreversible)</td></tr>
-        <tr><th>Domain &amp; TOML</th><td class="value"><a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">xrbitcoincash.com</a> <span class="small">(TOML verified)</span></td></tr>
-        <tr><th>Trustline Limit</th><td class="value">User defined per TrustLine (default: 100,000,000)</td></tr>
-      </table>
-    </section>
+      <h2 class="fade-in">XRBitcoinCash (XRBC) Blockchain Specs</h2>
+      <div class="provenance-bar fade-in" aria-label="Verification statuses">
+        <span class="prov-badge" title="Issuer address permanently blackholed for security.">
+          <span class="prov-icon" aria-hidden="true">🔒</span> Blackholed Issuer
+        </span>
+        <span class="prov-badge" title="Domain matches and TOML registry present.">
+          <span class="prov-icon" aria-hidden="true">🌐</span> Domain Verified
+        </span>
+        <span class="prov-badge" title="KYC completed via Xaman Wallet.">
+          <span class="prov-icon" aria-hidden="true">🪪</span> KYC: Xaman Verified
+        </span>
+        <span class="prov-badge" title="TOML/Specs last recertified July 2025.">
+          <span class="prov-icon" aria-hidden="true">✅</span> Recertified 2025-07
+        </span>
+      </div>
+      <p class="fade-in">
+        <strong>XRBitcoinCash (XRBC)</strong> is a community-driven digital asset on the XRP Ledger (XRPL), built for transparency, immutability, and compliance in decentralized finance. All asset rules and settings are cryptographically frozen for maximum trust. This page presents the active, verifiable blockchain specs for XRBC.
+      </p>
+      <table class="spec-table fade-in" aria-label="XRBC token specification">
+        <tr>
+          <th scope="row">Token Name</th>
+          <td class="value">XRBitcoinCash</td>
+        </tr>
+        <tr>
+          <th scope="row">Token Code</th>
+          <td class="value">XRBC <span class="strong">(Hex: 5852626974636F696E6361736800000000000000)</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Issuer Address</th>
+          <td class="value"><code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></td>
+        </tr>
+        <tr>
+          <th scope="row">Blackholed</th>
+          <td class="value highlight">YES (irreversible)</td>
+        </tr>
+        <tr>
+          <th scope="row">Domain &amp; TOML</th>
+          <td class="value"><a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">xrbitcoincash.com</a> <span class="small muted">(TOML verified)</span></td>
+        </tr>
+        <tr>
+          <th scope="row">Trustline Limit</th>
+          <td class="value">User defined per TrustLine (default: 100,000,000)</td>
+        </tr>
+        <tr>
+<tr>
+  <th scope="row">Total Supply</th>
+  <td class="value">
+    <span id="stat-max">21,000,000</span> XRBC
+    <!-- status span for this row -->
+    <span id="status-max" class="update-status">Updating…</span>
+  </td>
+</tr>
+<tr>
+  <th scope="row">Circulating</th>
+  <td class="value">
+    <span id="stat-circ">~51,200</span> XRBC
+    <!-- new status span for circulating -->
+    <span id="status-circ" class="update-status">Updating…</span>
+  </td>
+</tr>
+<tr>
+  <th scope="row">Holders / Trustlines</th>
+  <td class="value">
+    <span id="stat-holders">152</span> / 863
+    <!-- new status span for holders -->
+    <span id="status-holders" class="update-status">Updating…</span>
+  </td>
+</tr>
 
-    <section class="card" id="live-metrics">
-      <h2>XRBC Live Metrics (XRPL)</h2>
-      <table class="spec-table" aria-label="XRBC live metrics">
-        <tr><th>Total Supply</th><td class="value"><span id="stat-max">—</span> XRBC</td></tr>
-        <tr><th>Circulating Supply</th><td class="value"><span id="stat-circ">—</span> XRBC</td></tr>
-        <tr><th>Holders</th><td class="value"><span id="stat-holders">—</span></td></tr>
-        <tr><th>Trustlines</th><td class="value"><span id="stat-trust">—</span></td></tr>
-        <tr><th>Market Price (XRP)</th><td class="value"><span id="stat-price-xrp">—</span></td></tr>
-        <tr><th>Market Price (USD)</th><td class="value"><span id="stat-price-usd">—</span></td></tr>
-      </table>
-      <p class="small">Source: XRPL ledger (account_lines). Updates every 60s. <span id="last-updated"></span></p>
-    </section>
 
+          <th scope="row">Issuer Fee</th>
+          <td class="value">0%</td>
+        </tr>
+        <tr>
+          <th scope="row">DEX/AMM Trade</th>
+          <td class="value">
+            <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a>,
+            <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic</a>,
+            
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Creation Date</th>
+          <td class="value">2022-01-05</td>
+        </tr>
+        <tr>
+          <th scope="row">KYC</th>
+          <td class="value">Xaman Verified, Sovereign entity (see Compliance below)</td>
+        </tr>
+        <tr>
+          <th scope="row">Last Recertified</th>
+          <td class="value">2025-07-08</td>
+        </tr>
+      </table>
+      <div class="fade-in">
+        <details>
+          <summary><strong>What does "blackholed issuer" mean?</strong></summary>
+          <p>
+            The XRBC issuer account is cryptographically locked ("blackholed") making additional issuance, freezing, or alteration impossible. All XRBC tokens now exist fully on the decentralized ledger with no further control by any party, ensuring total immutability and decentralization.<br>
+            <a href="https://bithomp.com/en/learn/blackholed-address" target="_blank" rel="noopener">Learn more about Blackholed addresses</a>
+          </p>
+        </details>
+      </div>
+    </section>
     <section class="card">
-      <h3>Security, Compliance & Certification</h3>
-      <ul class="small">
+      <h3 class="fade-in">Security, Compliance & Certification</h3>
+      <p class="fade-in">
+        XRBitcoinCash rigorously follows leading security, compliance, and transparency practices:
+      </p>
+      <ul class="fade-in">
         <li><strong>Issuer Blackholed:</strong> No new tokens can ever be issued, nor assets frozen or seized.</li>
         <li><strong>TOML & Domain Verified:</strong> Specs, KYC, and social links are public and registry-compliant.</li>
-        <li><strong>KYC & AML:</strong> Xaman Verified; sovereign project; use at your own risk.</li>
-        <li><strong>Recertification:</strong> Docs reviewed yearly. Last certified: <time datetime="2025-07-08">2025-07-08</time>.</li>
+        <li><strong>KYC & AML Note:</strong> XRBC is Xaman verified and operated as a sovereign entity—no legal corporation; fully decentralized, with Xaman KYC attestation. Risk and compliance are disclosed for all participants. For privacy, no personal PII is stored on servers but any user participation is subject to standard AML laws applicable to exchanges/wallets.</li>
+        <li><strong>Security Audits & Backups:</strong> All operational procedures are documented and subject to internal annual recertification. Regular encrypted multi-geo backups are verified yearly or after any software modification, meeting or exceeding 2025 global standards. Disaster recovery runbooks and reporting logs are maintained.</li>
+        <li><strong>Recertification:</strong> This spec and all underlying documentation are reviewed yearly. Current "last certified" date: <time datetime="2025-07-08">July 8, 2025</time>.
+        </li>
       </ul>
+      <p class="small faded-in">
+        <strong>Compliance Notice:</strong> Participation in XRBC and usage of DEX/AMM venues constitutes acceptance of all asset and trading risks. XRBC issues no claim of legal responsibility nor financial returns; use at your own risk.
+      </p>
     </section>
-
     <section class="card">
-      <h3>DEX/AMM Trading & Liquidity</h3>
-      <ul class="small">
-        <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a></li>
-        <li><a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic AMM</a></li>
+      <h3 class="fade-in">DEX/AMM Trading & Liquidity</h3>
+      <p class="fade-in">
+        XRBitcoinCash (XRBC) is available for trade via decentralized exchanges (DEX) and Automated Market Maker pools on the XRPL. <br>
+        <strong>Before trading, set a trustline to the XRBC issuer address.</strong>
+      </p>
+      <ul class="fade-in">
+        <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket DEX / AMM</a></li>
+        <li><a href="https://sologenic.org/trade" target="_blank" rel="noopener">Sologenic DEX</a></li>
+      
+        <li><a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">Official TOML Spec</a></li>
       </ul>
+      <details class="fade-in">
+        <summary><strong>What is a trustline & how do I set it?</strong></summary>
+        <p>
+          XRPL requires users to opt-in to non-XRP assets via a trustline—an explicit setting in your wallet that authorizes holding XRBC.<br>
+          <a href="https://xrpauthority.com/david-schwartz-and-the-creation-of-the-xrp-ledger/what-are-xrpl-trustlines-how-they-work/" target="_blank" rel="noopener">Trustlines explained (XRPL)</a>
+        </p>
+      </details>
     </section>
-
-    <section class="card">
-      <h3>Contact & Registry</h3>
-      <p class="small">
-        <strong>Email:</strong> <a href="mailto:xrbitcoincash@gmail.com">xrbitcoincash@gmail.com</a><br />
-        <strong>Social:</strong> <a href="https://twitter.com/xrbitcoincash" target="_blank">@xrbitcoincash</a><br />
-        <strong>TOML:</strong> <a href="https://www.xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank">/ .well-known / xrp-ledger.toml</a>
+    <section class="card fade-in">
+      <h3>Contact & Registry Links</h3>
+      <p>
+        <strong>Email:</strong> <a href="mailto:xrbitcoincash@gmail.com" class="highlight">xrbitcoincash@gmail.com</a><br>
+        <strong>Social:</strong> <a href="https://twitter.com/xrbitcoincash" target="_blank">@xrbitcoincash</a><br>
+        <strong>TOML/Registry:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank">xrbitcoincash.com/.well-known/xrp-ledger.toml</a>
+      </p>
+      <p>
+        <strong>Revision:</strong> v2, signed 2022-09-03.<br>
+        <strong>Page Last Certified:</strong> <time datetime="2025-07-08">July 8, 2025</time>
       </p>
     </section>
   </main>
-
-  <footer class="small" style="max-width:1040px;margin:24px auto 60px;padding:0 24px;text-align:center;color:var(--muted)">
-    © 2025 XRBitcoinCash™ — Built on XRPL.
+  <footer>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL. Compliance-first, immutability by blackhole. Validators: <a href="https://xrpl.org" target="_blank">xrpl.org</a>. Verified by TOML registry.</small>
   </footer>
   <button id="backToTop" aria-label="Back to top">↑</button>
 
+  <!-- Fade-in + progress/back-to-top -->
   <script>
-  // Progress bar + back-to-top
-  window.addEventListener('scroll', () => {
-    const st = window.scrollY, dh = document.body.scrollHeight - window.innerHeight;
-    document.getElementById('progressBar').style.width = (dh>0 ? (st/dh)*100 : 0) + '%';
-    document.getElementById('backToTop').style.display = st > 300 ? 'block' : 'none';
-  });
-  document.getElementById('backToTop').addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
-  </script>
-
-  <!-- XRPL metrics: WS with REST fallback. No blinking, no placeholders after load. -->
-  <script>
-  (function () {
-    "use strict";
-
-    const CONFIG = {
-      ISSUER: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-      CURRENCY_ASCII: "XRbitcoincash",
-      CURRENCY_HEX:   "5852626974636F696E6361736800000000000000",
-      MAX_SUPPLY: "20999999.999999996",
-      WS_URLS: ["wss://xrplcluster.com", "wss://s1.ripple.com"],
-      REST_URL: "https://data.ripple.com/v2/accounts/",
-      REFRESH_MS: 60000,
-      TIMEOUT_MS: 10000
-    };
-
-    // DOM
-    const elMax   = document.getElementById("stat-max");
-    const elCirc  = document.getElementById("stat-circ");
-    const elHold  = document.getElementById("stat-holders");
-    const elTrust = document.getElementById("stat-trust");
-    const elXRP   = document.getElementById("stat-price-xrp");
-    const elUSD   = document.getElementById("stat-price-usd");
-    const elTs    = document.getElementById("last-updated");
-
-    // Static total supply
-    if (elMax) elMax.textContent = Number(CONFIG.MAX_SUPPLY).toLocaleString();
-
-    const toNum = (x) => {
-      const n = Number(x);
-      return Number.isFinite(n) ? n : 0;
-    };
-
-    const isXRBC = (code) => {
-      if (!code) return false;
-      const c = String(code).toUpperCase();
-      // Accept ledger hex, and the ASCII name if any endpoint returns it
-      return c === CONFIG.CURRENCY_HEX.toUpperCase() || c === CONFIG.CURRENCY_ASCII.toUpperCase();
-    };
-
-    function compute(lines) {
-      let circulating = 0, holders = 0, trust = 0;
-      for (const line of lines) {
-        if (!isXRBC(line.currency)) continue;
-        trust++;
-        const bal = toNum(line.balance);
-        // From issuer account perspective, negative balance => counterparty holds issued currency
-        if (bal < 0) {
-          circulating += -bal;
-          holders++;
+    // Reveal/fade-in
+    const faders = document.querySelectorAll('.fade-in');
+    const appearOptions = { threshold: 0.12 };
+    const appearOnScroll = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
         }
-      }
-      return { circulating, holders, trust };
-    }
-
-    function fetchLinesWS(wsUrl) {
-      return new Promise((resolve, reject) => {
-        const ws = new WebSocket(wsUrl);
-        const lines = [];
-        const base = { id: 1, command: "account_lines", account: CONFIG.ISSUER, ledger_index: "validated", limit: 400 };
-        let timer = null;
-
-        const arm = () => {
-          clearTimeout(timer);
-          timer = setTimeout(() => {
-            try { ws.close(); } catch(e){}
-            reject(new Error("WS timeout"));
-          }, CONFIG.TIMEOUT_MS);
-        };
-
-        ws.onopen = () => { arm(); ws.send(JSON.stringify(base)); };
-        ws.onmessage = (evt) => {
-          arm();
-          const msg = JSON.parse(evt.data);
-          if (msg.status === "error") {
-            try { ws.close(); } catch(e){}
-            return reject(new Error(msg.error_message || msg.error || "WS error"));
-          }
-          if (msg.result && Array.isArray(msg.result.lines)) {
-            lines.push(...msg.result.lines);
-            if (msg.result.marker) {
-              ws.send(JSON.stringify({ ...base, marker: msg.result.marker }));
-            } else {
-              clearTimeout(timer);
-              try { ws.close(); } catch(e){}
-              resolve(lines);
-            }
-          }
-        };
-        ws.onerror = () => {
-          clearTimeout(timer);
-          try { ws.close(); } catch(e){}
-          reject(new Error("WS error"));
-        };
       });
-    }
+    }, appearOptions);
+    faders.forEach(fader => appearOnScroll.observe(fader));
 
-    async function fetchLinesREST() {
-      // Paginate Ripple Data API
-      let url = `${CONFIG.REST_URL}${CONFIG.ISSUER}/lines?limit=400`;
-      const lines = [];
-      for (let i=0; i<25; i++) { // sane cap
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
-        const res = await fetch(url, { signal: controller.signal });
-        clearTimeout(t);
-        if (!res.ok) throw new Error(`REST ${res.status}`);
-        const json = await res.json();
-        if (Array.isArray(json.lines)) lines.push(...json.lines);
-        if (json.marker) {
-          const q = new URLSearchParams({ limit: "400", marker: json.marker });
-          url = `${CONFIG.REST_URL}${CONFIG.ISSUER}/lines?${q.toString()}`;
-        } else {
-          break;
+    // Progress bar and back-to-top
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      document.getElementById('progressBar').style.width = scrollPercent + '%';
+      document.getElementById('backToTop').style.display = scrollTop > 300 ? 'block' : 'none';
+    });
+    document.getElementById('backToTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+
+  <!-- XRPL-Refresh Code -->
+  <script>
+    (async function refreshStats() {
+      const CONFIG = { REFRESH_MS: 30000, MAX_SUPPLY: "20999999.999999996" };
+      const endpoint = "https://xrpldata.inftf.org/v1/token/XRBC";
+
+      // DOM nodes
+      const elMax     = document.getElementById("stat-max");
+      const elCirc    = document.getElementById("stat-circ");
+      const elHolders = document.getElementById("stat-holders");
+      const elTrust   = document.getElementById("stat-trust");
+      const stMax     = document.getElementById("status-max");
+      const stCirc    = document.getElementById("status-circ");
+      const stHold    = document.getElementById("status-holders");
+      const stTrust   = document.getElementById("status-trust");
+
+      async function fetchAndUpdate() {
+        // show Updating… in all four rows
+        [stMax, stCirc, stHold, stTrust].forEach(el => el.textContent = "Updating…");
+
+        try {
+          const res  = await fetch(endpoint);
+          const data = await res.json();
+
+          // 1. Total Supply (static)
+          elMax.textContent = Number(CONFIG.MAX_SUPPLY).toLocaleString();
+
+          // 2. Circulating from metrics.supply
+          elCirc.textContent = Number(data.metrics.supply).toLocaleString();
+
+          // 3. Holders from metrics.holders
+          elHolders.textContent = Number(data.metrics.holders).toLocaleString();
+
+          // 4. Trustlines from metrics.trustlines
+          elTrust.textContent = Number(data.metrics.trustlines).toLocaleString();
+
+          // 5. Stamp all statuses with the same timestamp
+          const now = new Date().toLocaleTimeString();
+          [stMax, stCirc, stHold, stTrust].forEach(el => {
+            el.textContent = `Updated ${now}`;
+          });
+        } catch (err) {
+          console.error("XRBC fetch error:", err);
+          // on failure, show “Error” for all
+          [stMax, stCirc, stHold, stTrust].forEach(el => {
+            el.textContent = "Error";
+          });
         }
       }
-      return lines;
-    }
 
-    async function getAllLines() {
-      // Try WS endpoints in order
-      for (const url of CONFIG.WS_URLS) {
-        try { return await fetchLinesWS(url); }
-        catch (e) { console.warn("[XRBC] WS failed:", url, e.message); }
-      }
-      // Fallback to REST
-      return await fetchLinesREST();
-    }
-
-    function render(stats) {
-      if (elCirc)  elCirc.textContent  = stats ? stats.circulating.toLocaleString(undefined,{maximumFractionDigits:6}) : "—";
-      if (elHold)  elHold.textContent  = stats ? stats.holders.toLocaleString() : "—";
-      if (elTrust) elTrust.textContent = stats ? stats.trust.toLocaleString() : "—";
-      if (elXRP)   elXRP.textContent   = "—"; // price not wired to any public API reliably
-      if (elUSD)   elUSD.textContent   = "—";
-      if (elTs)    elTs.textContent    = stats ? ("Last updated " + new Date().toLocaleTimeString()) : "Last update failed";
-    }
-
-    async function tick() {
-      try {
-        const lines = await getAllLines();
-        const stats = compute(lines);
-        render(stats);
-      } catch (err) {
-        console.error("[XRBC] metrics error:", err);
-        render(null);
-      }
-      setTimeout(tick, CONFIG.REFRESH_MS);
-    }
-
-    // Initial paint + start loop
-    render(null);
-    tick();
-  })();
+      // Initial fetch + interval polling
+      await fetchAndUpdate();
+      setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
+    })();
   </script>
+
 </body>
 </html>
