@@ -345,11 +345,21 @@ setInterval(updateTimer, 60000); // update every minute
    </div>
         
       <!-- Countdown reminder for security.txt & CSAF expiry -->            
-      <div class="stats card">
-        <div class="stat"><div class="stat-number" data-target="20999999">0</div><div class="muted small">Max Supply</div></div>
-        <div class="stat"><div class="stat-number" data-target="51200">0</div><div class="muted small">Circulating</div></div>
-        <div class="stat"><div class="stat-number" data-target="152">0</div><div class="muted small">Holders</div></div>
-      </div>
+     <div class="stats card" id="xrbc-stats">
+  <div class="stat">
+    <div id="stat-circ" class="stat-number">Loading…</div>
+    <div class="muted small">Circulating Supply</div>
+  </div>
+  <div class="stat">
+    <div id="stat-holders" class="stat-number">Loading…</div>
+    <div class="muted small">Holders</div>
+  </div>
+  <div class="stat">
+    <div id="stat-trustlines" class="stat-number">Loading…</div>
+    <div class="muted small">Trustlines Opened</div>
+  </div>
+</div>
+
     </div>
     <aside class="card nft">
       <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
@@ -598,6 +608,83 @@ setInterval(updateTimer, 60000); // update every minute
 </script>
 <!-- Proxy --> 
 <script src="js/xrpl-connector.js"></script>
+<script>
+(async function() {
+  const ISSUER   = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
+  const CURRENCY = "XRbitcoincash";
+  const WS_URL   = "wss://xrplcluster.com";
+
+  const elCirc      = document.getElementById("stat-circ");
+  const elHolders   = document.getElementById("stat-holders");
+  const elTrust     = document.getElementById("stat-trustlines");
+
+  async function fetchTrustlines(marker) {
+    const body = {
+      id: 1,
+      command: "account_lines",
+      account: ISSUER,
+      ledger_index: "validated",
+      limit: 400
+    };
+    if (marker) body.marker = marker;
+
+    const ws = new WebSocket(WS_URL);
+    return new Promise((resolve, reject) => {
+      ws.onopen = () => ws.send(JSON.stringify(body));
+      ws.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        if (data.result) {
+          resolve(data.result);
+          ws.close();
+        }
+      };
+      ws.onerror = reject;
+    });
+  }
+
+  async function computeStats() {
+    let circ = 0;
+    let holders = 0;
+    let trustlines = 0;
+    let marker = null;
+
+    do {
+      const result = await fetchTrustlines(marker);
+      result.lines.forEach(line => {
+        if (line.currency === CURRENCY) {
+          trustlines++;
+          const bal = parseFloat(line.balance);
+          if (bal > 0) {
+            circ += bal;
+            holders++;
+          }
+        }
+      });
+      marker = result.marker;
+    } while (marker);
+
+    return { circ, holders, trustlines };
+  }
+
+  async function updateStats() {
+    try {
+      const { circ, holders, trustlines } = await computeStats();
+      elCirc.textContent = circ.toLocaleString();
+      elHolders.textContent = holders.toLocaleString();
+      elTrust.textContent = trustlines.toLocaleString();
+    } catch (err) {
+      console.error("XRBC stats fetch failed:", err);
+      elCirc.textContent = "—";
+      elHolders.textContent = "—";
+      elTrust.textContent = "—";
+    }
+  }
+
+  // Initial fetch + refresh every 60s
+  updateStats();
+  setInterval(updateStats, 60000);
+})();
+</script>
 
 
 </body>
