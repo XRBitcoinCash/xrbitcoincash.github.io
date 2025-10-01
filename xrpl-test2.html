@@ -604,87 +604,144 @@ setInterval(updateTimer, 60000); // update every minute
   updateDom({ maxSupply: CONFIG.MAX_SUPPLY }, false, "");
   tick();
 
-})();
-</script>
-<!-- Proxy --> 
-<script src="js/xrpl-connector.js"></script>
 <script>
 (async function() {
-  const ISSUER   = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
-  const CURRENCY = "XRbitcoincash";
-  const WS_URL   = "wss://xrplcluster.com";
+  const CONFIG = {
+    ISSUER:     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", // XRBC issuer
+    CURRENCY:   "XRbitcoincash",
+    MAX_SUPPLY: "20999999.999999996",
+    WS_URL:     "wss://xrplcluster.com",
+    REST_URL:   "https://data.ripple.com/v2/accounts/",
+    REFRESH_MS: 60000,
+    TIMEOUT_MS: 8000
+  };
 
-  const elCirc      = document.getElementById("stat-circ");
-  const elHolders   = document.getElementById("stat-holders");
-  const elTrust     = document.getElementById("stat-trustlines");
+  // DOM references
+  const elCirc    = document.getElementById("stat-circ");
+  const elHolders = document.getElementById("stat-holders");
+  const elTrust   = document.getElementById("stat-trustlines");
 
-  async function fetchTrustlines(marker) {
-    const body = {
-      id: 1,
-      command: "account_lines",
-      account: ISSUER,
-      ledger_index: "validated",
-      limit: 400
-    };
-    if (marker) body.marker = marker;
+  // Helpers
+  const toNum = x => {
+    const n = parseFloat(x);
+    return Number.isFinite(n) ? n : 0;
+  };
 
-    const ws = new WebSocket(WS_URL);
+  // WebSocket fetch of trustlines
+  function fetchLinesWS(issuer) {
     return new Promise((resolve, reject) => {
-      ws.onopen = () => ws.send(JSON.stringify(body));
-      ws.onmessage = (msg) => {
+      const ws = new WebSocket(CONFIG.WS_URL);
+      const lines = [];
+      let timer = setTimeout(() => {
+        ws.close();
+        reject(new Error("WS timeout"));
+      }, CONFIG.TIMEOUT_MS);
+
+      const reqBase = {
+        id: 1,
+        command: "account_lines",
+        account: issuer,
+        ledger_index: "validated",
+        limit: 400
+      };
+
+      ws.onopen = () => ws.send(JSON.stringify(reqBase));
+      ws.onmessage = msg => {
         const data = JSON.parse(msg.data);
-        if (data.result) {
-          resolve(data.result);
-          ws.close();
+        if (data.result && Array.isArray(data.result.lines)) {
+          lines.push(...data.result.lines);
+          if (data.result.marker) {
+            ws.send(JSON.stringify({ ...reqBase, marker: data.result.marker }));
+          } else {
+            clearTimeout(timer);
+            ws.close();
+            resolve(lines);
+          }
         }
       };
-      ws.onerror = reject;
+      ws.onerror = () => {}; // ignore, will fallback
     });
   }
 
-  async function computeStats() {
-    let circ = 0;
-    let holders = 0;
-    let trustlines = 0;
-    let marker = null;
-
-    do {
-      const result = await fetchTrustlines(marker);
-      result.lines.forEach(line => {
-        if (line.currency === CURRENCY) {
-          trustlines++;
-          const bal = parseFloat(line.balance);
-          if (bal > 0) {
-            circ += bal;
-            holders++;
-          }
-        }
-      });
-      marker = result.marker;
-    } while (marker);
-
-    return { circ, holders, trustlines };
-  }
-
-  async function updateStats() {
+  // REST API fallback fetch
+  async function fetchLinesREST(issuer) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
+    const url = `${CONFIG.REST_URL}${issuer}/lines?limit=400`;
     try {
-      const { circ, holders, trustlines } = await computeStats();
-      elCirc.textContent = circ.toLocaleString();
-      elHolders.textContent = holders.toLocaleString();
-      elTrust.textContent = trustlines.toLocaleString();
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`REST ${res.status}`);
+      const json = await res.json();
+      return json.lines || [];
     } catch (err) {
-      console.error("XRBC stats fetch failed:", err);
-      elCirc.textContent = "—";
-      elHolders.textContent = "—";
-      elTrust.textContent = "—";
+      clearTimeout(timer);
+      throw err;
     }
   }
 
-  // Initial fetch + refresh every 60s
-  updateStats();
-  setInterval(updateStats, 60000);
+  // Compute metrics
+  function computeStats(lines) {
+    let circ = 0, holders = 0, trustlines = 0;
+    lines.forEach(line => {
+      if (line.currency === CONFIG.CURRENCY) {
+        trustlines++;
+        const bal = toNum(line.balance);
+        if (bal > 0) {
+          circ += bal;
+          holders++;
+        }
+      }
+    });
+    return { circulating: circ, holders, trustlines };
+  }
+
+  // Update DOM
+  function updateDom(stats, ok, errorMsg) {
+    if (ok) {
+      elCirc.textContent    = stats.circulating.toLocaleString(undefined, { maximumFractionDigits: 6 });
+      elHolders.textContent = stats.holders.toLocaleString();
+      elTrust.textContent   = stats.trustlines.toLocaleString();
+    } else {
+      elCirc.textContent    = "—";
+      elHolders.textContent = "—";
+      elTrust.textContent   = "—";
+      console.error("[XRBC] Update failed:", errorMsg);
+    }
+  }
+
+  // Polling loop
+  async function tick() {
+    let lines, ok = false, errMsg = "";
+    try {
+      lines = await fetchLinesWS(CONFIG.ISSUER);
+      ok = Array.isArray(lines) && lines.length > 0;
+    } catch (wsErr) {
+      errMsg = wsErr.message;
+      try {
+        lines = await fetchLinesREST(CONFIG.ISSUER);
+        ok = Array.isArray(lines) && lines.length > 0;
+        if (ok) errMsg += " | REST ok";
+      } catch (restErr) {
+        errMsg = restErr.message;
+      }
+    }
+
+    if (ok) {
+      updateDom(computeStats(lines), true);
+    } else {
+      updateDom({}, false, errMsg);
+    }
+
+    setTimeout(tick, CONFIG.REFRESH_MS);
+  }
+
+  // Start
+  updateDom({}, false, "init");
+  tick();
 })();
 </script>
+
 
 
 </body>
