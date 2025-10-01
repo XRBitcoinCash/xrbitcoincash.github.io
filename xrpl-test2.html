@@ -290,26 +290,32 @@ footer {
   <th scope="row">Total Supply</th>
   <td class="value">
     <span id="stat-max">21,000,000</span> XRBC
-    <!-- status span for this row -->
-    <span id="status-max" class="update-status">Updating…</span>
+    <span id="status-max" class="update-status"></span>
   </td>
 </tr>
 <tr>
-  <th scope="row">Circulating</th>
+  <th scope="row">Circulating Supply</th>
   <td class="value">
-    <span id="stat-circ">~51,200</span> XRBC
-    <!-- new status span for circulating -->
-    <span id="status-circ" class="update-status">Updating…</span>
+    <span id="stat-circ">—</span> XRBC
+    <span id="status-circ" class="update-status"></span>
   </td>
 </tr>
 <tr>
   <th scope="row">Holders / Trustlines</th>
   <td class="value">
-    <span id="stat-holders">152</span> / 863
-    <!-- new status span for holders -->
-    <span id="status-holders" class="update-status">Updating…</span>
+    <span id="stat-holders">—</span> / <span id="stat-trust">—</span>
+    <span id="status-holders" class="update-status"></span>
+    <span id="status-trust" class="update-status"></span>
   </td>
 </tr>
+<tr>
+  <th scope="row">Market Price</th>
+  <td class="value">
+    <span id="stat-price">—</span> XRP
+    <span id="status-price" class="update-status"></span>
+  </td>
+</tr>
+
 
 
           <th scope="row">Issuer Fee</th>
@@ -484,6 +490,72 @@ footer {
       setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
     })();
   </script>
+<script>
+(async function xrbcStats() {
+  const CONFIG = {
+    MAX_SUPPLY: 20999999.999999996,
+    ENDPOINT: "https://api.xrpl.to/api/tokens/XRBC", // XRPL.to endpoint
+    REFRESH_MS: 60000
+  };
+
+  // DOM refs
+  const el = {
+    max: document.getElementById("stat-max"),
+    circ: document.getElementById("stat-circ"),
+    holders: document.getElementById("stat-holders"),
+    trust: document.getElementById("stat-trust"),
+    price: document.getElementById("stat-price"),
+
+    sMax: document.getElementById("status-max"),
+    sCirc: document.getElementById("status-circ"),
+    sHold: document.getElementById("status-holders"),
+    sTrust: document.getElementById("status-trust"),
+    sPrice: document.getElementById("status-price"),
+  };
+
+  function stampAll(status) {
+    const now = new Date().toLocaleTimeString();
+    Object.values(el).forEach(node => {
+      if (node && node.id.startsWith("status-")) {
+        node.textContent = status === "ok" ? `Updated ${now}` : "Error";
+      }
+    });
+  }
+
+  async function fetchAndUpdate() {
+    try {
+      const res = await fetch(CONFIG.ENDPOINT);
+      if (!res.ok) throw new Error("API error " + res.status);
+      const data = await res.json();
+
+      // XRPL.to returns token info inside data.token
+      const t = data?.token || {};
+
+      // Total supply (static)
+      if (el.max) el.max.textContent = CONFIG.MAX_SUPPLY.toLocaleString();
+
+      // Circulating
+      if (el.circ) el.circ.textContent = Number(t.supply || 0).toLocaleString();
+
+      // Holders & Trustlines
+      if (el.holders) el.holders.textContent = Number(t.holders || 0).toLocaleString();
+      if (el.trust) el.trust.textContent = Number(t.trustlines || 0).toLocaleString();
+
+      // Market Price (XRP)
+      if (el.price) el.price.textContent = Number(t.price || 0).toFixed(6);
+
+      stampAll("ok");
+    } catch (err) {
+      console.error("[XRBC] Stats fetch failed:", err);
+      stampAll("error");
+    }
+  }
+
+  // Initial + repeat
+  fetchAndUpdate();
+  setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
+})();
+</script>
 
 </body>
 </html>
