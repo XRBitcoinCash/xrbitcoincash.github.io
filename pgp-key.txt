@@ -1,50 +1,46 @@
-# XRBitcoinCash Project — PGP Verification Key
-# ===========================================
-# This file contains cryptographic identity and verification metadata
-# for XRBitcoinCash (XRBC) project artifacts, code, and communications.
+# XRBitcoinCash Project — Security Manifest
+# =========================================
+# This file serves as the cryptographic identity anchor for XRBitcoinCash (XRBC).
 #
-# Why is this here?
-# -----------------
-# • To allow users to verify the authenticity of official announcements.
-# • To verify Git commits and signed release archives (.asc).
-# • To assert project identity in a cryptographically provable way.
-#
-# Repo URL:   https://github.com/xrbitcoincash/xrbitcoincash.github.io
-# Website:    https://xrbitcoincash.com/
-# Maintainer: XRBitcoinCash Dev Team
-# Contact:    maintainer@xrbitcoincash.com
+# Even without a published PGP public key, this manifest documents how verification
+# will be handled for code, releases, and ledger-related integrity checks.
 #
 # -------------------------------------------------------------------
-# PGP PUBLIC KEY (EXAMPLE PLACEHOLDER — REPLACE WITH REAL EXPORT)
+# Identity
 # -------------------------------------------------------------------
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-mQINBGEXAMPLEBEGINKVYBCADQ1x7j9k4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-=EXMP
------END PGP PUBLIC KEY BLOCK-----
+Project:      XRBitcoinCash (XRBC)
+Issuer Addr:  rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw
+Currency Hex: 5852626974636F696E6361736800000000000000
+Domain:       https://xrbitcoincash.com/
+Repo:         https://github.com/xrbitcoincash/xrbitcoincash.github.io
+Maintainer:   Sovereign Entity / Verified via Xaman KYC
+Created:      2022-01-05
+Recertified:  2025-07-08
 
 # -------------------------------------------------------------------
-# FINGERPRINT
-# Replace with: gpg --fingerprint YOUR_KEY_ID
-# Example: 0123 4567 89AB CDEF 0123  4567 89AB CDEF 0123 4567
-#
+# Security Policy
 # -------------------------------------------------------------------
-# USAGE NOTES
-# -------------------------------------------------------------------
-# Import this key and verify signed commits / releases:
-#   gpg --import pgp-key.txt
-#   gpg --verify release.tar.gz.asc release.tar.gz
-#
-# Signed git tags will include this key:
-#   git tag -v v1.0.0
-#
-# Security:
-#   • Keep your private key offline.
-#   • Revocation certificate stored securely.
-#   • If fingerprint does not match official site, DO NOT TRUST.
-#
-# -------------------------------------------------------------------
-# END OF FILE
+- XRBC issuer is permanently blackholed (cannot mint new tokens).
+- All trustlines must be explicitly approved by holders.
+- Core project files hosted on GitHub Pages (immutable history available).
+- Whitepaper and ledger instructions are cryptographically bound to domain.
+- Integrity cross-check:
+  • Ledger explorer (xrpl.services / xrplcluster.com)
+  • On-chain domain verification via xrbitcoincash.com/.well-known/xrp-ledger.toml
 
+# -------------------------------------------------------------------
+# Planned PGP Integration
+# -------------------------------------------------------------------
+1. Future release archives will be signed with PGP.
+2. Signed Git tags will validate commit provenance.
+3. Fingerprints will be published in this file and mirrored on the website.
+4. Revocation certificate will be generated and held offline.
+
+# -------------------------------------------------------------------
+# Advisory
+# -------------------------------------------------------------------
+If you obtained this file from any source other than the official GitHub Pages
+repository or domain root, DO NOT TRUST IT. Always verify through:
+  https://xrbitcoincash.com/pgp-key.txt
+
+# End of File
