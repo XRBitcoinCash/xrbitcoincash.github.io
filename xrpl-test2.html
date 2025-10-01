@@ -1,622 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>XRBitcoinCash · Proxy Wallet Test</title>
- <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Favicon / Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <meta name="msapplication-TileImage" content="/favicon.png">
+  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-  <!-- Favicon for browsers -->
-<link rel="icon" href="/xrbc-nft.png" type="image/png">
+  <meta charset="UTF-8" />
+  <link rel="security" type="text/plain" href="https://xrbitcoincash.com/.well-known/security.txt">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — XRBitcoinCash</title>
 
-<!-- Fallback for older browsers -->
-<link rel="shortcut icon" href="/xrbc-nft.png" type="image/png">
+  <!-- Primary SEO -->
+  <meta name="description" content="Learn the mission, values, ecosystem, and history behind XRBitcoinCash (XRBC) on the XRP Ledger." />
+  <meta name="keywords" content="XRBitcoinCash, XRBC, XRPL, XRPL token, cryptocurrency, NFT, tokenomics, transparency" />
+  <link rel="canonical" href="https://xrbitcoincash.com/about.html" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
 
-<!-- Apple/Android homescreen icons -->
-<link rel="apple-touch-icon" href="/xrbc-nft.png">
-<meta name="msapplication-TileImage" content="/xrbc-nft.png">
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://xrbitcoincash.com/about.html" />
+  <meta property "og:title" content="About — XRBitcoinCash" />
+  <meta property="og:description" content="XRBC is a transparent, non-custodial XRPL asset, with fast settlement, low fees, and clear on-chain flows." />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash logo" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
 
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="About — XRBitcoinCash" />
+  <meta name="twitter:description" content="XRBC is a transparent, non-custodial XRPL asset, with fast settlement, low fees, and clear on-chain flows." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-  <!-- Open Graph (Facebook, LinkedIn, etc.) -->
-<meta property="og:title" content="XRBitcoinCash · XRBC on XRPL">
-<meta property="og:description" content="Trade XRBC on the XRP Ledger. Connect your wallet and explore the XRBC/XRP decentralized exchange.">
-<meta property="og:image" content="/xrbc-nft.png">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://xrbitcoincash.com/">
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "XRBitcoinCash",
+    "url": "https://xrbitcoincash.com",
+    "logo": "https://xrbitcoincash.com/xrbc-nft.png",
+    "description": "Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger.",
+    "sameAs": [
+      "https://twitter.com/XRbitcoincash",
+      "https://xrbitcoincash.com",
+      "https://xrbitcoincash.info"
+    ]
+  }
+  </script>
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="XRBitcoinCash · XRBC on XRPL">
-<meta name="twitter:description" content="Decentralized XRBC/XRP trading on the XRP Ledger.">
-<meta name="twitter:image" content="/xrbc-nft.png">
-
-  
   <style>
-   /* === XRBitcoinCash Wallet Connect · Enhanced Dark UI === */
-:root {
-  --bg: #0b0f14;
-  --panel: #121821;
-  --panel-2: #141b25;
-  --text: #e7edf5;
-  --muted: #9fb0c5;
-  --accent: #60a5fa;
-  --accent-2: #22d3ee;
-  --warn: #f59e0b;
-  --err: #ef4444;
-  --ok: #22c55e;
-  --border: #1f2937;
-  --ring: #1d4ed8;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
-}
-* { box-sizing: border-box; margin:0; padding:0; }
-
-html, body {
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  overflow-x: hidden;
-}
-
-/* Floating Orbs */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--accent-2), transparent 70%);
-  opacity: 0.15;
-  animation: float 20s linear infinite;
-}
-.orb:nth-child(1) { width:300px; height:300px; top:10%; left:5%; animation-duration: 28s; }
-.orb:nth-child(2) { width:220px; height:220px; top:60%; left:20%; animation-duration: 25s; }
-.orb:nth-child(3) { width:280px; height:280px; top:30%; right:10%; animation-duration: 32s; }
-.orb:nth-child(4) { width:150px; height:150px; bottom:10%; right:25%; animation-duration: 20s; }
-.orb:nth-child(5) { width:200px; height:200px; bottom:20%; left:5%; animation-duration: 22s; }
-.orb:nth-child(6) { width:260px; height:260px; top:15%; left:50%; animation-duration: 30s; }
-
-@keyframes float {
-  0%   { transform: translateY(0) translateX(0) scale(1); }
-  50%  { transform: translateY(-40px) translateX(20px) scale(1.05); }
-  100% { transform: translateY(0) translateX(0) scale(1); }
-}
-
-/* Layout */
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px 16px;
-  position: relative;
-  z-index: 5;
-}
-.row-flex {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-/* Card */
-.card {
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: var(--shadow);
-  flex: 1;
-  min-width: 260px;
-}
-.card.glow {
-  border-color: var(--accent-2);
-  box-shadow: 0 0 20px rgba(34,211,238,.3);
-}
-
-/* Buttons */
-.btn {
-  appearance: none;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, #0e1520, #0c131c);
-  color: var(--text);
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform .06s ease, border-color .2s ease, box-shadow .2s ease;
-  min-width: 120px;
-  text-align: center;
-}
-.btn:hover { transform: translateY(-1px); border-color: #2a3a51; }
-.btn:active { transform: translateY(0); }
-.btn[disabled] { opacity: .6; cursor: not-allowed; }
-.btn-primary {
-  background: linear-gradient(180deg, rgba(37,99,235,.25), rgba(37,99,235,.15));
-  border-color: rgba(37,99,235,.45);
-}
-.btn-secondary {
-  background: linear-gradient(180deg, rgba(34,211,238,.22), rgba(34,211,238,.12));
-  border-color: rgba(34,211,238,.45);
-}
-
-/* Status */
-.status-text {
-  font-size: 13px;
-  color: var(--muted);
-  margin-left: 12px;
-}
-.status-text.ok { color: var(--ok); }
-.status-text.err { color: var(--err); }
-
-/* Ledger info shrink */
-pre {
-  background: #0c131c;
-  border: 1px solid #1c2736;
-  border-radius: 10px;
-  padding: 8px;
-  max-height: 200px;
-  overflow: auto;
-  font-size: 12px;
-  color: #a3e4ff;
-}
-
-/* Tables */
-.table { width:100%; border-collapse:collapse; font-size:14px; }
-.table th, .table td { padding: 8px 10px; border-bottom: 1px solid #1a2433; }
-.table thead th { background:#0f1722; color:#cfe2ff; }
-
-/* Responsive */
-@media (max-width: 600px) {
-  .row-flex { flex-direction: column; }
-  .btn { width: 100%; }
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand img {
-  max-height: 40px; /* keeps logo from being oversized */
-}
-  
-  
+    :root {
+      --bg: #0B1020;
+      --ink: #ECF3FF;
+      --muted: #9EB2D0;
+      --card-bg: rgba(255,255,255,0.05);
+      --chip-stroke: rgba(255,255,255,0.12);
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      border: 2px solid rgba(0,229,255,0.15);
+      border-radius: 16px;
+      z-index: 9999;
+      box-shadow: 0 0 8px rgba(0,229,255,0.25), inset 0 0 4px rgba(0,229,255,0.10);
+    }
+    header {
+      background: #111827;
+      padding: 16px 16px 12px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .branding {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+    .branding img {
+      height: 48px;
+      width: 48px;
+      border-radius: 8px;
+    }
+    .branding .site-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    main {
+      flex: 1;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 {
+      text-align: center;
+      margin: 8px 0 18px;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .content {
+      background: var(--card-bg);
+      border: 1px solid var(--chip-stroke);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .content h2 {
+      margin: 1.5rem 0 0.75rem;
+    }
+    .content ul {
+      margin-left: 1.25em;
+    }
+    footer {
+      background: #111827;
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    footer small {
+      color: var(--muted);
+    }
+    .facts {
+      background: var(--card-bg);
+      border: 1px solid var(--chip-stroke);
+      border-radius: 14px;
+      padding: 16px;
+      margin: 1.5rem 0;
+    }
+    .facts ul {
+      list-style: none;
+      padding: 0;
+    }
+    .facts li {
+      margin: 0.6rem 0;
+    }
+    .facts .mono {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .disclaimer {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    a {
+      color: var(--ink);
+      text-decoration: underline;
+    }
   </style>
 </head>
 
 <body>
   <header>
-    <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBC logo" />
-      <h1>XRBitcoinCash <span class="muted small">— XRBC on XRPL</span></h1>
+    <div class="branding">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" />
+      <span class="site-name">XRBitcoinCash</span>
     </div>
+    <nav>
+      <a href="https://xrbitcoincash.com/" style="color: var(--ink); text-decoration: none; font-weight:600;">Home</a>
+    </nav>
   </header>
 
+  <main>
+    <div class="wrap">
+      <h1>About XRBitcoinCash</h1>
+      <div class="content">
+        <h2>Origin & Purpose</h2>
+        <p>
+          XRBitcoinCash (XRBC) was launched in <strong>2022</strong>, in the midst of the SEC vs. Ripple proceedings, as 
+          both a gesture of solidarity with the XRPL ecosystem and a living demonstration that tokens on XRPL can be 
+          built for clarity, low fees, and provable accountability. The timing underscores the project’s belief that 
+          decentralized tokens on XRPL are not securities, but tools for value exchange aligned with open standards.
+        </p>
 
-  <div class="container" style="max-width:800px;margin:0 auto;padding:20px;text-align:center;">
+        <h2>Mission</h2>
+        <p>
+          Deliver a simple, transparent asset on XRPL with low fees, fast settlement, and clear, auditable flows.
+          Every design decision and integration — from frontend UI to ledger interactions — is governed by that mission.
+        </p>
 
-    <!-- Header -->
-    <h1 style="margin-bottom:24px;">XRBitcoinCash · XRBC/XRP Trading & Ledger Portal</h1>
+        <h2>Principles</h2>
+        <ul>
+          <li><strong>Clarity over complexity</strong> — public token details, readable docs, minimal hidden behavior.</li>
+          <li><strong>Non-custodial by default</strong> — users always retain control of their private keys; trades happen on-ledger.</li>
+          <li><strong>Consistent branding & metadata</strong> — predictable identifiers and standards across wallets, explorers, and tooling.</li>
+        </ul>
 
-    <!-- Wallet Section -->
-    <div class="card glow" style="margin-bottom:24px;">
-      <h2 style="margin-top:0;">Wallet</h2>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
-        <button id="connectWalletBtn" class="btn btn-primary glow-btn">Connect Wallet</button>
-        <button id="disconnectWalletBtn" class="btn btn-secondary glow-btn" disabled>Disconnect</button>
+        <h2>Key Facts & Token Details</h2>
+        <div class="facts">
+          <ul>
+            <li><strong>Issuer:</strong> <span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></li>
+            <li><strong>Currency code (string):</strong> <span class="mono">XRbitcoincash</span></li>
+            <li><strong>Currency code (hex):</strong> <span class="mono">5852626974636F696E6361736800000000000000</span></li>
+            <li><strong>Trustline cap (indicative):</strong> <span class="mono">20,999,999.999999996</span></li>
+            <li><strong>Network:</strong> XRP Ledger (XRPL)</li>
+          </ul>
+        </div>
+
+        <h2>How XRBC Works</h2>
+        <p>
+          XRBC uses XRPL’s built-in trustlines and decentralized exchange (DEX) logic. Users first open a trustline to XRBC, 
+          then place orders or interact with AMM pools. Trades settle on-ledger, with no centralized custody or middleman. 
+          The DEX page and wallet UI in your browser / wallet connect flows simply submit signed transactions to the XRPL network.
+        </p>
+
+        <h2>Listing, Ecosystem & External Mentions</h2>
+        <p>
+          XRBC is listed in external token tracking and analytics sites such as LiveCoinWatch, showing market data, order-book 
+          and price movement for XRBC/XRP pairs. :contentReference[oaicite:0]{index=0}  
+        </p>
+        <p>
+          The official site features an NFT section (“XRBitcoinCash NFTs”) that allows artist drops, an interactive gallery, 
+          and metadata provenance, all on XRPL. :contentReference[oaicite:1]{index=1}  
+        </p>
+        <p>
+          XRBitcoinCash has a community NFT gallery (Community NFT Gallery) showcasing XRBC-related and partner projects, minted 
+          non-custodially on XRPL. :contentReference[oaicite:2]{index=2}  
+        </p>
+        <p>
+          The white paper outlines token mechanics and marketplace integration (e.g. listing on XPMarket). :contentReference[oaicite:3]{index=3}  
+        </p>
+
+        <h2>Roadmap & Ongoing Development</h2>
+        <ul>
+          <li><strong>Transparency-first operations:</strong> consistent metadata, public docs, predictable behavior.</li>
+          <li><strong>Escrow for issued tokens (future):</strong> once XRPL supports time-locked escrow for issued tokens, XRBC plans to adopt it to bring Bitcoin-like schedule transparency to token flows.</li>
+        </ul>
+
+        <h2>Community & Presence</h2>
+        <p>
+          XRBitcoinCash maintains a public presence on Twitter/X where it communicates updates and interacts with the community. :contentReference[oaicite:4]{index=4}  
+          Posts emphasize safety, research, and XRBC/XRP trading links. :contentReference[oaicite:5]{index=5}
+        </p>
+        <p>
+          The project also hosts blog posts and trend analysis on its site (e.g. “Comprehensive Insights into Crypto Market Analysis”). :contentReference[oaicite:6]{index=6}  
+        </p>
+
+        <h2>Compliance & Disclaimer</h2>
+        <p class="disclaimer">
+          XRBC is a community token on XRPL: not an equity share, debt instrument, or corporate claim. The project’s view is that XRPL tokens are not securities, though this depends on jurisdiction and context. The content here is for informational purposes and not legal or investment advice.
+        </p>
       </div>
-      <p id="walletStatus" class="status-text">Status: Not connected</p>
     </div>
-
-
-<button id="setTrustlineBtn" class="btn btn-primary">Set XRBC Trustline</button>
-<div id="trustlineMsg" class="status-text">—</div>
-
-    
-    <!-- Ledger Info -->
-    <div class="card" style="margin-bottom:24px;">
-      <h2 style="margin-top:0;">Ledger Info</h2>
-      <button id="fetchLedgerBtn" class="btn glow-btn" style="margin-bottom:12px;">Fetch Ledger Info</button>
-      <pre id="ledgerOutput" style="text-align:left;">—</pre>
-    </div>
-
-    <!-- Trade Section -->
-    <div class="card" style="margin-bottom:24px;">
-      <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:16px 0;">
-        <select id="side" class="input" style="max-width:140px;">
-          <option value="sell">Sell XRBC</option>
-          <option value="buy">Buy XRBC</option>
-        </select>
-        <input id="amount" class="input" type="number" step="0.000001" placeholder="Amount (XRBC)" style="max-width:180px;">
-        <input id="price" class="input" type="number" step="0.000001" placeholder="Price (XRP per XRBC)" style="max-width:220px;">
-       <button id="placeOfferBtn" class="btn btn-primary glow-btn">Place Offer (Limit)</button>
-<button id="marketOrderBtn" class="btn btn-secondary glow-btn">Market Order</button>
-
-      </div>
-      <p id="tradeMsg" class="status-text">—</p>
-    </div>
-
-    <!-- Order Book -->
-    <div class="card" style="margin-bottom:24px;">
-      <h2 style="margin-top:0;">XRBC/XRP Order Book</h2>
-      <button id="fetchPriceBtn" class="btn glow-btn" style="margin-bottom:12px;">Get Order Book</button>
-      <p id="priceOutput">—</p>
-    </div>
-
-  </div>
-</body>
-
-  <!-- Config -->
-  <script type="application/json" id="app-config">
-  {
-    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
-  }
-  </script>
-
-  <!-- Libraries -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-  <script>
-  // === Config ===
-  const cfg = JSON.parse(document.getElementById("app-config").textContent);
-  const PROXY_URL = cfg.proxyUrl;
-
-  // === XRBC constants ===
-  const XRBC = {
-    currency: "5852626974636F696E6361736800000000000000",
-    issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-  };
-  const XRP_TO_DROPS = 1_000_000;
-
-  // === Proxy bridge ===
-  async function xrplRequest(payload) {
-    const res = await fetch(PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error("Proxy error: " + res.status);
-    const data = await res.json();
-    if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
-    return data;
-  }
-
-
-// Drops utils
-
-const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
-
-// Guard: ensure wallet is connected
-function requireWallet() {
-  if (!window.__xrbcWallet) throw new Error("Connect your wallet first.");
-  return window.__xrbcWallet;
-}
-
-    
-  // === Helpers ===
-  async function getLedgerInfo() {
-    return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
-  }
-
-  // === Order Book (dual-sided) ===
-  async function getXrbcOrderBook() {
-    async function fetchSide(taker_gets, taker_pays, sideName) {
-      const rows = [];
-      try {
-        const data = await xrplRequest({
-          method: "book_offers",
-          params: [{ taker_gets, taker_pays, limit: 5 }]
-        });
-        if (data.result?.offers?.length) {
-          for (const offer of data.result.offers) {
-            const gets = offer.TakerGets.value
-              ? parseFloat(offer.TakerGets.value)
-              : parseFloat(offer.TakerGets) / XRP_TO_DROPS;
-            const pays = offer.TakerPays.value
-              ? parseFloat(offer.TakerPays.value)
-              : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
-            const price = pays / gets;
-            rows.push(`<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)}</td></tr>`);
-          }
-        } else {
-          rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
-        }
-      } catch (err) {
-        rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${err.message}</td></tr>`);
-      }
-      return rows;
-    }
-    const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
-    const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
-    return `
-      <table class="table">
-        <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
-        <tbody>${asks.join("")}${bids.join("")}</tbody>
-      </table>
-    `;
-  }
-
-  // === Main logic ===
-  (async function(){
-    // Wallet connect
-    const xumm = new Xumm(cfg.xummApiKey);
-    const btn = document.getElementById("connectWalletBtn");
-    const statusEl = document.getElementById("walletStatus");
-   
-    
-    const disconnectBtn = document.getElementById("disconnectWalletBtn");
-
-let hasSavedAcct = false;  // tracks if we restored a prior session
-
-    // Restore persisted connection on refresh (if present)
-const savedAcct = localStorage.getItem("xrbcWallet");
-if (savedAcct) {
-  hasSavedAcct = true;
-  window.__xrbcWallet = savedAcct;
-  statusEl.textContent = "Connected: " + savedAcct;
-  disconnectBtn.disabled = false;
-  btn.disabled = true; // keep "Connect" disabled while connected
-}
-
-
-    
-   xumm.on("ready", () => { if (!hasSavedAcct) btn.disabled = false; });
-
-
-    
-    btn.addEventListener("click", async () => {
-      try {
-      await xumm.authorize();
-
-        
-        
-        const acct = await xumm.user.account;
-   
-        
-    statusEl.textContent = "Connected: " + acct;
-window.__xrbcWallet = acct;
-localStorage.setItem("xrbcWallet", acct);  // <-- persist to browser
-
-// update buttons
-disconnectBtn.disabled = false;
-btn.disabled = true;
-
-      
-      } catch (err) {
-        statusEl.textContent = "Failed to connect wallet";
-      }
-    });
-// Disconnect wallet
-disconnectBtn.addEventListener("click", () => {
-
-  // Clear local + persistent account
-window.__xrbcWallet = null;
-localStorage.removeItem("xrbcWallet");
-
-  // Kill Xumm session so it doesn’t auto-connect
-  xumm.logout();
-
-  // Reset UI
-  statusEl.textContent = "Status: Disconnected";
-  disconnectBtn.disabled = true;
-  btn.disabled = false;
-});
-
-   // Ledger fetch
-document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
-  const ledgerOut = document.getElementById("ledgerOutput");
-  let seconds = 0;
-  const maxSeconds = 12;
-
-  // Initial message
-  ledgerOut.textContent = "Connecting to XRPL through proxy… please wait";
-  ledgerOut.style.color = "#9fb0c5";
-
-  // Blinking + timer
-  const interval = setInterval(() => {
-    seconds++;
-    ledgerOut.textContent = `Connecting to XRPL through proxy… ${seconds}s elapsed`;
-    ledgerOut.style.visibility = ledgerOut.style.visibility === "hidden" ? "visible" : "hidden";
-
-    if (seconds >= maxSeconds) {
-      clearInterval(interval);
-      ledgerOut.style.visibility = "visible";
-      ledgerOut.style.color = "#f59e0b";
-      ledgerOut.textContent = "Connection is taking longer than expected — proxy or XRPL node may be slow.";
-    }
-  }, 1000);
-
-  try {
-    const info = await getLedgerInfo();
-    clearInterval(interval);
-    ledgerOut.style.visibility = "visible";
-    ledgerOut.style.color = "#a3e4ff"; // back to normal
-    ledgerOut.textContent = JSON.stringify(info, null, 2);
-  } catch (err) {
-    clearInterval(interval);
-    ledgerOut.style.visibility = "visible";
-    ledgerOut.style.color = "#ef4444"; // error red
-    ledgerOut.textContent = "Error: " + err.message;
-  }
-});
-
-    // Order book
-    document.getElementById("fetchPriceBtn").addEventListener("click", async () => {
-      const priceOut = document.getElementById("priceOutput");
-      priceOut.textContent = "Loading XRBC/XRP order book…";
-      try {
-        const html = await getXrbcOrderBook();
-        priceOut.innerHTML = html;
-      } catch (err) {
-        priceOut.textContent = "Error: " + err.message;
-      }
-    });
- 
-// === Trading UI ===
-const placeOfferBtn = document.getElementById("placeOfferBtn");
-const sideEl   = document.getElementById("side");
-const amountEl = document.getElementById("amount");
-const priceEl  = document.getElementById("price");
-const tradeMsg = document.getElementById("tradeMsg");
-
-placeOfferBtn.addEventListener("click", async () => {
-  try {
-    const account = requireWallet();
-    const side   = sideEl.value;
-    const amt    = Number(amountEl.value);
-    const price  = Number(priceEl.value);
-
-    if (!amt || !price || amt <= 0 || price <= 0) {
-      throw new Error("Enter valid Amount & Price.");
-    }
-
-    let txjson;
-    if (side === "sell") {
-      const xrpTotal = price * amt;
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        TakerPays: toDrops(xrpTotal),
-        Flags: 0x00080000 // tfSell
-      };
-    } else {
-      const xrpTotal = price * amt;
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: toDrops(xrpTotal),
-        TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) }
-      };
-    }
-
-    tradeMsg.textContent = "Open Xaman to review & sign…";
-
-    const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-      if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
-      if (ev?.signed === false) tradeMsg.textContent = "Offer rejected.";
-    });
-
-    const result = await resolved;
-    if (!result.signed) {
-      tradeMsg.textContent = "Offer not signed.";
-      return;
-    }
-
-    tradeMsg.textContent = "Offer submitted. Refreshing order book…";
-    const html = await getXrbcOrderBook();
-    document.getElementById("priceOutput").innerHTML = html;
-
-  } catch (err) {
-    tradeMsg.textContent = "Error: " + err.message;
-  }
-});
-
-// === Market Order ===
-const marketOrderBtn = document.getElementById("marketOrderBtn");
-marketOrderBtn.addEventListener("click", async () => {
-  try {
-    const account = requireWallet();
-    const side   = sideEl.value; // "buy" or "sell"
-    const amt    = Number(amountEl.value);
-
-    if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
-
-    let txjson;
-    if (side === "sell") {
-      // Sell XRBC at market
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        TakerPays: "100000000000000000", // huge XRP max
-        Flags: 0x00020000 | 0x00080000 // tfImmediateOrCancel + tfSell
-      };
-    } else {
-      // Buy XRBC at market
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: "100000000000000000", // huge XRP max
-        TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        Flags: 0x00020000 // tfImmediateOrCancel
-      };
-    }
-
-    tradeMsg.textContent = "Open Xaman to review & sign (Market Order)…";
-
-    const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-      if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
-      if (ev?.signed === false) tradeMsg.textContent = "Order rejected.";
-    });
-
-    const result = await resolved;
-    if (!result.signed) {
-      tradeMsg.textContent = "Market order not signed.";
-      return;
-    }
-
-    tradeMsg.textContent = "Market order executed. Refreshing order book…";
-    const html = await getXrbcOrderBook();
-    document.getElementById("priceOutput").innerHTML = html;
-
-  } catch (err) {
-    tradeMsg.textContent = "Error: " + err.message;
-  }
-});
-
-// === Trustline Setup (Local) ===
-const setTrustlineBtn = document.getElementById("setTrustlineBtn");
-const trustlineMsg = document.getElementById("trustlineMsg");
-
-setTrustlineBtn.addEventListener("click", async () => {
-  trustlineMsg.textContent = "Preparing trustline request…";
-
-  try {
-    const account = requireWallet(); // ensure wallet is connected
-
-    const txjson = {
-      TransactionType: "TrustSet",
-      Account: account,
-      LimitAmount: {
-        currency: XRBC.currency,   // ✅ use your hex code
-        issuer: XRBC.issuer,       // ✅ use your issuer
-        value: "1000000"           // trustline limit (adjust if needed)
-      }
-    };
-
-    trustlineMsg.textContent = "Open Xaman to review & sign…";
-
-    const payload = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-      if (ev?.opened) trustlineMsg.textContent = "Payload opened in Xaman…";
-      if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
-    });
-
-    // === QR code for desktop users ===
-    if (payload?.created?.refs?.qr_png) {
-      const qr = document.createElement("img");
-      qr.src = payload.created.refs.qr_png;
-      qr.alt = "Scan with Xaman to set XRBC trustline";
-      qr.style.maxWidth = "240px";
-      qr.style.marginTop = "12px";
-
-      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-      trustlineMsg.appendChild(qr);
-    }
-
-    const result = await payload.resolved;
-    if (!result.signed) {
-      trustlineMsg.textContent = "Trustline not signed.";
-      return;
-    }
-
-    trustlineMsg.textContent = "✅ Trustline set successfully!";
-  } catch (err) {
-    trustlineMsg.textContent = "Error: " + err.message;
-  }
-});
-
-
-    
-})();   // closes the main async IIFE
-</script>
+  </main>
+
+  <footer role="contentinfo">
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
+  </footer>
 </body>
 </html>
