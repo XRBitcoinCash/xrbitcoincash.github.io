@@ -648,7 +648,7 @@ function recalcTotals() {
 }
 [amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
 
-// === Best Price from AMM pool (with flashing connecting state) ===
+// === Best Price from AMM pool (with flashing + pool info) ===
 async function fillBestPrice() {
   const side = sideEl.value;
   const amount = Number(amountEl.value);
@@ -663,8 +663,6 @@ async function fillBestPrice() {
   tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…";
   tradeMsg.classList.remove("ok", "err");
   tradeMsg.classList.add("connecting");
-
-  // Start flashing effect
   tradeMsg.style.animation = "flashText 1.6s infinite alternate";
   tradeMsg.style.color = "#00E5FF";
   tradeMsg.style.fontWeight = "700";
@@ -707,16 +705,28 @@ async function fillBestPrice() {
       effectivePrice = xrpOut / amount;
     }
 
-    // ✅ Show result
+    // ✅ Update price field + tradeMsg
     priceEl.value = Number(effectivePrice).toFixed(6);
     recalcTotals();
-
     tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
     tradeMsg.classList.remove("connecting");
     tradeMsg.classList.add("ok");
     tradeMsg.style.animation = "none";
     tradeMsg.style.color = "#22c55e";
     tradeMsg.style.fontWeight = "600";
+
+    // ✅ Also update AMM Pool Info section
+    const poolOut = document.getElementById("ammPoolOutput");
+    poolOut.innerHTML = `
+      <table class="table">
+        <thead><tr><th>Reserve</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>XRP</td><td>${reserveXrp.toFixed(2)} XRP</td></tr>
+          <tr><td>XRBC</td><td>${reserveXrbc.toFixed(2)} XRBC</td></tr>
+          <tr><td>Trading Fee</td><td>${(feeRate*100).toFixed(3)}%</td></tr>
+        </tbody>
+      </table>
+    `;
 
   } catch (e) {
     // Instead of error, just keep showing flashing message
