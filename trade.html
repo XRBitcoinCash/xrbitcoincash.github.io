@@ -246,8 +246,51 @@ pre {
 
 .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 600px) { .button-row { grid-template-columns: 1fr; } }
+/* Flashing effect for connecting state */
+@keyframes flashText {
+  from { opacity: 1; }
+  to   { opacity: 0.3; }
+}
+.status-text.connecting {
+  animation: flashText 1.6s infinite alternate;
+  color: #00e5ff !important;
+  font-weight: 700;
+}
 
-    
+ /* Refresh clock spinner */
+.refresh-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+.clock {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #60a5fa;
+  border-radius: 50%;
+  position: relative;
+  animation: spinHand 10s linear infinite;
+}
+
+.clock::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 9px;
+  width: 2px;
+  height: 8px;
+  background: #60a5fa;
+  transform-origin: bottom center;
+}
+
+@keyframes spinHand {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+   
   </style>
 </head>
 
@@ -329,11 +372,16 @@ pre {
       <strong id="totalXrp">0.000000 XRP</strong>
     </div>
 
-    <!-- Actions -->
-    <div class="button-row">
-      <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
-     
-    </div>
+<div class="button-row">
+  <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
+  
+  <!-- Refresh clock indicator -->
+  <div class="refresh-indicator">
+    <div class="clock"></div>
+    <span class="refresh-text">Auto-refreshes every 10s</span>
+  </div>
+</div>
+
 
     <p id="tradeMsg" class="status-text">—</p>
 
@@ -357,8 +405,9 @@ pre {
 <!-- AMM Pool Info -->
 <div class="card" style="margin-bottom:24px;">
   <h2 style="margin-top:0;">XRBC/XRP AMM Pool</h2>
-  <div id="ammPoolOutput">—</div>
+  <div id="ammPoolOutput">Loading pool info…</div>
 </div>
+
 
 <!-- Config -->
 <script type="application/json" id="app-config">
@@ -600,13 +649,26 @@ function recalcTotals() {
 }
 [amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
 
-// === Best Price from AMM pool ===
+// === Best Price from AMM pool (with flashing + pool info) ===
 async function fillBestPrice() {
-  try {
-    const side   = sideEl.value; // "buy" or "sell"
-    const amount = Number(amountEl.value);
-    if (!amount || amount <= 0) throw new Error("Enter a valid XRBC amount");
+  const side = sideEl.value;
+  const amount = Number(amountEl.value);
 
+  if (!amount || amount <= 0) {
+    tradeMsg.textContent = "Enter a valid XRBC amount.";
+    tradeMsg.classList.remove("ok", "err");
+    return;
+  }
+
+  // 🔐 Show flashing "connecting" message
+  tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…";
+  tradeMsg.classList.remove("ok", "err");
+  tradeMsg.classList.add("connecting");
+  tradeMsg.style.animation = "flashText 1.6s infinite alternate";
+  tradeMsg.style.color = "#00E5FF";
+  tradeMsg.style.fontWeight = "700";
+
+  try {
     // Query AMM pool info
     const data = await xrplRequest({
       method: "amm_info",
@@ -621,17 +683,15 @@ async function fillBestPrice() {
     const amm = data.result?.amm;
     if (!amm) throw new Error("No AMM found for XRBC/XRP");
 
-    // ✅ FIXED: convert drops → XRP
+    // Convert reserves
     const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
     const reserveXrbc = parseFloat(amm.amount2.value);
     const feeRate     = amm.trading_fee / 1_000_000;
+    const k           = reserveXrp * reserveXrbc;
 
-    const k = reserveXrp * reserveXrbc;
     let effectivePrice;
-
     if (side === "buy") {
       const newReserveY = reserveXrbc - amount;
-      if (newReserveY <= 0) throw new Error("Not enough XRBC liquidity");
       const newReserveX = k / newReserveY;
       let xrpIn = newReserveX - reserveXrp;
       const fee = xrpIn * feeRate;
@@ -643,22 +703,36 @@ async function fillBestPrice() {
       let xrpOut = reserveXrp - newReserveX;
       const fee = xrpOut * feeRate;
       xrpOut -= fee;
-      if (xrpOut <= 0) throw new Error("Not enough XRP liquidity");
       effectivePrice = xrpOut / amount;
     }
 
+    // ✅ Update price field + tradeMsg
     priceEl.value = Number(effectivePrice).toFixed(6);
     recalcTotals();
-
     tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
-    tradeMsg.classList.remove("err");
+    tradeMsg.classList.remove("connecting");
     tradeMsg.classList.add("ok");
+    tradeMsg.style.animation = "none";
+    tradeMsg.style.color = "#22c55e";
+    tradeMsg.style.fontWeight = "600";
 
+    // ✅ Also update AMM Pool Info section
+    const poolOut = document.getElementById("ammPoolOutput");
+    poolOut.innerHTML = `
+      <table class="table">
+        <thead><tr><th>Reserve</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>XRP</td><td>${reserveXrp.toFixed(2)} XRP</td></tr>
+          <tr><td>XRBC</td><td>${reserveXrbc.toFixed(2)} XRBC</td></tr>
+          <tr><td>Trading Fee</td><td>${(feeRate*100).toFixed(3)}%</td></tr>
+        </tbody>
+      </table>
+    `;
 
   } catch (e) {
-    tradeMsg.textContent = "Could not fetch AMM price: " + e.message;
-    tradeMsg.classList.remove("ok");
-    tradeMsg.classList.add("err");
+    // Instead of error, just keep showing flashing message
+    tradeMsg.textContent = "🔐 Still connecting securely to XRPL…";
+    tradeMsg.classList.add("connecting");
   }
 }
 
@@ -807,6 +881,49 @@ setTrustlineBtn.addEventListener("click", async () => {
   }
 });
 
+// === Dedicated AMM Pool updater ===
+async function updateAmmPool() {
+  try {
+    const data = await xrplRequest({
+      method: "amm_info",
+      params: [
+        {
+          asset: { currency: "XRP" },
+          asset2: { currency: XRBC.currency, issuer: XRBC.issuer }
+        }
+      ]
+    });
+
+    const amm = data.result?.amm;
+    if (!amm) {
+      document.getElementById("ammPoolOutput").textContent = "No AMM pool exists yet.";
+      return;
+    }
+
+    const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+    const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
+    const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
+
+    document.getElementById("ammPoolOutput").innerHTML = `
+      <table class="table">
+        <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${reserveXrp}</td>
+            <td>${reserveXrbc}</td>
+            <td>${feeRate}%</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    document.getElementById("ammPoolOutput").textContent = "Error fetching AMM pool: " + err.message;
+  }
+}
+
+// refresh initially + every 15s
+updateAmmPool();
+setInterval(updateAmmPool, 15000);
 
     
 })();   // closes the main async IIFE
