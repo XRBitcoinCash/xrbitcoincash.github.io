@@ -257,7 +257,40 @@ pre {
   font-weight: 700;
 }
 
-    
+ /* Refresh clock spinner */
+.refresh-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+.clock {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #60a5fa;
+  border-radius: 50%;
+  position: relative;
+  animation: spinHand 10s linear infinite;
+}
+
+.clock::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 9px;
+  width: 2px;
+  height: 8px;
+  background: #60a5fa;
+  transform-origin: bottom center;
+}
+
+@keyframes spinHand {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+   
   </style>
 </head>
 
@@ -339,11 +372,16 @@ pre {
       <strong id="totalXrp">0.000000 XRP</strong>
     </div>
 
-    <!-- Actions -->
-    <div class="button-row">
-      <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
-     
-    </div>
+<div class="button-row">
+  <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
+  
+  <!-- Refresh clock indicator -->
+  <div class="refresh-indicator">
+    <div class="clock"></div>
+    <span class="refresh-text">Auto-refreshes every 10s</span>
+  </div>
+</div>
+
 
     <p id="tradeMsg" class="status-text">—</p>
 
