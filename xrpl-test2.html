@@ -607,33 +607,39 @@ setInterval(updateTimer, 60000); // update every minute
 <script>
 (async function() {
   const CONFIG = {
-    ISSUER:     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", // XRBC issuer
-    CURRENCY:   "XRbitcoincash",
-    MAX_SUPPLY: "20999999.999999996",
+    ISSUER:     "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    // XRBC currency identifiers
+    CURRENCY_STR: "XRbitcoincash",
+    CURRENCY_HEX: "5852626974636F696E6361736800000000000000",
     WS_URL:     "wss://xrplcluster.com",
     REST_URL:   "https://data.ripple.com/v2/accounts/",
     REFRESH_MS: 60000,
     TIMEOUT_MS: 8000
   };
 
-  // DOM references
+  // DOM refs (make sure these IDs exist in your stats card)
   const elCirc    = document.getElementById("stat-circ");
   const elHolders = document.getElementById("stat-holders");
   const elTrust   = document.getElementById("stat-trustlines");
 
   // Helpers
-  const toNum = x => {
+  const toNum = (x) => {
     const n = parseFloat(x);
     return Number.isFinite(n) ? n : 0;
   };
+  const isXRBC = (code) => {
+    if (!code) return false;
+    const c = String(code).toUpperCase();
+    return c === CONFIG.CURRENCY_STR.toUpperCase() || c === CONFIG.CURRENCY_HEX.toUpperCase();
+  };
 
-  // WebSocket fetch of trustlines
+  // WebSocket fetch with pagination
   function fetchLinesWS(issuer) {
     return new Promise((resolve, reject) => {
       const ws = new WebSocket(CONFIG.WS_URL);
       const lines = [];
       let timer = setTimeout(() => {
-        ws.close();
+        try { ws.close(); } catch {}
         reject(new Error("WS timeout"));
       }, CONFIG.TIMEOUT_MS);
 
@@ -646,24 +652,26 @@ setInterval(updateTimer, 60000); // update every minute
       };
 
       ws.onopen = () => ws.send(JSON.stringify(reqBase));
-      ws.onmessage = msg => {
+      ws.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
-        if (data.result && Array.isArray(data.result.lines)) {
+        if (data && data.result && Array.isArray(data.result.lines)) {
           lines.push(...data.result.lines);
           if (data.result.marker) {
             ws.send(JSON.stringify({ ...reqBase, marker: data.result.marker }));
           } else {
             clearTimeout(timer);
-            ws.close();
+            try { ws.close(); } catch {}
             resolve(lines);
           }
         }
       };
-      ws.onerror = () => {}; // ignore, will fallback
+      ws.onerror = () => {
+        // Ignore; tick() will try REST fallback
+      };
     });
   }
 
-  // REST API fallback fetch
+  // REST fallback
   async function fetchLinesREST(issuer) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), CONFIG.TIMEOUT_MS);
@@ -680,67 +688,76 @@ setInterval(updateTimer, 60000); // update every minute
     }
   }
 
-  // Compute metrics
+  // Compute from issuer perspective:
+  // - Circulating = sum of ABS(negative balances) across XRBC trustlines
+  // - Holders = count of lines where balance < 0 (i.e., someone holds XRBC)
+  // - Trustlines Opened = all XRBC trustlines regardless of balance
   function computeStats(lines) {
-    let circ = 0, holders = 0, trustlines = 0;
-    lines.forEach(line => {
-      if (line.currency === CONFIG.CURRENCY) {
-        trustlines++;
-        const bal = toNum(line.balance);
-        if (bal > 0) {
-          circ += bal;
-          holders++;
-        }
+    let circulating = 0;
+    let holders = 0;
+    let trustlines = 0;
+
+    for (const line of lines) {
+      if (!isXRBC(line.currency)) continue;
+      trustlines++;
+
+      const bal = toNum(line.balance);
+      if (bal < 0) { // issuer owes -> someone holds XRBC
+        circulating += -bal; // add absolute value
+        holders++;
       }
-    });
-    return { circulating: circ, holders, trustlines };
+    }
+    return { circulating, holders, trustlines };
   }
 
-  // Update DOM
-  function updateDom(stats, ok, errorMsg) {
+  function updateDom(stats, ok, errMsg) {
     if (ok) {
       elCirc.textContent    = stats.circulating.toLocaleString(undefined, { maximumFractionDigits: 6 });
       elHolders.textContent = stats.holders.toLocaleString();
       elTrust.textContent   = stats.trustlines.toLocaleString();
     } else {
+      // Show dashes if we couldn't fetch; avoids "Loading…" getting stuck
       elCirc.textContent    = "—";
       elHolders.textContent = "—";
       elTrust.textContent   = "—";
-      console.error("[XRBC] Update failed:", errorMsg);
+      console.error("[XRBC] Stats update failed:", errMsg);
     }
   }
 
-  // Polling loop
   async function tick() {
-    let lines, ok = false, errMsg = "";
+    let lines = null;
+    let ok = false;
+    let err = "";
+
     try {
       lines = await fetchLinesWS(CONFIG.ISSUER);
-      ok = Array.isArray(lines) && lines.length > 0;
-    } catch (wsErr) {
-      errMsg = wsErr.message;
+      ok = Array.isArray(lines);
+    } catch (e) {
+      err = e.message || String(e);
       try {
         lines = await fetchLinesREST(CONFIG.ISSUER);
-        ok = Array.isArray(lines) && lines.length > 0;
-        if (ok) errMsg += " | REST ok";
-      } catch (restErr) {
-        errMsg = restErr.message;
+        ok = Array.isArray(lines);
+        if (ok) err += " | REST ok";
+      } catch (e2) {
+        err = e2.message || String(e2);
       }
     }
 
     if (ok) {
       updateDom(computeStats(lines), true);
     } else {
-      updateDom({}, false, errMsg);
+      updateDom({}, false, err);
     }
 
     setTimeout(tick, CONFIG.REFRESH_MS);
   }
 
-  // Start
+  // Kick off
   updateDom({}, false, "init");
   tick();
 })();
 </script>
+
 
 
 
