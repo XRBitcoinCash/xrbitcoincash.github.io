@@ -286,35 +286,37 @@ footer {
           <td class="value">User defined per TrustLine (default: 100,000,000)</td>
         </tr>
         <tr>
-<tr>
-  <th scope="row">Total Supply</th>
-  <td class="value">
-    <span id="stat-max">21,000,000</span> XRBC
-    <span id="status-max" class="update-status"></span>
-  </td>
-</tr>
-<tr>
-  <th scope="row">Circulating Supply</th>
-  <td class="value">
-    <span id="stat-circ">—</span> XRBC
-    <span id="status-circ" class="update-status"></span>
-  </td>
-</tr>
-<tr>
-  <th scope="row">Holders / Trustlines</th>
-  <td class="value">
-    <span id="stat-holders">—</span> / <span id="stat-trust">—</span>
-    <span id="status-holders" class="update-status"></span>
-    <span id="status-trust" class="update-status"></span>
-  </td>
-</tr>
-<tr>
-  <th scope="row">Market Price</th>
-  <td class="value">
-    <span id="stat-price">—</span> XRP
-    <span id="status-price" class="update-status"></span>
-  </td>
-</tr>
+<section class="card">
+  <h2 class="fade-in">XRBitcoinCash (XRBC) Live Metrics</h2>
+  <table class="spec-table fade-in" aria-label="XRBC live stats">
+    <tr>
+      <th scope="row">Total Supply</th>
+      <td class="value"><span id="stat-supply">Loading…</span> XRBC</td>
+    </tr>
+    <tr>
+      <th scope="row">Circulating Supply</th>
+      <td class="value"><span id="stat-circ">Loading…</span> XRBC</td>
+    </tr>
+    <tr>
+      <th scope="row">Holders</th>
+      <td class="value"><span id="stat-holders">Loading…</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Trustlines</th>
+      <td class="value"><span id="stat-trust">Loading…</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Market Price (XRP)</th>
+      <td class="value"><span id="stat-price-xrp">Loading…</span></td>
+    </tr>
+    <tr>
+      <th scope="row">Market Price (USD)</th>
+      <td class="value"><span id="stat-price-usd">—</span></td>
+    </tr>
+  </table>
+  <p class="small">Stats update automatically every 60 seconds from XPMarket (and LiveCoinWatch if API key is set).</p>
+</section>
+
 
 
 
@@ -435,127 +437,81 @@ footer {
     });
   </script>
 
-  <!-- XRPL-Refresh Code -->
-  <script>
-    (async function refreshStats() {
-      const CONFIG = { REFRESH_MS: 30000, MAX_SUPPLY: "20999999.999999996" };
-      const endpoint = "https://xrpldata.inftf.org/v1/token/XRBC";
-
-      // DOM nodes
-      const elMax     = document.getElementById("stat-max");
-      const elCirc    = document.getElementById("stat-circ");
-      const elHolders = document.getElementById("stat-holders");
-      const elTrust   = document.getElementById("stat-trust");
-      const stMax     = document.getElementById("status-max");
-      const stCirc    = document.getElementById("status-circ");
-      const stHold    = document.getElementById("status-holders");
-      const stTrust   = document.getElementById("status-trust");
-
-      async function fetchAndUpdate() {
-        // show Updating… in all four rows
-        [stMax, stCirc, stHold, stTrust].forEach(el => el.textContent = "Updating…");
-
-        try {
-          const res  = await fetch(endpoint);
-          const data = await res.json();
-
-          // 1. Total Supply (static)
-          elMax.textContent = Number(CONFIG.MAX_SUPPLY).toLocaleString();
-
-          // 2. Circulating from metrics.supply
-          elCirc.textContent = Number(data.metrics.supply).toLocaleString();
-
-          // 3. Holders from metrics.holders
-          elHolders.textContent = Number(data.metrics.holders).toLocaleString();
-
-          // 4. Trustlines from metrics.trustlines
-          elTrust.textContent = Number(data.metrics.trustlines).toLocaleString();
-
-          // 5. Stamp all statuses with the same timestamp
-          const now = new Date().toLocaleTimeString();
-          [stMax, stCirc, stHold, stTrust].forEach(el => {
-            el.textContent = `Updated ${now}`;
-          });
-        } catch (err) {
-          console.error("XRBC fetch error:", err);
-          // on failure, show “Error” for all
-          [stMax, stCirc, stHold, stTrust].forEach(el => {
-            el.textContent = "Error";
-          });
-        }
-      }
-
-      // Initial fetch + interval polling
-      await fetchAndUpdate();
-      setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
-    })();
-  </script>
 <script>
-(async function xrbcStats() {
-  const CONFIG = {
-    MAX_SUPPLY: 20999999.999999996,
-    ENDPOINT: "https://api.xrpl.to/api/tokens/XRBC", // XRPL.to endpoint
-    REFRESH_MS: 60000
-  };
-
-  // DOM refs
-  const el = {
-    max: document.getElementById("stat-max"),
-    circ: document.getElementById("stat-circ"),
-    holders: document.getElementById("stat-holders"),
-    trust: document.getElementById("stat-trust"),
-    price: document.getElementById("stat-price"),
-
-    sMax: document.getElementById("status-max"),
-    sCirc: document.getElementById("status-circ"),
-    sHold: document.getElementById("status-holders"),
-    sTrust: document.getElementById("status-trust"),
-    sPrice: document.getElementById("status-price"),
-  };
-
-  function stampAll(status) {
-    const now = new Date().toLocaleTimeString();
-    Object.values(el).forEach(node => {
-      if (node && node.id.startsWith("status-")) {
-        node.textContent = status === "ok" ? `Updated ${now}` : "Error";
+(async function loadXRBC() {
+  const xpEndpoint = "https://api.xpmarket.com/graphql";
+  const query = `
+  {
+    token(currency: "XRBitcoinCash", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw") {
+      supply
+      holders
+      trustlines
+      markets {
+        market
+        price
       }
+    }
+  }`;
+
+  async function fetchXP() {
+    const res = await fetch(xpEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query })
     });
+    const json = await res.json();
+    return json.data.token;
   }
 
-  async function fetchAndUpdate() {
+  async function fetchLCW() {
+    const key = ""; // <-- put your LiveCoinWatch API key here if you want USD price
+    if (!key) return null;
+
+    const res = await fetch("https://api.livecoinwatch.com/coins/single", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key
+      },
+      body: JSON.stringify({ currency: "USD", code: "XRBC", meta: true })
+    });
+    return await res.json();
+  }
+
+  async function refresh() {
     try {
-      const res = await fetch(CONFIG.ENDPOINT);
-      if (!res.ok) throw new Error("API error " + res.status);
-      const data = await res.json();
+      const token = await fetchXP();
 
-      // XRPL.to returns token info inside data.token
-      const t = data?.token || {};
+      // XPMarket data
+      document.getElementById("stat-supply").textContent =
+        Number(token.supply).toLocaleString();
+      document.getElementById("stat-circ").textContent =
+        Number(token.supply).toLocaleString(); // using supply for now
+      document.getElementById("stat-holders").textContent =
+        token.holders.toLocaleString();
+      document.getElementById("stat-trust").textContent =
+        token.trustlines.toLocaleString();
 
-      // Total supply (static)
-      if (el.max) el.max.textContent = CONFIG.MAX_SUPPLY.toLocaleString();
+      const xrpPrice = token.markets?.[0]?.price || 0;
+      document.getElementById("stat-price-xrp").textContent =
+        xrpPrice ? `${xrpPrice} XRP` : "—";
 
-      // Circulating
-      if (el.circ) el.circ.textContent = Number(t.supply || 0).toLocaleString();
-
-      // Holders & Trustlines
-      if (el.holders) el.holders.textContent = Number(t.holders || 0).toLocaleString();
-      if (el.trust) el.trust.textContent = Number(t.trustlines || 0).toLocaleString();
-
-      // Market Price (XRP)
-      if (el.price) el.price.textContent = Number(t.price || 0).toFixed(6);
-
-      stampAll("ok");
+      // LiveCoinWatch USD price (if API key present)
+      const lcw = await fetchLCW();
+      if (lcw && lcw.rate) {
+        document.getElementById("stat-price-usd").textContent =
+          "$" + lcw.rate.toFixed(6);
+      }
     } catch (err) {
-      console.error("[XRBC] Stats fetch failed:", err);
-      stampAll("error");
+      console.error("XRBC stats error:", err);
     }
   }
 
-  // Initial + repeat
-  fetchAndUpdate();
-  setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
+  refresh();
+  setInterval(refresh, 60000);
 })();
 </script>
+
 
 </body>
 </html>
