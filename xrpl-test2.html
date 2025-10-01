@@ -284,6 +284,42 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
+/* === OVERRIDE BUTTONS === */
+.btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px !important;
+  border-radius: 12px !important;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  min-width: 200px;
+  text-align: center;
+  color: #00121a !important;
+}
+
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent), #00b6d0) !important;
+  color: #00121a !important;
+  box-shadow: 0 4px 12px rgba(0,229,255,0.3);
+}
+
+.btn.ghost {
+  background: transparent !important;
+  border: 2px solid var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
 
 </style>
 
@@ -334,16 +370,15 @@ setInterval(updateTimer, 60000); // update every minute
   <div>
       <h2>Trade XRBC fast on XRPL</h2>
       <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
-   <div class="button-group">
+  <div class="button-group">
+  <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary">🚀 Trade XRBC Now</a>
+  <a href="https://xrpl.services/?issuer=..." class="btn ghost">Open a TrustLine</a>
+  <a href="https://xrbitcoincash.com/bs/" class="btn primary">Blockchain Specs</a>
+  <a href="https://sologenic.org/amm/..." class="btn primary">Sologenic Liquidity Pool</a>
+  <a href="/whitepaper.html" class="btn ghost">Whitepaper</a>
+  <a href="https://xrbitcoincash.com/xrpl-test2.html" class="btn ghost">About XRBC</a>
+</div>
 
-  <a href="https://xrbitcoincash.github.io/trade.html" class="btn">Trade XRBC Now</a>
-  <a href="https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996" class="btn">Open a TrustLine</a>
-  <a href="https://xrbitcoincash.com/bs/" class="btn">Blockchain Specs</a>
-  <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="btn">Sologenic Liquidity Pool</a>
-  <a class="btn ghost" href="/whitepaper.html">Whitepaper</a>
-  <a href="https://xrbitcoincash.com/xrpl-test2.html" class="btn">About XRBC</a>
-   </div>
-        
   
     </div>
     <aside class="card nft">
