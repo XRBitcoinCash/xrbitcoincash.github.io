@@ -77,18 +77,6 @@ html,body {
   -webkit-font-smoothing:antialiased;
   line-height:1.6;
 }
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0; }
-}
-
-.update-status {
-  margin-left: 0.5rem;
-  font-size: 0.9em;
-  color: var(--accent);
-  animation: blink 1s infinite;
-}
-
 
 
 /* Blobby animated BG */
@@ -286,30 +274,6 @@ footer {
           <td class="value">User defined per TrustLine (default: 100,000,000)</td>
         </tr>
         <tr>
-<tr>
-  <th scope="row">Total Supply</th>
-  <td class="value">
-    <span id="stat-max">21,000,000</span> XRBC
-    <!-- status span for this row -->
-    <span id="status-max" class="update-status">Updating…</span>
-  </td>
-</tr>
-<tr>
-  <th scope="row">Circulating</th>
-  <td class="value">
-    <span id="stat-circ">~51,200</span> XRBC
-    <!-- new status span for circulating -->
-    <span id="status-circ" class="update-status">Updating…</span>
-  </td>
-</tr>
-<tr>
-  <th scope="row">Holders / Trustlines</th>
-  <td class="value">
-    <span id="stat-holders">152</span> / 863
-    <!-- new status span for holders -->
-    <span id="status-holders" class="update-status">Updating…</span>
-  </td>
-</tr>
 
 
           <th scope="row">Issuer Fee</th>
@@ -430,60 +394,7 @@ footer {
   </script>
 
   <!-- XRPL-Refresh Code -->
-  <script>
-    (async function refreshStats() {
-      const CONFIG = { REFRESH_MS: 30000, MAX_SUPPLY: "20999999.999999996" };
-      const endpoint = "https://xrpldata.inftf.org/v1/token/XRBC";
 
-      // DOM nodes
-      const elMax     = document.getElementById("stat-max");
-      const elCirc    = document.getElementById("stat-circ");
-      const elHolders = document.getElementById("stat-holders");
-      const elTrust   = document.getElementById("stat-trust");
-      const stMax     = document.getElementById("status-max");
-      const stCirc    = document.getElementById("status-circ");
-      const stHold    = document.getElementById("status-holders");
-      const stTrust   = document.getElementById("status-trust");
-
-      async function fetchAndUpdate() {
-        // show Updating… in all four rows
-        [stMax, stCirc, stHold, stTrust].forEach(el => el.textContent = "Updating…");
-
-        try {
-          const res  = await fetch(endpoint);
-          const data = await res.json();
-
-          // 1. Total Supply (static)
-          elMax.textContent = Number(CONFIG.MAX_SUPPLY).toLocaleString();
-
-          // 2. Circulating from metrics.supply
-          elCirc.textContent = Number(data.metrics.supply).toLocaleString();
-
-          // 3. Holders from metrics.holders
-          elHolders.textContent = Number(data.metrics.holders).toLocaleString();
-
-          // 4. Trustlines from metrics.trustlines
-          elTrust.textContent = Number(data.metrics.trustlines).toLocaleString();
-
-          // 5. Stamp all statuses with the same timestamp
-          const now = new Date().toLocaleTimeString();
-          [stMax, stCirc, stHold, stTrust].forEach(el => {
-            el.textContent = `Updated ${now}`;
-          });
-        } catch (err) {
-          console.error("XRBC fetch error:", err);
-          // on failure, show “Error” for all
-          [stMax, stCirc, stHold, stTrust].forEach(el => {
-            el.textContent = "Error";
-          });
-        }
-      }
-
-      // Initial fetch + interval polling
-      await fetchAndUpdate();
-      setInterval(fetchAndUpdate, CONFIG.REFRESH_MS);
-    })();
-  </script>
 
 </body>
 </html>
