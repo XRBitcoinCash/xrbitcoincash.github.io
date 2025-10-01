@@ -1,1 +1,50 @@
-pgp-key.txt
+# XRBitcoinCash Project — PGP Verification Key
+# ===========================================
+# This file contains cryptographic identity and verification metadata
+# for XRBitcoinCash (XRBC) project artifacts, code, and communications.
+#
+# Why is this here?
+# -----------------
+# • To allow users to verify the authenticity of official announcements.
+# • To verify Git commits and signed release archives (.asc).
+# • To assert project identity in a cryptographically provable way.
+#
+# Repo URL:   https://github.com/xrbitcoincash/xrbitcoincash.github.io
+# Website:    https://xrbitcoincash.com/
+# Maintainer: XRBitcoinCash Dev Team
+# Contact:    maintainer@xrbitcoincash.com
+#
+# -------------------------------------------------------------------
+# PGP PUBLIC KEY (EXAMPLE PLACEHOLDER — REPLACE WITH REAL EXPORT)
+# -------------------------------------------------------------------
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQINBGEXAMPLEBEGINKVYBCADQ1x7j9k4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+=EXMP
+-----END PGP PUBLIC KEY BLOCK-----
+
+# -------------------------------------------------------------------
+# FINGERPRINT
+# Replace with: gpg --fingerprint YOUR_KEY_ID
+# Example: 0123 4567 89AB CDEF 0123  4567 89AB CDEF 0123 4567
+#
+# -------------------------------------------------------------------
+# USAGE NOTES
+# -------------------------------------------------------------------
+# Import this key and verify signed commits / releases:
+#   gpg --import pgp-key.txt
+#   gpg --verify release.tar.gz.asc release.tar.gz
+#
+# Signed git tags will include this key:
+#   git tag -v v1.0.0
+#
+# Security:
+#   • Keep your private key offline.
+#   • Revocation certificate stored securely.
+#   • If fingerprint does not match official site, DO NOT TRUST.
+#
+# -------------------------------------------------------------------
+# END OF FILE
+
