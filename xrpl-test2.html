@@ -405,8 +405,9 @@ pre {
 <!-- AMM Pool Info -->
 <div class="card" style="margin-bottom:24px;">
   <h2 style="margin-top:0;">XRBC/XRP AMM Pool</h2>
-  <div id="ammPoolOutput">—</div>
+  <div id="ammPoolOutput">Loading pool info…</div>
 </div>
+
 
 <!-- Config -->
 <script type="application/json" id="app-config">
@@ -880,6 +881,49 @@ setTrustlineBtn.addEventListener("click", async () => {
   }
 });
 
+// === Dedicated AMM Pool updater ===
+async function updateAmmPool() {
+  try {
+    const data = await xrplRequest({
+      method: "amm_info",
+      params: [
+        {
+          asset: { currency: "XRP" },
+          asset2: { currency: XRBC.currency, issuer: XRBC.issuer }
+        }
+      ]
+    });
+
+    const amm = data.result?.amm;
+    if (!amm) {
+      document.getElementById("ammPoolOutput").textContent = "No AMM pool exists yet.";
+      return;
+    }
+
+    const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+    const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
+    const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
+
+    document.getElementById("ammPoolOutput").innerHTML = `
+      <table class="table">
+        <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>${reserveXrp}</td>
+            <td>${reserveXrbc}</td>
+            <td>${feeRate}%</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    document.getElementById("ammPoolOutput").textContent = "Error fetching AMM pool: " + err.message;
+  }
+}
+
+// refresh initially + every 15s
+updateAmmPool();
+setInterval(updateAmmPool, 15000);
 
     
 })();   // closes the main async IIFE
