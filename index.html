@@ -391,6 +391,12 @@ footer {
     flex-shrink: 0;
   }
 }
+/* Hide voice button only on small/mobile screens */
+@media (max-width: 600px) {
+  #auditVoice {
+    display: none !important;
+  }
+}
 
 </style>
 
