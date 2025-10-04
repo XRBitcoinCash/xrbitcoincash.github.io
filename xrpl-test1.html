@@ -489,7 +489,8 @@ setInterval(updateTimer, 60000); // update every minute
   features.forEach(f => fadeObserver.observe(f));
 
   // ===== CONFIG =====
-  const PROXY = "https://xrbitcoincash-github-io.onrender.com";
+  const PROXY = "https://xrbc-frontend.onrender.com";
+  const CHAT_PATHS = ["/chat", "/openai"];
 
   const toggle    = document.getElementById("auditToggle");
   const widget    = document.getElementById("auditWidget");
@@ -542,13 +543,45 @@ setInterval(updateTimer, 60000); // update every minute
     }
   });
 
+  // ===== ENDPOINT HELPER =====
+  async function tryChatEndpoints(payload, abortSignal) {
+    for (const path of CHAT_PATHS) {
+      try {
+        const resp = await fetch(`${PROXY}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: abortSignal
+        });
+
+        const ct = (resp.headers.get("content-type") || "").toLowerCase();
+        const bodyText = await resp.text();
+
+        if (!ct.includes("application/json")) {
+          console.debug(`[CHAT ${path}] Non-JSON (${resp.status}):`, bodyText.slice(0, 300));
+          continue;
+        }
+
+        const data = JSON.parse(bodyText);
+        if (!resp.ok) {
+          console.debug(`[CHAT ${path}] HTTP ${resp.status}:`, data);
+          continue;
+        }
+
+        return { ok: true, path, data };
+      } catch (e) {
+        console.debug(`[CHAT ${path}] network error`, e?.message || e);
+      }
+    }
+    return { ok: false };
+  }
+
   // ===== CHAT FUNCTION =====
   async function postChat(q) {
     append(`<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`);
     const spinnerId = "spinner-" + Date.now();
     append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Securely connecting to XRBC Auditor…</p>`);
 
-    // Ensure proxy is awake
     const awake = await wakeProxy();
     if (!awake) {
       document.getElementById(spinnerId)?.remove();
@@ -559,35 +592,24 @@ setInterval(updateTimer, 60000); // update every minute
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 60000);
-      const resp = await fetch(`${PROXY}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
-            { role: "user", content: q }
-          ]
-        }),
-        signal: ctrl.signal
-      });
+
+      const payload = {
+        messages: [
+          { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
+          { role: "user", content: q }
+        ]
+      };
+
+      const result = await tryChatEndpoints(payload, ctrl.signal);
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
-      const ct = (resp.headers.get("content-type") || "").toLowerCase();
-      if (!ct.includes("application/json")) {
-        const txt = await resp.text();
-        append(`<p style="color:#f88"><strong>Error:</strong> Proxy returned non-JSON (${resp.status}).</p>`);
-        console.debug("Non-JSON body:", txt);
+      if (!result.ok) {
+        append(`<p style="color:#f88"><strong>Upstream error:</strong> Chat proxy request failed (no working endpoint at ${PROXY}/chat or /openai).</p>`);
         return;
       }
 
-      const d = await resp.json();
-      if (!resp.ok) {
-        append(`<p style="color:#f88"><strong>Upstream error:</strong> ${d?.error || "Request failed"}.</p>`);
-        return;
-      }
-
-      const ans = d?.choices?.[0]?.message?.content || "No answer.";
+      const ans = result.data?.choices?.[0]?.message?.content || "No answer.";
       append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`);
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
