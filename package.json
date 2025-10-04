@@ -1,0 +1,15 @@
+{
+  "name": "xrbitcoincash",
+  "version": "1.0.0",
+  "description": "XRBitcoinCash proxy + frontend",
+  "main": "xrpl-proxy/server.js",
+  "scripts": {
+    "start": "node xrpl-proxy/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "node-fetch": "^3.3.2"
+  }
+}
