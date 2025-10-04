@@ -520,7 +520,7 @@ setInterval(updateTimer, 60000); // update every minute
 
   // ===== CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
-  const CHAT_PATH = "/chat"; // only use working endpoint
+  const CHAT_PATH = "/chat";
 
   const toggle    = document.getElementById("auditToggle");
   const widget    = document.getElementById("auditWidget");
@@ -563,7 +563,7 @@ setInterval(updateTimer, 60000); // update every minute
     widget.style.display = isHidden ? "block" : "none";
 
     if (isHidden) {
-      wakeProxy(20000); // fire immediate wake ping
+      wakeProxy(20000); 
       keepAliveInterval = setInterval(() => {
         fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
       }, 60000);
@@ -590,16 +590,9 @@ setInterval(updateTimer, 60000); // update every minute
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 60000);
 
+      // NO baked-in guardrail — just send the user's message
       const payload = {
         messages: [
-          { role: "system", content: 
-            "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. \
-             When asked about adding XRBC to a wallet, explain step-by-step: \
-             (1) On desktop, open Xaman/Xumm and scan the official QR code on the XRBitcoinCash site to add the XRBC trustline. \
-             (2) On mobile, click the official XRBC trustline link, which will open directly in the wallet app: \
-             https://sologenic.org/token/XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw \
-             Always reassure the user that no secret keys or recovery phrases are ever requested. \
-             Do not provide unrelated answers or other links." },
           { role: "user", content: q }
         ]
       };
