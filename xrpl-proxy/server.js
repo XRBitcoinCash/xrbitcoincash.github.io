@@ -1,9 +1,7 @@
-// server.js
-
+// xrpl-proxy/server.js
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -15,16 +13,16 @@ app.use(express.json({ limit: '1mb' }));
 // === XRPL Mainnet JSON-RPC endpoint ===
 const XRPL_RPC = 'https://s1.ripple.com:51234';
 
-// Helper: post JSON-RPC to XRPL
 async function xrplRpc(body) {
   const resp = await axios.post(XRPL_RPC, body, {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 20000,
   });
   return resp.data;
 }
 
-// === Health check for Render ===
-app.get('/healthz', (_req, res) => res.status(200).send('ok'));
+// === Health check ===
+app.get('/healthz', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 
 // === XRPL Generic Proxy ===
 app.post('/', async (req, res) => {
@@ -33,100 +31,73 @@ app.post('/', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('generic proxy error:', err?.response?.status, err?.message);
-    res.status(500).json({
-      error: 'Proxy request failed',
-      detail: err?.message || String(err)
-    });
+    res.status(502).json({ error: 'Proxy request failed', detail: err?.message || String(err) });
   }
 });
 
-// === XRPL Convenience Endpoints ===
+// === XRPL Ledger ===
 app.get('/api/xrpl/ledger', async (_req, res) => {
   try {
-    const data = await xrplRpc({
-      method: 'ledger',
-      params: [{ ledger_index: 'validated' }]
-    });
+    const data = await xrplRpc({ method: 'ledger', params: [{ ledger_index: 'validated' }] });
     res.json(data);
   } catch (err) {
     console.error('ledger error', err?.message || err);
-    res.status(500).json({
-      error: 'Ledger fetch failed',
-      detail: err?.message || String(err)
-    });
+    res.status(502).json({ error: 'Ledger fetch failed', detail: err?.message || String(err) });
   }
 });
 
+// === XRPL Account Info ===
 app.get('/api/xrpl/account/:acct', async (req, res) => {
   try {
     const account = req.params.acct;
-    const data = await xrplRpc({
-      method: 'account_info',
-      params: [{ account, ledger_index: 'validated' }]
-    });
+    const data = await xrplRpc({ method: 'account_info', params: [{ account, ledger_index: 'validated' }] });
     res.json(data);
   } catch (err) {
     console.error('account error', err?.message || err);
-    res.status(500).json({
-      error: 'Account fetch failed',
-      detail: err?.message || String(err)
-    });
+    res.status(502).json({ error: 'Account fetch failed', detail: err?.message || String(err) });
   }
 });
 
-// === ChatGPT Auditor Proxy (with safer JSON handling) ===
+// === ChatGPT Auditor Proxy ===
 app.post('/chat', async (req, res) => {
   try {
-    const { messages } = req.body;
-    if (!messages) {
+    const { messages } = req.body || {};
+    if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'Missing messages array' });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+    const payload = {
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      messages,
+    };
+
+    const r = await axios.post('https://api.openai.com/v1/chat/completions', payload, {
       headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`, // set in Render dashboard
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages
-      })
+      timeout: 30000,
+      validateStatus: () => true,
     });
 
-    // Handle bad responses safely
-    const ct = (response.headers.get("content-type") || "").toLowerCase();
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("OpenAI error:", text);
-      return res.status(response.status).json({
-        error: "OpenAI API request failed",
-        detail: text
-      });
+    if (r.status < 200 || r.status >= 300) {
+      console.error('OpenAI error:', r.status, r.data);
+      return res.status(502).json({ error: 'Upstream OpenAI error', status: r.status, detail: r.data });
     }
 
-    // Ensure JSON only
-    if (!ct.includes("application/json")) {
-      const text = await response.text();
-      console.error("Unexpected upstream content:", text);
-      return res.status(500).json({
-        error: "Non-JSON response from OpenAI",
-        detail: text.slice(0, 200)
-      });
-    }
-
-    const data = await response.json();
-    res.json(data);
+    res.json(r.data);
   } catch (err) {
-    console.error("chat proxy error:", err.message || err);
-    res.status(500).json({
-      error: "Chat proxy request failed",
-      detail: err.message || String(err)
-    });
+    console.error('chat proxy error:', err.message || err);
+    res.status(502).json({ error: 'Chat proxy request failed', detail: err.message || String(err) });
   }
 });
 
-// === Start server ===
+// === JSON 404 Fallback (important) ===
+app.use((req, res) => {
+  res.status(404).json({ error: 'Not found', path: req.path, method: req.method });
+});
+
+// === Start ===
 app.listen(PORT, () => {
   console.log(`XRPL proxy running on port ${PORT}`);
 });
