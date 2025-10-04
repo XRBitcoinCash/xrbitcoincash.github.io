@@ -320,6 +320,18 @@ footer {
   gap: 16px;
   justify-content: center;
 }
+.btn.cta {
+  background: linear-gradient(180deg, #28e07f, #1bb866); /* green gradient */
+  color: #001a0f !important;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(40, 224, 127, 0.4);
+  border: none !important;
+}
+
+.btn.cta:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(40, 224, 127, 0.6);
+}
 
 </style>
 
@@ -428,12 +440,15 @@ setInterval(updateTimer, 60000); // update every minute
       <p class="muted">🤖 Ready. Ask about XRBC wallet safety, liquidity, or XRPL trustlines.</p>
     </div>
 
-    <!-- Quick questions -->
-    <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
-      <button class="btn ghost auditQuick" data-q="Is it safe to connect my wallet to this site?">Wallet Safety</button>
-      <button class="btn ghost auditQuick" data-q="Is XRBitcoinCash built on XRP Ledger standards?">XRPL Standards</button>
-      <button class="btn ghost auditQuick" data-q="How is liquidity provided for XRBC?">Liquidity Info</button>
-    </div>
+<!-- Quick questions -->
+<div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
+  <button class="btn ghost auditQuick" data-q="Is it safe to connect my wallet to this site?">Wallet Safety</button>
+  <button class="btn ghost auditQuick" data-q="Is XRBitcoinCash built on XRP Ledger standards?">XRPL Standards</button>
+  <button class="btn ghost auditQuick" data-q="If XRPL doesn’t yet allow locked liquidity pools, how is XRBC’s liquidity kept safe?">Liquidity Info</button>
+  <!-- New CTA button -->
+  <button class="btn primary auditQuick" data-q="How do I add XRBC to my wallet safely?">➕ Add XRBC to Wallet</button>
+</div>
+
 
     <!-- Input + Voice -->
     <div style="display:flex; gap:8px;">
@@ -490,7 +505,7 @@ setInterval(updateTimer, 60000); // update every minute
 
   // ===== CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
-  const CHAT_PATH = "/chat"; // only use the working endpoint
+  const CHAT_PATH = "/chat"; // only use working endpoint
 
   const toggle    = document.getElementById("auditToggle");
   const widget    = document.getElementById("auditWidget");
@@ -508,7 +523,7 @@ setInterval(updateTimer, 60000); // update every minute
   };
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-  // Wake the Render proxy before first chat call
+  // ===== WAKE PROXY =====
   async function wakeProxy(maxMs = 60000) {
     const start = Date.now();
     let attempt = 0;
@@ -527,7 +542,7 @@ setInterval(updateTimer, 60000); // update every minute
     return false;
   }
 
-  // Toggle widget open/close
+  // ===== TOGGLE WIDGET =====
   toggle.addEventListener("click", () => {
     const isHidden = widget.style.display === "none";
     widget.style.display = isHidden ? "block" : "none";
@@ -552,7 +567,7 @@ setInterval(updateTimer, 60000); // update every minute
     const awake = await wakeProxy();
     if (!awake) {
       document.getElementById(spinnerId)?.remove();
-      append(`<p style="color:#f88"><strong>Proxy:</strong> service is still waking up. Please retry in a moment.</p>`);
+      append(`<p style="color:#f88"><strong>Proxy:</strong> service is still waking up. Please retry shortly.</p>`);
       return;
     }
 
@@ -562,7 +577,14 @@ setInterval(updateTimer, 60000); // update every minute
 
       const payload = {
         messages: [
-          { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
+          { role: "system", content: 
+            "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. \
+             When asked about adding XRBC to a wallet, explain step-by-step: \
+             (1) On desktop, open Xaman/Xumm and scan the official QR code on the XRBitcoinCash site to add the XRBC trustline. \
+             (2) On mobile, click the official XRBC trustline link, which will open directly in the wallet app: \
+             https://sologenic.org/token/XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw \
+             Always reassure the user that no secret keys or recovery phrases are ever requested. \
+             Do not provide unrelated answers or other links." },
           { role: "user", content: q }
         ]
       };
@@ -592,7 +614,7 @@ setInterval(updateTimer, 60000); // update every minute
     }
   }
 
-  // Send button
+  // ===== SEND BUTTON =====
   send.addEventListener("click", () => {
     const q = input.value.trim();
     if (!q) return;
@@ -600,13 +622,13 @@ setInterval(updateTimer, 60000); // update every minute
     postChat(q);
   });
 
-  // Enter key
+  // ===== ENTER KEY =====
   input.addEventListener("keypress", e => { if (e.key === "Enter") send.click(); });
 
-  // Quick buttons
+  // ===== QUICK BUTTONS =====
   quickBtns.forEach(btn => btn.addEventListener("click", () => postChat(btn.dataset.q)));
 
-  // 🎙️ Voice input support
+  // ===== VOICE INPUT =====
   if ("webkitSpeechRecognition" in window) {
     const recog = new webkitSpeechRecognition();
     recog.continuous = false;
@@ -619,7 +641,7 @@ setInterval(updateTimer, 60000); // update every minute
     voiceBtn.style.display = "none";
   }
 
-  // Stop keep-alive when leaving page
+  // ===== CLEANUP ON LEAVE =====
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 
 })();
