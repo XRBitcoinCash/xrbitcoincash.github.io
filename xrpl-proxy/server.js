@@ -1,4 +1,4 @@
-// xrpl-proxy/server.js
+// xrpl-proxy/server.js (DEBUG)
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -6,11 +6,15 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// === Middleware ===
+// ===== Middleware =====
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+app.use((req, _res, next) => {
+  console.log(`[REQ] ${req.method} ${req.path}`);
+  next();
+});
 
-// === XRPL Mainnet JSON-RPC endpoint ===
+// ===== XRPL endpoint =====
 const XRPL_RPC = 'https://s1.ripple.com:51234';
 
 async function xrplRpc(body) {
@@ -21,10 +25,10 @@ async function xrplRpc(body) {
   return resp.data;
 }
 
-// === Health check ===
+// ===== Health =====
 app.get('/healthz', (_req, res) => res.json({ ok: true, ts: Date.now() }));
 
-// === XRPL Generic Proxy ===
+// ===== XRPL generic proxy =====
 app.post('/', async (req, res) => {
   try {
     const data = await xrplRpc(req.body);
@@ -35,7 +39,7 @@ app.post('/', async (req, res) => {
   }
 });
 
-// === XRPL Ledger ===
+// ===== XRPL ledger =====
 app.get('/api/xrpl/ledger', async (_req, res) => {
   try {
     const data = await xrplRpc({ method: 'ledger', params: [{ ledger_index: 'validated' }] });
@@ -46,7 +50,7 @@ app.get('/api/xrpl/ledger', async (_req, res) => {
   }
 });
 
-// === XRPL Account Info ===
+// ===== XRPL account info =====
 app.get('/api/xrpl/account/:acct', async (req, res) => {
   try {
     const account = req.params.acct;
@@ -58,7 +62,7 @@ app.get('/api/xrpl/account/:acct', async (req, res) => {
   }
 });
 
-// === ChatGPT Auditor Proxy ===
+// ===== Chat proxy to OpenAI =====
 app.post('/chat', async (req, res) => {
   try {
     const { messages } = req.body || {};
@@ -67,42 +71,66 @@ app.post('/chat', async (req, res) => {
     }
 
     const payload = {
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages,
     };
 
-    const r = await axios.post("https://api.openai.com/v1/chat/completions", payload, {
+    const r = await axios.post('https://api.openai.com/v1/chat/completions', payload, {
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       timeout: 30000,
-      validateStatus: () => true, // we handle errors below
+      validateStatus: () => true,
     });
 
-    if (!r.data || typeof r.data !== "object") {
-      console.error("OpenAI non-JSON response:", r.status, r.data);
-      return res.status(502).json({ error: "OpenAI returned non-JSON", status: r.status });
+    if (!r.data || typeof r.data !== 'object') {
+      console.error('OpenAI non-JSON response:', r.status, r.data);
+      return res.status(502).json({ error: 'OpenAI returned non-JSON', status: r.status });
     }
 
     if (r.status < 200 || r.status >= 300) {
-      console.error("OpenAI error:", r.status, r.data);
-      return res.status(502).json({ error: "Upstream OpenAI error", status: r.status, detail: r.data });
+      console.error('OpenAI error:', r.status, r.data);
+      return res.status(502).json({ error: 'Upstream OpenAI error', status: r.status, detail: r.data });
     }
 
     return res.json(r.data);
   } catch (err) {
-    console.error("[chat proxy error]", err.message || err);
-    res.status(502).json({ error: "Chat proxy request failed", detail: err.message || String(err) });
+    console.error('[chat proxy error]', err?.message || err);
+    res.status(502).json({ error: 'Chat proxy request failed', detail: err?.message || String(err) });
   }
 });
 
-// === JSON 404 Fallback ===
+// ===== Env sanity (no secrets) =====
+app.get('/env-check', (_req, res) => {
+  res.json({
+    hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+    model: process.env.OPENAI_MODEL || 'gpt-4o-mini'
+  });
+});
+
+// ===== 404 JSON fallback =====
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found', path: req.path, method: req.method });
 });
 
-// === Start ===
+// ===== Route list (prints once on boot) =====
+function printRoutes() {
+  const routes = [];
+  app._router.stack.forEach(mw => {
+    if (mw.route) {
+      routes.push(`${Object.keys(mw.route.methods).join(',').toUpperCase()} ${mw.route.path}`);
+    } else if (mw.name === 'router' && mw.handle?.stack) {
+      mw.handle.stack.forEach(r => {
+        if (r.route) routes.push(`${Object.keys(r.route.methods).join(',').toUpperCase()} ${r.route.path}`);
+      });
+    }
+  });
+  console.log('[ROUTES]', routes);
+}
+
+// ===== Start =====
 app.listen(PORT, () => {
   console.log(`XRPL proxy running on port ${PORT}`);
+  printRoutes();
 });
