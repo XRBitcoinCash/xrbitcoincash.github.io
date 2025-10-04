@@ -488,29 +488,55 @@ setInterval(updateTimer, 60000); // update every minute
   }, { threshold: 0.2 });
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== AUDIT WIDGET =====
-  const toggle = document.getElementById("auditToggle");
-  const widget = document.getElementById("auditWidget");
-  const output = document.getElementById("auditOutput");
-  const input = document.getElementById("auditInput");
-  const send = document.getElementById("auditSend");
-  const voiceBtn = document.getElementById("auditVoice");
+  // ===== CONFIG =====
+  const PROXY = "https://xrbitcoincash-github-io.onrender.com";
+
+  const toggle    = document.getElementById("auditToggle");
+  const widget    = document.getElementById("auditWidget");
+  const output    = document.getElementById("auditOutput");
+  const input     = document.getElementById("auditInput");
+  const send      = document.getElementById("auditSend");
+  const voiceBtn  = document.getElementById("auditVoice");
   const quickBtns = document.querySelectorAll(".auditQuick");
 
   let keepAliveInterval = null;
 
-  // Toggle open/close
+  const append = html => {
+    output.insertAdjacentHTML("beforeend", html);
+    output.scrollTop = output.scrollHeight;
+  };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // Wake the Render proxy before first chat call
+  async function wakeProxy(maxMs = 60000) {
+    const start = Date.now();
+    let attempt = 0;
+    while (Date.now() - start < maxMs) {
+      attempt++;
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 10000);
+        const r = await fetch(`${PROXY}/healthz?ts=${Date.now()}`, { cache: "no-store", signal: ctrl.signal });
+        clearTimeout(timer);
+        if (r.ok) return true;
+      } catch (_) {}
+      const delay = Math.min(8000, Math.round(500 * Math.pow(1.6, attempt)));
+      await sleep(delay);
+    }
+    return false;
+  }
+
+  // Toggle widget open/close
   toggle.addEventListener("click", () => {
     const isHidden = widget.style.display === "none";
     widget.style.display = isHidden ? "block" : "none";
 
     if (isHidden) {
-      // Start silent keep-alive every 40s
+      wakeProxy(20000); // fire immediate wake ping
       keepAliveInterval = setInterval(() => {
-        fetch("https://xrbitcoincash-github-io.onrender.com/healthz").catch(() => {});
+        fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
       }, 40000);
     } else {
-      // Stop keep-alive
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
     }
@@ -518,16 +544,22 @@ setInterval(updateTimer, 60000); // update every minute
 
   // ===== CHAT FUNCTION =====
   async function postChat(q) {
-    output.innerHTML += `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
-    output.scrollTop = output.scrollHeight;
-
-    // Show secure connecting spinner
+    append(`<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`);
     const spinnerId = "spinner-" + Date.now();
-    output.innerHTML += `<p id="${spinnerId}" style="color:#9EB2D0">⏳ Securely connecting to XRBC Auditor…</p>`;
-    output.scrollTop = output.scrollHeight;
+    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Securely connecting to XRBC Auditor…</p>`);
+
+    // Ensure proxy is awake
+    const awake = await wakeProxy();
+    if (!awake) {
+      document.getElementById(spinnerId)?.remove();
+      append(`<p style="color:#f88"><strong>Proxy:</strong> still waking, try again shortly.</p>`);
+      return;
+    }
 
     try {
-      const resp = await fetch("https://xrbitcoincash-github-io.onrender.com/chat", {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 60000);
+      const resp = await fetch(`${PROXY}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -535,18 +567,31 @@ setInterval(updateTimer, 60000); // update every minute
             { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
             { role: "user", content: q }
           ]
-        })
+        }),
+        signal: ctrl.signal
       });
+      clearTimeout(timer);
+      document.getElementById(spinnerId)?.remove();
+
+      const ct = (resp.headers.get("content-type") || "").toLowerCase();
+      if (!ct.includes("application/json")) {
+        const txt = await resp.text();
+        append(`<p style="color:#f88"><strong>Error:</strong> Proxy returned non-JSON (${resp.status}).</p>`);
+        console.debug("Non-JSON body:", txt);
+        return;
+      }
 
       const d = await resp.json();
-      document.getElementById(spinnerId)?.remove();
+      if (!resp.ok) {
+        append(`<p style="color:#f88"><strong>Upstream error:</strong> ${d?.error || "Request failed"}.</p>`);
+        return;
+      }
 
-      const ans = d.choices?.[0]?.message?.content || "No answer.";
-      output.innerHTML += `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
-      output.scrollTop = output.scrollHeight;
+      const ans = d?.choices?.[0]?.message?.content || "No answer.";
+      append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`);
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
-      output.innerHTML += `<p style="color:#f88"><strong>Error:</strong> ${err.message}</p>`;
+      append(`<p style="color:#f88"><strong>Network error:</strong> ${err?.message || String(err)}</p>`);
     }
   }
 
@@ -570,29 +615,15 @@ setInterval(updateTimer, 60000); // update every minute
     recog.continuous = false;
     recog.interimResults = false;
     recog.lang = "en-US";
-
-    voiceBtn.addEventListener("click", () => {
-      recog.start();
-      voiceBtn.textContent = "🎤 Listening...";
-    });
-
-    recog.onresult = e => {
-      const transcript = e.results[0][0].transcript;
-      input.value = transcript;
-      send.click();
-    };
-
-    recog.onend = () => {
-      voiceBtn.textContent = "🎤 Voice";
-    };
+    voiceBtn.addEventListener("click", () => { recog.start(); voiceBtn.textContent = "🎤 Listening..."; });
+    recog.onresult = e => { input.value = e.results[0][0].transcript; send.click(); };
+    recog.onend = () => { voiceBtn.textContent = "🎤 Voice"; };
   } else {
     voiceBtn.style.display = "none";
   }
 
   // Stop keep-alive when leaving page
-  window.addEventListener("beforeunload", () => {
-    clearInterval(keepAliveInterval);
-  });
+  window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 
 })();
 </script>
