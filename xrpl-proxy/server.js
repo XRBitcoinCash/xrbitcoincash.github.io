@@ -33,33 +33,48 @@ app.post('/', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('generic proxy error:', err?.response?.status, err?.message);
-    res.status(500).json({ error: 'Proxy request failed', detail: err?.message || String(err) });
+    res.status(500).json({
+      error: 'Proxy request failed',
+      detail: err?.message || String(err)
+    });
   }
 });
 
 // === XRPL Convenience Endpoints ===
 app.get('/api/xrpl/ledger', async (_req, res) => {
   try {
-    const data = await xrplRpc({ method: 'ledger', params: [{ ledger_index: 'validated' }] });
+    const data = await xrplRpc({
+      method: 'ledger',
+      params: [{ ledger_index: 'validated' }]
+    });
     res.json(data);
   } catch (err) {
     console.error('ledger error', err?.message || err);
-    res.status(500).json({ error: 'Ledger fetch failed', detail: err?.message || String(err) });
+    res.status(500).json({
+      error: 'Ledger fetch failed',
+      detail: err?.message || String(err)
+    });
   }
 });
 
 app.get('/api/xrpl/account/:acct', async (req, res) => {
   try {
     const account = req.params.acct;
-    const data = await xrplRpc({ method: 'account_info', params: [{ account, ledger_index: 'validated' }] });
+    const data = await xrplRpc({
+      method: 'account_info',
+      params: [{ account, ledger_index: 'validated' }]
+    });
     res.json(data);
   } catch (err) {
     console.error('account error', err?.message || err);
-    res.status(500).json({ error: 'Account fetch failed', detail: err?.message || String(err) });
+    res.status(500).json({
+      error: 'Account fetch failed',
+      detail: err?.message || String(err)
+    });
   }
 });
 
-// === NEW: ChatGPT Auditor Proxy ===
+// === ChatGPT Auditor Proxy (with safer JSON handling) ===
 app.post('/chat', async (req, res) => {
   try {
     const { messages } = req.body;
@@ -74,22 +89,40 @@ app.post('/chat', async (req, res) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // fast + cost efficient
+        model: "gpt-4o-mini",
         messages
       })
     });
 
+    // Handle bad responses safely
+    const ct = (response.headers.get("content-type") || "").toLowerCase();
     if (!response.ok) {
-      const txt = await response.text();
-      console.error("OpenAI error:", txt);
-      return res.status(500).json({ error: "Upstream failure", detail: txt });
+      const text = await response.text();
+      console.error("OpenAI error:", text);
+      return res.status(response.status).json({
+        error: "OpenAI API request failed",
+        detail: text
+      });
+    }
+
+    // Ensure JSON only
+    if (!ct.includes("application/json")) {
+      const text = await response.text();
+      console.error("Unexpected upstream content:", text);
+      return res.status(500).json({
+        error: "Non-JSON response from OpenAI",
+        detail: text.slice(0, 200)
+      });
     }
 
     const data = await response.json();
     res.json(data);
   } catch (err) {
     console.error("chat proxy error:", err.message || err);
-    res.status(500).json({ error: "Chat proxy request failed", detail: err.message || String(err) });
+    res.status(500).json({
+      error: "Chat proxy request failed",
+      detail: err.message || String(err)
+    });
   }
 });
 
