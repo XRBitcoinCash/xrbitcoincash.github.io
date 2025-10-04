@@ -490,7 +490,7 @@ setInterval(updateTimer, 60000); // update every minute
 
   // ===== CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
-  const CHAT_PATHS = ["/chat", "/openai"];
+  const CHAT_PATH = "/chat"; // only use the working endpoint
 
   const toggle    = document.getElementById("auditToggle");
   const widget    = document.getElementById("auditWidget");
@@ -536,56 +536,23 @@ setInterval(updateTimer, 60000); // update every minute
       wakeProxy(20000); // fire immediate wake ping
       keepAliveInterval = setInterval(() => {
         fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
-      }, 40000);
+      }, 60000);
     } else {
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
     }
   });
 
-  // ===== ENDPOINT HELPER =====
-  async function tryChatEndpoints(payload, abortSignal) {
-    for (const path of CHAT_PATHS) {
-      try {
-        const resp = await fetch(`${PROXY}${path}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          signal: abortSignal
-        });
-
-        const ct = (resp.headers.get("content-type") || "").toLowerCase();
-        const bodyText = await resp.text();
-
-        if (!ct.includes("application/json")) {
-          console.debug(`[CHAT ${path}] Non-JSON (${resp.status}):`, bodyText.slice(0, 300));
-          continue;
-        }
-
-        const data = JSON.parse(bodyText);
-        if (!resp.ok) {
-          console.debug(`[CHAT ${path}] HTTP ${resp.status}:`, data);
-          continue;
-        }
-
-        return { ok: true, path, data };
-      } catch (e) {
-        console.debug(`[CHAT ${path}] network error`, e?.message || e);
-      }
-    }
-    return { ok: false };
-  }
-
   // ===== CHAT FUNCTION =====
   async function postChat(q) {
     append(`<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`);
     const spinnerId = "spinner-" + Date.now();
-    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Securely connecting to XRBC Auditor…</p>`);
+    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
 
     const awake = await wakeProxy();
     if (!awake) {
       document.getElementById(spinnerId)?.remove();
-      append(`<p style="color:#f88"><strong>Proxy:</strong> still waking, try again shortly.</p>`);
+      append(`<p style="color:#f88"><strong>Proxy:</strong> service is still waking up. Please retry in a moment.</p>`);
       return;
     }
 
@@ -600,16 +567,24 @@ setInterval(updateTimer, 60000); // update every minute
         ]
       };
 
-      const result = await tryChatEndpoints(payload, ctrl.signal);
+      const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal
+      });
+
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
-      if (!result.ok) {
-        append(`<p style="color:#f88"><strong>Upstream error:</strong> Chat proxy request failed (no working endpoint at ${PROXY}/chat or /openai).</p>`);
+      if (!resp.ok) {
+        const errText = await resp.text();
+        append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${errText}</p>`);
         return;
       }
 
-      const ans = result.data?.choices?.[0]?.message?.content || "No answer.";
+      const data = await resp.json();
+      const ans = data?.choices?.[0]?.message?.content || "No answer.";
       append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`);
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
@@ -649,6 +624,7 @@ setInterval(updateTimer, 60000); // update every minute
 
 })();
 </script>
+
 
 
 
