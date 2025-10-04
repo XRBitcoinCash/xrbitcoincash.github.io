@@ -532,10 +532,19 @@ setInterval(updateTimer, 60000); // update every minute
 
   let keepAliveInterval = null;
 
-  const append = html => {
-    output.insertAdjacentHTML("beforeend", html);
-    output.scrollTop = output.scrollHeight;
+  // ===== APPEND WITH CONTROLLED SCROLL =====
+  const append = (html) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "chat-block";
+    wrapper.innerHTML = html;
+    output.appendChild(wrapper);
+
+    // Scroll just enough to bring the new message into view
+    wrapper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    return wrapper;
   };
+
   const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   // ===== WAKE PROXY =====
