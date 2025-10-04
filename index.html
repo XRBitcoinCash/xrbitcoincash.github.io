@@ -335,33 +335,51 @@ footer {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 18px rgba(40, 224, 127, 0.6);
 }
-/* === AUDIT INPUT FIX (Mobile-friendly) === */
+/* === AUDIT INPUT FIX (Responsive clean version) === */
 .audit-input-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
+  margin-top: 12px;
 }
 
 .audit-input-wrap input {
-  flex: 1;
-  padding: 10px;
+  width: 100%;
+  padding: 12px;
   border-radius: 8px;
   border: none;
   background: #111827;
   color: #ECF3FF;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-.audit-buttons {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+.audit-input-wrap button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-.audit-buttons button {
-  flex: 0 0 auto;
+/* Desktop inline layout */
+@media (min-width: 600px) {
+  .audit-input-wrap {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .audit-input-wrap input {
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  .audit-input-wrap button {
+    width: auto;
+    flex: 0 0 auto;
+  }
 }
+
 
 /* On larger screens, keep input + buttons inline */
 @media (min-width: 600px) {
@@ -512,14 +530,12 @@ setInterval(updateTimer, 60000); // update every minute
         </button>
       </div>
 
-      <!-- Input + Voice -->
-    <div class="audit-input-wrap">
+  <div class="audit-input-wrap">
   <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." />
-  <div class="audit-buttons">
-    <button id="auditSend" class="btn primary">Send</button>
-    <button id="auditVoice" class="btn ghost">🎤 Voice</button>
-  </div>
+  <button id="auditSend" class="btn primary">Send</button>
+  <button id="auditVoice" class="btn ghost">🎤 Voice</button>
 </div>
+
 
 
       <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
