@@ -488,82 +488,115 @@ setInterval(updateTimer, 60000); // update every minute
   }, { threshold: 0.2 });
   features.forEach(f => fadeObserver.observe(f));
 
-const toggle = document.getElementById("auditToggle");
-const widget = document.getElementById("auditWidget");
-const output = document.getElementById("auditOutput");
-const input = document.getElementById("auditInput");
-const send = document.getElementById("auditSend");
-const voiceBtn = document.getElementById("auditVoice");
-const quickBtns = document.querySelectorAll(".auditQuick");
+  // ===== AUDIT WIDGET =====
+  const toggle = document.getElementById("auditToggle");
+  const widget = document.getElementById("auditWidget");
+  const output = document.getElementById("auditOutput");
+  const input = document.getElementById("auditInput");
+  const send = document.getElementById("auditSend");
+  const voiceBtn = document.getElementById("auditVoice");
+  const quickBtns = document.querySelectorAll(".auditQuick");
 
-toggle.addEventListener("click", () => {
-  widget.style.display = widget.style.display === "none" ? "block" : "none";
-});
+  let keepAliveInterval = null;
 
-async function postChat(q) {
-  output.innerHTML += `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
-  output.scrollTop = output.scrollHeight;
-  try {
-    const resp = await fetch("https://xrbitcoincash-github-io.onrender.com/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
-          { role: "user", content: q }
-        ]
-      })
-    });
-    const d = await resp.json();
-    const ans = d.choices?.[0]?.message?.content || "No answer.";
-    output.innerHTML += `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
-    output.scrollTop = output.scrollHeight;
-  } catch (err) {
-    output.innerHTML += `<p style="color:#f88"><strong>Error:</strong> ${err.message}</p>`;
-  }
-}
+  // Toggle open/close
+  toggle.addEventListener("click", () => {
+    const isHidden = widget.style.display === "none";
+    widget.style.display = isHidden ? "block" : "none";
 
-send.addEventListener("click", () => {
-  const q = input.value.trim();
-  if (!q) return;
-  input.value = "";
-  postChat(q);
-});
-
-input.addEventListener("keypress", e => { if (e.key === "Enter") send.click(); });
-
-quickBtns.forEach(btn => {
-  btn.addEventListener("click", () => postChat(btn.dataset.q));
-});
-
-// 🎙️ Voice input support (Chrome / Edge)
-if ("webkitSpeechRecognition" in window) {
-  const recog = new webkitSpeechRecognition();
-  recog.continuous = false;
-  recog.interimResults = false;
-  recog.lang = "en-US";
-
-  voiceBtn.addEventListener("click", () => {
-    recog.start();
-    voiceBtn.textContent = "🎤 Listening...";
+    if (isHidden) {
+      // Start silent keep-alive every 40s
+      keepAliveInterval = setInterval(() => {
+        fetch("https://xrbitcoincash-github-io.onrender.com/healthz").catch(() => {});
+      }, 40000);
+    } else {
+      // Stop keep-alive
+      clearInterval(keepAliveInterval);
+      keepAliveInterval = null;
+    }
   });
 
-  recog.onresult = e => {
-    const transcript = e.results[0][0].transcript;
-    input.value = transcript;
-    send.click();
-  };
+  // ===== CHAT FUNCTION =====
+  async function postChat(q) {
+    output.innerHTML += `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
+    output.scrollTop = output.scrollHeight;
 
-  recog.onend = () => {
-    voiceBtn.textContent = "🎤 Voice";
-  };
-} else {
-  voiceBtn.style.display = "none";
-}
+    // Show secure connecting spinner
+    const spinnerId = "spinner-" + Date.now();
+    output.innerHTML += `<p id="${spinnerId}" style="color:#9EB2D0">⏳ Securely connecting to XRBC Auditor…</p>`;
+    output.scrollTop = output.scrollHeight;
 
+    try {
+      const resp = await fetch("https://xrbitcoincash-github-io.onrender.com/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
+            { role: "user", content: q }
+          ]
+        })
+      });
+
+      const d = await resp.json();
+      document.getElementById(spinnerId)?.remove();
+
+      const ans = d.choices?.[0]?.message?.content || "No answer.";
+      output.innerHTML += `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
+      output.scrollTop = output.scrollHeight;
+    } catch (err) {
+      document.getElementById(spinnerId)?.remove();
+      output.innerHTML += `<p style="color:#f88"><strong>Error:</strong> ${err.message}</p>`;
+    }
+  }
+
+  // Send button
+  send.addEventListener("click", () => {
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = "";
+    postChat(q);
+  });
+
+  // Enter key
+  input.addEventListener("keypress", e => { if (e.key === "Enter") send.click(); });
+
+  // Quick buttons
+  quickBtns.forEach(btn => btn.addEventListener("click", () => postChat(btn.dataset.q)));
+
+  // 🎙️ Voice input support
+  if ("webkitSpeechRecognition" in window) {
+    const recog = new webkitSpeechRecognition();
+    recog.continuous = false;
+    recog.interimResults = false;
+    recog.lang = "en-US";
+
+    voiceBtn.addEventListener("click", () => {
+      recog.start();
+      voiceBtn.textContent = "🎤 Listening...";
+    });
+
+    recog.onresult = e => {
+      const transcript = e.results[0][0].transcript;
+      input.value = transcript;
+      send.click();
+    };
+
+    recog.onend = () => {
+      voiceBtn.textContent = "🎤 Voice";
+    };
+  } else {
+    voiceBtn.style.display = "none";
+  }
+
+  // Stop keep-alive when leaving page
+  window.addEventListener("beforeunload", () => {
+    clearInterval(keepAliveInterval);
+  });
 
 })();
 </script>
+
 
 
 
