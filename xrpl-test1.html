@@ -410,21 +410,43 @@ setInterval(updateTimer, 60000); // update every minute
     </div>
   </section>
 
-<section class="card" style="margin-top:28px;">
-  <h3>🔒 Safety & Wallet Audit</h3>
-  <p class="muted">Ask our AI Auditor about XRBC safety, liquidity, or wallet connections.</p>
-  <button id="auditToggle" class="btn ghost" style="margin-top:12px;">Ask Safety AI</button>
+<section class="card" style="margin-top:28px; border:2px solid var(--accent); box-shadow:0 0 12px rgba(0,229,255,0.3);">
+  <h3 style="display:flex; align-items:center; gap:10px;">
+    <img src="/chatgpt-logo.png" alt="ChatGPT" style="width:28px; height:28px; border-radius:6px;">
+    Security Center · XRBC Wallet Audit
+  </h3>
+  <p class="muted" style="margin-top:6px;">
+    This feature is powered by <strong>ChatGPT AI</strong>.  
+    Ask about the safety of connecting your wallet, XRBC’s build on XRPL, and liquidity audit details.  
+    The project was built with ChatGPT’s assistance and contains no nefarious code.
+  </p>
 
-  <div id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:#0F1724;">
+  <button id="auditToggle" class="btn ghost" style="margin-top:12px;">🔍 Ask ChatGPT Now</button>
+
+  <div id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:2px solid rgba(0,229,255,0.2); border-radius:12px; background:#0F1724;">
     <div id="auditOutput" style="max-height:260px; overflow:auto; margin-bottom:12px; font-size:0.95rem;">
       <p class="muted">🤖 Ready. Ask about XRBC wallet safety, liquidity, or XRPL trustlines.</p>
     </div>
-    <div style="display:flex; gap:8px;">
-      <input id="auditInput" type="text" placeholder="Type your question..." style="flex:1; padding:8px; border-radius:8px; border:none; background:#111827; color:#ECF3FF;">
-      <button id="auditSend" class="btn primary">Send</button>
+
+    <!-- Quick questions -->
+    <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
+      <button class="btn ghost auditQuick" data-q="Is it safe to connect my wallet to this site?">Wallet Safety</button>
+      <button class="btn ghost auditQuick" data-q="Is XRBitcoinCash built on XRP Ledger standards?">XRPL Standards</button>
+      <button class="btn ghost auditQuick" data-q="How is liquidity provided for XRBC?">Liquidity Info</button>
     </div>
+
+    <!-- Input + Voice -->
+    <div style="display:flex; gap:8px;">
+      <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." style="flex:1; padding:8px; border-radius:8px; border:none; background:#111827; color:#ECF3FF;">
+      <button id="auditSend" class="btn primary">Send</button>
+      <button id="auditVoice" class="btn ghost">🎤 Voice</button>
+    </div>
+
+    <!-- Voice note -->
+    <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
   </div>
 </section>
+
 
   
   <section style="margin-top:28px" class="card">
@@ -466,44 +488,78 @@ setInterval(updateTimer, 60000); // update every minute
   }, { threshold: 0.2 });
   features.forEach(f => fadeObserver.observe(f));
 
-  const toggle = document.getElementById("auditToggle");
-  const widget = document.getElementById("auditWidget");
-  const output = document.getElementById("auditOutput");
-  const input = document.getElementById("auditInput");
-  const send = document.getElementById("auditSend");
+const toggle = document.getElementById("auditToggle");
+const widget = document.getElementById("auditWidget");
+const output = document.getElementById("auditOutput");
+const input = document.getElementById("auditInput");
+const send = document.getElementById("auditSend");
+const voiceBtn = document.getElementById("auditVoice");
+const quickBtns = document.querySelectorAll(".auditQuick");
 
-  toggle.addEventListener("click", () => widget.style.display = widget.style.display === "none" ? "block" : "none");
+toggle.addEventListener("click", () => {
+  widget.style.display = widget.style.display === "none" ? "block" : "none";
+});
 
-  async function postChat(q) {
-    output.innerHTML += `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
+async function postChat(q) {
+  output.innerHTML += `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
+  output.scrollTop = output.scrollHeight;
+  try {
+    const resp = await fetch("https://xrbitcoincash-github-io.onrender.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
+          { role: "user", content: q }
+        ]
+      })
+    });
+    const d = await resp.json();
+    const ans = d.choices?.[0]?.message?.content || "No answer.";
+    output.innerHTML += `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
     output.scrollTop = output.scrollHeight;
-    try {
-      const resp = await fetch("https://xrbitcoincash-github-io.onrender.com/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: "You are the XRBitcoinCash Auditor. Only answer about XRBC wallet safety, XRPL liquidity, trustlines, and related risks. Do not answer off-topic." },
-            { role: "user", content: q }
-          ]
-        })
-      });
-      const d = await resp.json();
-      const ans = d.choices?.[0]?.message?.content || "No answer.";
-      output.innerHTML += `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
-      output.scrollTop = output.scrollHeight;
-    } catch (err) {
-      output.innerHTML += `<p style="color:#f88"><strong>Error:</strong> ${err.message}</p>`;
-    }
+  } catch (err) {
+    output.innerHTML += `<p style="color:#f88"><strong>Error:</strong> ${err.message}</p>`;
   }
+}
 
-  send.addEventListener("click", () => {
-    const q = input.value.trim();
-    if (!q) return;
-    input.value = "";
-    postChat(q);
+send.addEventListener("click", () => {
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = "";
+  postChat(q);
+});
+
+input.addEventListener("keypress", e => { if (e.key === "Enter") send.click(); });
+
+quickBtns.forEach(btn => {
+  btn.addEventListener("click", () => postChat(btn.dataset.q));
+});
+
+// 🎙️ Voice input support (Chrome / Edge)
+if ("webkitSpeechRecognition" in window) {
+  const recog = new webkitSpeechRecognition();
+  recog.continuous = false;
+  recog.interimResults = false;
+  recog.lang = "en-US";
+
+  voiceBtn.addEventListener("click", () => {
+    recog.start();
+    voiceBtn.textContent = "🎤 Listening...";
   });
-  input.addEventListener("keypress", e => { if (e.key === "Enter") send.click(); });
+
+  recog.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    input.value = transcript;
+    send.click();
+  };
+
+  recog.onend = () => {
+    voiceBtn.textContent = "🎤 Voice";
+  };
+} else {
+  voiceBtn.style.display = "none";
+}
 
 
 })();
