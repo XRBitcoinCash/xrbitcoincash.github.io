@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- favicon… -->
+  <!-- favicon -->
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="shortcut icon" href="/favicon.png" type="image/png">
   <meta name="msapplication-TileImage" content="/favicon.png">
-</head>
- <!-- favicon… -->
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
@@ -17,21 +16,25 @@
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- Primary SEO -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade on Sologenic AMM. Transparent, non-custodial flows." />
-  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket" />
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token with integrated ChatGPT-powered Security Center. Trade XRBC, explore NFTs, and verify wallet safety directly on-page." />
+  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket, ChatGPT, AI Security Center, wallet safety, crypto transparency" />
   <link rel="canonical" href="https://xrbitcoincash.com/" />
+
+  <!-- Acknowledgement -->
+  <meta name="generator" content="Built with assistance from ChatGPT AI" />
+  <meta name="credit" content="Security Center powered by ChatGPT AI — thank you to OpenAI for enabling transparent wallet safety audits." />
 
   <!-- Open Graph (Facebook, LinkedIn) -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
+  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees, 3s finality, and now an AI-powered Security Center by ChatGPT for wallet safety & transparency." />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:url" content="https://xrbitcoincash.com/" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta name="twitter:description" content="Trade XRBC fast on XRPL. Low fees. 3s finality." />
+  <meta name="twitter:description" content="XRBitcoinCash now features a ChatGPT-powered Security Center — ask about wallet safety, XRPL standards, and liquidity directly on-site." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <!-- Existing CSS -->
@@ -332,6 +335,68 @@ footer {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 18px rgba(40, 224, 127, 0.6);
 }
+/* === AUDIT INPUT FIX (Responsive clean version) === */
+.audit-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.audit-input-wrap input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #111827;
+  color: #ECF3FF;
+  font-size: 1rem;
+}
+
+.audit-input-wrap button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Desktop inline layout */
+@media (min-width: 600px) {
+  .audit-input-wrap {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .audit-input-wrap input {
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  .audit-input-wrap button {
+    width: auto;
+    flex: 0 0 auto;
+  }
+}
+
+
+/* On larger screens, keep input + buttons inline */
+@media (min-width: 600px) {
+  .audit-input-wrap {
+    flex-direction: row;
+    align-items: center;
+  }
+  .audit-buttons {
+    flex-shrink: 0;
+  }
+}
+/* Hide voice button only on small/mobile screens */
+@media (max-width: 600px) {
+  #auditVoice {
+    display: none !important;
+  }
+}
 
 </style>
 
@@ -471,12 +536,13 @@ setInterval(updateTimer, 60000); // update every minute
         </button>
       </div>
 
-      <!-- Input + Voice -->
-      <div style="display:flex; gap:8px;">
-        <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." style="flex:1; padding:8px; border-radius:8px; border:none; background:#111827; color:#ECF3FF;">
-        <button id="auditSend" class="btn primary">Send</button>
-        <button id="auditVoice" class="btn ghost">🎤 Voice</button>
-      </div>
+  <div class="audit-input-wrap">
+  <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." />
+  <button id="auditSend" class="btn primary">Send</button>
+  <button id="auditVoice" class="btn ghost">🎤 Voice</button>
+</div>
+
+
 
       <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
     </div>
@@ -496,18 +562,63 @@ setInterval(updateTimer, 60000); // update every minute
   <a href="https://x.com/XRbitcoincash" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" width="24" /></a>
 </div>
 
-<footer>
-  <small>© 2025 XRBitcoinCash™ — Built on XRPL</small>
+<footer class="ecosystem-footer">
+  <div class="footer-container">
+    <h3>XRBitcoin Ecosystem</h3>
+    <p class="ecosystem-desc">
+      A connected framework of XRPL-based assets — <strong>XRBitcoinCash (XRBC)</strong>, <strong>XRBitcoin</strong>, and the
+      <strong>Jesus Christ Saves Token</strong> — operating in parallel to demonstrate that stability, trust, and transparency
+      can exist within decentralized architecture. Each token functions independently yet complements the others,
+      reflecting a shared commitment to clarity and technical honesty on the XRPL.
+    </p>
+
+    <div class="ecosystem-links">
+      <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash Logo">
+        <span>XRBitcoinCash</span>
+      </a>
+
+      <a href="https://xrbitcoin.github.io" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbitcoin.png" alt="XRBitcoin Logo">
+        <span>XRBitcoin</span>
+      </a>
+
+      <a href="https://jesuschristsavestoken.com" class="eco-link" target="_blank" rel="noopener">
+        <img src="/jcs-token.png" alt="Jesus Christ Saves Token Logo">
+        <span>Jesus Christ Saves</span>
+      </a>
+    </div>
+
+    <p class="ecosystem-tagline">
+      <strong>Built on the XRP Ledger.</strong>  
+      A triad of faith, logic, and transparency — forming the foundation of the XRBitcoin ecosystem.
+    </p>
+
+    <small class="ecosystem-note">
+      © 2025 XRBitcoinCash™ — All projects operate transparently on-ledger.<br>
+      🔒 Security Center powered by 
+      <a href="#security-center" style="color:var(--accent); font-weight:600; text-decoration:none;">ChatGPT AI</a>.
+    </small>
+  </div>
 </footer>
+
+
 <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
+
 <!-- Countdown reminder for security.txt & CSAF expiry -->
-<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px;">
+<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px; margin:20px auto;">
   <strong>Security File Update:</strong>
   <div id="updateCountdown"></div>
-  <small>Next update due for <code>security.txt</code> and CSAF on <strong>August 22, 2026</strong>.</small>
+  <small>
+    Next update due for <code>security.txt</code> and CSAF on 
+    <strong>August 22, 2026</strong>.
+  </small>
 </div>
+
 <script>
 (() => {
+
+
   "use strict";
 
   // ===== 1. SCROLL FADE-IN =====
