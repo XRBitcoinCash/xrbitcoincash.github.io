@@ -213,3 +213,95 @@ body.light-mode{
   display: inline-block;
   line-height: 1.4;
 }
+/* =========================================
+   12) SECURITY CENTER — ENHANCED INPUT + BUTTONS
+   ========================================= */
+
+/* Container transitions */
+#auditWidget {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Larger, scrollable text area for questions */
+#auditInput {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 36, 0.9);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.08);
+}
+
+#auditInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.3);
+}
+
+/* Button container layout */
+.audit-input-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* Animated gradient buttons (matching hero section aesthetic) */
+#auditSend,
+#auditVoice {
+  flex: 1 1 48%;
+  padding: 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--green),
+    var(--purple),
+    var(--orange)
+  );
+  background-size: 300% 300%;
+  animation: auditBtnGradient 6s ease infinite;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#auditSend:hover,
+#auditVoice:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+}
+
+@keyframes auditBtnGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Mobile optimization: stack buttons vertically */
+@media (max-width: 600px) {
+  .audit-input-wrap {
+    flex-direction: column;
+  }
+  #auditSend,
+  #auditVoice {
+    width: 100%;
+  }
+}
