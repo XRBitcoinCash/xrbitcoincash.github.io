@@ -268,7 +268,10 @@ setInterval(updateTimer, 60000); // update every minute
   // ===== 2. CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
   const CHAT_PATH = "/chat";
+
   const FALLBACK_URL = "https://chat.openai.com/?model=gpt-5";
+const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/"; // hypothetical ENS gateway
+
 const MAX_WAIT_MS = 52000; // Allow full 50s+2s margin for Render cold-start
 
 
@@ -333,29 +336,42 @@ async function wakeProxy(maxMs = MAX_WAIT_MS) {
   if (status) status.innerHTML = `❌ Proxy not responding (after ${attempt} attempts).`;
   return false;
 }
-
-  // ===== FALLBACK HANDLER =====
-  function showFallback() {
-    proxyTimedOut = true;
-    widget.style.display = "block";
-    append(`
-      <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
-        <p style="color:#9EB2D0;">
-          ⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
-          You can continue your conversation directly with ChatGPT below:
-        </p>
-        <div style="text-align:center;margin-top:14px;">
-          <a href="${FALLBACK_URL}" target="_blank" class="btn primary glow-blue">
-            💬 Open ChatGPT Fallback
-          </a>
-        </div>
-        <p style="margin-top:10px; color:#777; font-size:0.85rem;">
-          Tip: Render free plans can take 30–45 seconds to start after inactivity. 
-          If you retry in a moment, the integrated Security Center should come online automatically.
-        </p>
-      </div>
-    `);
+// ===== CHECK CHATGPT WEB2, THEN FALL BACK TO WEB3 =====
+async function resolveChatGPTLink() {
+  try {
+    const r = await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" });
+    // if fetch doesn't throw, assume Web2 works
+    return FALLBACK_URL;
+  } catch (_) {
+    return FALLBACK_WEB3_URL;
   }
+}
+
+// ===== FALLBACK HANDLER =====
+async function showFallback() {
+  proxyTimedOut = true;
+  widget.style.display = "block";
+
+  const fallbackLink = await resolveChatGPTLink();
+
+  append(`
+    <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
+      <p style="color:#9EB2D0;">
+        ⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
+        You can continue your conversation directly with ChatGPT below:
+      </p>
+      <div style="text-align:center;margin-top:14px;">
+        <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">
+          💬 Open ChatGPT Fallback
+        </a>
+      </div>
+      <p style="margin-top:10px; color:#777; font-size:0.85rem;">
+        Tip: Render free plans can take 30–45 seconds to start after inactivity. 
+        If you retry in a moment, the integrated Security Center should come online automatically.
+      </p>
+    </div>
+  `);
+}
 
   // ===== TOGGLE WIDGET =====
   toggle.addEventListener("click", async () => {
