@@ -170,7 +170,7 @@ section.grid, section.card { margin-top: 28px; }
   transform: translateY(-2px); color: #00ff80;
 }
 
-/* === SECURITY CENTER CLEAN FIX === */
+/* === SECURITY CENTER BUTTONS + LAYOUT FIX === */
 #auditWidget { transition: all 0.3s ease-in-out; }
 
 #auditInput {
@@ -186,14 +186,12 @@ section.grid, section.card { margin-top: 28px; }
   font-size: 0.95rem;
   margin-bottom: 10px;
   box-shadow: 0 0 8px rgba(0,229,255,0.08);
-  transition: border 0.3s, box-shadow 0.3s;
 }
 #auditInput:focus {
   border-color: var(--accent);
   box-shadow: 0 0 14px rgba(0,229,255,0.3);
 }
 
-/* Button container */
 .audit-buttons {
   display: flex;
   justify-content: space-between;
@@ -203,7 +201,7 @@ section.grid, section.card { margin-top: 28px; }
   margin-top: 10px;
 }
 
-/* Refined gradient glow buttons */
+/* Animated gradient buttons (refined readability) */
 #auditSend, #auditVoice, .btn-glow-link {
   flex: 1 1 32%;
   padding: 12px 0;
@@ -214,22 +212,29 @@ section.grid, section.card { margin-top: 28px; }
   cursor: pointer;
   text-align: center;
   text-shadow: 0 0 3px rgba(0,0,0,0.3);
-  background-size: 200% 200%;
-  animation: smoothGradient 6s ease infinite;
+  background-size: 250% 250%;
+  animation: btnGradientShift 8s ease infinite;
   transition: transform 0.25s, box-shadow 0.25s;
 }
 
-/* Gentle readable gradients */
-#auditSend { background: linear-gradient(90deg, var(--accent), var(--green)); }
-#auditVoice { background: linear-gradient(90deg, var(--purple), var(--accent)); }
-.btn-glow-link { background: linear-gradient(90deg, var(--orange), var(--red)); }
+/* Refined color combinations for readability */
+#auditSend {
+  background: linear-gradient(90deg, var(--accent), var(--green), var(--blue));
+}
+#auditVoice {
+  background: linear-gradient(90deg, var(--purple), var(--accent), var(--green));
+}
+.btn-glow-link {
+  background: linear-gradient(90deg, var(--orange), var(--red), var(--purple));
+  box-shadow: 0 0 12px rgba(255,76,76,0.4);
+}
 
 #auditSend:hover, #auditVoice:hover, .btn-glow-link:hover {
   transform: scale(1.05);
   box-shadow: 0 0 18px rgba(0,229,255,0.45);
 }
 
-@keyframes smoothGradient {
+@keyframes btnGradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -243,6 +248,7 @@ section.grid, section.card { margin-top: 28px; }
   margin-top: 6px;
 }
 
+/* Responsive stacking */
 @media (max-width: 700px) {
   .audit-buttons { flex-direction: column; align-items: stretch; }
   #auditSend, #auditVoice, .btn-glow-link { width: 100%; }
