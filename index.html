@@ -258,6 +258,39 @@ setInterval(updateTimer, 60000); // update every minute
     <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
   </div>
 </footer>
+<!-- 🔐 Security Recertification Countdown -->
+<p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
+  🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
+</p>
+
+<script>
+// ===== CONFIGURE EXPIRY DATE HERE =====
+const expiryDate = new Date("2026-10-10T00:00:00Z"); // ✅ updated RFC9116 timestamp
+
+function updateTimer() {
+  const now = new Date();
+  const diff = expiryDate - now;
+
+  const countdownEl = document.getElementById("updateCountdown");
+  if (!countdownEl) return;
+
+  if (diff <= 0) {
+    countdownEl.innerHTML = "<span style='color:red;'>Expired! Update now.</span>";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const mins = Math.floor((diff / (1000 * 60)) % 60);
+
+  let msg = `${days} days, ${hours} hrs, ${mins} min remaining`;
+  if (days < 30) msg = `<span style="color:orange;">${msg}</span>`;
+  countdownEl.innerHTML = msg;
+}
+
+updateTimer();
+setInterval(updateTimer, 60000);
+</script>
 
 
 <script>
