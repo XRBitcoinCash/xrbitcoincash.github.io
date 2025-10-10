@@ -1,228 +1,176 @@
 /* =========================================
-   XRBitcoinCash (XRBC) — Core Stylesheet
-   File: xrbc.css
+   XRBitcoinCash (XRBC) — Optimized Core Stylesheet
    ========================================= */
 
 /* === 1) THEME TOKENS === */
-:root{
-  --bg:#0B1020;
-  --card:#0F1724;
-  --ink:#ECF3FF;
-  --muted:#9EB2D0;
-  --accent:#00E5FF;
+:root {
+  --bg: #0B1020;
+  --card: #0F1724;
+  --ink: #ECF3FF;
+  --muted: #9EB2D0;
+  --accent: #00E5FF;
 
-  --green:#28e07f;
-  --blue:#00b6ff;
-  --white:#ffffff;
-  --red:#ff4c4c;
-  --orange:#ffaf40;
-  --purple:#a36bff;
+  --green: #28e07f;
+  --blue: #00b6ff;
+  --white: #ffffff;
+  --red: #ff4c4c;
+  --orange: #ffaf40;
+  --purple: #a36bff;
 }
 
 /* === 2) RESET === */
-*,*::before,*::after{box-sizing:border-box}
-html,body{
-  height:100%;
-  margin:0;
-  font-family:Inter, Segoe UI, Roboto, system-ui, Arial, sans-serif;
-  color:var(--ink);
-  background:var(--bg);
-  line-height:1.6;
-  overflow-x:hidden;
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, Segoe UI, Roboto, system-ui, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
-/* === 3) HEADER (logo size clamped) === */
-header{
-  position:fixed; top:0; left:0; width:100%;
-  background:rgba(11,16,32,.7);
-  backdrop-filter:blur(8px);
-  z-index:999;
-  padding:10px 18px;
-  display:flex; align-items:center; justify-content:space-between;
-  gap:8px; flex-wrap:wrap;
+/* === 3) HEADER === */
+header {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  background: rgba(11, 16, 32, .7);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  padding: 10px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap;
 }
-.brand{ display:flex; gap:12px; align-items:center; }
-.brand img{ width:48px; height:48px; border-radius:8px; object-fit:contain; }
-.brand h1{ margin:0; font-size:1.05rem; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.brand img { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; }
+.brand h1 { margin: 0; font-size: 1.05rem; }
 
 /* === 4) MAIN WRAPPER === */
-main{
-  position:relative; z-index:2;
-  max-width:1000px; margin:0 auto;
-  padding:24px; padding-top:110px;
+main {
+  position: relative; z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+  padding-top: 110px;
 }
 
-/* === 5) HERO LAYOUT (mobile-first) === */
-.hero{
-  display:flex; flex-direction:column; gap:22px;
-  padding:20px;
-  background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-  border:1px solid rgba(255,255,255,0.05);
-  border-radius:14px;
-  margin-top:22px;
+/* === 5) HERO LAYOUT === */
+.hero {
+  display: flex; flex-direction: column; gap: 22px;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  margin-top: 22px;
 }
-.hero h2{ margin:0; font-size:1.9rem; }
-.hero p{ margin:6px 0 0; color:var(--muted); }
+.hero h2 { margin: 0; font-size: 1.9rem; }
+.hero p { margin: 6px 0 0; color: var(--muted); }
 
 /* particles */
-.particles{ position:absolute; inset:0; pointer-events:none; }
-.particle{
-  position:absolute; width:6px; height:6px; background:var(--accent);
-  border-radius:50%; box-shadow:0 0 6px var(--accent); animation:float 6s infinite ease-in-out;
+.particles { position: absolute; inset: 0; pointer-events: none; }
+.particle {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--accent);
+  animation: float 6s infinite ease-in-out;
 }
-@keyframes float{
-  0%,100%{ transform:translateY(0) scale(1); opacity:1; }
-  50%{ transform:translateY(-20px) scale(1.2); opacity:.6; }
-}
-
-/* Desktop: text + NFT side by side */
-@media (min-width: 880px){
-  .hero{ flex-direction:row; align-items:flex-start; justify-content:space-between; gap:32px; }
-}
-
-/* === 6) BUTTONS & GROUP (even spacing, centered, wrap) === */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  gap:10px; padding:12px 20px;
-  border-radius:12px; font-size:1.05rem; font-weight:700;
-  text-decoration:none; cursor:pointer; text-align:center;
-  transition:transform .2s ease, box-shadow .3s ease;
-  min-width:180px; /* avoid ballooning */
-  max-width:280px; /* keep tidy on wide screens */
-}
-.btn:hover{ transform:translateY(-2px); }
-
-.btn.primary{ background:linear-gradient(180deg,var(--accent),#00b6d0); color:#00121a; }
-.btn.ghost{ background:transparent; border:2px solid var(--accent); color:var(--accent); }
-.btn.cta{ background:linear-gradient(180deg,var(--green),#1bb866); color:#001a0f; font-weight:800; }
-
-.button-group{
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  gap:16px; margin-top:18px;
-}
-.button-group .btn{ flex:1 1 210px; }
-
-/* === 7) GLOW SYSTEM === */
-/* explicit glows (you already use these in HTML) */
-.glow-green{ animation:glowPulse 5s ease-in-out infinite; --glow:rgba(40,224,127,.75); }
-.glow-blue{  animation:glowPulse 5s ease-in-out infinite; --glow:rgba(0,182,255,.75); }
-.glow-white{ animation:glowPulse 6s ease-in-out infinite; --glow:rgba(255,255,255,.75); }
-.glow-red{   animation:glowPulse 4.5s ease-in-out infinite; --glow:rgba(255,76,76,.75); }
-
-/* randomized hues ONLY for buttons that don't already have a glow class */
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(1){ --glow:rgba(0,182,255,.7);   animation:glowPulse 5s ease-in-out infinite; }
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(2){ --glow:rgba(255,175,64,.75);  animation:glowPulse 5.2s ease-in-out infinite; }
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(3){ --glow:rgba(163,107,255,.75); animation:glowPulse 5.4s ease-in-out infinite; }
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(4){ --glow:rgba(0,255,128,.7);    animation:glowPulse 5.6s ease-in-out infinite; }
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(5){ --glow:rgba(255,255,255,.7);  animation:glowPulse 5.8s ease-in-out infinite; }
-.button-group .btn:not(.glow-green):not(.glow-blue):not(.glow-white):not(.glow-red):nth-child(6){ --glow:rgba(255,76,76,.7);    animation:glowPulse 6s ease-in-out infinite; }
-
-/* the pulse uses the --glow color set above */
-@keyframes glowPulse{
-  0%,100%{ box-shadow:0 0 8px var(--glow, transparent); }
-  50%    { box-shadow:0 0 20px var(--glow, transparent); }
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 1; }
+  50% { transform: translateY(-20px) scale(1.2); opacity: .6; }
 }
 
-/* === 8) CARDS & GRID (consistent spacing) === */
-section.grid,
-section.card{ margin-top:28px; }
-
-.card{
-  background:var(--card);
-  padding:18px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.04);
-  transition:transform .2s, border-color .2s;
+@media (min-width: 880px) {
+  .hero { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 32px; }
 }
-.card:hover{ transform:translateY(-4px); border-color:rgba(0,229,255,.25); }
 
-/* NFT "trading card" sizing — no more giant image */
-.nft img{
-  display:block; margin:0 auto;
-  width:100%; max-width:320px; height:auto;
-  border-radius:12px;
+/* === 6) BUTTONS === */
+.btn {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  gap: 10px; padding: 12px 20px;
+  border-radius: 12px; font-size: 1.05rem; font-weight: 700;
+  text-decoration: none; cursor: pointer; text-align: center;
+  transition: transform .2s ease, box-shadow .3s ease;
+  min-width: 180px; max-width: 280px;
+}
+.btn:hover { transform: translateY(-2px); }
+
+.btn.primary { background: linear-gradient(180deg, var(--accent), #00b6d0); color: #00121a; }
+.btn.ghost { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+.btn.cta { background: linear-gradient(180deg, var(--green), #1bb866); color: #001a0f; font-weight: 800; }
+
+.button-group {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 16px; margin-top: 18px;
+}
+.button-group .btn { flex: 1 1 210px; }
+
+/* === 7) GLOW EFFECT === */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--glow, transparent); }
+  50% { box-shadow: 0 0 20px var(--glow, transparent); }
+}
+.glow-green { --glow: rgba(40,224,127,.75); animation: glowPulse 5s infinite ease-in-out; }
+.glow-blue { --glow: rgba(0,182,255,.75); animation: glowPulse 5s infinite ease-in-out; }
+.glow-white { --glow: rgba(255,255,255,.75); animation: glowPulse 6s infinite ease-in-out; }
+.glow-red { --glow: rgba(255,76,76,.75); animation: glowPulse 4.5s infinite ease-in-out; }
+
+/* === 8) CARDS === */
+section.grid, section.card { margin-top: 28px; }
+.card {
+  background: var(--card);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.04);
+  transition: transform .2s, border-color .2s;
+}
+.card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,.25); }
+
+.nft img {
+  display: block; margin: 0 auto;
+  width: 100%; max-width: 320px; border-radius: 12px;
 }
 
 /* content grid */
-.grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:18px; align-items:start;
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px; align-items: start;
 }
-@media (min-width: 880px){
-  .grid{ grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); }
-}
-
-/* === 9) FOOTER (as previously working) === */
-.ecosystem-footer{
-  text-align:center;
-  margin-top:60px;
-  padding:40px 20px;
-  border-top:1px solid rgba(0,229,255,.1);
-}
-.footer-container h3{ margin-bottom:10px; }
-.ecosystem-links{
-  display:flex; justify-content:center; flex-wrap:wrap; gap:16px; margin-top:10px;
-}
-.eco-link{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:10px 16px; border-radius:12px;
-  text-decoration:none; color:var(--ink); font-weight:600; transition:.3s;
-  background:rgba(0,255,128,.05); box-shadow:0 0 12px rgba(0,255,128,.3);
-}
-.eco-link img{ width:28px; height:28px; border-radius:6px; object-fit:contain; }
-.eco-link:hover{
-  background:rgba(0,255,128,.15);
-  box-shadow:0 0 18px rgba(0,255,128,.8);
-  transform:translateY(-2px); color:#00ff80;
+@media (min-width: 880px) {
+  .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 }
 
-/* === 10) THEME TOGGLE === */
-.toggle-theme{
-  position:fixed; top:16px; right:16px;
-  background:var(--card);
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:50%;
-  width:42px; height:42px;
-  color:var(--accent);
-  font-size:20px;
-  cursor:pointer; z-index:1000;
-  transition:background .3s, transform .2s;
+/* === 9) FOOTER === */
+.ecosystem-footer {
+  text-align: center;
+  margin-top: 60px;
+  padding: 40px 20px;
+  border-top: 1px solid rgba(0,229,255,.1);
 }
-.toggle-theme:hover{ transform:scale(1.1) }
-
-body.light-mode{
-  --bg:#f9fafc;
-  --card:#ffffff;
-  --ink:#111;
-  --muted:#555;
-  --accent:#0078ff;
+.footer-container h3 { margin-bottom: 10px; }
+.ecosystem-links {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 16px; margin-top: 10px;
 }
-
-/* === 11) RESPONSIVE TWEAKS === */
-@media (max-width: 768px){
-  .btn{ min-width:160px; padding:12px 16px; font-size:1rem; max-width:100%; }
-  .button-group{ gap:12px; }
-  .brand img{ width:40px; height:40px; }
+.eco-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 12px;
+  text-decoration: none; color: var(--ink); font-weight: 600;
+  transition: .3s;
+  background: rgba(0,255,128,.05);
+  box-shadow: 0 0 12px rgba(0,255,128,.3);
+}
+.eco-link img { width: 28px; height: 28px; border-radius: 6px; }
+.eco-link:hover {
+  background: rgba(0,255,128,.15);
+  box-shadow: 0 0 18px rgba(0,255,128,.8);
+  transform: translateY(-2px); color: #00ff80;
 }
 
-.feature.card p strong {
-  word-break: break-all;
-  overflow-wrap: anywhere;
-  font-size: 0.95rem; /* slightly smaller so it fits neatly */
-  display: inline-block;
-  line-height: 1.4;
-}
-/* =========================================
-   12) SECURITY CENTER — ENHANCED INPUT + BUTTONS
-   ========================================= */
-
-/* Container transitions */
-#auditWidget {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Larger, scrollable text area for questions */
+/* === 10) SECURITY CENTER INPUT + BUTTONS === */
 #auditInput {
   width: 100%;
   min-height: 80px;
@@ -237,14 +185,13 @@ body.light-mode{
   outline: none;
   margin-bottom: 10px;
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.08);
+  transition: all 0.3s ease-in-out;
 }
-
 #auditInput:focus {
   border-color: var(--accent);
   box-shadow: 0 0 18px rgba(0, 229, 255, 0.3);
 }
 
-/* Button container layout */
 .audit-input-wrap {
   display: flex;
   justify-content: space-between;
@@ -254,74 +201,39 @@ body.light-mode{
   margin-top: 6px;
 }
 
-/* Animated gradient buttons (matching hero section aesthetic) */
-#auditSend,
-#auditVoice {
-  flex: 1 1 48%;
+/* Animated gradient buttons */
+#auditSend, #auditVoice, .btn-glow-link {
+  flex: 1 1 31%;
   padding: 12px;
   border-radius: 10px;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
   border: none;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(
-    90deg,
-    var(--accent),
-    var(--green),
-    var(--purple),
-    var(--orange)
-  );
+  text-shadow: 0 0 4px rgba(0,0,0,0.3);
   background-size: 300% 300%;
   animation: auditBtnGradient 6s ease infinite;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#auditSend:hover,
-#auditVoice:hover {
+/* Shared hover effect */
+#auditSend:hover, #auditVoice:hover, .btn-glow-link:hover {
   transform: scale(1.05);
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
 }
 
+/* Gradients per button */
+#auditSend { background: linear-gradient(90deg, var(--accent), var(--green), var(--purple), var(--orange)); }
+#auditVoice { background: linear-gradient(90deg, var(--accent), var(--purple), var(--green), var(--orange)); }
+.btn-glow-link { background: linear-gradient(90deg, var(--red), #ff7070, var(--orange), var(--red)); box-shadow: 0 0 14px rgba(255,76,76,0.45); }
+
 @keyframes auditBtnGradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* Mobile optimization: stack buttons vertically */
 @media (max-width: 600px) {
-  .audit-input-wrap {
-    flex-direction: column;
-  }
-  #auditSend,
-  #auditVoice {
-    width: 100%;
-  }
-}
-/* ===== ChatGPT Link Button (between Send & Voice) ===== */
-.btn-glow-link {
-  background: linear-gradient(90deg, #00e5ff, #3b82f6);
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.9rem;
-  color: #fff;
-  font-weight: 600;
-  text-shadow: 0 0 6px rgba(0,229,255,0.6);
-  box-shadow: 0 0 12px rgba(0,229,255,0.4);
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-
-.btn-glow-link:hover {
-  box-shadow: 0 0 20px rgba(0,229,255,0.8);
-  transform: scale(1.05);
-  background: linear-gradient(90deg, #22d3ee, #60a5fa);
+  .audit-input-wrap { flex-direction: column; }
+  #auditSend, #auditVoice, .btn-glow-link { width: 100%; }
 }
