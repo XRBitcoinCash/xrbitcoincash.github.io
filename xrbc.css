@@ -10,10 +10,23 @@
   --ink: #ECF3FF;
   --muted: #9EB2D0;
   --accent: #00E5FF;
+  --accent-green: #00ff80;
+  --accent-blue: #00aaff;
+  --accent-gold: #ffffff;
+  --accent-red: #ff4444;
   --spacing: 16px;
 }
 
-/* === 2. RESET === */
+/* === 2. LIGHT MODE === */
+body.light-mode {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --ink: #101420;
+  --muted: #4b566e;
+  --accent: #00b6d0;
+}
+
+/* === 3. RESET === */
 *, *::before, *::after { box-sizing: border-box; }
 html, body {
   height: 100%;
@@ -22,99 +35,35 @@ html, body {
   color: var(--ink);
   background: var(--bg);
   line-height: 1.6;
-}
-
-/* === 3. BACKGROUND ELEMENTS === */
-.bg-blob {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
-    radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
-  filter: blur(28px);
-  animation: blob 22s linear infinite;
-}
-@keyframes blob {
-  0% { transform: translate(0,0); }
-  50% { transform: translate(-5%,4%); }
-  100% { transform: translate(0,0); }
-}
-
-.bg-logo {
-  position: fixed; inset: 0;
-  background: url('/xrbc-nft.png') center/300px no-repeat;
-  opacity: 0.04;
-  z-index: 0; pointer-events: none;
-}
-
-.page-frame {
-  position: fixed; inset: 12px;
-  border-radius: 16px;
-  border: 2px solid rgba(0,229,255,0.10);
-  pointer-events: none;
-  z-index: 5;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 /* === 4. HEADER === */
 header {
-  position: fixed; top: 0; width: 100%;
+  position: fixed;
+  top: 0;
+  width: 100%;
   background: rgba(11, 16, 32, 0.7);
   backdrop-filter: blur(8px);
   z-index: 999;
   padding: 10px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-  max-width: 1200px; margin: 0 auto;
-  flex-wrap: wrap; gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .brand { display: flex; gap: 12px; align-items: center; }
 .brand img { width: 44px; height: 44px; border-radius: 8px; }
 .brand h1 { font-size: 1.05rem; margin: 0; }
 
-nav { display: flex; flex-wrap: wrap; gap: 10px; }
-nav a {
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: 0.2s;
-}
-nav a:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
-nav a.cta {
-  background: linear-gradient(180deg,var(--accent),#00b6d0);
-  color: #00121a;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0,229,255,0.3);
-}
-
-/* === 5. MAIN LAYOUT === */
-main {
-  position: relative; z-index: 2;
-  max-width: 1000px;
-  margin: 46px auto;
-  padding: 24px;
-  padding-top: 100px;
-}
-
-/* === 6. HERO SECTION === */
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 14px;
-}
-.hero h2 { font-size: 1.9rem; margin: 0; }
-.hero p { color: var(--muted); margin-top: 6px; max-width: 100%; }
-.hero .actions { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
-.hero .actions .btn { width: 100%; justify-content: center; }
-
-/* === 7. BUTTONS === */
+/* === 5. BUTTONS === */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
   padding: 14px 24px;
   border-radius: 12px;
@@ -125,162 +74,68 @@ main {
   min-width: 200px;
   text-align: center;
   color: #00121a;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  transition: all 0.25s ease;
 }
-.btn:hover { transform: translateY(-2px); }
 
+/* Glow Variants */
 .btn.primary {
-  background: linear-gradient(180deg, var(--accent), #00b6d0);
-  color: #00121a;
-  box-shadow: 0 4px 12px rgba(0,229,255,0.3);
-  animation: pulse 10s infinite;
+  background: linear-gradient(180deg, var(--accent-green), #1bb866);
+  color: #001a0f;
+  box-shadow: 0 0 20px var(--accent-green);
 }
+.btn.primary:hover { transform: translateY(-2px) scale(1.02); }
+
 .btn.ghost {
   background: transparent;
   border: 2px solid var(--accent);
   color: var(--accent);
 }
-.btn.cta {
-  background: linear-gradient(180deg, #28e07f, #1bb866);
-  color: #001a0f;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(40, 224, 127, 0.4);
-  border: none;
+
+.btn.whitepaper {
+  background: #fff;
+  color: #001420;
+  box-shadow: 0 0 16px rgba(255,255,255,0.8);
 }
-.btn.cta:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 18px rgba(40, 224, 127, 0.6);
-}
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0px var(--accent); }
-  50% { box-shadow: 0 0 12px var(--accent); }
+.btn.whitepaper:hover {
+  box-shadow: 0 0 24px rgba(255,255,255,1);
 }
 
-.button-group {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: center;
-}
-
-/* === 8. CARDS === */
+/* === 6. CARD STYLES === */
 .card {
   background: var(--card);
   padding: 18px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.04);
-  min-height: 200px;
-  transition: transform 0.2s, border-color 0.2s;
-}
-.card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0,229,255,0.25);
-}
-.card p { word-break: break-word; }
-.nft img { width: 100%; border-radius: 12px; }
-
-/* === 9. GRID === */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-  margin-top: 26px;
-  align-items: start;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s ease;
 }
 
-/* === 10. STATS === */
-.stats {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
+/* Special glowing cards */
+.card.security {
+  border: 2px solid rgba(255,0,0,0.4);
+  box-shadow: 0 0 24px rgba(255,0,0,0.6);
 }
-.stat { text-align: center; }
-.stat-number { font-size: 1.6rem; font-weight: bold; color: var(--accent); }
+.card.security:hover {
+  box-shadow: 0 0 40px rgba(255,0,0,0.8);
+}
 
-/* === 11. FOOTER === */
+.card.artwork {
+  box-shadow: 0 0 20px rgba(0,255,128,0.5);
+  transition: all 0.3s ease-in-out;
+}
+.card.artwork:hover {
+  box-shadow: 0 0 35px rgba(0,255,128,0.9);
+}
+
+/* === 7. FOOTER === */
 footer {
   max-width: 1000px;
-  margin: 28px auto 60px;
-  padding: 18px;
+  margin: 40px auto 60px;
+  padding: 24px;
   text-align: center;
   color: var(--muted);
 }
 
-/* === 12. SOCIAL ICONS === */
-.social-bar {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.social-bar a {
-  background: var(--card);
-  padding: 8px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-/* === 13. PARTICLES === */
-.particles { position: absolute; inset: 0; pointer-events: none; }
-.particle {
-  position: absolute;
-  width: 6px; height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--accent);
-  animation: float 6s infinite ease-in-out;
-}
-@keyframes float {
-  0%,100% { transform: translateY(0) scale(1); opacity: 1; }
-  50% { transform: translateY(-20px) scale(1.2); opacity: 0.6; }
-}
-
-/* === 14. AUDIT INPUT === */
-.audit-input-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  margin-top: 12px;
-}
-.audit-input-wrap input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  background: #111827;
-  color: #ECF3FF;
-  font-size: 1rem;
-}
-.audit-input-wrap button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-/* === 15. RESPONSIVE === */
-@media (min-width: 600px) {
-  .audit-input-wrap { flex-direction: row; align-items: center; }
-  .audit-input-wrap input { flex: 1; margin-right: 10px; }
-  .audit-input-wrap button { width: auto; flex: 0 0 auto; }
-}
-@media (max-width: 600px) {
-  #auditVoice { display: none !important; }
-}
-@media (min-width: 880px) {
-  nav a { margin-left: 16px; }
-  .hero { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: 40px; }
-  .hero .actions { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; }
-  .stats { flex-direction: row; justify-content: space-around; }
-  .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-}
-/* === ECOSYSTEM FOOTER GLOW ENHANCEMENT === */
+/* === 8. ECOSYSTEM FOOTER GLOWS === */
 .ecosystem-footer {
   text-align: center;
   margin-top: 60px;
@@ -290,41 +145,77 @@ footer {
   z-index: 2;
 }
 
-.ecosystem-footer .eco-link {
+.ecosystem-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.eco-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin: 10px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: rgba(0, 255, 128, 0.05);
-  box-shadow: 0 0 12px rgba(0, 255, 128, 0.4);
+  padding: 10px 20px;
+  border-radius: 14px;
+  background: rgba(0,255,128,0.08);
   text-decoration: none;
   color: var(--ink);
   font-weight: 600;
-  transition: 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  animation: breathe 6s ease-in-out infinite;
 }
 
-.eco-link img {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+/* Distinct glow per token */
+.eco-link.xrbc {
+  box-shadow: 0 0 25px rgba(0,255,128,0.7);
+}
+.eco-link.xrbitcoin {
+  box-shadow: 0 0 25px rgba(0,150,255,0.7);
+}
+.eco-link.jcs {
+  box-shadow: 0 0 25px rgba(255,255,255,0.7);
 }
 
 .eco-link:hover {
-  background: rgba(0, 255, 128, 0.15);
-  box-shadow: 0 0 18px rgba(0, 255, 128, 0.8);
-  transform: translateY(-2px);
-  color: #00ff80;
+  transform: translateY(-2px) scale(1.03);
+  filter: brightness(1.2);
 }
 
-/* Optional subtle animation for glowing effect */
-@keyframes softGlow {
-  0% { box-shadow: 0 0 8px rgba(0,255,128,0.3); }
-  50% { box-shadow: 0 0 20px rgba(0,255,128,0.7); }
-  100% { box-shadow: 0 0 8px rgba(0,255,128,0.3); }
+@keyframes breathe {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
 
-.eco-link {
-  animation: softGlow 6s ease-in-out infinite;
+/* === 9. LIGHT/DARK TOGGLE === */
+.toggle-theme {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: var(--card);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 9999;
+}
+.toggle-theme:hover {
+  transform: rotate(20deg);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+/* === 10. RESPONSIVE === */
+@media (max-width: 700px) {
+  .brand img { width: 36px; height: 36px; }
+  .btn { font-size: 1rem; padding: 10px 18px; min-width: 160px; }
+  .eco-link { padding: 8px 14px; font-size: 0.9rem; }
 }
