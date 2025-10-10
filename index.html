@@ -529,6 +529,27 @@ saveChatHistory();
   );
 })();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("auditToggle");
+  const widget = document.getElementById("auditWidget");
+
+  if (!toggle || !widget) {
+    console.warn("⚠️ AuditToggle or AuditWidget not found in DOM.");
+    return;
+  }
+
+  // Make sure the widget toggles instantly when clicked.
+  toggle.addEventListener("click", () => {
+    widget.style.display =
+      widget.style.display === "none" || widget.style.display === ""
+        ? "block"
+        : "none";
+  });
+
+  console.log("✅ Ask ChatGPT button initialized successfully.");
+});
+</script>
 
 
 
