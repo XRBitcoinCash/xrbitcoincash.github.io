@@ -1,6 +1,6 @@
 /* =========================================
    XRBitcoinCash (XRBC) — Core Stylesheet
-   File: xrbc.css
+   File: xrbc.css (refined layout & glow)
    ========================================= */
 
 /* === 1. THEME TOKENS === */
@@ -14,6 +14,8 @@
   --blue: #00b6ff;
   --white: #ffffff;
   --red: #ff4c4c;
+  --orange: #ffaf40;
+  --purple: #a36bff;
 }
 
 /* === 2. RESET === */
@@ -32,7 +34,7 @@ html, body {
 header {
   position: fixed;
   top: 0; left: 0; width: 100%;
-  background: rgba(11, 16, 32, 0.7);
+  background: rgba(11,16,32,0.7);
   backdrop-filter: blur(8px);
   z-index: 999;
   padding: 10px 18px;
@@ -43,23 +45,17 @@ header {
   gap: 8px;
 }
 .brand { display: flex; gap: 12px; align-items: center; }
-.brand img {
-  width: 48px;
-  height: 48px;
-  max-width: 100%;
-  border-radius: 8px;
-  object-fit: contain;
-}
+.brand img { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; }
 .brand h1 { font-size: 1.05rem; margin: 0; }
 
-/* === 4. MAIN LAYOUT === */
+/* === 4. MAIN === */
 main {
   position: relative;
   z-index: 2;
   max-width: 1000px;
   margin: 0 auto;
   padding: 24px;
-  padding-top: 100px;
+  padding-top: 110px;
 }
 
 /* === 5. BUTTONS === */
@@ -80,79 +76,67 @@ main {
 }
 .btn:hover { transform: translateY(-2px); }
 
-.btn.primary {
-  background: linear-gradient(180deg, var(--accent), #00b6d0);
-  color: #00121a;
+.btn.primary { background: linear-gradient(180deg, var(--accent), #00b6d0); color: #00121a; }
+.btn.ghost { background: transparent; border: 2px solid var(--accent); color: var(--accent); }
+.btn.cta { background: linear-gradient(180deg, var(--green), #1bb866); color: #001a0f; font-weight: 800; }
+
+/* --- HERO BUTTON SPACING --- */
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
 }
-.btn.ghost {
-  background: transparent;
-  border: 2px solid var(--accent);
-  color: var(--accent);
-}
-.btn.cta {
-  background: linear-gradient(180deg, var(--green), #1bb866);
-  color: #001a0f;
-  font-weight: 800;
+.button-group .btn {
+  flex: 1 1 220px;
+  max-width: 280px;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.25);
 }
 
-/* === 6. SELECTIVE GLOWS === */
-.glow-green {
-  box-shadow: 0 0 14px rgba(40, 224, 127, 0.6);
-  animation: softGreen 4s ease-in-out infinite;
-}
-.glow-blue {
-  box-shadow: 0 0 14px rgba(0, 182, 255, 0.6);
-  animation: softBlue 4s ease-in-out infinite;
-}
-.glow-white {
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
-  animation: softWhite 5s ease-in-out infinite;
-}
-.glow-red {
-  box-shadow: 0 0 16px rgba(255, 76, 76, 0.6);
-  animation: softRed 3.5s ease-in-out infinite;
+/* --- RANDOMIZED COLOR GLOWS --- */
+.button-group .btn:nth-child(1) { animation: glowGreen 5s infinite; }
+.button-group .btn:nth-child(2) { animation: glowBlue 5s infinite; }
+.button-group .btn:nth-child(3) { animation: glowOrange 5s infinite; }
+.button-group .btn:nth-child(4) { animation: glowPurple 5s infinite; }
+.button-group .btn:nth-child(5) { animation: glowWhite 6s infinite; }
+
+@keyframes glowGreen { 0%,100%{box-shadow:0 0 10px rgba(0,255,128,0.4);} 50%{box-shadow:0 0 20px rgba(0,255,128,0.8);} }
+@keyframes glowBlue { 0%,100%{box-shadow:0 0 10px rgba(0,182,255,0.4);} 50%{box-shadow:0 0 20px rgba(0,182,255,0.8);} }
+@keyframes glowWhite { 0%,100%{box-shadow:0 0 10px rgba(255,255,255,0.4);} 50%{box-shadow:0 0 20px rgba(255,255,255,0.8);} }
+@keyframes glowOrange { 0%,100%{box-shadow:0 0 10px rgba(255,175,64,0.4);} 50%{box-shadow:0 0 20px rgba(255,175,64,0.9);} }
+@keyframes glowPurple { 0%,100%{box-shadow:0 0 10px rgba(163,107,255,0.4);} 50%{box-shadow:0 0 20px rgba(163,107,255,0.9);} }
+
+/* === 6. CARD SPACING & IMAGE FIX === */
+section.hero,
+section.grid,
+section.card {
+  margin-top: 36px;
 }
 
-@keyframes softGreen {
-  0%, 100% { box-shadow: 0 0 8px rgba(40,224,127,0.4); }
-  50% { box-shadow: 0 0 20px rgba(40,224,127,0.8); }
-}
-@keyframes softBlue {
-  0%, 100% { box-shadow: 0 0 8px rgba(0,182,255,0.4); }
-  50% { box-shadow: 0 0 18px rgba(0,182,255,0.8); }
-}
-@keyframes softWhite {
-  0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,0.4); }
-  50% { box-shadow: 0 0 22px rgba(255,255,255,0.8); }
-}
-@keyframes softRed {
-  0%, 100% { box-shadow: 0 0 8px rgba(255,76,76,0.4); }
-  50% { box-shadow: 0 0 20px rgba(255,76,76,0.8); }
-}
-
-/* === 7. CARDS === */
 .card {
   background: var(--card);
-  padding: 18px;
+  padding: 20px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.04);
   transition: transform 0.2s, border-color 0.2s;
 }
-.card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(0,229,255,0.25);
-}
-.nft.glow-green {
-  box-shadow: 0 0 20px rgba(40, 224, 127, 0.6);
-  animation: softGreen 5s infinite;
+.card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,0.25); }
+.nft img {
+  display: block;
+  margin: 0 auto;
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
 }
 
-/* === 8. FOOTER (Restored) === */
+/* === 7. FOOTER === */
 .ecosystem-footer {
   text-align: center;
   margin-top: 60px;
   padding: 40px 20px;
-  border-top: 1px solid rgba(0, 229, 255, 0.1);
+  border-top: 1px solid rgba(0,229,255,0.1);
 }
 .footer-container h3 { margin-bottom: 10px; }
 
@@ -180,13 +164,11 @@ main {
   border-radius: 6px;
   object-fit: contain;
 }
+.eco-link.xrbc img { animation: glowGreen 6s infinite; }
+.eco-link.xrbitcoin img { animation: glowBlue 6s infinite; }
+.eco-link.jcs img { animation: glowWhite 6s infinite; }
 
-/* per-logo glows */
-.eco-link.xrbc img { box-shadow: 0 0 12px rgba(40,224,127,0.6); animation: softGreen 6s infinite; }
-.eco-link.xrbitcoin img { box-shadow: 0 0 12px rgba(0,182,255,0.6); animation: softBlue 6s infinite; }
-.eco-link.jcs img { box-shadow: 0 0 12px rgba(255,255,255,0.6); animation: softWhite 6s infinite; }
-
-/* Twitter inline with links */
+/* --- TWITTER INLINE WITH LINKS --- */
 .footer-socials {
   display: flex;
   justify-content: center;
@@ -197,18 +179,17 @@ main {
 .footer-socials a img {
   width: 26px;
   height: 26px;
-  transition: 0.3s ease-in-out;
+  transition: 0.3s;
 }
 .footer-socials a img:hover {
   transform: scale(1.15);
   filter: drop-shadow(0 0 6px var(--accent));
 }
 
-/* === 9. LIGHT/DARK TOGGLE === */
+/* === 8. LIGHT/DARK TOGGLE === */
 .toggle-theme {
   position: fixed;
-  top: 16px;
-  right: 16px;
+  top: 16px; right: 16px;
   background: var(--card);
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 50%;
@@ -229,9 +210,11 @@ body.light-mode {
   --accent: #0078ff;
 }
 
-/* === 10. RESPONSIVE === */
+/* === 9. RESPONSIVE === */
 @media (max-width: 768px) {
-  .btn { min-width: 160px; padding: 12px 18px; font-size: 1rem; }
+  .btn { min-width: 150px; padding: 12px 16px; font-size: 1rem; }
   .brand img { width: 40px; height: 40px; }
+  .button-group { gap: 12px; }
+  .nft img { max-width: 100%; }
   .ecosystem-links, .footer-socials { flex-wrap: wrap; }
 }
