@@ -190,11 +190,12 @@ setInterval(updateTimer, 60000); // update every minute
     </button>
   </div>
 
-  <div class="audit-input-wrap">
-    <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." />
-    <button id="auditSend" class="btn primary">Send</button>
-    <button id="auditVoice" class="btn ghost">🎤 Voice</button>
-  </div>
+ <div class="audit-input-wrap">
+  <textarea id="auditInput" placeholder="Ask ChatGPT about this project..." rows="3"></textarea>
+
+  <button id="auditSend" class="btn primary">Send</button>
+  <button id="auditVoice" class="btn ghost">🎤 Voice</button>
+</div>
 
   <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
 </div>
