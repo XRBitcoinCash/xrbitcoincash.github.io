@@ -205,3 +205,11 @@ body.light-mode{
   .button-group{ gap:12px; }
   .brand img{ width:40px; height:40px; }
 }
+
+.feature.card p strong {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem; /* slightly smaller so it fits neatly */
+  display: inline-block;
+  line-height: 1.4;
+}
