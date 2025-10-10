@@ -286,6 +286,25 @@ const MAX_WAIT_MS = 52000; // Allow full 50s+2s margin for Render cold-start
   let keepAliveInterval = null;
   let proxyTimedOut = false;
 
+// ===============================
+// ===  LOCAL CHAT MEMORY BLOCK ===
+// ===============================
+let chatHistory = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
+
+// save only the 10 most recent messages
+function saveChatHistory() {
+  sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
+}
+
+// load saved chat history back into view
+function loadChatHistory() {
+  chatHistory.forEach(entry => append(entry));
+}
+
+// immediately restore any existing session on page load
+loadChatHistory();
+
+  
   // ===== APPEND MESSAGE =====
   const append = html => {
     const wrapper = document.createElement("div");
@@ -404,7 +423,11 @@ async function showFallback() {
       return;
     }
 
-    append(`<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`);
+    const userMsg = `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
+append(userMsg);
+chatHistory.push(userMsg);
+saveChatHistory();
+
     const spinnerId = "spinner-" + Date.now();
     append(
       `<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`
@@ -444,8 +467,11 @@ async function showFallback() {
       const ans =
         data?.choices?.[0]?.message?.content ||
         "No answer (proxy connected but returned empty).";
-      append(
-        `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`
+const aiMsg = `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
+append(aiMsg);
+chatHistory.push(aiMsg);
+saveChatHistory();
+
       );
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
