@@ -267,3 +267,28 @@ section.grid, section.card { margin-top: 28px; }
   overflow-wrap: break-word;
   max-width: 100%;              /* Ensure it doesn’t exceed the card boundary */
 }
+/* === FIX: Theme Toggle Visibility & Position === */
+.toggle-theme {
+  position: fixed;
+  top: 72px; /* move it below the header (adjust 60–80px if needed) */
+  right: 16px;
+  z-index: 1200; /* ensure above header (header is z-index:999) */
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  color: var(--accent);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 0 10px rgba(0,229,255,0.3);
+}
+
+.toggle-theme:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(0,229,255,0.5);
+}
