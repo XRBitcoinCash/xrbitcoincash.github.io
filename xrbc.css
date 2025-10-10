@@ -231,3 +231,30 @@ body.light-mode {
   .brand img { width: 40px; height: 40px; }
   .footer-socials { flex-wrap: wrap; }
 }
+/* === GLOW EFFECTS === */
+.glow-green {
+  animation: glowGreen 4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(0,255,128,0.3);
+}
+@keyframes glowGreen {
+  0%, 100% { box-shadow: 0 0 10px rgba(0,255,128,0.4); }
+  50% { box-shadow: 0 0 20px rgba(0,255,128,0.8); }
+}
+
+.glow-white {
+  animation: glowWhite 4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255,255,255,0.3);
+}
+@keyframes glowWhite {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+  50% { box-shadow: 0 0 20px rgba(255,255,255,0.8); }
+}
+
+.glow-red {
+  animation: glowRed 4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(255,76,76,0.3);
+}
+@keyframes glowRed {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,76,76,0.4); }
+  50% { box-shadow: 0 0 20px rgba(255,76,76,0.8); }
+}
