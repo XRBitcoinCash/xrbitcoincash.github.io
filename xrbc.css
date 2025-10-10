@@ -25,6 +25,7 @@ html, body {
   color: var(--ink);
   background: var(--bg);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* === 3. HEADER === */
@@ -45,7 +46,9 @@ header {
 .brand img {
   width: 48px;
   height: 48px;
+  max-width: 100%;
   border-radius: 8px;
+  object-fit: contain;
 }
 .brand h1 { font-size: 1.05rem; margin: 0; }
 
@@ -87,12 +90,12 @@ main {
   color: var(--accent);
 }
 .btn.cta {
-  background: linear-gradient(180deg, #28e07f, #1bb866);
+  background: linear-gradient(180deg, var(--green), #1bb866);
   color: #001a0f;
   font-weight: 800;
 }
 
-/* === 6. GLOW EFFECTS (Selective) === */
+/* === 6. SELECTIVE GLOWS === */
 .glow-green {
   box-shadow: 0 0 14px rgba(40, 224, 127, 0.6);
   animation: softGreen 4s ease-in-out infinite;
@@ -111,8 +114,8 @@ main {
 }
 
 @keyframes softGreen {
-  0%, 100% { box-shadow: 0 0 8px rgba(40, 224, 127, 0.5); }
-  50% { box-shadow: 0 0 20px rgba(40, 224, 127, 0.9); }
+  0%, 100% { box-shadow: 0 0 8px rgba(40,224,127,0.4); }
+  50% { box-shadow: 0 0 20px rgba(40,224,127,0.8); }
 }
 @keyframes softBlue {
   0%, 100% { box-shadow: 0 0 8px rgba(0,182,255,0.4); }
@@ -120,11 +123,11 @@ main {
 }
 @keyframes softWhite {
   0%, 100% { box-shadow: 0 0 8px rgba(255,255,255,0.4); }
-  50% { box-shadow: 0 0 22px rgba(255,255,255,0.9); }
+  50% { box-shadow: 0 0 22px rgba(255,255,255,0.8); }
 }
 @keyframes softRed {
   0%, 100% { box-shadow: 0 0 8px rgba(255,76,76,0.4); }
-  50% { box-shadow: 0 0 20px rgba(255,76,76,0.9); }
+  50% { box-shadow: 0 0 20px rgba(255,76,76,0.8); }
 }
 
 /* === 7. CARDS === */
@@ -144,7 +147,7 @@ main {
   animation: softGreen 5s infinite;
 }
 
-/* === 8. FOOTER === */
+/* === 8. FOOTER (Restored) === */
 .ecosystem-footer {
   text-align: center;
   margin-top: 60px;
@@ -175,32 +178,33 @@ main {
   width: 28px;
   height: 28px;
   border-radius: 6px;
+  object-fit: contain;
 }
 
-/* specific logo glows */
-.eco-link.xrbc img { box-shadow: 0 0 14px rgba(40,224,127,0.6); animation: softGreen 6s infinite; }
-.eco-link.xrbitcoin img { box-shadow: 0 0 14px rgba(0,182,255,0.6); animation: softBlue 6s infinite; }
-.eco-link.jcs img { box-shadow: 0 0 14px rgba(255,255,255,0.6); animation: softWhite 6s infinite; }
+/* per-logo glows */
+.eco-link.xrbc img { box-shadow: 0 0 12px rgba(40,224,127,0.6); animation: softGreen 6s infinite; }
+.eco-link.xrbitcoin img { box-shadow: 0 0 12px rgba(0,182,255,0.6); animation: softBlue 6s infinite; }
+.eco-link.jcs img { box-shadow: 0 0 12px rgba(255,255,255,0.6); animation: softWhite 6s infinite; }
 
-/* === 9. SOCIAL ICON FIX === */
+/* Twitter inline with links */
 .footer-socials {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  gap: 12px;
+  gap: 14px;
+  margin-top: 16px;
 }
 .footer-socials a img {
   width: 26px;
   height: 26px;
-  filter: brightness(1.2);
-  transition: 0.3s;
+  transition: 0.3s ease-in-out;
 }
 .footer-socials a img:hover {
-  filter: brightness(1.9) drop-shadow(0 0 6px var(--accent));
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px var(--accent));
 }
 
-/* === 10. LIGHT/DARK TOGGLE === */
+/* === 9. LIGHT/DARK TOGGLE === */
 .toggle-theme {
   position: fixed;
   top: 16px;
@@ -225,36 +229,9 @@ body.light-mode {
   --accent: #0078ff;
 }
 
-/* === RESPONSIVE === */
+/* === 10. RESPONSIVE === */
 @media (max-width: 768px) {
   .btn { min-width: 160px; padding: 12px 18px; font-size: 1rem; }
   .brand img { width: 40px; height: 40px; }
-  .footer-socials { flex-wrap: wrap; }
-}
-/* === GLOW EFFECTS === */
-.glow-green {
-  animation: glowGreen 4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(0,255,128,0.3);
-}
-@keyframes glowGreen {
-  0%, 100% { box-shadow: 0 0 10px rgba(0,255,128,0.4); }
-  50% { box-shadow: 0 0 20px rgba(0,255,128,0.8); }
-}
-
-.glow-white {
-  animation: glowWhite 4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(255,255,255,0.3);
-}
-@keyframes glowWhite {
-  0%, 100% { box-shadow: 0 0 10px rgba(255,255,255,0.4); }
-  50% { box-shadow: 0 0 20px rgba(255,255,255,0.8); }
-}
-
-.glow-red {
-  animation: glowRed 4s ease-in-out infinite;
-  box-shadow: 0 0 8px rgba(255,76,76,0.3);
-}
-@keyframes glowRed {
-  0%, 100% { box-shadow: 0 0 10px rgba(255,76,76,0.4); }
-  50% { box-shadow: 0 0 20px rgba(255,76,76,0.8); }
+  .ecosystem-links, .footer-socials { flex-wrap: wrap; }
 }
