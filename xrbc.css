@@ -280,3 +280,51 @@ footer {
   .stats { flex-direction: row; justify-content: space-around; }
   .grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 }
+/* === ECOSYSTEM FOOTER GLOW ENHANCEMENT === */
+.ecosystem-footer {
+  text-align: center;
+  margin-top: 60px;
+  padding: 40px 20px;
+  border-top: 1px solid rgba(0, 229, 255, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.ecosystem-footer .eco-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(0, 255, 128, 0.05);
+  box-shadow: 0 0 12px rgba(0, 255, 128, 0.4);
+  text-decoration: none;
+  color: var(--ink);
+  font-weight: 600;
+  transition: 0.3s ease-in-out;
+}
+
+.eco-link img {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.eco-link:hover {
+  background: rgba(0, 255, 128, 0.15);
+  box-shadow: 0 0 18px rgba(0, 255, 128, 0.8);
+  transform: translateY(-2px);
+  color: #00ff80;
+}
+
+/* Optional subtle animation for glowing effect */
+@keyframes softGlow {
+  0% { box-shadow: 0 0 8px rgba(0,255,128,0.3); }
+  50% { box-shadow: 0 0 20px rgba(0,255,128,0.7); }
+  100% { box-shadow: 0 0 8px rgba(0,255,128,0.3); }
+}
+
+.eco-link {
+  animation: softGlow 6s ease-in-out infinite;
+}
