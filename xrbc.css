@@ -170,7 +170,30 @@ section.grid, section.card { margin-top: 28px; }
   transform: translateY(-2px); color: #00ff80;
 }
 
-/* === 10) SECURITY CENTER — CHATGPT CONTROLS === */
+/* === SECURITY CENTER CLEAN FIX === */
+#auditWidget { transition: all 0.3s ease-in-out; }
+
+#auditInput {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(15,23,36,0.9);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  box-shadow: 0 0 8px rgba(0,229,255,0.08);
+  transition: border 0.3s, box-shadow 0.3s;
+}
+#auditInput:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(0,229,255,0.3);
+}
+
+/* Button container */
 .audit-buttons {
   display: flex;
   justify-content: space-between;
@@ -180,45 +203,35 @@ section.grid, section.card { margin-top: 28px; }
   margin-top: 10px;
 }
 
-#auditSend,
-#auditVoice,
-.btn-glow-link {
+/* Refined gradient glow buttons */
+#auditSend, #auditVoice, .btn-glow-link {
   flex: 1 1 32%;
-  padding: 14px 0;
+  padding: 12px 0;
   border-radius: 10px;
   color: #fff;
   font-weight: 700;
-  text-align: center;
-  cursor: pointer;
   border: none;
-  text-shadow: 0 0 5px rgba(0,0,0,0.3);
-  background-size: 300% 300%;
-  animation: auditBtnGradient 6s ease infinite;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  will-change: transform, box-shadow, background-position;
+  cursor: pointer;
+  text-align: center;
+  text-shadow: 0 0 3px rgba(0,0,0,0.3);
+  background-size: 200% 200%;
+  animation: smoothGradient 6s ease infinite;
+  transition: transform 0.25s, box-shadow 0.25s;
 }
 
-#auditSend {
-  background: linear-gradient(90deg, var(--accent), var(--green), var(--purple), var(--orange));
-}
-#auditVoice {
-  background: linear-gradient(90deg, var(--purple), var(--accent), var(--green), var(--orange));
-}
-.btn-glow-link {
-  background: linear-gradient(90deg, var(--red), #ff7070, var(--orange), var(--red));
-  box-shadow: 0 0 12px rgba(255,76,76,0.4);
-}
+/* Gentle readable gradients */
+#auditSend { background: linear-gradient(90deg, var(--accent), var(--green)); }
+#auditVoice { background: linear-gradient(90deg, var(--purple), var(--accent)); }
+.btn-glow-link { background: linear-gradient(90deg, var(--orange), var(--red)); }
 
-#auditSend:hover,
-#auditVoice:hover,
-.btn-glow-link:hover {
+#auditSend:hover, #auditVoice:hover, .btn-glow-link:hover {
   transform: scale(1.05);
   box-shadow: 0 0 18px rgba(0,229,255,0.45);
 }
 
-@keyframes auditBtnGradient {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
+@keyframes smoothGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
@@ -227,16 +240,11 @@ section.grid, section.card { margin-top: 28px; }
   font-size: 0.9rem;
   color: var(--muted);
   opacity: 0.9;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 @media (max-width: 700px) {
-  .audit-buttons {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  #auditSend, #auditVoice, .btn-glow-link {
-    width: 100%;
-  }
+  .audit-buttons { flex-direction: column; align-items: stretch; }
+  #auditSend, #auditVoice, .btn-glow-link { width: 100%; }
   .helper.small { text-align: left; }
 }
