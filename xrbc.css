@@ -292,3 +292,23 @@ section.grid, section.card { margin-top: 28px; }
   transform: scale(1.1);
   box-shadow: 0 0 18px rgba(0,229,255,0.5);
 }
+/* === Light Mode === */
+.light-mode {
+  --bg: #fdfdfd;
+  --card: #ffffff;
+  --ink: #0b0c10;
+  --muted: #4a4f5c;
+  --accent: #0078ff;
+
+  --green: #00b86b;
+  --blue: #007bff;
+  --white: #ffffff;
+  --red: #ff3b3b;
+  --orange: #ff9b3d;
+  --purple: #7b4dff;
+}
+
+/* Ensure smooth transition between themes */
+html, body, header, main, footer {
+  transition: background 0.4s, color 0.4s, border-color 0.4s;
+}
