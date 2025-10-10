@@ -154,6 +154,46 @@ setInterval(updateTimer, 60000); // update every minute
       Ask about the safety of connecting your wallet, how this site was built, XRBC’s compliance with XRPL standards, and liquidity transparency.
     </p>
     <button id="auditToggle" class="btn cta" style="margin-top:14px;">🔍 Ask ChatGPT Now</button>
+
+  <!-- ChatGPT Auditor widget (must exist for the button to work) -->
+<div id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:2px solid rgba(0,229,255,0.2); border-radius:12px; background:#0F1724;">
+  <div id="auditOutput" style="max-height:260px; overflow:auto; margin-bottom:12px; font-size:0.95rem;">
+    <p class="muted">🤖 Ready. Ask about XRBC wallet safety, site security, XRPL standards, or liquidity.</p>
+  </div>
+
+  <!-- Quick questions (optional) -->
+  <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
+    <button class="btn ghost auditQuick" 
+      data-q="How was this site built, and is it safe to connect my wallet here? Please explain whether the page contains any hidden or malicious code, how wallet connections are handled, and why users can trust this site.">
+      Wallet Safety
+    </button>
+
+    <button class="btn ghost auditQuick" 
+      data-q="Was this project built correctly on the XRP Ledger? Does it meet XRPL standards for issued tokens, trustlines, and decentralized trading?">
+      XRPL Standards
+    </button>
+
+    <button class="btn ghost auditQuick" 
+      data-q="How is liquidity for XRBitcoinCash provided on XRPL, and what makes it reliable for trading?">
+      Liquidity
+    </button>
+
+    <button class="btn ghost auditQuick" 
+      data-q="What makes this project safer than others? Please explain transparency, control of supply, and how users can verify everything on-ledger.">
+      Transparency
+    </button>
+  </div>
+
+  <div class="audit-input-wrap">
+    <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." />
+    <button id="auditSend" class="btn primary">Send</button>
+    <button id="auditVoice" class="btn ghost">🎤 Voice</button>
+  </div>
+
+  <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
+</div>
+
+  
   </section>
 </main>
 
