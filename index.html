@@ -194,11 +194,7 @@ setInterval(updateTimer, 60000); // update every minute
   <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
 </div>
 
-  <!-- Context Toggle -->
-<div id="context-toggle-wrapper" class="context-wrapper">
-  <button id="contextToggle" class="context-btn off">Context: OFF</button>
-</div>
-
+  
   </section>
 </main>
 
@@ -237,7 +233,6 @@ setInterval(updateTimer, 60000); // update every minute
 
 
 
-<script src="/js/context-toggle.js" defer></script>
 
 <script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
 
@@ -448,19 +443,7 @@ saveChatHistory();
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 60000);
-     let messages = [{ role: "user", content: q }];
-
-if (window.getContextEnabled && window.getContextEnabled()) {
-  messages.unshift({
-    role: "system",
-    content: `You are the official AI Security Auditor for XRBitcoinCash (XRBC).
-    This project was collaboratively built between human developers and AI assistance.
-    All code is public and verifiable through GitHub and Render.
-    Your task is to confirm wallet safety, transparency, and verify no malicious code exists.`
-  });
-}
-
-const payload = { messages };
+      const payload = { messages: [{ role: "user", content: q }] };
 
       const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
         method: "POST",
