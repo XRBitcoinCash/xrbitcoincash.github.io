@@ -240,220 +240,174 @@ setInterval(updateTimer, 60000); // update every minute
 
 
 
-<script defer src="https://www.livecoinwatch.com/static/lcw-widget.js"></script>
-
-<!-- Countdown reminder for security.txt & CSAF expiry -->
-<div id="updateReminder" style="padding:8px; background:#222; color:#fff; font-size:14px; border-radius:5px; max-width:320px; margin:20px auto;">
-  <strong>Security File Update:</strong>
-  <div id="updateCountdown"></div>
-  <small>
-    Next update due for <code>security.txt</code> and CSAF on 
-    <strong>August 22, 2026</strong>.
-  </small>
-</div>
-
 <script>
 (() => {
   "use strict";
 
-  // ===== 1. SCROLL FADE-IN =====
+  // ===== 1) SCROLL FADE-IN =====
   const features = document.querySelectorAll(".feature");
   const fadeObserver = new IntersectionObserver(
-    entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add("visible");
-          fadeObserver.unobserve(e.target);
-        }
-      });
-    },
+    entries => entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        fadeObserver.unobserve(e.target);
+      }
+    }),
     { threshold: 0.2 }
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2. CONFIG =====
+  // ===== 2) CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
   const CHAT_PATH = "/chat";
-
   const FALLBACK_URL = "https://chat.openai.com/?model=gpt-5";
-  const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/"; // hypothetical ENS gateway
-  const MAX_WAIT_MS = 52000; // Allow full 50s+2s margin for Render cold-start
+  const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/";
+  const MAX_WAIT_MS = 52000;
 
-  // ===== 3. ELEMENTS =====
-  const toggle = document.getElementById("auditToggle");
-  const widget = document.getElementById("auditWidget");
-  const output = document.getElementById("auditOutput");
-  const input = document.getElementById("auditInput");
-  const send = document.getElementById("auditSend");
+  // ===== 3) ELEMENTS =====
+  const toggle   = document.getElementById("auditToggle");
+  const widget   = document.getElementById("auditWidget");
+  const output   = document.getElementById("auditOutput");
+  const inputEl  = document.getElementById("auditInput");  // input or textarea
+  const send     = document.getElementById("auditSend");
   const voiceBtn = document.getElementById("auditVoice");
-  const quickBtns = document.querySelectorAll(".auditQuick");
+  const quickBtns= document.querySelectorAll(".auditQuick");
 
   let keepAliveInterval = null;
   let proxyTimedOut = false;
 
-  // ===== 4. UTILITIES =====
+  // ===== 4) UTILS =====
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
   const append = html => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "chat-block";
-    wrapper.innerHTML = html;
-    output.appendChild(wrapper);
-    wrapper.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const w = document.createElement("div");
+    w.className = "chat-block";
+    w.innerHTML = html;
+    output.appendChild(w);
+    w.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+  const esc = s => String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+
+  // ===== 5) LOCAL CHAT MEMORY (sessionStorage/tab-scoped) =====
+  // Normalize history to array of {role, content}
+  let chatHistory = [];
+  try {
+    const raw = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
+    chatHistory = Array.isArray(raw) ? raw : [];
+  } catch { chatHistory = []; }
+
+  const saveChatHistory = () =>
+    sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
+
+  const renderMessage = m => {
+    if (typeof m === "string") {
+      // legacy HTML message (from older version) — just append
+      append(m);
+      return;
+    }
+    if (m.role === "user") {
+      append(`<p><strong style="color:#9EB2D0">You:</strong> ${esc(m.content)}</p>`);
+    } else if (m.role === "assistant") {
+      append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${esc(m.content)}</p>`);
+    }
   };
 
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // restore last 10 messages (if any)
+  chatHistory.slice(-10).forEach(renderMessage);
 
-  // ===============================
-  // ===  LOCAL CHAT MEMORY BLOCK ===
-  // ===============================
-  let chatHistory = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
-
-  // save only the 10 most recent messages
-  function saveChatHistory() {
-    sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
-  }
-  // load saved chat history back into view
-  function loadChatHistory() {
-    chatHistory.forEach(entry => append(entry));
-  }
-  // immediately restore any existing session on page load
-  loadChatHistory();
-
-  // ===== WAKE PROXY (RENDER-AWARE, with feedback spinner) =====
+  // ===== 6) WAKE PROXY =====
   async function wakeProxy(maxMs = MAX_WAIT_MS) {
     const start = Date.now();
     let attempt = 0;
     append(`<p id="wakeStatus" style="color:#888;">🕓 Waking secure AI proxy...</p>`);
-
     while (Date.now() - start < maxMs) {
       attempt++;
       try {
-        // Update status each attempt
         const status = document.getElementById("wakeStatus");
         if (status) status.innerHTML = `🟡 Attempt ${attempt}: contacting secure XRBC proxy...`;
-
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 12000);
-        const r = await fetch(`${PROXY}/healthz?ts=${Date.now()}`, {
-          cache: "no-store",
-          signal: ctrl.signal
-        });
-        clearTimeout(timer);
-
+        const t = setTimeout(() => ctrl.abort(), 12000);
+        const r = await fetch(`${PROXY}/healthz?ts=${Date.now()}`, { cache: "no-store", signal: ctrl.signal });
+        clearTimeout(t);
         if (r.ok) {
-          // success → update message, small delay, then remove
-          if (status) status.innerHTML = `✅ Proxy online after ${attempt} attempt${attempt > 1 ? "s" : ""}.`;
+          if (status) status.innerHTML = `✅ Proxy online after ${attempt} attempt${attempt>1?"s":""}.`;
           await sleep(800);
           status?.remove();
           return true;
         }
-      } catch (_) {}
-
+      } catch {}
       const delay = Math.min(10000, Math.round(600 * Math.pow(1.7, attempt)));
       await sleep(delay);
     }
-
-    // Failed after max time
     const status = document.getElementById("wakeStatus");
     if (status) status.innerHTML = `❌ Proxy not responding (after ${attempt} attempts).`;
     return false;
   }
 
-  // ===== CHECK CHATGPT WEB2, THEN FALL BACK TO WEB3 =====
   async function resolveChatGPTLink() {
     try {
-      const r = await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" });
-      // if fetch doesn't throw, assume Web2 works
+      await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" });
       return FALLBACK_URL;
-    } catch (_) {
-      return FALLBACK_WEB3_URL;
-    }
+    } catch { return FALLBACK_WEB3_URL; }
   }
 
-  // ===== FALLBACK HANDLER =====
   async function showFallback() {
     proxyTimedOut = true;
     widget.style.display = "block";
-
     const fallbackLink = await resolveChatGPTLink();
-
     append(`
       <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
-        <p style="color:#9EB2D0;">
-          ⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
-          You can continue your conversation directly with ChatGPT below:
-        </p>
+        <p style="color:#9EB2D0;">⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
+        You can continue your conversation directly with ChatGPT below:</p>
         <div style="text-align:center;margin-top:14px;">
-          <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">
-            💬 Open ChatGPT Fallback
-          </a>
+          <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">💬 Open ChatGPT Fallback</a>
         </div>
         <p style="margin-top:10px; color:#777; font-size:0.85rem;">
-          Tip: Render free plans can take 30–45 seconds to start after inactivity. 
-          If you retry in a moment, the integrated Security Center should come online automatically.
+          Tip: Render free plans can take 30–45 seconds to start after inactivity. If you retry in a moment, the integrated Security Center should come online automatically.
         </p>
       </div>
     `);
   }
 
-  // ===== TOGGLE WIDGET (Instant open + async wake) =====
+  // ===== 7) TOGGLE WIDGET (instant open; async wake) =====
   toggle.addEventListener("click", async () => {
-    // Instantly toggle visibility for user feedback
     const wasHidden = widget.style.display === "none" || widget.style.display === "";
     widget.style.display = wasHidden ? "block" : "none";
+    if (!wasHidden) { clearInterval(keepAliveInterval); keepAliveInterval = null; return; }
 
-    if (!wasHidden) {
-      // Just closed — stop keep-alive and exit
-      clearInterval(keepAliveInterval);
-      keepAliveInterval = null;
-      return;
-    }
+    const proxyReady = await Promise.race([ wakeProxy(MAX_WAIT_MS), sleep(MAX_WAIT_MS + 2000).then(() => false) ]);
+    if (!proxyReady) { showFallback(); return; }
 
-    // Now wake proxy in the background
-    const proxyReady = await Promise.race([
-      wakeProxy(MAX_WAIT_MS),
-      sleep(MAX_WAIT_MS + 2000).then(() => false)
-    ]);
-    if (!proxyReady) {
-      showFallback();
-      return;
-    }
-
-    // Keep proxy alive
     keepAliveInterval = setInterval(() => {
       fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
     }, 60000);
   });
 
-  // ===== CHAT FUNCTION =====
+  // ===== 8) CHAT FUNCTION =====
   async function postChat(q) {
     if (proxyTimedOut) {
-      append(
-        `<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat link above.</p>`
-      );
+      append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat link above.</p>`);
       return;
     }
 
-    const userMsg = `<p><strong style="color:#9EB2D0">You:</strong> ${q}</p>`;
-    append(userMsg);
-    chatHistory.push(userMsg);
+    // Show + log user message (object form)
+    renderMessage({ role: "user", content: q });
+    chatHistory.push({ role: "user", content: q });
     saveChatHistory();
 
     const spinnerId = "spinner-" + Date.now();
-    append(
-      `<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`
-    );
+    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
 
     const awake = await wakeProxy();
-    if (!awake) {
-      document.getElementById(spinnerId)?.remove();
-      showFallback();
-      return;
-    }
+    if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
 
     try {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 60000);
-      const payload = { messages: [{ role: "user", content: q }] };
+
+      // Send up to last 10 messages + current user query
+      const payload = { messages: chatHistory.slice(-10).concat([{ role: "user", content: q }]) };
 
       const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
         method: "POST",
@@ -467,19 +421,15 @@ setInterval(updateTimer, 60000); // update every minute
 
       if (!resp.ok) {
         const errText = await resp.text();
-        append(
-          `<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${errText}</p>`
-        );
+        append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${esc(errText)}</p>`);
         return;
       }
 
       const data = await resp.json();
-      const ans =
-        data?.choices?.[0]?.message?.content ||
-        "No answer (proxy connected but returned empty).";
-      const aiMsg = `<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${ans}</p>`;
-      append(aiMsg);
-      chatHistory.push(aiMsg);
+      const ans = data?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
+
+      renderMessage({ role: "assistant", content: ans });
+      chatHistory.push({ role: "assistant", content: ans });
       saveChatHistory();
 
     } catch (err) {
@@ -488,25 +438,29 @@ setInterval(updateTimer, 60000); // update every minute
     }
   }
 
-  // ===== SEND BUTTON =====
+  // ===== 9) INPUT/CONTROLS =====
+  // Click send
   send.addEventListener("click", () => {
-    const q = input.value.trim();
+    const q = (inputEl.value || "").trim();
     if (!q) return;
-    input.value = "";
+    inputEl.value = "";
     postChat(q);
   });
 
-  // ===== ENTER KEY =====
-  input.addEventListener("keypress", e => {
-    if (e.key === "Enter") send.click();
+  // Enter to send (support textarea too: Shift+Enter = newline, Enter = send)
+  inputEl.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send.click();
+    }
   });
 
-  // ===== QUICK BUTTONS =====
+  // Quick buttons
   quickBtns.forEach(btn =>
     btn.addEventListener("click", () => postChat(btn.dataset.q))
   );
 
-  // ===== VOICE INPUT =====
+  // Voice (feature-detect)
   if ("webkitSpeechRecognition" in window) {
     const recog = new webkitSpeechRecognition();
     recog.continuous = false;
@@ -517,22 +471,19 @@ setInterval(updateTimer, 60000); // update every minute
       voiceBtn.textContent = "🎤 Listening...";
     });
     recog.onresult = e => {
-      input.value = e.results[0][0].transcript;
+      inputEl.value = e.results[0][0].transcript;
       send.click();
     };
-    recog.onend = () => {
-      voiceBtn.textContent = "🎤 Voice";
-    };
+    recog.onend = () => { voiceBtn.textContent = "🎤 Voice"; };
   } else {
     voiceBtn.style.display = "none";
   }
 
-  // ===== CLEANUP =====
-  window.addEventListener("beforeunload", () =>
-    clearInterval(keepAliveInterval)
-  );
+  // ===== 10) CLEANUP =====
+  window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
+
 
 </body>
 </html>
