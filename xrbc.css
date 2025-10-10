@@ -254,3 +254,16 @@ section.grid, section.card { margin-top: 28px; }
   #auditSend, #auditVoice, .btn-glow-link { width: 100%; }
   .helper.small { text-align: left; }
 }
+/* === FIX: Prevent long issuer text from overlapping cards === */
+.card p strong {
+  word-break: break-all;        /* Break long strings mid-word if needed */
+  overflow-wrap: anywhere;      /* Allow wrapping even without spaces */
+  display: inline-block;        /* Keep spacing consistent */
+  line-height: 1.5;
+}
+
+.card p {
+  word-wrap: break-word;        /* Legacy fallback */
+  overflow-wrap: break-word;
+  max-width: 100%;              /* Ensure it doesn’t exceed the card boundary */
+}
