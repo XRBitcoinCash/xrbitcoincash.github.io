@@ -102,22 +102,19 @@ setInterval(updateTimer, 60000); // update every minute
       <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
       <div class="button-group">
         <a href="https://xrbitcoincash.com/nfts.html" class="btn primary">🎨 NFT Gallery</a>
-        <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary">🚀 Trade XRBC Now</a>
+        <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary glow-green">🚀 Trade XRBC Now</a>
         <a href="https://xrbitcoincash.com/bs/" class="btn primary">Blockchain Specs</a>
         <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" 
            class="btn primary" target="_blank" rel="noopener noreferrer">
            💧 Sologenic Liquidity Pool
         </a>
 
-        <a href="/whitepaper.html" class="btn ghost">Whitepaper</a>
+        <a href="/whitepaper.html" class="btn ghost glow-white">Whitepaper</a>
         <a href="https://xrbitcoincash.com/about.html" class="btn ghost">About XRBC</a>
-        <a href="nfts.html" class="btn btn-primary" style="margin-top: 16px;">
-          NFT Gallery
-        </a>
       </div>
     </div>
 
-    <aside class="card nft">
+    <aside class="card nft glow-green">
       <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
       <p class="muted small" style="margin-top:10px">
         <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
@@ -147,115 +144,52 @@ setInterval(updateTimer, 60000); // update every minute
     </div>
   </section>
 
-  <!-- Security Center (updated) -->
-  <section class="card" style="margin-top:28px; border:2px solid var(--accent); box-shadow:0 0 12px rgba(0,229,255,0.3);">
+  <!-- Security Center -->
+  <section class="card glow-red" style="margin-top:28px;">
     <h2 style="display:flex; align-items:center; gap:12px; font-size:1.4rem; color:var(--accent);">
       🛡️ Security Center · Site & Wallet Safety
     </h2>
     <p class="muted" style="margin-top:8px; font-size:1rem;">
       Powered by <strong style="color:var(--accent);">ChatGPT AI</strong>.<br>
       Ask about the safety of connecting your wallet, how this site was built, XRBC’s compliance with XRPL standards, and liquidity transparency.
-      This project was built with ChatGPT’s assistance and contains no hidden or malicious code.
     </p>
-
-    <!-- Green Call-to-Action -->
     <button id="auditToggle" class="btn cta" style="margin-top:14px;">🔍 Ask ChatGPT Now</button>
-
-    <div id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:2px solid rgba(0,229,255,0.2); border-radius:12px; background:#0F1724;">
-      <div id="auditOutput" style="max-height:260px; overflow:auto; margin-bottom:12px; font-size:0.95rem;">
-        <p class="muted">🤖 Ready. Ask about XRBC wallet safety, site security, XRPL standards, or liquidity.</p>
-      </div>
-
-      <!-- Quick questions -->
-      <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
-        <button class="btn ghost auditQuick" 
-          data-q="How was this site built, and is it safe to connect my wallet here? Please explain whether the page contains any hidden or malicious code, how wallet connections are handled, and why users can trust this site.">
-          Wallet Safety
-        </button>
-
-        <button class="btn ghost auditQuick" 
-          data-q="Was this project built correctly on the XRP Ledger? Does it meet XRPL standards for issued tokens, trustlines, and decentralized trading?">
-          XRPL Standards
-        </button>
-
-        <button class="btn ghost auditQuick" 
-          data-q="How is liquidity for XRBitcoinCash provided on XRPL, and what makes it reliable for trading?">
-          Liquidity
-        </button>
-
-        <button class="btn ghost auditQuick" 
-          data-q="What makes this project safer than others? Please explain transparency, control of supply, and how users can verify everything on-ledger.">
-          Transparency
-        </button>
-      </div>
-
-  <div class="audit-input-wrap">
-  <input id="auditInput" type="text" placeholder="Ask ChatGPT about this project..." />
-  <button id="auditSend" class="btn primary">Send</button>
-  <button id="auditVoice" class="btn ghost">🎤 Voice</button>
-</div>
-
-
-
-      <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
-    </div>
-  </section>
-
-  <section style="margin-top:28px" class="card">
-    <h3>Market Analytics</h3>
-    <div class="livecoinwatch-widget-5" lcw-base="USD" lcw-color-tx="#999999" lcw-marquee-1="coins" lcw-marquee-2="movers" lcw-marquee-items="10"></div>
-    <div style="margin-top:14px;text-align:center;">
-      <a class="btn primary" href="https://www.livecoinwatch.com/price/XRBitcoinCash-XRBC" target="_blank">View Full Analytics</a>
-    </div>
   </section>
 </main>
-
-
-<div class="social-bar">
-  <a href="https://x.com/XRbitcoincash" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" width="24" /></a>
-</div>
 
 <footer class="ecosystem-footer">
   <div class="footer-container">
     <h3>XRBitcoin Ecosystem</h3>
-
     <p class="ecosystem-desc">
-      Interlinked XRPL-based assets developed in parallel — XRBitcoinCash (XRBC), XRBitcoin, and the Jesus Christ Saves Token (JCS). 
-      Each operates independently while contributing to the stability, faith, and innovation of the XRPL network.
+      Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
     </p>
 
     <div class="ecosystem-links">
-      <!-- XRBitcoinCash -->
       <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" style="width:42px; height:42px; vertical-align:middle; margin-right:8px;">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo">
         <span>XRBitcoinCash</span>
       </a>
 
-      <!-- XRBitcoin -->
       <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo" style="width:22px; height:22px; vertical-align:middle; margin-right:6px;">
+        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
         <span>XRBitcoin</span>
       </a>
 
-      <!-- Jesus Christ Saves Token -->
       <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo" style="width:22px; height:22px; vertical-align:middle; margin-right:6px;">
+        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
         <span>Jesus Christ Saves</span>
+      </a>
+
+      <a href="https://x.com/XRbitcoincash" target="_blank" class="eco-link" rel="noopener">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" style="width:22px; height:22px;">
+        <span>Twitter</span>
       </a>
     </div>
 
-    <p class="ecosystem-tagline">
-      <strong>Built on the XRP Ledger.</strong>  
-      A triad of logic, trust, and transparency within a decentralized framework.
-    </p>
-
-    <small class="ecosystem-note">
-      © 2025 XRBitcoinCash™ — All ecosystem projects operate transparently on-ledger.<br>
-      🔒 Security Center powered by 
-      <a href="#security-center" style="color:var(--accent); font-weight:600; text-decoration:none;">ChatGPT AI</a>.
-    </small>
+    <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
   </div>
 </footer>
+
 
 
 
