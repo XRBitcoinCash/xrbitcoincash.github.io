@@ -39,15 +39,26 @@
 
   <!-- External CSS -->
   <link rel="stylesheet" href="xrbc.css">
-</head>  <!-- ✅ Add this closing tag -->
+</head>
 
 <body>
+  <!-- 🌙 Light/Dark Mode Toggle -->
+  <button class="toggle-theme" id="themeToggle">☀️</button>
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
+    });
+  </script>
+
   <header>
     <div class="brand">
       <img src="/xrbc-nft.png" alt="XRBC logo" />
       <h1>XRBitcoinCash <span class="muted small">— XRBC on XRPL</span></h1>
     </div>
   </header>
+
 
 
 <script>
