@@ -191,28 +191,31 @@ setInterval(updateTimer, 60000); // update every minute
   </div>
 
 <div class="audit-input-wrap">
-  <p class="muted small" style="margin-bottom:4px; color:var(--muted); font-size:0.85rem;">
-    💡 For quick XRBC-related questions, use the on-page assistant below.<br>
-    For deeper or extended chats, tap “Continue in ChatGPT.”
-  </p>
+  <textarea id="auditInput"
+            placeholder="Ask about XRBC, XRBitcoin, or wallet safety..."
+            rows="3"></textarea>
 
-  <textarea id="auditInput" placeholder="Ask about XRBC, XRBitcoin, or wallet safety..." rows="3"></textarea>
-
-  <div class="chat-controls" style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+  <!-- row of main buttons -->
+  <div class="audit-buttons">
     <button id="auditSend" class="btn primary">Send</button>
+    <button id="auditVoice" class="btn ghost">🎙️ Voice</button>
 
-    <!-- Glowing ChatGPT link -->
+    <!-- ChatGPT link on right -->
     <a href="https://chat.openai.com/"
        target="_blank"
-       rel="noopener noreferrer"
-       class="btn-glow-link"
-       title="Open ChatGPT for deeper or longer conversations">
-       ✨ Continue in ChatGPT
-    </a>
-
-    <button id="auditVoice" class="btn ghost">🎙️ Voice</button>
+       rel="noopener"
+       class="btn-glow-link">✨ Continue in ChatGPT</a>
   </div>
+
+  <!-- helper lines -->
+  <p class="helper small">
+    💬 For deeper or extended chats, tap “Continue in ChatGPT”.
+  </p>
+  <p class="muted small mic-note">
+    🎙️ Use your mic to ask verbally (Chrome recommended).
+  </p>
 </div>
+
 
   <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
 </div>
