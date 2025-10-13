@@ -1,0 +1,76 @@
+{
+  "$id": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Universal AI Manifest",
+  "type": "object",
+  "required": ["project", "branding", "endpoints", "xrpl_access", "security", "updated"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "project": {
+      "type": "object",
+      "required": ["name", "ticker", "type", "network", "issuer", "currency_hex"],
+      "properties": {
+        "name": { "type": "string" },
+        "ticker": { "type": "string" },
+        "type": { "enum": ["issued-currency"] },
+        "network": { "enum": ["XRPL Mainnet"] },
+        "issuer": { "type": "string" },
+        "currency_hex": { "type": "string" },
+        "supply": {
+          "type": "object",
+          "properties": {
+            "total": { "type": "string" },
+            "fixed": { "type": "boolean" },
+            "issuer_blackholed": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "branding": {
+      "type": "object",
+      "required": ["home", "logo"],
+      "properties": {
+        "home": { "type": "string", "format": "uri" },
+        "logo": { "type": "string", "format": "uri" }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": ["health", "xrpl_proxy"],
+      "properties": {
+        "health": { "type": "string", "format": "uri" },
+        "xrpl_proxy": { "type": "string", "format": "uri" },
+        "diag_html": { "type": "string", "format": "uri" }
+      }
+    },
+    "xrpl_access": {
+      "type": "object",
+      "required": ["mode", "allowed_methods"],
+      "properties": {
+        "mode": { "enum": ["read-only"] },
+        "allowed_methods": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "auth": { "type": "string" },
+        "rate_limit_hint_rps": { "type": "number" },
+        "privacy": { "type": "string" },
+        "security_txt": { "type": "string", "format": "uri" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "on_ledger_source": { "type": "string" },
+        "off_ledger_source": { "type": "string" }
+      }
+    },
+    "updated": { "type": "string" }
+  }
+}
