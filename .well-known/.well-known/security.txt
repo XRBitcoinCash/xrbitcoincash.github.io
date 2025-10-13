@@ -1,0 +1,6 @@
+Contact: mailto:security@xrbitcoincash.com
+Policy: https://xrbitcoincash.com/security-policy.html
+Acknowledgments: https://xrbitcoincash.com/security-acknowledgments.html
+Preferred-Languages: en
+Canonical: https://xrbitcoincash.com/.well-known/security.txt
+Expires: 2026-10-13T00:00:00Z
