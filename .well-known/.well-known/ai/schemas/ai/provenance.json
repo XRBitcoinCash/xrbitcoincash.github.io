@@ -1,0 +1,24 @@
+{
+  "project": "XRBitcoinCash / XRBitcoin",
+  "provenance": {
+    "built_with": [
+      { "assistant": "GPT-5 Thinking", "role": "code generation, manifests, documentation, UX polish" }
+    ],
+    "principles": [
+      "No secrets committed to the repo.",
+      "Read-only XRPL access from public endpoints.",
+      "Live on-ledger data only; no hardcoded prices.",
+      "Exact file casing and config placement (baseline safety)."
+    ],
+    "audit_ready": true,
+    "audit_notes": [
+      "Agents should validate manifests against the published JSON Schema.",
+      "Use /healthz and diag.html for diagnostics.",
+      "Price/quotes must come from XRPL book_offers and/or amm_info."
+    ]
+  },
+  "contacts": {
+    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt"
+  },
+  "updated": "2025-10-13"
+}
