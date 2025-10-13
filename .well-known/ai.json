@@ -1,0 +1,8 @@
+{
+  "ai_manifests": [
+    { "name": "XRBitcoinCash", "path": "https://xrbitcoincash.com/universal-ai.json" },
+    { "name": "XRBitcoin",     "path": "https://xrbitcoincash.com/XRBitcoin/universal-ai.json" }
+  ],
+  "schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
+  "updated": "2025-10-13"
+}
