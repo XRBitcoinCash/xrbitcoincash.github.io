@@ -393,7 +393,7 @@
     }, 60000);
   });
 
-  // ===== 8) EVIDENCE-GATHERING ADDITIONS (new) =====
+  // ===== 8) EVIDENCE-GATHERING (with explicit wallet flag) =====
   async function get(url){
     try {
       const r = await fetch(url, { cache: "no-store" });
@@ -426,6 +426,7 @@ Never ask for seeds or secret keys. Remind users to verify wallet signing payloa
 Be concise and specific.`
   };
 
+  // UPDATED: explicit wallet scoring rule (no connect = pass)
   const INSTRUCTIONS = {
     role: "user",
     content:
@@ -444,6 +445,13 @@ Be concise and specific.`
   ],
   "recommended_actions": ["..."]
 }
+
+Scoring details:
+- issuer_blackholed = pass if AccountRoot shows master disabled AND no RegularKey; warn if only one holds; fail otherwise.
+- manifests_accessible = pass if universal-ai.json (XRBC + XRBitcoin) and /.well-known/security.txt return 200; warn if any missing; fail if all missing.
+- read_only_endpoints = pass if endpoints list only read-only XRPL methods; warn if unclear; fail if mutating methods present.
+- wallet_connect_flow = "pass" if wallet_connect_detection == "absent" OR if a connect UI exists but delegates signing entirely to a known wallet app and never asks for seeds/secret keys; "warn" only if a connect UI exists but behavior is unclear; "fail" only if any component requests seeds/secret keys or auto-initiates signing.
+- dex_liquidity_presence = pass if an AMM pool exists OR book_offers >= 3; warn if 1–2; fail if none/errored.
 
 2) Then a short human explanation (3–6 sentences).`
   };
@@ -469,6 +477,7 @@ Be concise and specific.`
       issuerFacts(XRB_ISSUER)
     ]);
 
+    // Orderbooks (you can add amm_info later)
     const bookXRB  = await rpc("book_offers", {
       taker_gets: { currency:"XRP" },
       taker_pays: { currency: HEX_XRB, issuer: XRB_ISSUER },
@@ -480,9 +489,15 @@ Be concise and specific.`
       ledger_index:"validated", limit:10
     });
 
+    // Explicit wallet-connect detection (hard flag)
+    const hasWalletUI = !!document.querySelector(
+      '[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'
+    );
+    const walletConnectDetection = hasWalletUI ? "present" : "absent";
+
     const pageFp = {
       url: location.href,
-      hasWalletConnect: !!document.querySelector('[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'),
+      wallet_connect_detection: walletConnectDetection,
       outboundExchanges: Array.from(document.querySelectorAll('a[href*="sologenic.org"],a[href*="xpmarket.com"]')).map(a=>a.href),
       canonical: (document.querySelector('link[rel="canonical"]')||{}).href || null
     };
@@ -509,10 +524,10 @@ Be concise and specific.`
     };
   }
 
-  // ===== 9) CHAT FUNCTION (modified to include evidence + rubric) =====
+  // ===== 9) CHAT FUNCTION (now enforces temp + post-fix) =====
   async function postChat(q) {
     if (proxyTimedOut) {
-      append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat link above.</p>`);
+      append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat above.</p>`);
       return;
     }
 
@@ -530,13 +545,13 @@ Be concise and specific.`
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 60000);
 
-      // Build objective, evidence-based payload
       const evidenceMsg = await collectEvidence();
 
       const payload = {
-        // If your proxy supports it, you can also pass temperature: 0.2 at the top level
+        model: "gpt-5-thinking",    // if your proxy forwards this
+        temperature: 0.2,           // lock low randomness (server should also enforce)
         messages: [SYSTEM, evidenceMsg, INSTRUCTIONS]
-                  .concat(chatHistory.slice(-6)) // keep context lightweight
+                  .concat(chatHistory.slice(-6))
                   .concat([{ role: "user", content: q }])
       };
 
@@ -556,17 +571,37 @@ Be concise and specific.`
         return;
       }
 
-      const data = await resp.json();
-      const ans = data?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
+      let ans = (await resp.json())?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
 
-      // Optional: split rubric JSON from human text if the model follows instructions
-      const [firstLine, ...rest] = ans.split("\n");
+      // ===== HARD-FIX: if wallet_connect_detection == "absent", correct mis-scores =====
+      try {
+        const evidenceObj = JSON.parse(evidenceMsg.content.split("- page_fingerprint:")[1] || "{}");
+        const walletFlag = JSON.parse(evidenceMsg.content.split("- page_fingerprint:")[1] || "{}")?.wallet_connect_detection
+          || (evidenceMsg.content.includes('"wallet_connect_detection": "absent"') ? "absent" : "present");
+
+        const [firstLine, ...rest] = ans.split("\n");
+        const rubric = JSON.parse(firstLine.trim());
+        if (walletFlag === "absent") {
+          const wItem = Array.isArray(rubric.evidence) ? rubric.evidence.find(e => e.item === "wallet_connect_flow") : null;
+          if (wItem && wItem.status !== "pass") {
+            wItem.status = "pass";
+            wItem.details = "No on-site wallet connect UI detected; lowest exposure.";
+            rubric.reasons = Array.from(new Set(
+              (rubric.reasons || []).concat("No on-site wallet connect UI; lowest exposure.")
+            ));
+            ans = JSON.stringify(rubric) + "\n" + rest.join("\n");
+          }
+        }
+      } catch { /* if parsing fails, just show the model output */ }
+
+      // Pretty print
+      const [firstLine2, ...rest2] = ans.split("\n");
       let pretty = ans;
       try {
-        const rubric = JSON.parse(firstLine.trim());
-        pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric.verdict)}</code>\n\n` +
-                 `• ${rubric.reasons.map(esc).join("\n• ")}\n\n` +
-                 rest.join("\n");
+        const rubric2 = JSON.parse(firstLine2.trim());
+        pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric2.verdict)}</code>\n\n` +
+                 `• ${rubric2.reasons.map(esc).join("\n• ")}\n\n` +
+                 rest2.join("\n");
       } catch { /* keep full text if JSON parsing fails */ }
 
       renderMessage({ role: "assistant", content: pretty });
