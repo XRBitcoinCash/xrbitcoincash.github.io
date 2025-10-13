@@ -4,6 +4,13 @@
   <!-- favicon -->
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="shortcut icon" href="/favicon.png" type="image/png">
+ <link rel="ai-manifest" href="/universal-ai.json">
+<link rel="ai-manifest" href="/XRBitcoin/universal-ai.json">
+<link rel="security" href="/.well-known/security.txt">
+<link rel="schema.dcterms" href="/ai/schemas/universal-ai.v1.json">
+<link rel="alternate" type="application/json" href="/.well-known/ai.json">
+<link rel="source" href="/ai/provenance.json">
+
   <meta name="msapplication-TileImage" content="/favicon.png">
 
   <meta charset="utf-8" />
@@ -235,6 +242,14 @@
 <p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
   🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
 </p>
+<!-- AI / Security badges (optional, human-facing) -->
+<nav class="ai-badges" style="margin-top:12px;font-size:0.95rem;opacity:0.9">
+  <a href="/universal-ai.json" rel="nofollow">XRBC AI Manifest</a> ·
+  <a href="/XRBitcoin/universal-ai.json" rel="nofollow">XRBitcoin AI Manifest</a> ·
+  <a href="/.well-known/ai.json" rel="nofollow">AI Index</a> ·
+  <a href="/ai/provenance.json" rel="nofollow">Provenance</a> ·
+  <a href="/.well-known/security.txt" rel="nofollow">Security.txt</a>
+</nav>
 
 <script>
 // ===== CONFIGURE EXPIRY DATE HERE =====
