@@ -1,6 +1,7 @@
 {
   "$schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
   "schema_version": "1.0.0",
+
   "project": {
     "name": "XRBitcoinCash",
     "ticker": "XRBC",
@@ -10,15 +11,31 @@
     "currency_hex": "5852626974636F696E6361736800000000000000",
     "supply": { "total": "21000000", "fixed": true, "issuer_blackholed": true }
   },
+
   "branding": {
     "home": "https://xrbitcoincash.com/",
     "logo": "https://xrbitcoincash.com/xrbc-nft.png"
   },
+
+  "ai_capabilities": [
+    "audit_readonly",
+    "orderbook_read",
+    "manifest_verify",
+    "price_snapshot",
+    "health_status"
+  ],
+
   "endpoints": {
-    "health": "https://xrbitcoincash-github-io.onrender.com/healthz",
     "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
-    "diag_html": "https://xrbitcoincash.com/XRBitcoin/diag.html"
+    "health":      "https://xrbitcoincash-github-io.onrender.com/healthz",
+    "diag_html":   "https://xrbitcoincash.com/XRBitcoin/diag.html",
+
+    "health_html": "https://xrbitcoincash.com/ai/ai/health.html",
+    "price_html":  "https://xrbitcoincash.com/ai/ai/ai/price.html",
+
+    "ai_auditor_html": "https://xrbitcoincash.com/ai/ai/ai-auditor.html"
   },
+
   "xrpl_access": {
     "mode": "read-only",
     "allowed_methods": ["server_state", "ledger", "account_info", "book_offers", "amm_info"],
@@ -27,22 +44,55 @@
       "Quotes must be computed live from order books and/or AMM."
     ]
   },
+
+  "api_contracts": {
+    "health_html": {
+      "method": "GET",
+      "returns": "application/json",
+      "shape": {
+        "ok": "boolean",
+        "server_state": "string|null",
+        "peers": "number|null",
+        "validated_seq": "number|null",
+        "manifest_ok": "boolean",
+        "toml_ok": "boolean",
+        "updated_at": "ISO-8601 string"
+      }
+    },
+    "price_html": {
+      "method": "GET",
+      "returns": "application/json",
+      "shape": {
+        "project": "string",
+        "pair": "string e.g. XRBC/XRP",
+        "best_bid": "number|null",
+        "best_ask": "number|null",
+        "mid_price": "number|null",
+        "bids_count": "number",
+        "asks_count": "number",
+        "updated_at": "ISO-8601 string"
+      }
+    }
+  },
+
+  "discovery": [
+    "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+    "https://xrbitcoincash.com/ai/ai/health.html",
+    "https://xrbitcoincash.com/ai/ai/ai/price.html",
+    "https://xrbitcoincash.com/XRBitcoin/diag.html"
+  ],
+
   "security": {
     "auth": "none",
     "rate_limit_hint_rps": 3,
     "privacy": "No user data collected by this manifest.",
     "security_txt": "https://xrbitcoincash.com/.well-known/security.txt"
   },
+
   "provenance": {
     "on_ledger_source": "XRPL Clio/Mainnet",
     "off_ledger_source": "Static site (GitHub Pages) + Render proxy"
   },
-  "updated": "2025-10-13"
-}
-{
-  "ai_capabilities": ["audit_readonly","orderbook_read","manifest_verify","price_snapshot","health_status"],
-  "endpoints": {
-    "health_html": "https://xrbitcoincash.com/ai/health.html",
-    "price_html": "https://xrbitcoincash.com/ai/price.html"
-  }
+
+  "updated": "2025-10-15"
 }
