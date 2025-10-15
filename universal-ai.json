@@ -39,3 +39,10 @@
   },
   "updated": "2025-10-13"
 }
+{
+  "ai_capabilities": ["audit_readonly","orderbook_read","manifest_verify","price_snapshot","health_status"],
+  "endpoints": {
+    "health_html": "https://xrbitcoincash.com/ai/health.html",
+    "price_html": "https://xrbitcoincash.com/ai/price.html"
+  }
+}
