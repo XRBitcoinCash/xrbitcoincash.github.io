@@ -33,6 +33,24 @@
   <meta name="twitter:title" content="Safely trade XRBC · XRBitcoinCash">
   <meta name="twitter:description" content="Trade XRBC on XRPL. Connect your wallet, place limit orders, and view AMM pool info.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
+<meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self' https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
+        script-src  'self' 'unsafe-inline' https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
+        style-src   'self' 'unsafe-inline';
+        img-src     'self' data: https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
+        connect-src 'self' https://xrbitcoincash-github-io.onrender.com https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
+        font-src    'self';
+        media-src   'none';
+        object-src  'none';
+        base-uri    'self';
+        frame-ancestors 'self';
+        navigate-to 'self' https://xrbitcoincash.com https://xrbitcoincash.github.io https://xumm.app https://xaman.app https://xrpl.services;
+        form-action 'self';
+        upgrade-insecure-requests;
+      ">
+
+
 
   <!-- AI / machine-readable metadata (JSON-LD) -->
   <script type="application/ld+json">
@@ -89,7 +107,7 @@
 
 
 </head>
-
+<body>
 <header class="site-header" inert aria-hidden="true">
   <div class="brand" style="flex-direction: column; justify-content: center; text-align: center;">
     <img src="/xrbc-nft.png" alt="XRBC logo" />
