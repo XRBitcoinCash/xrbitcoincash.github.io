@@ -47,7 +47,7 @@
           object-src  'none';
           base-uri    'self';
           frame-ancestors 'self';
-          navigate-to 'self' https://xrbitcoincash.com https://xrbitcoincash.github.io https://xumm.app https://xaman.app https://xrpl.services;
+          navigate-to 'self' https://xrbitcoincash.com https://xrbitcoincash.github.io https://xumm.app https://*.xumm.app https://xaman.app https://*.xaman.app https://xrpl.services;
           form-action 'self';
           upgrade-insecure-requests;
         ">
@@ -86,6 +86,27 @@
     <span class="btn btn-secondary is-disabled" style="margin-top: 12px;" aria-disabled="true">Home</span>
   </div>
 </header>
+
+<!-- XRBC custom connect modal (our own QR from Xaman payload) -->
+<div id="connectModal" hidden
+     style="position:fixed;right:16px;bottom:16px;width:320px;background:#121821;border:1px solid #1f2937;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9999;padding:14px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <img src="/xrbc-nft.png" alt="XRBC" style="width:20px;height:20px;border-radius:4px">
+      <strong>Scan with Xaman</strong>
+    </div>
+    <button id="closeConnect" type="button"
+            style="background:#0c131c;border:1px solid #1f2937;border-radius:10px;padding:6px 10px;cursor:pointer;color:#e7edf5;">
+      Close
+    </button>
+  </div>
+  <img id="connectQr" alt="Xaman QR" style="width:100%;border-radius:8px;background:#0c131c" />
+  <a id="openInXaman" href="#"
+     style="display:inline-block;margin-top:10px;background:#0c131c;border:1px solid #1f2937;border-radius:10px;padding:10px 14px;text-decoration:none;color:#e7edf5;">
+    Open in Xaman
+  </a>
+  <div id="connectMsg" class="status-text" style="display:block;margin-top:8px;">Waiting for signature…</div>
+</div>
 
 <div class="container" style="max-width:800px;margin:0 auto;padding:20px;text-align:center;">
   <h1 style="margin-bottom:24px;">XRBitcoinCash · XRBC/XRP Trading & Ledger Portal</h1>
@@ -199,7 +220,6 @@
             try { n.remove(); } catch(e){}
             if (url) window.open(url, '_blank', 'noopener,noreferrer');
           }
-          // If a container DIV is injected first, scan its children
           if (n.querySelectorAll) {
             n.querySelectorAll('iframe').forEach((f) => {
               if (isXummIframe(f)) {
@@ -213,7 +233,6 @@
       }
     });
     watcher.observe(document.documentElement, { childList:true, subtree:true });
-    // Also sweep once on load
     window.addEventListener('load', () => {
       document.querySelectorAll('iframe').forEach((f) => {
         if (isXummIframe(f)) {
@@ -313,21 +332,39 @@
     }
     xumm.on("ready", () => { if (!hasSavedAcct) btn.disabled = false; });
 
-    // ===== IMPORTANT: No overlay connect. New tab only. =====
+    // ===== Custom connect: our own QR + optional deep-link (no overlay) =====
     btn.addEventListener("click", async () => {
+      const modal    = document.getElementById("connectModal");
+      const qrImg    = document.getElementById("connectQr");
+      const deepLink = document.getElementById("openInXaman");
+      const msg      = document.getElementById("connectMsg");
+      const onMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+      document.getElementById("closeConnect").onclick = () => { modal.hidden = true; };
+
       try {
         const { created, resolved } = await xumm.payload.createAndSubscribe(
-          { txjson: { TransactionType: "SignIn" }, options: { return_url: { web: location.href } } },
+          { txjson: { TransactionType: "SignIn" },
+            options: { return_url: { web: location.href } } },
           (ev) => {
-            if (ev?.opened) statusEl.textContent = "Sign request opened…";
-            if (ev?.signed === false) statusEl.textContent = "Request rejected.";
+            if (ev?.opened) msg.textContent = "Sign request opened…";
+            if (ev?.signed === false) msg.textContent = "Request rejected.";
           }
         );
 
-        // Open Xaman sign page in NEW TAB/WINDOW. No overlay.
-        window.open(created.next.always, '_blank', 'noopener,noreferrer');
+        // Show our OWN QR and a manual deep-link button
+        qrImg.src       = created.refs.qr_png;     // QR we control
+        deepLink.href   = created.next.always;     // safe deep link
+        deepLink.target = "_blank";
+        deepLink.rel    = "noopener noreferrer";
+        modal.hidden    = false;
+
+        // On phones, jump straight into the app too
+        if (onMobile) location.href = created.next.always;
 
         const result = await resolved;
+        modal.hidden = true;
+
         if (!result.signed) { statusEl.textContent = "Not signed."; return; }
 
         const acct = await xumm.user.account;
@@ -338,6 +375,7 @@
         btn.disabled = true;
 
       } catch (err) {
+        modal.hidden = true;
         statusEl.textContent = "Failed to connect: " + err.message;
       }
     });
@@ -526,7 +564,7 @@
           if (ev?.signed === false) tradeMsg.textContent = "Offer rejected.";
         });
 
-        // Open in new tab, not overlay
+        // Open in new tab, not overlay (user can also scan QR inside Xaman app if needed)
         window.open(created.next.always, '_blank', 'noopener,noreferrer');
 
         const result = await resolved;
