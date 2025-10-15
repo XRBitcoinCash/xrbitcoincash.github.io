@@ -1,0 +1,26 @@
+<!DOCTYPE html><meta charset="utf-8"><title>XRBC price</title>
+<pre id="out">{"status":"booting"}</pre>
+<script>
+const PROXY="https://xrbitcoincash-github-io.onrender.com";
+const X = { currency:"5852626974636F696E6361736800000000000000", issuer:"rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" }; // XRBC
+const XRP_TO_DROPS=1_000_000;
+async function call(p){const r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)throw new Error("proxy "+r.status);const j=await r.json();if(j.error)throw new Error(JSON.stringify(j.error));return j;}
+function px(offers,side){const L=offers?.result?.offers||[];if(!L.length)return null;const o=L[0];
+  if(side==="bid"){const paysXRP=Number(o.TakerPays)/XRP_TO_DROPS;const getsXRB=Number(o.TakerGets.value);return paysXRP/getsXRB;}
+  else{const paysXRB=Number(o.TakerPays.value);const getsXRP=Number(o.TakerGets)/XRP_TO_DROPS;return getsXRP/paysXRB;}
+}
+(async()=>{
+  const [bids,asks]=await Promise.all([
+    call({method:"book_offers",params:[{taker_gets:X,taker_pays:{currency:"XRP"},limit:10}]}),
+    call({method:"book_offers",params:[{taker_gets:{currency:"XRP"},taker_pays:X,limit:10}]})
+  ]);
+  const best_bid=px(bids,"bid"), best_ask=px(asks,"ask");
+  const mid=(best_bid&&best_ask)?(best_bid+best_ask)/2:(best_bid||best_ask||null);
+  const out={project:"XRBitcoinCash",pair:"XRBC/XRP",best_bid:best_bid,best_ask:best_ask,mid_price:mid,
+    bids_count:(bids?.result?.offers||[]).length,asks_count:(asks?.result?.offers||[]).length,
+    updated_at:new Date().toISOString()};
+  document.getElementById("out").textContent=JSON.stringify(out,null,2);
+})().catch(e=>{
+  document.getElementById("out").textContent=JSON.stringify({error:e.message,updated_at:new Date().toISOString()},null,2);
+});
+</script>
