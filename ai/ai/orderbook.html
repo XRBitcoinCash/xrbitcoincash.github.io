@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<meta charset="utf-8"><title>XRBC orderbook</title>
+<pre id="out">{"status":"initializing"}</pre>
+<script>
+(async function () {
+  const out = document.getElementById("out");
+  const now = () => new Date().toISOString();
+  const PROXY = "https://xrbitcoincash-github-io.onrender.com";
+  const X = { currency:"5852626974636F696E6361736800000000000000", issuer:"rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" }; // XRBC
+  const XRP_TO_DROPS = 1_000_000;
+
+  const write = obj => out.textContent = JSON.stringify(obj, null, 2);
+  const call = async p => {
+    const r = await fetch(PROXY, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(p) });
+    if(!r.ok) throw new Error("proxy HTTP " + r.status);
+    const j = await r.json(); if (j.error) throw new Error("xrpl " + JSON.stringify(j.error)); return j;
+  };
+
+  try {
+    const [bidsRaw, asksRaw] = await Promise.all([
+      call({ method:"book_offers", params:[{ taker_gets:X,              taker_pays:{currency:"XRP"}, limit:10 }] }),
+      call({ method:"book_offers", params:[{ taker_gets:{currency:"XRP"}, taker_pays:X,               limit:10 }] })
+    ]);
+
+    const bids = (bidsRaw.result?.offers || []).map(o => {
+      const paysXRP = Number(o.TakerPays) / XRP_TO_DROPS;
+      const getsXRB = Number(o.TakerGets.value);
+      return { price: paysXRP / getsXRB, base_xrbc: getsXRB, quote_xrp: paysXRP };
+    });
+
+    const asks = (asksRaw.result?.offers || []).map(o => {
+      const paysXRB = Number(o.TakerPays.value);
+      const getsXRP = Number(o.TakerGets) / XRP_TO_DROPS;
+      return { price: getsXRP / paysXRB, base_xrbc: paysXRB, quote_xrp: getsXRP };
+    });
+
+    write({
+      project: "XRBitcoinCash",
+      pair: "XRBC/XRP",
+      bids,  // highest first as returned
+      asks,  // lowest first as returned
+      updated_at: now()
+    });
+  } catch (e) {
+    write({ error: String(e.message || e), updated_at: now() });
+    console.error(e);
+  }
+})();
+</script>
