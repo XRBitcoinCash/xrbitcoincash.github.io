@@ -2,281 +2,168 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>XRBC · Xaman Sign Test (Clean QR / Deeplink)</title>
+  <title>XRBC · Obscura Harness (READ-ONLY)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/xrbc-nft.png" />
+  <!-- Make it invisible to crawlers -->
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <meta http-equiv="X-Robots-Tag" content="noindex, nofollow, noarchive, nosnippet" />
+  <!-- Tight CSP: no externals, no inline eval -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline';
+                 script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none';
+                 form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests;">
   <style>
     :root { color-scheme: dark; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial; background:#0b0f14; color:#e6edf3; }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 56px; }
-    h1 { font-size: 22px; margin: 6px 0 12px; }
-    .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
-    .card { border:1px solid #1b2633; background:#0e141b; border-radius: 14px; padding:14px; }
-    button { background:#1e90ff; border:0; color:#fff; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; }
-    button.secondary { background:#2a3646; }
-    button:disabled { opacity: .6; cursor: not-allowed; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    label { font-size: 13px; opacity: .85; }
-    input, select { background:#0b1117; border:1px solid #1b2633; color:#e6edf3; padding:8px 10px; border-radius:10px; }
-    .muted { opacity:.85; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial;
+           background:#0b0f14; color:#e6edf3; }
+    .wrap { max-width:960px; margin:0 auto; padding:24px 14px 60px; }
+    h1 { font-size:22px; margin:6px 0 10px; letter-spacing:.2px; }
+    .chip { font-size:12px; padding:4px 8px; border:1px solid #2b3a4b; border-radius:999px; opacity:.9; }
+    .warn { color:#ffb4a6; }
+    .muted { opacity:.8; }
+    .grid { display:grid; grid-template-columns:1fr; gap:14px; margin-top:16px; }
+    .card { border:1px solid #1e2835; background:#0f1620; border-radius:14px; padding:14px; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    button { background:#223246; color:#e6edf3; border:1px solid #2c4157; border-radius:10px;
+             padding:8px 12px; cursor:pointer; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    pre { background:#0b111a; border:1px solid #1c2734; border-radius:10px; padding:10px; overflow:auto; }
+    code.k { color:#8ab4ff; }
     .ok { color:#9ee493; }
     .err { color:#ff8a8a; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    #qr { max-width:320px; border-radius:12px; border:1px solid #1f2a36; }
-    a { color:#9ecbff; }
-    .small { font-size: 12px; opacity: .8; }
+    .shield { border:1px dashed #ff8a8a; padding:12px; border-radius:12px; background:#160e0e; }
+    .divider { height:1px; background:#18222f; margin:10px 0; opacity:.7; }
+    .foot { margin-top:16px; font-size:12px; opacity:.7; }
   </style>
-  <!-- Xaman/XUMM browser SDK -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
 </head>
 <body>
   <div class="wrap">
-    <h1>XRBC · Xaman Sign Test (clean QR / deeplink)</h1>
-    <p class="muted">No iframes. No overlays. We create a payload, then show QR (desktop) or “Open in Xaman” (mobile).</p>
+    <div class="row" style="justify-content:space-between;">
+      <h1>XRBC · Obscura Harness <span class="chip">READ-ONLY</span></h1>
+      <span class="chip warn">Hidden / Non-discoverable</span>
+    </div>
+    <p class="muted">Private QA page for XRBitcoinCash. No wallet, no signing, no trading. Endpoint sanity checks only.</p>
+
+    <div class="card shield">
+      <strong>Safety interlock:</strong> This page intentionally <em>cannot</em> create Xaman/Xumm payloads, QR codes, or any on-ledger actions.
+      It reads JSON from your public endpoints only. To prevent accidents, all action buttons are removed by design.
+    </div>
 
     <div class="grid">
-
       <div class="card">
-        <h3>1) Wallet Session</h3>
-        <div class="row" style="margin:8px 0 10px">
-          <button id="connectBtn">Connect Xaman</button>
-          <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
-          <span id="walletStatus" class="muted">Status: Not connected</span>
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Ping</h3>
+          <button id="btnPing">Run</button>
         </div>
-        <div class="small">Session persists in your browser (localStorage). You can reload the page.</div>
+        <div class="divider"></div>
+        <pre id="outPing">—</pre>
       </div>
 
       <div class="card">
-        <h3>2) Build Transaction</h3>
-        <div class="row">
-          <label>Preset:</label>
-          <select id="preset">
-            <option value="trust">TrustSet (XRBC)</option>
-            <option value="buy">OfferCreate · BUY XRBC</option>
-            <option value="sell">OfferCreate · SELL XRBC</option>
-          </select>
-          <label>Amount (XRBC)</label>
-          <input id="amount" type="number" step="0.000001" value="100" style="width:120px">
-          <label>Price (XRP/XRBC)</label>
-          <input id="price" type="number" step="0.000001" value="0.050000" style="width:140px">
-          <button id="createBtn">Create Sign Payload</button>
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Health</h3>
+          <button id="btnHealth">Run</button>
         </div>
-        <div id="buildMsg" class="muted" style="margin-top:8px">—</div>
+        <div class="divider"></div>
+        <pre id="outHealth">—</pre>
       </div>
 
       <div class="card">
-        <h3>3) Sign</h3>
-        <div id="signArea">
-          <div id="qrWrap" style="display:none; text-align:center; margin:12px 0;">
-            <img id="qr" alt="Scan with Xaman" />
-            <div class="small" style="margin-top:8px">Desktop: scan this QR in Xaman.</div>
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Price snapshot</h3>
+          <button id="btnPrice">Run</button>
+        </div>
+        <div class="divider"></div>
+        <pre id="outPrice">—</pre>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Order book (top)</h3>
+          <button id="btnBook">Run</button>
+        </div>
+        <div class="divider"></div>
+        <pre id="outBook">—</pre>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <h3 style="margin:0;">Identity manifests</h3>
+          <div class="row">
+            <button id="btnToml">TOML</button>
+            <button id="btnUA">universal-ai.json</button>
           </div>
-          <div id="openWrap" style="display:none; text-align:center; margin:12px 0;">
-            <button id="openBtn">Open in Xaman</button>
-            <div class="small" style="margin-top:8px">Mobile: tap to open the sign request.</div>
-          </div>
-          <pre id="signInfo" class="mono muted" style="white-space:pre-wrap; overflow:auto; max-height:240px;">—</pre>
-          <div id="result" class="muted">—</div>
         </div>
+        <div class="divider"></div>
+        <pre id="outId">—</pre>
       </div>
-
-      <div class="card">
-        <h3>Debug</h3>
-        <div class="small">
-          <div>Issuer: <span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></div>
-          <div>XRBC hex: <span class="mono">5852626974636F696E6361736800000000000000</span></div>
-        </div>
-      </div>
-
     </div>
+
+    <p class="foot">
+      Endpoints referenced: <code class="k">/ai/ai/ping.html</code>, <code class="k">/ai/ai/health.html</code>,
+      <code class="k">/ai/ai/price.html</code>, <code class="k">/ai/ai/orderbook.html</code>,
+      <code class="k">/.well-known/xrp-ledger.toml</code>, <code class="k">/universal-ai.json</code>.
+    </p>
   </div>
 
   <script>
-    // ---- Config ----
-    const XUMM_API_KEY = "2abde023-0df1-49a2-a4dc-86d776f6318d"; // your public key (OK in browser)
-    const XRBC = { currency: "5852626974636F696E6361736800000000000000", issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" };
-    const XRP_TO_DROPS = 1_000_000;
-
-    // ---- UI elements ----
-    const connectBtn = document.getElementById("connectBtn");
-    const disconnectBtn = document.getElementById("disconnectBtn");
-    const walletStatus = document.getElementById("walletStatus");
-
-    const presetEl = document.getElementById("preset");
-    const amountEl = document.getElementById("amount");
-    const priceEl  = document.getElementById("price");
-    const createBtn= document.getElementById("createBtn");
-    const buildMsg = document.getElementById("buildMsg");
-
-    const qrWrap = document.getElementById("qrWrap");
-    const qrImg  = document.getElementById("qr");
-    const openWrap = document.getElementById("openWrap");
-    const openBtn  = document.getElementById("openBtn");
-    const signInfo = document.getElementById("signInfo");
-    const resultEl = document.getElementById("result");
-
-    // ---- Helpers ----
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
-
-    function setStatus(txt, ok=false, err=false){
-      walletStatus.textContent = txt;
-      walletStatus.classList.remove("ok","err");
-      if (ok) walletStatus.classList.add("ok");
-      if (err) walletStatus.classList.add("err");
+    // Read-only fetcher (no POSTs, no wallet libs)
+    async function j(url) {
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error(url + " → " + r.status);
+      const ct = r.headers.get("content-type") || "";
+      if (ct.includes("application/json") || url.endsWith(".html")) return r.json();
+      return r.text();
     }
 
-    function requireAccount(){
-      const acct = localStorage.getItem("xrbcWallet");
-      if (!acct) throw new Error("Connect your wallet first.");
-      return acct;
+    function show(el, data) {
+      el.textContent = (typeof data === "string")
+        ? data
+        : JSON.stringify(data, null, 2);
     }
 
-    // ---- XUMM session ----
-    const xumm = new Xumm(XUMM_API_KEY);
-    let booted = false;
+    function ok(el) { el.previousElementSibling?.classList?.add("ok"); }
+    function err(el) { el.previousElementSibling?.classList?.add("err"); }
 
-    xumm.on("ready", () => {
-      booted = true;
-      // restore saved
-      const saved = localStorage.getItem("xrbcWallet");
-      if (saved) {
-        setStatus("Connected: " + saved, true);
-        connectBtn.disabled = true;
-        disconnectBtn.disabled = false;
-      } else {
-        setStatus("Status: Not connected");
-        connectBtn.disabled = false;
-        disconnectBtn.disabled = true;
-      }
-    });
+    const $ = (id) => document.getElementById(id);
 
-    connectBtn.addEventListener("click", async () => {
-      try {
-        await xumm.authorize();
-        const acct = await xumm.user.account;
-        localStorage.setItem("xrbcWallet", acct);
-        setStatus("Connected: " + acct, true);
-        connectBtn.disabled = true;
-        disconnectBtn.disabled = false;
-      } catch (e) {
-        setStatus("Failed to connect: " + e.message, false, true);
-      }
-    });
+    $("btnPing").onclick = async () => {
+      const out = $("outPing");
+      out.textContent = "Checking /ai/ai/ping.html …";
+      try { const d = await j("/ai/ai/ping.html"); show(out, d); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
 
-    disconnectBtn.addEventListener("click", async () => {
-      try {
-        localStorage.removeItem("xrbcWallet");
-        await xumm.logout();
-      } catch (e) {}
-      setStatus("Status: Disconnected");
-      connectBtn.disabled = false;
-      disconnectBtn.disabled = true;
-    });
+    $("btnHealth").onclick = async () => {
+      const out = $("outHealth");
+      out.textContent = "Checking /ai/ai/health.html …";
+      try { const d = await j("/ai/ai/health.html"); show(out, d); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
 
-    // ---- Build txjson from UI ----
-    function buildTxjson(){
-      const acct = requireAccount();
-      const sel = presetEl.value;
-      const amt = Number(amountEl.value);
-      const px  = Number(priceEl.value);
+    $("btnPrice").onclick = async () => {
+      const out = $("outPrice");
+      out.textContent = "Checking /ai/ai/price.html …";
+      try { const d = await j("/ai/ai/price.html"); show(out, d); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
 
-      if (sel === "trust"){
-        return {
-          txjson: {
-            TransactionType: "TrustSet",
-            Account: acct,
-            LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
-          }
-        };
-      }
+    $("btnBook").onclick = async () => {
+      const out = $("outBook");
+      out.textContent = "Checking /ai/ai/orderbook.html …";
+      try { const d = await j("/ai/ai/orderbook.html"); show(out, d); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
 
-      if (!amt || amt <= 0 || !px || px <= 0){
-        throw new Error("Enter valid Amount & Price.");
-      }
+    $("btnToml").onclick = async () => {
+      const out = $("outId");
+      out.textContent = "Fetching /.well-known/xrp-ledger.toml …";
+      try { const t = await fetch("/.well-known/xrp-ledger.toml", { cache:"no-store" }).then(r=>r.text());
+            show(out, t.slice(0, 5000)); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
 
-      if (sel === "sell"){
-        // SELL XRBC for XRP (tfSell + XRBC value vs XRP drops)
-        const xrpTotal = px * amt;
-        return {
-          txjson: {
-            TransactionType: "OfferCreate",
-            Account: acct,
-            TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-            TakerPays: toDrops(xrpTotal),
-            Flags: 0x00080000
-          }
-        };
-      } else {
-        // BUY XRBC for XRP
-        const xrpTotal = px * amt;
-        return {
-          txjson: {
-            TransactionType: "OfferCreate",
-            Account: acct,
-            TakerGets: toDrops(xrpTotal),
-            TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) }
-          }
-        };
-      }
-    }
-
-    // ---- Create payload & present QR / Deeplink ----
-    createBtn.addEventListener("click", async () => {
-      try {
-        buildMsg.textContent = "Creating payload…";
-        resultEl.textContent = "—";
-        qrWrap.style.display = "none";
-        openWrap.style.display = "none";
-        qrImg.removeAttribute("src");
-        signInfo.textContent = "—";
-
-        const payloadReq = buildTxjson();
-
-        // IMPORTANT: we’re using the browser XUMM SDK *with the user session*,
-        // so it is allowed to create payloads client-side (no secret here).
-        const { created, resolved } = await xumm.payload.createAndSubscribe(
-          payloadReq,
-          (ev) => {
-            if (ev?.opened) buildMsg.textContent = "Payload opened in Xaman…";
-            if (ev?.signed === false) buildMsg.textContent = "Request rejected.";
-          }
-        );
-
-        buildMsg.textContent = "Payload created.";
-        // Show QR on desktop OR deeplink on mobile
-        const signUrl = created?.next?.always || created?.refs?.deeplink;
-        const qrPng   = created?.refs?.qr_png;
-
-        if (isMobile) {
-          openWrap.style.display = "";
-          openBtn.onclick = () => { window.location.href = signUrl; };
-        } else {
-          if (qrPng) {
-            qrWrap.style.display = "";
-            qrImg.src = qrPng;
-          }
-        }
-
-        signInfo.textContent = JSON.stringify({
-          uuid: created?.uuid,
-          sign_url: signUrl,
-          deeplink: created?.refs?.deeplink
-        }, null, 2);
-
-        // Wait for result
-        const res = await resolved;
-        if (!res?.signed) {
-          resultEl.classList.remove("ok"); resultEl.classList.add("muted");
-          resultEl.textContent = "Not signed.";
-          return;
-        }
-        resultEl.classList.add("ok");
-        resultEl.textContent = "✅ Signed. TX submitted.";
-      } catch (e) {
-        buildMsg.textContent = "Error: " + e.message;
-      }
-    });
+    $("btnUA").onclick = async () => {
+      const out = $("outId");
+      out.textContent = "Fetching /universal-ai.json …";
+      try { const d = await j("/universal-ai.json"); show(out, d); ok(out); } catch (e) { show(out, String(e)); err(out); }
+    };
   </script>
 </body>
 </html>
+
