@@ -1,0 +1,36 @@
+<!DOCTYPE html><meta charset="utf-8"><title>XRBC health</title>
+<pre id="out">{"status":"booting"}</pre>
+<script>
+const cfg = {
+  proxy:"https://xrbitcoincash-github-io.onrender.com",
+  ua:"/universal-ai.json",
+  toml:"/.well-known/xrp-ledger.toml"
+};
+async function call(p){const r=await fetch(cfg.proxy,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)});if(!r.ok)throw new Error("proxy "+r.status);const j=await r.json();if(j.error)throw new Error(JSON.stringify(j.error));return j;}
+async function txt(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(u+" "+r.status);return r.text();}
+async function json(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(u+" "+r.status);return r.json();}
+(async()=>{
+  const [state,ua,toml]=await Promise.allSettled([
+    call({method:"server_state",params:[]}),
+    json(cfg.ua),
+    txt(cfg.toml)
+  ]);
+  const s = state.status==="fulfilled" ? state.value.result?.state||{} : null;
+  const v = s?.validated_ledger||{};
+  const peers = s?.peers ?? null;
+  const server_state = s?.server_state ?? null;
+  const hasValidated = typeof v?.seq==="number" || typeof v?.base_fee_xrp==="number";
+  const ok = (server_state==="full" && (peers||0)>=20) || hasValidated; // Clio-safe
+  const out = {
+    project:"XRBitcoinCash",
+    ok, server_state, peers,
+    validated_seq: v?.seq ?? null,
+    manifest_ok: ua.status==="fulfilled",
+    toml_ok: toml.status==="fulfilled",
+    updated_at: new Date().toISOString()
+  };
+  document.getElementById("out").textContent = JSON.stringify(out,null,2);
+})().catch(e=>{
+  document.getElementById("out").textContent = JSON.stringify({ok:false,error:e.message,updated_at:new Date().toISOString()},null,2);
+});
+</script>
