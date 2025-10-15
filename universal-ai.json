@@ -96,3 +96,8 @@
 
   "updated": "2025-10-15"
 }
+"ident": {
+  "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+  "currency_hex": "5852626974636F696E6361736800000000000000",
+  "pair_default": "XRBC/XRP"
+}
