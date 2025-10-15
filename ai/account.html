@@ -1,1 +1,18 @@
+<!DOCTYPE html><meta charset="utf-8"><title>XRBC account</title>
+<pre id="out">{"status":"initializing"}</pre>
+<script>
+(async function(){
+  const out=document.getElementById("out");const now=()=>new Date().toISOString();
+  const PROXY="https://xrbitcoincash-github-io.onrender.com";
+  const ISSUER="rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
+  const write=o=>out.textContent=JSON.stringify(o,null,2);
+  try{
+    const r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({method:"account_info",params:[{account:ISSUER,ledger_index:"validated"}]})});
+    if(!r.ok) throw new Error("proxy "+r.status);
+    const j=await r.json(); if(j.error) throw new Error("xrpl "+JSON.stringify(j.error));
+    const ai=j.result?.account_data||{};
+    write({project:"XRBitcoinCash",issuer:ISSUER,flags:ai.Flags??null,owner_count:ai.OwnerCount??null,xrp_balance_drops:ai.Balance??null,sequence:ai.Sequence??null,updated_at:now()});
+  }catch(e){write({error:String(e.message||e),updated_at:now()});}
+})();
+</script>
 
