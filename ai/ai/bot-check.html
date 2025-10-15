@@ -1,0 +1,33 @@
+<!DOCTYPE html><meta charset="utf-8"><title>XRBC bot-check</title>
+<pre id="out">{"status":"initializing"}</pre>
+<script>
+(async()=>{
+  const out=document.getElementById("out"); const write=o=>out.textContent=JSON.stringify(o,null,2);
+  const base="/ai/ai"; // stay in the working folder
+  const endpoints={
+    health:      `${base}/health.html`,
+    price:       `${base}/price.html`,
+    orderbook:   `${base}/orderbook.html`,
+    price_lite:  `${base}/price-lite.html`,
+    account:     `${base}/account.html`,
+    supply:      `${base}/supply.html`,
+    ping:        `${base}/ping.html`
+  };
+  try{
+    const results={};
+    for (const [name,url] of Object.entries(endpoints)){
+      try{
+        const r=await fetch(url,{cache:"no-store"});
+        const ok=r.ok;
+        const ctype=r.headers.get("content-type")||"";
+        results[name]={ ok, status:r.status, url, content_type:ctype };
+      }catch(e){
+        results[name]={ ok:false, error:String(e), url };
+      }
+    }
+    write({results, updated_at:new Date().toISOString()});
+  }catch(e){
+    write({ ok:false, error:String(e), updated_at:new Date().toISOString() });
+  }
+})();
+</script>
