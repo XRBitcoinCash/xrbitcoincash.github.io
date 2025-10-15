@@ -1,0 +1,24 @@
+<!DOCTYPE html><meta charset="utf-8"><title>XRBC status</title>
+<pre id="out">{"status":"initializing"}</pre>
+<script>
+(async function(){
+  const out=document.getElementById("out");const now=()=>new Date().toISOString();
+  const urls={
+    health:"/ai/ai/health.html",
+    price:"/ai/ai/ai/price.html",
+    orderbook:"/ai/ai/orderbook.html",
+    price_lite:"/ai/ai/price-lite.html",
+    account:"/ai/ai/account.html",
+    supply:"/ai/ai/supply.html",
+    ping:"/ai/ai/ping.html"
+  };
+  const write=o=>out.textContent=JSON.stringify(o,null,2);
+  try{
+    const entries=await Promise.all(Object.entries(urls).map(async([k,u])=>{
+      try{const r=await fetch(u,{cache:"no-store"});return [k,{ok:r.ok,status:r.status,url:u}];}
+      catch(e){return [k,{ok:false,error:String(e),url:u}];}
+    }));
+    write(Object.fromEntries(entries.concat([["updated_at",new Date().toISOString()]])));
+  }catch(e){write({error:String(e.message||e),updated_at:now()});}
+})();
+</script>
