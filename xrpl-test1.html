@@ -120,7 +120,7 @@
     <input id="signUrl" type="text" readonly>
     <button id="copyUrl" class="btn" type="button">Copy</button>
   </div>
-  <a id="openInXaman" class="btn" href="#" style="margin-top:8px;">Open in Xaman</a>
+  <a id="openInXaman" class="btn" href="#" style="margin-top:8px;" rel="noopener">Open in Xaman</a>
   <div id="connectMsg" class="status-text" style="display:block;margin-top:8px;">Waiting for signature…</div>
   <div id="statusLog"></div>
 </div>
@@ -235,6 +235,18 @@
   }
   function log(msg){ const el = document.getElementById('statusLog'); if(el){ el.insertAdjacentHTML('beforeend', `<div>• ${msg}</div>`); el.scrollTop = el.scrollHeight; } }
 
+  /* === Sologenic-style same-tab deep-link + modern clipboard === */
+  function openSameTab(url){ location.assign(url); }
+  async function copyToClipboard(text){
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      const ok = document.execCommand('copy'); document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
   async function getLedgerInfo(){ return xrplRequest({ method:"ledger", params:[{ ledger_index:"validated" }] }); }
   async function getXrbcOrderBook(){
     async function fetchSide(taker_gets, taker_pays, sideName){
@@ -272,11 +284,11 @@
     const signUrlInput = document.getElementById("signUrl");
     document.getElementById("closeConnect").onclick = () => { modal.hidden = true; };
 
-    copyBtn.onclick = () => {
-      signUrlInput.select();
-      document.execCommand('copy');
-      msg.textContent = "Link copied to clipboard.";
-      log("Copied sign URL to clipboard.");
+    // Modern copy
+    copyBtn.onclick = async () => {
+      const ok = await copyToClipboard(signUrlInput.value);
+      msg.textContent = ok ? "Link copied to clipboard." : "Copy failed.";
+      log(ok ? "Copied sign URL to clipboard." : "Copy failed.");
     };
 
     // Restore session
@@ -322,9 +334,10 @@
           if (ev?.signed === false){ msg.textContent = "Request rejected."; log("User rejected request."); }
         });
 
-        // Show modal + QR + link (desktop), or deeplink (mobile)
+        // Show modal + QR + same-tab link (desktop), or same-tab deep link (mobile)
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
         deepLink.href = created.next.always;
+        deepLink.onclick = (e) => { e.preventDefault(); openSameTab(created.next.always); };
         signUrlInput.value = created.next.always;
         qrImg.src = created.refs.qr_png;
 
@@ -336,7 +349,7 @@
           modal.hidden = false;
         }
 
-        // Await result (must have websocket allowed in CSP)
+        // Await result
         const result = await resolved;
         modal.hidden = true;
 
@@ -536,9 +549,11 @@
         });
 
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-        document.getElementById("openInXaman").href = created.next.always;
+        const openBtn = document.getElementById("openInXaman");
         document.getElementById("signUrl").value = created.next.always;
         document.getElementById("connectQr").src = created.refs.qr_png;
+        openBtn.href = created.next.always;
+        openBtn.onclick = (e) => { e.preventDefault(); openSameTab(created.next.always); };
 
         if (isMobile) {
           location.href = created.next.always;
@@ -577,9 +592,11 @@
           if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
         });
 
-        document.getElementById("openInXaman").href = payload.created.next.always;
+        const openBtn = document.getElementById("openInXaman");
         document.getElementById("signUrl").value = payload.created.next.always;
         document.getElementById("connectQr").src = payload.created.refs.qr_png;
+        openBtn.href = payload.created.next.always;
+        openBtn.onclick = (e) => { e.preventDefault(); openSameTab(payload.created.next.always); };
 
         if (isMobile) {
           location.href = payload.created.next.always;
