@@ -34,7 +34,7 @@
   <meta name="twitter:description" content="Trade XRBC on XRPL. Connect your wallet, place limit orders, and view AMM pool info.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
 
-  <!-- CSP (kept; main protection is JS + removing overlay) -->
+  <!-- CSP (unchanged) -->
   <meta http-equiv="Content-Security-Policy"
         content="
           default-src 'self' https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
@@ -52,7 +52,7 @@
           upgrade-insecure-requests;
         ">
 
-  <!-- AI / machine-readable metadata (JSON-LD) -->
+  <!-- JSON-LD -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -60,15 +60,8 @@
     "name": "Safely trade XRBC · XRBitcoinCash",
     "url": "https://xrbitcoincash.com/trade.html",
     "description": "Safely trade XRBC on the XRP Ledger. Connect your Xaman (Xumm) wallet to place XRBC/XRP limit orders, read the order book, and view AMM pool info.",
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": "XRBitcoinCash",
-      "url": "https://xrbitcoincash.com/"
-    },
-    "primaryImageOfPage": {
-      "@type": "ImageObject",
-      "url": "https://xrbitcoincash.com/xrbc-nft.png"
-    },
+    "isPartOf": { "@type": "WebSite", "name": "XRBitcoinCash", "url": "https://xrbitcoincash.com/" },
+    "primaryImageOfPage": { "@type": "ImageObject", "url": "https://xrbitcoincash.com/xrbc-nft.png" },
     "about": {
       "@type": "Cryptocurrency",
       "name": "XRBitcoinCash (XRBC)",
@@ -84,7 +77,6 @@
   </script>
 
   <meta name="ai-readable" content="This page exposes structured data (JSON-LD) describing the XRBC trading interface on XRPL, including issuer and currency hex.">
-
   <link rel="stylesheet" href="/css/xrbc-trade.css?v=1">
 </head>
 <body>
@@ -95,24 +87,6 @@
     <span class="btn btn-secondary is-disabled" style="margin-top: 12px;" aria-disabled="true">Home</span>
   </div>
 </header>
-
-<!-- Custom connect modal (prevents fullscreen overlay/nav) -->
-<div id="connectModal" hidden
-     style="position:fixed;right:16px;bottom:16px;width:320px;background:#121821;border:1px solid #1f2937;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:9999;padding:14px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <strong>Scan with Xaman</strong>
-    <button id="closeConnect" class="btn" type="button"
-            style="background:#0c131c;border:1px solid #1f2937;border-radius:10px;padding:6px 10px;cursor:pointer;">
-      Close
-    </button>
-  </div>
-  <img id="connectQr" alt="Xaman QR" style="width:100%;border-radius:8px;background:#0c131c" />
-  <a id="openInXaman" class="btn" href="#"
-     style="display:inline-block;margin-top:10px;background:#0c131c;border:1px solid #1f2937;border-radius:10px;padding:10px 14px;text-decoration:none;color:#e7edf5;">
-    Open in Xaman
-  </a>
-  <div id="connectMsg" class="status-text" style="display:block;margin-top:8px;">Waiting for signature…</div>
-</div>
 
 <div class="container" style="max-width:800px;margin:0 auto;padding:20px;text-align:center;">
   <h1 style="margin-bottom:24px;">XRBitcoinCash · XRBC/XRP Trading & Ledger Portal</h1>
@@ -211,18 +185,17 @@
 <!-- Libraries -->
 <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
 <script>
-  // ==== Defensive block against 404.local (clicks + window.open) ====
+  /* Block any link clicks to 404.local (including links in Xaman overlay) */
   document.addEventListener('click', (e) => {
     const a = e.target.closest && e.target.closest('a[href]');
-    if (a && /(^https?:\/\/)?404\.local(\/|$)/i.test(a.href)) {
-      e.preventDefault(); e.stopPropagation();
-    }
-  });
-  window.open = new Proxy(window.open, {
-    apply(target, thisArg, args) {
-      if (args && args[0] && /404\.local/i.test(String(args[0]))) return null;
-      return Reflect.apply(target, thisArg, args);
-    }
+    if (!a) return;
+    try {
+      const u = new URL(a.href, location.href);
+      if (u.hostname === '404.local') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    } catch (_) {}
   });
 
   // === Config ===
@@ -249,21 +222,17 @@
     return data;
   }
 
-  // Drops utils
   const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
-  // Guard: ensure wallet is connected
   function requireWallet() {
     if (!window.__xrbcWallet) throw new Error("Connect your wallet first.");
     return window.__xrbcWallet;
   }
 
-  // === Helpers ===
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
 
-  // === Order Book (dual-sided) ===
   async function getXrbcOrderBook() {
     async function fetchSide(taker_gets, taker_pays, sideName) {
       const rows = [];
@@ -281,29 +250,28 @@
               ? parseFloat(offer.TakerPays.value)
               : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
             const price = pays / gets;
-            rows.push(\`<tr><td>\${sideName}</td><td>\${price.toFixed(6)}</td><td>\${gets.toFixed(2)}</td></tr>\`);
+            rows.push(`<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)}</td></tr>`);
           }
         } else {
-          rows.push(\`<tr><td>\${sideName}</td><td>No offers</td><td>-</td></tr>\`);
+          rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
         }
       } catch (err) {
-        rows.push(\`<tr><td>\${sideName}</td><td>Error</td><td>\${err.message}</td></tr>\`);
+        rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${err.message}</td></tr>`);
       }
       return rows;
     }
     const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
     const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
-    return \`
+    return `
       <table class="table">
         <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
-        <tbody>\${asks.join("")}\${bids.join("")}</tbody>
+        <tbody>${asks.join("")}${bids.join("")}</tbody>
       </table>
-    \`;
+    `;
   }
 
-  // === Main logic ===
   (async function(){
-    // Wallet connect
+    // Wallet connect (RESTORED original flow)
     const xumm = new Xumm(cfg.xummApiKey);
     const btn = document.getElementById("connectWalletBtn");
     const statusEl = document.getElementById("walletStatus");
@@ -311,7 +279,6 @@
 
     let hasSavedAcct = false;
 
-    // Restore persisted connection on refresh (if present)
     const savedAcct = localStorage.getItem("xrbcWallet");
     if (savedAcct) {
       hasSavedAcct = true;
@@ -323,59 +290,20 @@
 
     xumm.on("ready", () => { if (!hasSavedAcct) btn.disabled = false; });
 
-    // ====== REPLACED CONNECT HANDLER: custom SignIn payload in small modal ======
     btn.addEventListener("click", async () => {
-      const modal = document.getElementById("connectModal");
-      const qrImg = document.getElementById("connectQr");
-      const deepLink = document.getElementById("openInXaman");
-      const msg = document.getElementById("connectMsg");
-      const onMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-      document.getElementById("closeConnect").onclick = () => { modal.hidden = true; };
-
       try {
-        const { created, resolved } = await xumm.payload.createAndSubscribe({
-          txjson: { TransactionType: "SignIn" },
-          options: { return_url: { web: location.href } }
-        }, (ev) => {
-          if (ev?.opened) msg.textContent = "Payload opened…";
-          if (ev?.signed === false) msg.textContent = "Request rejected.";
-        });
-
-        // Show our own small QR (no fullscreen overlay)
-        qrImg.src = created.refs.qr_png;
-        deepLink.href = created.next.always;
-        modal.hidden = false;
-
-        if (onMobile) {
-          // deep-link into the app on phones
-          location.href = created.next.always;
-        }
-
-        const outcome = await resolved;
-        modal.hidden = true;
-
-        if (!outcome.signed) {
-          statusEl.textContent = "Offer not signed.";
-          return;
-        }
-
-        // Connected: read account & persist
+        await xumm.authorize();
         const acct = await xumm.user.account;
         statusEl.textContent = "Connected: " + acct;
         window.__xrbcWallet = acct;
         localStorage.setItem("xrbcWallet", acct);
         disconnectBtn.disabled = false;
         btn.disabled = true;
-
       } catch (err) {
-        modal.hidden = true;
-        statusEl.textContent = "Failed to connect: " + err.message;
+        statusEl.textContent = "Failed to connect wallet";
       }
     });
-    // ====== end replacement ======
 
-    // Disconnect wallet
     disconnectBtn.addEventListener("click", () => {
       window.__xrbcWallet = null;
       localStorage.removeItem("xrbcWallet");
@@ -405,7 +333,7 @@
       const interval = setInterval(() => {
         seconds++;
         const msgIndex = Math.floor((seconds / 2) % messages.length);
-        ledgerOut.textContent = messages[msgIndex] + \` (\${seconds}s)\`;
+        ledgerOut.textContent = messages[msgIndex] + ` (${seconds}s)`;
       }, 2000);
 
       try {
@@ -432,7 +360,7 @@
       }
     });
 
-    // === Trading UI ===
+    // Trading UI
     const placeOfferBtn = document.getElementById("placeOfferBtn");
     const sideEl   = document.getElementById("side");
     const amountEl = document.getElementById("amount");
@@ -510,7 +438,7 @@
 
         priceEl.value = Number(effectivePrice).toFixed(6);
         recalcTotals();
-        tradeMsg.textContent = \`Best price calculated from AMM pool (\${side}).\`;
+        tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
         tradeMsg.classList.remove("connecting");
         tradeMsg.classList.add("ok");
         tradeMsg.style.animation = "none";
@@ -518,15 +446,16 @@
         tradeMsg.style.fontWeight = "600";
 
         const poolOut = document.getElementById("ammPoolOutput");
-        poolOut.innerHTML = \`
+        poolOut.innerHTML = `
           <table class="table">
             <thead><tr><th>Reserve</th><th>Value</th></tr></thead>
             <tbody>
-              <tr><td>XRP</td><td>\${reserveXrp.toFixed(2)} XRP</td></tr>
-              <tr><td>XRBC</td><td>\${reserveXrbc.toFixed(2)} XRBC</td></tr>
-              <tr><td>Trading Fee</td><td>\${(feeRate*100).toFixed(3)}%</td></tr>
+              <tr><td>XRP</td><td>${reserveXrp.toFixed(2)} XRP</td></tr>
+              <tr><td>XRBC</td><td>${reserveXrbc.toFixed(2)} XRBC</td></tr>
+              <tr><td>Trading Fee</td><td>${(feeRate*100).toFixed(3)}%</td></tr>
             </tbody>
-          </table>\`;
+          </table>
+        `;
       } catch (e) {
         tradeMsg.textContent = "🔐 Still connecting securely to XRPL…";
         tradeMsg.classList.add("connecting");
@@ -597,7 +526,7 @@
       }
     });
 
-    // === Trustline Setup (Local) ===
+    // Trustline
     const setTrustlineBtn = document.getElementById("setTrustlineBtn");
     const trustlineMsg = document.getElementById("trustlineMsg");
 
@@ -662,7 +591,7 @@
       }
     });
 
-    // === Dedicated AMM Pool updater ===
+    // AMM pool updater
     async function updateAmmPool() {
       try {
         const data = await xrplRequest({
@@ -678,20 +607,20 @@
 
         const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
         const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
-        const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
+        const feeRate     = (amm.trading_fee / 10000).toFixed(2);
 
-        document.getElementById("ammPoolOutput").innerHTML = \`
+        document.getElementById("ammPoolOutput").innerHTML = `
           <table class="table">
             <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
             <tbody>
               <tr>
-                <td>\${reserveXrp}</td>
-                <td>\${reserveXrbc}</td>
-                <td>\${feeRate}%</td>
+                <td>${reserveXrp}</td>
+                <td>${reserveXrbc}</td>
+                <td>${feeRate}%</td>
               </tr>
             </tbody>
           </table>
-        \`;
+        `;
       } catch (err) {
         document.getElementById("ammPoolOutput").textContent = "Error fetching AMM pool: " + err.message;
       }
@@ -700,7 +629,7 @@
     updateAmmPool();
     setInterval(updateAmmPool, 15000);
 
-  })(); // closes main IIFE
+  })();
 </script>
 </body>
 </html>
