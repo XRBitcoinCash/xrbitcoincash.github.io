@@ -34,7 +34,7 @@
   <meta name="twitter:description" content="Trade XRBC on XRPL. Connect your wallet, place limit orders, and view AMM pool info.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
 
-  <!-- CSP (unchanged) -->
+  <!-- CSP -->
   <meta http-equiv="Content-Security-Policy"
         content="
           default-src 'self' https://xaman.app https://xumm.app https://*.xaman.app https://*.xumm.app;
@@ -63,20 +63,19 @@
     "isPartOf": { "@type": "WebSite", "name": "XRBitcoinCash", "url": "https://xrbitcoincash.com/" },
     "primaryImageOfPage": { "@type": "ImageObject", "url": "https://xrbitcoincash.com/xrbc-nft.png" },
     "about": {
-      "@type": "Cryptocurrency",
-      "name": "XRBitcoinCash (XRBC)",
-      "alternateName": "XRBC",
+      "@type": "Cryptocurrency","name":"XRBitcoinCash (XRBC)","alternateName":"XRBC",
       "additionalProperty": [
-        { "@type": "PropertyValue", "name": "issuer", "value": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" },
-        { "@type": "PropertyValue", "name": "currency_hex", "value": "5852626974636F696E6361736800000000000000" },
-        { "@type": "PropertyValue", "name": "network", "value": "XRP Ledger (XRPL)" }
+        { "@type":"PropertyValue","name":"issuer","value":"rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" },
+        { "@type":"PropertyValue","name":"currency_hex","value":"5852626974636F696E6361736800000000000000" },
+        { "@type":"PropertyValue","name":"network","value":"XRP Ledger (XRPL)" }
       ]
     },
-    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/trade.html" }]
+    "potentialAction": [{ "@type":"BuyAction","target":"https://xrbitcoincash.com/trade.html" }]
   }
   </script>
 
   <meta name="ai-readable" content="This page exposes structured data (JSON-LD) describing the XRBC trading interface on XRPL, including issuer and currency hex.">
+
   <link rel="stylesheet" href="/css/xrbc-trade.css?v=1">
 </head>
 <body>
@@ -185,31 +184,59 @@
 <!-- Libraries -->
 <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
 <script>
-  /* Block any link clicks to 404.local (including links in Xaman overlay) */
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest && e.target.closest('a[href]');
-    if (!a) return;
-    try {
-      const u = new URL(a.href, location.href);
-      if (u.hostname === '404.local') {
-        e.preventDefault();
-        e.stopPropagation();
+  // ========= 1) Kill any auto-injected xumm.app overlay (iframe) =========
+  (function preventXummOverlay(){
+    const isXummIframe = (node) => {
+      if (!node || node.tagName !== 'IFRAME') return false;
+      const src = node.getAttribute('src') || '';
+      return /https:\/\/[^/]*xumm\.app\/sign/i.test(src);
+    };
+    const watcher = new MutationObserver((muts) => {
+      for (const m of muts) {
+        for (const n of m.addedNodes) {
+          if (isXummIframe(n)) {
+            const url = n.getAttribute('src');
+            try { n.remove(); } catch(e){}
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
+          }
+          // If a container DIV is injected first, scan its children
+          if (n.querySelectorAll) {
+            n.querySelectorAll('iframe').forEach((f) => {
+              if (isXummIframe(f)) {
+                const url = f.getAttribute('src');
+                try { f.remove(); } catch(e){}
+                if (url) window.open(url, '_blank', 'noopener,noreferrer');
+              }
+            });
+          }
+        }
       }
-    } catch (_) {}
-  });
+    });
+    watcher.observe(document.documentElement, { childList:true, subtree:true });
+    // Also sweep once on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('iframe').forEach((f) => {
+        if (isXummIframe(f)) {
+          const url = f.getAttribute('src');
+          try { f.remove(); } catch(e){}
+          if (url) window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      });
+    });
+  })();
 
-  // === Config ===
+  // ========= 2) App config =========
   const cfg = JSON.parse(document.getElementById("app-config").textContent);
   const PROXY_URL = cfg.proxyUrl;
 
-  // === XRBC constants ===
+  // ========= 3) XRBC constants =========
   const XRBC = {
     currency: "5852626974636F696E6361736800000000000000",
     issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
   const XRP_TO_DROPS = 1_000_000;
 
-  // === Proxy bridge ===
+  // ========= 4) XRPL proxy =========
   async function xrplRequest(payload) {
     const res = await fetch(PROXY_URL, {
       method: "POST",
@@ -221,18 +248,16 @@
     if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
     return data;
   }
-
   const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
-
   function requireWallet() {
     if (!window.__xrbcWallet) throw new Error("Connect your wallet first.");
     return window.__xrbcWallet;
   }
 
+  // ========= 5) Helpers =========
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
-
   async function getXrbcOrderBook() {
     async function fetchSide(taker_gets, taker_pays, sideName) {
       const rows = [];
@@ -270,15 +295,14 @@
     `;
   }
 
+  // ========= 6) UI wiring =========
   (async function(){
-    // Wallet connect (RESTORED original flow)
     const xumm = new Xumm(cfg.xummApiKey);
     const btn = document.getElementById("connectWalletBtn");
     const statusEl = document.getElementById("walletStatus");
     const disconnectBtn = document.getElementById("disconnectWalletBtn");
 
     let hasSavedAcct = false;
-
     const savedAcct = localStorage.getItem("xrbcWallet");
     if (savedAcct) {
       hasSavedAcct = true;
@@ -287,23 +311,38 @@
       disconnectBtn.disabled = false;
       btn.disabled = true;
     }
-
     xumm.on("ready", () => { if (!hasSavedAcct) btn.disabled = false; });
 
+    // ===== IMPORTANT: No overlay connect. New tab only. =====
     btn.addEventListener("click", async () => {
       try {
-        await xumm.authorize();
+        const { created, resolved } = await xumm.payload.createAndSubscribe(
+          { txjson: { TransactionType: "SignIn" }, options: { return_url: { web: location.href } } },
+          (ev) => {
+            if (ev?.opened) statusEl.textContent = "Sign request opened…";
+            if (ev?.signed === false) statusEl.textContent = "Request rejected.";
+          }
+        );
+
+        // Open Xaman sign page in NEW TAB/WINDOW. No overlay.
+        window.open(created.next.always, '_blank', 'noopener,noreferrer');
+
+        const result = await resolved;
+        if (!result.signed) { statusEl.textContent = "Not signed."; return; }
+
         const acct = await xumm.user.account;
         statusEl.textContent = "Connected: " + acct;
         window.__xrbcWallet = acct;
         localStorage.setItem("xrbcWallet", acct);
         disconnectBtn.disabled = false;
         btn.disabled = true;
+
       } catch (err) {
-        statusEl.textContent = "Failed to connect wallet";
+        statusEl.textContent = "Failed to connect: " + err.message;
       }
     });
 
+    // Disconnect
     disconnectBtn.addEventListener("click", () => {
       window.__xrbcWallet = null;
       localStorage.removeItem("xrbcWallet");
@@ -313,11 +352,10 @@
       btn.disabled = false;
     });
 
-    // Ledger fetch
+    // Ledger
     document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
       const ledgerOut = document.getElementById("ledgerOutput");
       let seconds = 0;
-
       const messages = [
         "Initializing secure connection…",
         "Establishing proxy communication…",
@@ -326,14 +364,12 @@
         "Establishing secure connection to digital environment…",
         "Finalizing ledger response…"
       ];
-
       ledgerOut.textContent = messages[0];
       ledgerOut.style.color = "#9fb0c5";
-
       const interval = setInterval(() => {
         seconds++;
-        const msgIndex = Math.floor((seconds / 2) % messages.length);
-        ledgerOut.textContent = messages[msgIndex] + ` (${seconds}s)`;
+        const i = Math.floor((seconds / 2) % messages.length);
+        ledgerOut.textContent = messages[i] + ` (${seconds}s)`;
       }, 2000);
 
       try {
@@ -366,8 +402,8 @@
     const amountEl = document.getElementById("amount");
     const priceEl  = document.getElementById("price");
     const tradeMsg = document.getElementById("tradeMsg");
-    const buyTab      = document.getElementById("buyTab");
-    const sellTab     = document.getElementById("sellTab");
+    const buyTab   = document.getElementById("buyTab");
+    const sellTab  = document.getElementById("sellTab");
     const totalXrpEl  = document.getElementById("totalXrp");
     const suggestBtn  = document.getElementById("suggestPriceBtn");
     const actionWordEl= document.getElementById("actionWord");
@@ -379,7 +415,6 @@
       if (actionWordEl) actionWordEl.textContent = side;
       recalcTotals();
     }
-
     function recalcTotals() {
       const amt = Number(amountEl.value) || 0;
       const px  = Number(priceEl.value)  || 0;
@@ -391,29 +426,22 @@
     async function fillBestPrice() {
       const side = sideEl.value;
       const amount = Number(amountEl.value);
-
       if (!amount || amount <= 0) {
         tradeMsg.textContent = "Enter a valid XRBC amount.";
         tradeMsg.classList.remove("ok", "err");
         return;
       }
-
       tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…";
       tradeMsg.classList.remove("ok", "err");
       tradeMsg.classList.add("connecting");
-      tradeMsg.style.animation = "flashText 1.6s infinite alternate";
-      tradeMsg.style.color = "#00E5FF";
-      tradeMsg.style.fontWeight = "700";
 
       try {
         const data = await xrplRequest({
           method: "amm_info",
           params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
         });
-
         const amm = data.result?.amm;
         if (!amm) throw new Error("No AMM found for XRBC/XRP");
-
         const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
         const reserveXrbc = parseFloat(amm.amount2.value);
         const feeRate     = amm.trading_fee / 1_000_000;
@@ -441,9 +469,6 @@
         tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
         tradeMsg.classList.remove("connecting");
         tradeMsg.classList.add("ok");
-        tradeMsg.style.animation = "none";
-        tradeMsg.style.color = "#22c55e";
-        tradeMsg.style.fontWeight = "600";
 
         const poolOut = document.getElementById("ammPoolOutput");
         poolOut.innerHTML = `
@@ -454,8 +479,7 @@
               <tr><td>XRBC</td><td>${reserveXrbc.toFixed(2)} XRBC</td></tr>
               <tr><td>Trading Fee</td><td>${(feeRate*100).toFixed(3)}%</td></tr>
             </tbody>
-          </table>
-        `;
+          </table>`;
       } catch (e) {
         tradeMsg.textContent = "🔐 Still connecting securely to XRPL…";
         tradeMsg.classList.add("connecting");
@@ -467,11 +491,7 @@
     if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
     setSide(sideEl.value || "buy");
     recalcTotals();
-
-    setInterval(() => {
-      const amt = Number(amountEl.value);
-      if (amt > 0) fillBestPrice().catch(err => console.error("Auto-refresh error:", err));
-    }, 10000);
+    setInterval(() => { const amt = Number(amountEl.value); if (amt > 0) fillBestPrice().catch(()=>{}); }, 10000);
 
     placeOfferBtn.addEventListener("click", async () => {
       try {
@@ -479,21 +499,17 @@
         const side   = sideEl.value;
         const amt    = Number(amountEl.value);
         const price  = Number(priceEl.value);
+        if (!amt || !price || amt <= 0 || price <= 0) throw new Error("Enter valid Amount & Price.");
 
-        if (!amt || !price || amt <= 0 || price <= 0) {
-          throw new Error("Enter valid Amount & Price.");
-        }
-
-        let txjson;
         const xrpTotal = price * amt;
-
+        let txjson;
         if (side === "sell") {
           txjson = {
             TransactionType: "OfferCreate",
             Account: account,
             TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
             TakerPays: toDrops(xrpTotal),
-            Flags: 0x00080000 // tfSell
+            Flags: 0x00080000
           };
         } else {
           txjson = {
@@ -503,19 +519,18 @@
             TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) }
           };
         }
-
         tradeMsg.textContent = "Open Xaman to review & sign…";
 
-        const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+        const { created, resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
           if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
           if (ev?.signed === false) tradeMsg.textContent = "Offer rejected.";
         });
 
+        // Open in new tab, not overlay
+        window.open(created.next.always, '_blank', 'noopener,noreferrer');
+
         const result = await resolved;
-        if (!result.signed) {
-          tradeMsg.textContent = "Offer not signed.";
-          return;
-        }
+        if (!result.signed) { tradeMsg.textContent = "Offer not signed."; return; }
 
         tradeMsg.textContent = "Offer submitted. Refreshing order book…";
         const html = await getXrbcOrderBook();
@@ -529,10 +544,8 @@
     // Trustline
     const setTrustlineBtn = document.getElementById("setTrustlineBtn");
     const trustlineMsg = document.getElementById("trustlineMsg");
-
     setTrustlineBtn.addEventListener("click", async () => {
       trustlineMsg.textContent = "Preparing trustline request…";
-
       try {
         const account = requireWallet();
         const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -541,13 +554,8 @@
           const link = document.createElement("a");
           link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
           link.textContent = "👉 Tap here to set XRBC Trustline";
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.style.display = "inline-block";
-          link.style.marginTop = "12px";
-          link.style.color = "#60a5fa";
-          link.style.fontWeight = "600";
-
+          link.target = "_blank"; link.rel = "noopener noreferrer";
+          link.style.display = "inline-block"; link.style.marginTop = "12px"; link.style.color = "#60a5fa"; link.style.fontWeight = "600";
           trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
           trustlineMsg.appendChild(link);
           return;
@@ -556,79 +564,47 @@
         const txjson = {
           TransactionType: "TrustSet",
           Account: account,
-          LimitAmount: {
-            currency: XRBC.currency,
-            issuer: XRBC.issuer,
-            value: "1000000"
-          }
+          LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
         };
-
         const payload = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
           if (ev?.opened) trustlineMsg.textContent = "Payload opened in Xaman…";
           if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
         });
 
-        if (payload?.created?.refs?.qr_png) {
-          const qr = document.createElement("img");
-          qr.src = payload.created.refs.qr_png;
-          qr.alt = "Scan with Xaman to set XRBC trustline";
-          qr.style.maxWidth = "240px";
-          qr.style.marginTop = "12px";
-
-          trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-          trustlineMsg.appendChild(qr);
-        }
+        // Open in new tab, not overlay
+        window.open(payload.created.next.always, '_blank', 'noopener,noreferrer');
 
         const result = await payload.resolved;
-        if (!result.signed) {
-          trustlineMsg.textContent = "Trustline not signed.";
-          return;
-        }
-
+        if (!result.signed) { trustlineMsg.textContent = "Trustline not signed."; return; }
         trustlineMsg.textContent = "✅ Trustline set successfully!";
       } catch (err) {
         trustlineMsg.textContent = "Error: " + err.message;
       }
     });
 
-    // AMM pool updater
+    // AMM pool
     async function updateAmmPool() {
       try {
         const data = await xrplRequest({
           method: "amm_info",
           params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
         });
-
         const amm = data.result?.amm;
-        if (!amm) {
-          document.getElementById("ammPoolOutput").textContent = "No AMM pool exists yet.";
-          return;
-        }
-
+        if (!amm) { document.getElementById("ammPoolOutput").textContent = "No AMM pool exists yet."; return; }
         const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
         const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
         const feeRate     = (amm.trading_fee / 10000).toFixed(2);
-
         document.getElementById("ammPoolOutput").innerHTML = `
           <table class="table">
             <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
-            <tbody>
-              <tr>
-                <td>${reserveXrp}</td>
-                <td>${reserveXrbc}</td>
-                <td>${feeRate}%</td>
-              </tr>
-            </tbody>
-          </table>
-        `;
+            <tbody><tr><td>${reserveXrp}</td><td>${reserveXrbc}</td><td>${feeRate}%</td></tr></tbody>
+          </table>`;
       } catch (err) {
         document.getElementById("ammPoolOutput").textContent = "Error fetching AMM pool: " + err.message;
       }
     }
-
     updateAmmPool();
     setInterval(updateAmmPool, 15000);
-
   })();
 </script>
 </body>
