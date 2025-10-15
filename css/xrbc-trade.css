@@ -215,9 +215,3 @@ pre {
 @keyframes spinHand { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 
-/* Visual style for disabled, non-clickable header button */
-.is-disabled[aria-disabled="true"] {
-  opacity: .7;
-  cursor: default;
-  pointer-events: none;
-}
