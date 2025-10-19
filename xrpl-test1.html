@@ -321,12 +321,18 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
   const modalFoot  = document.getElementById('modalFoot');
   const closeModalBtn = document.getElementById('closeModalBtn');
 
+  
   function renderQr() {
-    try { window.__MiniQR.render(pageQr, MOBILE_TARGET_URL, 216); }
-    catch (e) { pageQr.textContent = 'QR unavailable'; }
-    pageUrlCopy.textContent = MOBILE_TARGET_URL;
-  }
+  pageQr.innerHTML = '';
+  const img = new Image();
+  img.alt = 'QR to open https://xrbitcoincash.com/trade.html';
+  img.style.maxWidth = '240px';
+  img.src = 'data:image/png;base64,PASTE_FULL_BASE64_HERE';
+  pageQr.appendChild(img);
+  pageUrlCopy.textContent = MOBILE_TARGET_URL;
+}
 
+  
   function openMobileModal(mode /* 'connect' | 'trustline' */){
     if (mode === 'trustline') {
       modalTitle.textContent = 'Set XRBC Trustline on Mobile';
