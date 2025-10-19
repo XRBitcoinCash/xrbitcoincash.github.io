@@ -206,7 +206,76 @@ pre{
 .nowrap{white-space:nowrap}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
 
-/* ===== Removed old/unused =====
-- .row-flex (not present in markup)
-- Redundant large paddings/margins in footer
-================================ */
+/* ==== Mobile footer + layout balance tweaks ==== */
+
+/* Give the content area a bit more bottom padding so it
+   doesn't feel like the footer eats the page on mobile */
+.container{
+  padding-bottom: clamp(56px, 6vh, 96px);
+}
+
+/* Make long monospace strings wrap instead of forcing wide rows */
+.mono{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+/* Footer: compact + stacked on mobile */
+@media (max-width: 860px){
+  .site-footer{ margin-top: 20px; }
+  .site-footer .wrap{
+    padding: 12px 14px;
+    gap: 12px;
+  }
+  .site-footer h3{
+    font-size: .96rem;
+    margin-bottom: 2px;
+  }
+  .site-footer .cols{
+    gap: 10px;              /* tighter vertical gap between sections */
+  }
+
+  /* Stack label/value vertically so the “min-width” label column
+     doesn’t make the rows feel huge on small screens */
+  .fact{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    align-items: start;
+  }
+  .fact strong{
+    min-width: 0;          /* remove the wide label column */
+    font-size: .88rem;
+    opacity: .9;
+  }
+  .fact .mono,
+  .fact span{
+    font-size: .9rem;
+  }
+
+  /* Smaller buttons/links in the footer */
+  .cta-chatgpt{
+    padding: 5px 8px;
+    font-size: .88rem;
+    border-radius: 9px;
+    gap: 6px;
+  }
+  .cta-chatgpt img{
+    width: 16px; height: 16px;
+  }
+
+  /* Legal line: slimmer and wraps nicely */
+  .legal{
+    padding-top: 8px;
+    gap: 6px;
+    font-size: .82rem;
+    line-height: 1.35;
+  }
+}
+
+/* Ultra-small phones: trim just a touch more */
+@media (max-width: 380px){
+  .site-footer .wrap{ padding: 10px 12px; }
+  .small{ font-size: .86rem; }
+}
+
