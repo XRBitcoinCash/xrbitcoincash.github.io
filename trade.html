@@ -136,21 +136,20 @@
 
   <div class="card" style="margin-bottom:24px;">
     <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
-<!-- Place directly under <h2>Trade XRBC ↔ XRP</h2> -->
-<div role="note" aria-label="Trading fee info"
+<!-- AMM fee explainer (drop-in, mobile-friendly) -->
+<div role="note" aria-label="AMM fee and slippage"
      style="margin:8px 0 14px; padding:10px 12px; border:1px solid #1f2a37;
             border-radius:10px; background:linear-gradient(180deg,#0e1520,#0c131c);
-            color:#9fb0c5; font-size:13px; text-align:left; line-height:1.45">
+            color:#9fb0c5; font-size:13px; text-align:left">
   <strong style="color:#e7edf5">Heads up:</strong>
-  Trades include a <strong>0.025% pool fee</strong> (paid to liquidity providers). This fee helps
-  discourage opportunistic bots and supports deeper liquidity — it’s <em>not</em> a site fee.
-  The <em>Best Price</em> helper and totals already include it. Large orders may see slight slippage.
-  <span style="display:block;opacity:.9;margin-top:6px">
-    Note: XRPL’s network fee is separate and tiny (fractions of an XRP). Xaman does not add a wallet service fee.
-  </span>
+  XRBC↔XRP trades include a <strong>small AMM pool fee</strong> that is
+  <em>set by liquidity providers, not this site</em>. It compensates LPs and
+  helps reduce short-lived arbitrage. The fee is governed by LP voting and typically
+  falls in the <span style="white-space:nowrap">~0.025%–0.30%</span> range
+  <span style="opacity:.85">(current: <span id="amm-fee-now">auto</span>)</span>.
+  Our <em>Best Price</em> helper and the totals already include this fee and
+  estimated slippage. Some apps/wallets may also show their own service fee separately.
 </div>
-
-
 
     <div class="trade-card" id="tradeCard">
       <!-- Tabs -->
