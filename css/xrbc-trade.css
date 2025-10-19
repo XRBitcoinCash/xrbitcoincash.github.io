@@ -269,4 +269,8 @@ pre {
 #mobileModal .actions {
   margin-top: 14px;
 }
+/* Hide wallet status on desktop-ish environments */
+@media (hover: hover) and (pointer: fine) {
+  #walletStatus { display: none !important; }
+}
 
