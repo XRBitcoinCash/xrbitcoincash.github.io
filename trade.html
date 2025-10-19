@@ -203,7 +203,7 @@
   <div id="ammPoolOutput">Loading pool info…</div>
 </div>
 
-<!-- Modal (desktop only; opened by Connect Wallet or Set Trustline) -->
+<!-- Modal (desktop only; opened by Connect Wallet, Trustline, or Place Order) -->
 <div id="mobileModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Open on mobile">
   <div class="backdrop"></div>
   <div class="dialog">
@@ -360,10 +360,14 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     pageUrlCopy.textContent = MOBILE_TARGET_URL;
   }
 
-  function openMobileModal(mode /* 'connect' | 'trustline' */){
+  // UPDATED: supports 'trade' mode
+  function openMobileModal(mode /* 'connect' | 'trustline' | 'trade' */){
     if (mode === 'trustline') {
       modalTitle.textContent = 'Set XRBC Trustline on Mobile';
       modalIntro.innerHTML = 'Trustline setup can only be completed in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile, then tap <em>Connect Wallet</em> there to set the trustline.';
+    } else if (mode === 'trade') {
+      modalTitle.textContent = 'Place Orders in Xaman (Mobile Only)';
+      modalIntro.innerHTML = 'For security, order signing happens in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile and place your limit order.<br><span class="fine">This desktop view is read-only for order submission.</span>';
     } else {
       modalTitle.textContent = 'Open on Mobile to Trade Safely';
       modalIntro.innerHTML = 'XRBC transactions are signed in <strong>Xaman</strong> on mobile. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.';
@@ -610,7 +614,13 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     }
   }, 10000);
 
+  // UPDATED: desktop shows QR modal; mobile keeps signing flow
   placeOfferBtn.addEventListener("click", async () => {
+    if (!isMobile) { 
+      openMobileModal('trade'); 
+      return; 
+    }
+
     try {
       const account = requireWallet();
       const side   = sideEl.value;
@@ -837,5 +847,4 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 <!-- ===== /XRBC Footer ===== -->
 
 </body>
-</html>    
- 
+</html>
