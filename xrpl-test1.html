@@ -361,45 +361,76 @@ function renderQr() {
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeMobileModal);
   if (modal) modal.querySelector('.backdrop').addEventListener('click', closeMobileModal);
 
-  // === Main logic ===
-  (async function(){
-    // Wallet connect
-    const xumm = new Xumm(cfg.xummApiKey);
-    const btn = document.getElementById("connectWalletBtn");
-    const statusEl = document.getElementById("walletStatus");
-    const disconnectBtn = document.getElementById("disconnectWalletBtn");
+<!-- === Main logic === -->
+<script>
+(async function () {
+  // Wallet connect
+  const xumm = new Xumm(cfg.xummApiKey);
+  const btn = document.getElementById("connectWalletBtn");
+  const statusEl = document.getElementById("walletStatus");
+  const disconnectBtn = document.getElementById("disconnectWalletBtn");
 
-    let hasSavedAcct = false;
+  // ---- tiny helpers ----
+  function setConnectedUI(acct) {
+    statusEl.textContent = "Connected: " + acct;
+    window.__xrbcWallet = acct;
+    localStorage.setItem("xrbcWallet", acct);
+    disconnectBtn.disabled = false;
+    btn.disabled = true; // while connected
+  }
+  function setDisconnectedUI() {
+    statusEl.textContent = "Status: Not connected";
+    window.__xrbcWallet = null;
+    localStorage.removeItem("xrbcWallet");
+    disconnectBtn.disabled = true;
+    if (isMobile) btn.disabled = false; // allow reconnect on mobile
+  }
+  async function refreshWalletStatus() {
+    try {
+      const acct = await xumm.user.account; // returns null or rXXXX
+      if (acct) setConnectedUI(acct);
+    } catch { /* ignore */ }
+  }
 
-    // Restore persisted connection on refresh (if present) — mobile only
-    const savedAcct = isMobile ? localStorage.getItem("xrbcWallet") : null;
-    if (savedAcct) {
-      hasSavedAcct = true;
-      window.__xrbcWallet = savedAcct;
-      statusEl.textContent = "Connected: " + savedAcct;
-      disconnectBtn.disabled = false;
-      btn.disabled = true;
+  // Restore prior session (mobile only, per your current logic)
+  const savedAcct = isMobile ? localStorage.getItem("xrbcWallet") : null;
+  if (savedAcct) setConnectedUI(savedAcct);
+
+  // When Xumm SDK is ready, try to sync once
+  xumm.on("ready", async () => {
+    await refreshWalletStatus();
+    if (isMobile && !window.__xrbcWallet) btn.disabled = false;
+  });
+
+  // Auto-refresh status when user returns from Xaman app
+  window.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshWalletStatus();
+  });
+  window.addEventListener("focus", refreshWalletStatus);
+
+  // A few quick retries after load (covers deep-link return)
+  [500, 2000, 4000, 8000].forEach(ms => setTimeout(refreshWalletStatus, ms));
+
+  // Connect button:
+  // - Desktop: open QR modal to MOBILE_TARGET_URL (no authorize here)
+  // - Mobile: normal Xaman authorize flow
+  btn.addEventListener("click", async () => {
+    if (!isMobile) { openMobileModal('connect'); return; }
+    try {
+      await xumm.authorize();
+      const acct = await xumm.user.account;
+      if (acct) setConnectedUI(acct);
+      else statusEl.textContent = "Still waiting for Xaman…";
+    } catch (err) {
+      statusEl.textContent = "Failed to connect wallet";
     }
+  });
 
-    xumm.on("ready", () => { if (isMobile && !hasSavedAcct) btn.disabled = false; });
-
-    // Connect button:
-    // - Desktop: open QR modal to MOBILE_TARGET_URL (no authorize)
-    // - Mobile: normal Xaman authorize flow
-    btn.addEventListener("click", async () => {
-      if (!isMobile) { openMobileModal('connect'); return; }
-      try {
-        await xumm.authorize();
-        const acct = await xumm.user.account;
-        statusEl.textContent = "Connected: " + acct;
-        window.__xrbcWallet = acct;
-        localStorage.setItem("xrbcWallet", acct);
-        disconnectBtn.disabled = false;
-        btn.disabled = true;
-      } catch (err) {
-        statusEl.textContent = "Failed to connect wallet";
-      }
-    });
+  // Disconnect
+  disconnectBtn.addEventListener("click", () => {
+    setDisconnectedUI();
+    xumm.logout();
+  });
 
     // Disconnect wallet
     disconnectBtn.addEventListener("click", () => {
