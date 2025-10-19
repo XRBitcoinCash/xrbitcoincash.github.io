@@ -70,15 +70,15 @@
 
   <!-- Minimal modal styles (self-contained) -->
   <style>
-    .modal { display:none; position:fixed; inset:0; z-index:1000; }
-    .modal.open { display:block; }
-    .modal .backdrop { position:absolute; inset:0; background:rgba(0,0,0,.65); }
-    .modal .dialog { position:relative; max-width:560px; margin:8vh auto; background:#0b0f14; border-radius:16px; padding:20px; }
-    .modal h3 { margin:0 0 10px; }
-    .qr-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
-    .fine { font-size:.95rem; opacity:.9; }
-    code.url { user-select:all; word-break:break-word; display:block; margin-top:6px; }
+    .modal{display:none;position:fixed;inset:0;z-index:1000}
+    .modal.open{display:block}
+    .modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+    .modal .dialog{position:relative;max-width:560px;margin:8vh auto;background:#0b0f14;border-radius:16px;padding:20px;border:1px solid #1f2a37}
+    .modal h3{margin:0 0 10px}
+    .qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .fine{font-size:.95rem;opacity:.9}
+    .modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+    code.url{user-select:all;word-break:break-word;display:block;margin-top:6px}
   </style>
 </head>
 
@@ -184,12 +184,12 @@
   <div id="ammPoolOutput">Loading pool info…</div>
 </div>
 
-<!-- Modal (desktop only; opened by Connect Wallet) -->
+<!-- Modal (desktop only; opened by Connect Wallet or Set Trustline) -->
 <div id="mobileModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Open on mobile">
   <div class="backdrop"></div>
   <div class="dialog">
-    <h3>Open on Mobile to Trade Safely</h3>
-    <p class="fine">
+    <h3 id="modalTitle">Open on Mobile to Trade Safely</h3>
+    <p id="modalIntro" class="fine">
       XRBC transactions are signed in <strong>Xaman</strong> on mobile. Scan this QR to open the
       <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.
     </p>
@@ -197,7 +197,7 @@
       <div id="pageQr" aria-label="QR for https://xrbitcoincash.com/trade.html"></div>
       <code id="pageUrlCopy" class="url">https://xrbitcoincash.com/trade.html</code>
     </div>
-    <p class="fine" style="margin-top:12px;">
+    <p id="modalFoot" class="fine" style="margin-top:12px;">
       <strong>Always check the URL:</strong> it must start with <code>https://xrbitcoincash.com</code>.<br>
       Information about Xaman can be found at its verified home page:
       <a href="https://xaman.app/" target="_blank" rel="noopener noreferrer">https://xaman.app/</a>.
@@ -221,13 +221,13 @@
 
 <!-- Tiny in-page QR generator (no network) -->
 <script>
-/* Minimal QR (MIT) trimmed) */
+/* Minimal QR (MIT, trimmed) */
 (function(){function q(a){this.mode=x.MODE_8BIT_BYTE;this.data=a}
 function y(a,b){this.typeNumber=a;this.errorCorrectLevel=b;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[]}
 var x={PAD0:236,PAD1:17,MODE_8BIT_BYTE:4};
 q.prototype={getLength:function(){return this.data.length},write:function(a){for(var b=0;b<this.data.length;b++){a.put(this.data.charCodeAt(b),8)}}};
 y.prototype={addData:function(a){this.dataList.push(new q(a));this.dataCache=null},isDark:function(a,b){return this.modules[a][b]!=null?this.modules[a][b]:false},getModuleCount:function(){return this.moduleCount},make:function(){this.typeNumber=4;this.moduleCount=this.typeNumber*4+17;this.modules=Array(this.moduleCount);for(var b=0;b<this.moduleCount;b++){this.modules[b]=Array(this.moduleCount);for(var c=0;c<this.moduleCount;c++)this.modules[b][c]=null}this.mapData()},mapData:function(){var a=this.createData(),b=0,c=this.moduleCount-1,d=this.moduleCount-1,e=!0;for(;c>0;c-=2){c==6&&c--;for(;;){for(var f=0;f<2;f++)this.modules[d][c-f]=((a[b>>>3]>>>7-(b&7))&1)==1,b++;if(e){if(d--<0){d=0;e=!1;break}}else if(d++>=this.moduleCount){d=this.moduleCount-1;e=!0;break}}}},createData:function(){for(var a=[],b=0;b<this.dataList.length;b++){var c=this.dataList[b];a.push(4);a.push(c.getLength());for(var d=0;d<c.getLength();d++)a.push(c.data.charCodeAt(d))}for(;a.length%8!=0;)a.push(0);for(;a.length<(this.moduleCount*this.moduleCount)/8;)a.push(x.PAD0),a.push(x.PAD1);return a}};
-window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);qr.make();var n=qr.getModuleCount(),s=size||208,cell=Math.floor(s/n),m=2,w=n*cell+2*m,c=document.createElement('canvas');c.width=w;c.height=w;var g=c.getContext('2d');g.fillStyle="#fff";g.fillRect(0,0,w,w);g.fillStyle="#000";for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(qr.isDark(r,k))g.fillRect(m+k*cell,m+r*cell,cell,cell);el.innerHTML="";el.appendChild(c);return c.toDataURL('image/png');}};
+window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);qr.make();var n=qr.getModuleCount(),s=size||216,cell=Math.floor(s/n),m=2,w=n*cell+2*m,c=document.createElement('canvas');c.width=w;c.height=w;var g=c.getContext('2d');g.fillStyle="#fff";g.fillRect(0,0,w,w);g.fillStyle="#000";for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(qr.isDark(r,k))g.fillRect(m+k*cell,m+r*cell,cell,cell);el.innerHTML="";el.appendChild(c)}};
 })();
 </script>
 
@@ -236,9 +236,8 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
   const cfg = JSON.parse(document.getElementById("app-config").textContent);
   const PROXY_URL = cfg.proxyUrl;
 
-  // Device check
+  // Device check + canonical target for QR
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  // Canonical mobile target for QR
   const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/trade.html';
 
   // === XRBC constants ===
@@ -261,17 +260,21 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     return data;
   }
 
+  // Drops utils
   const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
+  // Guard: ensure wallet is connected
   function requireWallet() {
     if (!window.__xrbcWallet) throw new Error("Connect your wallet first.");
     return window.__xrbcWallet;
   }
 
+  // === Helpers ===
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
 
+  // === Order Book (dual-sided) ===
   async function getXrbcOrderBook() {
     async function fetchSide(taker_gets, taker_pays, sideName) {
       const rows = [];
@@ -312,17 +315,31 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
   // === Modal helpers (desktop only) ===
   const modal = document.getElementById('mobileModal');
   const pageQr = document.getElementById('pageQr');
-  const closeModalBtn = document.getElementById('closeModalBtn');
   const pageUrlCopy = document.getElementById('pageUrlCopy');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalIntro = document.getElementById('modalIntro');
+  const modalFoot  = document.getElementById('modalFoot');
+  const closeModalBtn = document.getElementById('closeModalBtn');
 
-  function openMobileModal(){
-    // Always send to the verified trade page
-    pageUrlCopy.textContent = MOBILE_TARGET_URL;
+  function renderQr() {
     try { window.__MiniQR.render(pageQr, MOBILE_TARGET_URL, 216); }
-    catch { pageQr.textContent = 'QR unavailable'; }
+    catch (e) { pageQr.textContent = 'QR unavailable'; }
+    pageUrlCopy.textContent = MOBILE_TARGET_URL;
+  }
+
+  function openMobileModal(mode /* 'connect' | 'trustline' */){
+    if (mode === 'trustline') {
+      modalTitle.textContent = 'Set XRBC Trustline on Mobile';
+      modalIntro.innerHTML = 'Trustline setup can only be completed in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile, then tap <em>Connect Wallet</em> there to set the trustline.';
+    } else {
+      modalTitle.textContent = 'Open on Mobile to Trade Safely';
+      modalIntro.innerHTML = 'XRBC transactions are signed in <strong>Xaman</strong> on mobile. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.';
+    }
+    renderQr();
     modal.classList.add('open');
     modal.setAttribute('aria-hidden','false');
   }
+
   function closeMobileModal(){
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden','true');
@@ -356,7 +373,7 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     // - Desktop: open QR modal to MOBILE_TARGET_URL (no authorize)
     // - Mobile: normal Xaman authorize flow
     btn.addEventListener("click", async () => {
-      if (!isMobile) { openMobileModal(); return; }
+      if (!isMobile) { openMobileModal('connect'); return; }
       try {
         await xumm.authorize();
         const acct = await xumm.user.account;
@@ -397,7 +414,7 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
       const interval = setInterval(() => {
         seconds++;
         const msgIndex = Math.floor((seconds / 2) % messages.length);
-        ledgerOut.textContent = messages[msgIndex] + ` (${seconds}s)`;
+        ledgerOut.textContent = `${messages[msgIndex]} (${seconds}s)`;
       }, 2000);
 
       try {
@@ -431,7 +448,6 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     const priceEl  = document.getElementById("price");
     const tradeMsg = document.getElementById("tradeMsg");
 
-    const tradeCard   = document.getElementById("tradeCard");
     const buyTab      = document.getElementById("buyTab");
     const sellTab     = document.getElementById("sellTab");
     const totalXrpEl  = document.getElementById("totalXrp");
@@ -594,34 +610,17 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
       }
     });
 
-    // === Trustline Setup (Local) ===
+    // === Trustline Setup ===
     const setTrustlineBtn = document.getElementById("setTrustlineBtn");
     const trustlineMsg = document.getElementById("trustlineMsg");
 
     setTrustlineBtn.addEventListener("click", async () => {
+      // Desktop → show QR modal with trustline-specific text
+      if (!isMobile) { openMobileModal('trustline'); return; }
+
       trustlineMsg.textContent = "Preparing trustline request…";
-
       try {
-        const account = requireWallet(); // ensure wallet is connected
-        const isMob = isMobile;
-
-        if (isMob) {
-          const link = document.createElement("a");
-          link.href = "https://xrpl.services/?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&limit=20999999.999999996";
-          link.textContent = "👉 Tap here to set XRBC Trustline";
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.style.display = "inline-block";
-          link.style.marginTop = "12px";
-          link.style.color = "#60a5fa";
-          link.style.fontWeight = "600";
-
-          trustlineMsg.innerHTML = "Open the link below to set XRBC trustline:<br/>";
-          trustlineMsg.appendChild(link);
-          return;
-        }
-
-        // Desktop path left intact (requires wallet; if none, requireWallet() throws)
+        const account = requireWallet(); // ensure wallet is connected (mobile)
         const txjson = {
           TransactionType: "TrustSet",
           Account: account,
@@ -652,11 +651,12 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 
         trustlineMsg.textContent = "✅ Trustline set successfully!";
       } catch (err) {
-        trustlineMsg.textContent = "Error: " + err.message;
+        // On mobile, if not connected, keep it simple (no desktop QR here)
+        trustlineMsg.textContent = "Connect your wallet in Xaman (mobile), then try again.";
       }
     });
 
-    // === Dedicated AMM Pool updater ===
+    // === AMM Pool updater ===
     async function updateAmmPool() {
       try {
         const data = await xrplRequest({
