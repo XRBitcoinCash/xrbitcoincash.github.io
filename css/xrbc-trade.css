@@ -1,5 +1,9 @@
-/* === XRBitcoinCash · Dark Aurora UI (Trade) === */
+/* === XRBitcoinCash · Dark Aurora UI (Trade) — CLEAN DROP-IN === */
+
+/* ---------- Tokens ---------- */
 :root{
+  --wrap: 900px;                 /* unified page width */
+  --wrap-wide: 1000px;           /* footer may use on desktop */
   --bg:#0b0f14;
   --panel:#121821;
   --panel-2:#141b25;
@@ -7,11 +11,10 @@
   --muted:#9fb0c5;
   --accent:#60a5fa;
   --accent-2:#22d3ee;
-  --warn:#f59e0b;
-  --err:#ef4444;
   --ok:#22c55e;
+  --err:#ef4444;
   --border:#1f2937;
-  --ring:#1d4ed8;
+  --ring:#2563eb;
   --shadow:0 10px 30px rgba(0,0,0,.35);
 
   /* aurora */
@@ -20,29 +23,28 @@
   --aurora-c: rgba(16,185,129,.10);
 }
 
-/* Reset + base */
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+/* ---------- Base / Reset ---------- */
+*{box-sizing:border-box}
 html{scroll-behavior:smooth}
+html,body{height:100%}
 body{
   background:var(--bg);
   color:var(--text);
   font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  overflow-x:hidden;
-  position:relative;
+  overflow-x:hidden; position:relative;
 }
+img{max-width:100%;height:auto;display:block}
+.mono{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  overflow-wrap:anywhere; word-break:break-word;
+}
+.nowrap{white-space:nowrap}
 
-/* ==== Animated background (aurora) ==== */
+/* ---------- Animated aurora bg ---------- */
 body::before,
 body::after{
-  content:"";
-  position:fixed;
-  inset:-20% -10% auto -10%;
-  height:70vh;
-  filter:blur(40px);
-  pointer-events:none;
-  z-index:0;
-  opacity:.8;
+  content:""; position:fixed; inset:-20% -10% auto -10%;
+  height:70vh; filter:blur(40px); pointer-events:none; z-index:0; opacity:.8;
   background:
     radial-gradient(40% 60% at 20% 30%, var(--aurora-a), transparent 60%),
     radial-gradient(30% 50% at 70% 20%, var(--aurora-b), transparent 60%),
@@ -50,114 +52,100 @@ body::after{
   animation:auroraFloat 22s ease-in-out infinite alternate;
 }
 body::after{
-  inset:auto -10% -25% -10%;
-  height:60vh;
-  transform:rotate(7deg);
-  animation:auroraFloat2 26s ease-in-out infinite alternate;
-  opacity:.7;
+  inset:auto -10% -25% -10%; height:60vh; transform:rotate(7deg);
+  animation:auroraFloat2 26s ease-in-out infinite alternate; opacity:.7;
 }
+@keyframes auroraFloat{0%{transform:translate3d(-2%,0,0) scale(1)}100%{transform:translate3d(2%,6%,0) scale(1.03)}}
+@keyframes auroraFloat2{0%{transform:translate3d(0,0,0) rotate(6deg)}100%{transform:translate3d(0,-4%,0) rotate(10deg)}}
+@media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
 
-@keyframes auroraFloat{
-  0%{transform:translate3d(-2%,0,0) scale(1)}
-  100%{transform:translate3d(2%,6%,0) scale(1.03)}
-}
-@keyframes auroraFloat2{
-  0%{transform:translate3d(0,0,0) rotate(6deg)}
-  100%{transform:translate3d(0,-4%,0) rotate(10deg)}
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  body::before, body::after{animation:none}
-}
-
-/* Layout */
-.container{max-width:900px;margin:0 auto;padding:20px 16px;position:relative;z-index:1}
-
-/* Header */
+/* ---------- Layout ---------- */
+.container{max-width:var(--wrap);margin:0 auto;padding:20px 16px;position:relative;z-index:1}
 .site-header{position:relative;z-index:1;border-bottom:1px solid rgba(255,255,255,.04)}
 .brand{display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;width:100%}
 .brand img{max-height:40px}
 
-/* Cards */
+/* ---------- Cards ---------- */
 .card{
   background:linear-gradient(180deg,var(--panel),var(--panel-2));
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:16px;
-  box-shadow:var(--shadow);
-  min-width:260px;
-  position:relative;
-  z-index:1;
+  border:1px solid var(--border); border-radius:14px;
+  padding:16px; box-shadow:var(--shadow); position:relative; z-index:1;
 }
-.card.glow{border-color:var(--accent-2);box-shadow:0 0 20px rgba(34,211,238,.25)}
+.card.glow{border-color:rgba(34,211,238,.55); box-shadow:0 0 20px rgba(34,211,238,.22)}
 
-/* Buttons */
+/* ---------- Buttons ---------- */
 .btn{
-  appearance:none;
-  border:1px solid var(--border);
+  appearance:none; border:1px solid var(--border);
   background:linear-gradient(180deg,#0e1520,#0c131c);
-  color:var(--text);
-  padding:10px 14px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-  box-shadow:var(--shadow);
+  color:var(--text); padding:10px 14px; border-radius:12px; font-weight:600;
+  cursor:pointer; box-shadow:var(--shadow);
   transition:transform .06s ease,border-color .2s ease,box-shadow .2s ease,filter .2s ease;
-  min-width:120px;text-align:center;
+  min-width:120px; text-align:center;
 }
 .btn:hover{transform:translateY(-1px);border-color:#2a3a51}
 .btn:active{transform:translateY(0)}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
-.btn-primary{background:linear-gradient(180deg,rgba(37,99,235,.25),rgba(37,99,235,.15));border-color:rgba(37,99,235,.45)}
+.btn-primary{background:linear-gradient(180deg,rgba(37,99,235,.28),rgba(37,99,235,.16));border-color:rgba(37,99,235,.48)}
 .btn-secondary{background:linear-gradient(180deg,rgba(34,211,238,.22),rgba(34,211,238,.12));border-color:rgba(34,211,238,.45)}
-/* subtle halo for buttons you marked with glow-btn */
-.glow-btn{box-shadow:0 0 0 0 rgba(96,165,250,.0)}
 .glow-btn:hover{box-shadow:0 0 18px rgba(96,165,250,.25)}
 
-/* Status text */
+/* ---------- Status / pre / table ---------- */
 .status-text{font-size:13px;color:var(--muted)}
-.status-text.ok{color:var(--ok)}
-.status-text.err{color:var(--err)}
+.status-text.ok{color:var(--ok)} .status-text.err{color:var(--err)}
 @keyframes flashText{from{opacity:1}to{opacity:.3}}
 .status-text.connecting{animation:flashText 1.6s infinite alternate;color:#00e5ff !important;font-weight:700}
 
-/* Preformatted */
-pre{
-  background:#0c131c;border:1px solid #1c2736;border-radius:10px;padding:8px;
-  max-height:200px;overflow:auto;font-size:12px;color:#a3e4ff
-}
+pre{background:#0c131c;border:1px solid #1c2736;border-radius:10px;padding:8px;
+  max-height:200px;overflow:auto;font-size:12px;color:#a3e4ff}
 
-/* Table */
 .table{width:100%;border-collapse:collapse;font-size:14px}
 .table th,.table td{padding:8px 10px;border-bottom:1px solid #1a2433}
 .table thead th{background:#0f1722;color:#cfe2ff;position:sticky;top:0}
+@media (max-width:600px){ .table thead th{position:static} } /* no sticky on small */
 
-/* Trade UI */
-.trade-card{display:grid;gap:12px;text-align:left}
+/* ---------- Trade UI (make it stand out) ---------- */
+.trade-card{
+  display:grid; gap:12px; text-align:left; padding:16px; border-radius:14px;
+  background:
+    linear-gradient(180deg,#0d141e,#0b1119);
+  border:1px solid rgba(96,165,250,.25);
+  position:relative;
+}
+.trade-card::before{
+  content:""; position:absolute; inset:-1px; border-radius:14px;
+  background:conic-gradient(from 180deg at 50% 50%,
+    rgba(96,165,250,.35), rgba(34,211,238,.30), rgba(16,185,129,.25), rgba(96,165,250,.35));
+  filter:blur(18px); opacity:.22; z-index:-1; animation:halo 12s linear infinite;
+}
+@keyframes halo{to{transform:rotate(360deg)}}
+
 .tabset{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tab{
   padding:10px 12px;border:1px solid var(--border);
   background:linear-gradient(180deg,#0e1520,#0c131c);border-radius:10px;
-  font-weight:700;cursor:pointer;text-align:center
+  font-weight:800;cursor:pointer;text-align:center;letter-spacing:.2px;
 }
-.tab.buy{color:#22c55e}
-.tab.sell{color:#ef4444}
-.tab.buy.active{border-color:rgba(34,197,94,.5);box-shadow:0 0 0 2px rgba(34,197,94,.15) inset}
-.tab.sell.active{border-color:rgba(239,68,68,.5);box-shadow:0 0 0 2px rgba(239,68,68,.15) inset}
+.tab.buy{color:#22c55e} .tab.sell{color:#ef4444}
+.tab.buy.active{border-color:rgba(34,197,94,.55);box-shadow:0 0 0 2px rgba(34,197,94,.18) inset}
+.tab.sell.active{border-color:rgba(239,68,68,.55);box-shadow:0 0 0 2px rgba(239,68,68,.18) inset}
 
 .field{display:grid;gap:6px}
 .field label{font-size:13px;color:var(--muted)}
 .field input{
   width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
-  background:#0c131c;color:var(--text)
+  background:#0c131c;color:var(--text); outline:none;
+}
+.field input:focus{
+  border-color:rgba(96,165,250,.6);
+  box-shadow:0 0 0 3px rgba(96,165,250,.20);
 }
 .field .row{display:grid;grid-template-columns:1fr auto;gap:8px}
 .inline-hint{font-size:12px;color:var(--muted)}
 
 .total-line{
   display:flex;align-items:center;justify-content:space-between;padding:10px 12px;
-  border:1px dashed var(--border);border-radius:10px;background:linear-gradient(180deg,#0b1119,#0a0f15)
+  border:1px dashed var(--border);border-radius:10px;
+  background:linear-gradient(180deg,#0b1119,#0a0f15)
 }
 .amount-row{display:flex;align-items:center;gap:6px}
 .amount-row img{max-height:22px}
@@ -171,7 +159,7 @@ pre{
 .clock::after{content:"";position:absolute;top:2px;left:9px;width:2px;height:8px;background:#60a5fa;transform-origin:bottom center}
 @keyframes spinHand{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* Modal tweaks */
+/* ---------- Modal (unchanged, just polished) ---------- */
 #mobileModal .dialog{padding:24px}
 #mobileModal h3{margin-bottom:12px}
 #mobileModal .fine{line-height:1.45;max-width:52ch;margin:0 auto}
@@ -188,94 +176,50 @@ pre{
 /* Hide wallet status on desktop-ish environments */
 @media (hover:hover) and (pointer:fine){#walletStatus{display:none !important}}
 
-/* ====== Footer (compact) ====== */
-.site-footer{margin-top:28px;background:#0b0f14;color:#9fb0c5;border-top:1px solid #1f2a37;position:relative;z-index:1}
-.site-footer .wrap{max-width:1000px;margin:0 auto;padding:16px 14px;display:grid;gap:14px}
-.site-footer h3{margin:0 0 4px;font-size:1rem;color:#e4f0fb}
-.site-footer .cols{display:grid;gap:14px}
-@media (min-width:860px){.site-footer .cols{grid-template-columns:1.2fr 1fr 1fr}}
+/* ---------- Footer (truly compact, mobile-first) ---------- */
+.site-footer{
+  margin-top:24px; background:#0b0f14; color:#9fb0c5;
+  border-top:1px solid #1f2a37; position:relative; z-index:1;
+}
+.site-footer .wrap{
+  max-width:var(--wrap);   /* match body width exactly */
+  margin:0 auto; padding:14px 16px; display:grid; gap:12px;
+}
+.site-footer h3{margin:0 0 4px;font-size:.98rem;color:#e4f0fb;line-height:1.25}
+.site-footer .cols{display:grid; gap:12px}
 .factlist{display:grid;gap:4px;margin:0}
-.fact{display:flex;gap:8px;align-items:baseline}
-.fact strong{min-width:138px;color:#cfe6ff;font-weight:600}
-.small{font-size:.92rem;opacity:.95}
-.legal{border-top:1px dashed #1f2a37;padding-top:10px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;font-size:.9rem}
-.cta-chatgpt{display:inline-flex;align-items:center;gap:8px;text-decoration:none;border:1px solid #1f2a37;border-radius:10px;padding:6px 10px;font-size:.92rem}
+.fact{display:grid;grid-template-columns:1fr;gap:2px;align-items:start}
+.fact strong{color:#cfe6ff;font-weight:600;font-size:.9rem;opacity:.92}
+.fact .mono,.fact span{font-size:.9rem}
+.small{font-size:.9rem;opacity:.95}
+.legal{
+  border-top:1px dashed #1f2a37; padding-top:8px;
+  display:flex; flex-wrap:wrap; gap:6px; justify-content:space-between; align-items:center;
+  font-size:.84rem; line-height:1.35;
+}
+.cta-chatgpt{
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  border:1px solid #1f2a37;border-radius:10px;padding:5px 8px;font-size:.88rem
+}
 .cta-chatgpt:hover{border-color:#2b3b4f}
-.cta-chatgpt img{width:18px;height:18px;display:block}
-.muted{opacity:.8}
-.nowrap{white-space:nowrap}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+.cta-chatgpt img{width:16px;height:16px;display:block}
 
-/* ==== Mobile footer + layout balance tweaks ==== */
-
-/* Give the content area a bit more bottom padding so it
-   doesn't feel like the footer eats the page on mobile */
-.container{
-  padding-bottom: clamp(56px, 6vh, 96px);
+/* Footer: desktop widens to a tidy 3-col grid without getting taller */
+@media (min-width:860px){
+  .site-footer .wrap{ max-width:var(--wrap-wide); padding:16px 18px; gap:14px; }
+  .site-footer .cols{ grid-template-columns:1.2fr 1fr 1fr; align-items:start; }
+  .fact{ grid-template-columns:138px 1fr; gap:8px; }
+  .fact strong{ min-width:138px; font-size:.95rem; }
+  .fact .mono,.fact span{ font-size:.95rem; }
+  .small{ font-size:.94rem; }
+  .legal{ font-size:.88rem; padding-top:10px; }
 }
 
-/* Make long monospace strings wrap instead of forcing wide rows */
-.mono{
-  overflow-wrap:anywhere;
-  word-break:break-word;
+/* Super small phones: trim further */
+@media (max-width:380px){
+  .site-footer .wrap{ padding:10px 12px; gap:10px; }
+  .small{ font-size:.86rem; }
 }
 
-/* Footer: compact + stacked on mobile */
-@media (max-width: 860px){
-  .site-footer{ margin-top: 20px; }
-  .site-footer .wrap{
-    padding: 12px 14px;
-    gap: 12px;
-  }
-  .site-footer h3{
-    font-size: .96rem;
-    margin-bottom: 2px;
-  }
-  .site-footer .cols{
-    gap: 10px;              /* tighter vertical gap between sections */
-  }
-
-  /* Stack label/value vertically so the “min-width” label column
-     doesn’t make the rows feel huge on small screens */
-  .fact{
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2px;
-    align-items: start;
-  }
-  .fact strong{
-    min-width: 0;          /* remove the wide label column */
-    font-size: .88rem;
-    opacity: .9;
-  }
-  .fact .mono,
-  .fact span{
-    font-size: .9rem;
-  }
-
-  /* Smaller buttons/links in the footer */
-  .cta-chatgpt{
-    padding: 5px 8px;
-    font-size: .88rem;
-    border-radius: 9px;
-    gap: 6px;
-  }
-  .cta-chatgpt img{
-    width: 16px; height: 16px;
-  }
-
-  /* Legal line: slimmer and wraps nicely */
-  .legal{
-    padding-top: 8px;
-    gap: 6px;
-    font-size: .82rem;
-    line-height: 1.35;
-  }
-}
-
-/* Ultra-small phones: trim just a touch more */
-@media (max-width: 380px){
-  .site-footer .wrap{ padding: 10px 12px; }
-  .small{ font-size: .86rem; }
-}
-
+/* ---------- Misc spacing balance ---------- */
+.container{ padding-bottom: clamp(40px, 5vh, 72px); } /* breathing room above footer */
