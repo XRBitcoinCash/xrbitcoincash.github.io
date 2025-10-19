@@ -747,6 +747,95 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
   setInterval(updateAmmPool, 15000);
 })();
 </script>
+<!-- ===== XRBC Footer (drop-in) ===== -->
+<footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
+  <style>
+    .site-footer{
+      margin-top:40px;background:#0b0f14;color:#9fb0c5;border-top:1px solid #1f2a37
+    }
+    .site-footer .wrap{
+      max-width:1000px;margin:0 auto;padding:24px 20px;display:grid;gap:18px
+    }
+    .site-footer h3{margin:0 0 6px;font-size:1.05rem;color:#e4f0fb}
+    .site-footer .cols{display:grid;gap:18px}
+    @media (min-width:820px){.site-footer .cols{grid-template-columns:1.2fr 1fr 1fr}}
+    .factlist{display:grid;gap:6px;margin:0}
+    .fact{display:flex;gap:8px}
+    .fact strong{min-width:142px;color:#cfe6ff}
+    .small{font-size:.9rem;opacity:.95}
+    .legal{border-top:1px dashed #1f2a37;padding-top:12px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+    .cta-chatgpt{display:inline-flex;align-items:center;gap:10px;text-decoration:none;border:1px solid #1f2a37;border-radius:12px;padding:8px 12px}
+    .cta-chatgpt:hover{border-color:#2b3b4f}
+    .cta-chatgpt img{width:20px;height:20px;display:block}
+    .muted{opacity:.8}
+    .bullet{list-style:disc;margin-left:18px}
+    .bullet li{margin:4px 0}
+    .nowrap{white-space:nowrap}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+  </style>
+
+  <div class="wrap">
+    <div class="cols">
+      <!-- What this page is -->
+      <section>
+        <h3>About this page</h3>
+        <p class="small">
+          A minimal, security-first trading &amp; ledger portal for
+          <strong>XRBitcoinCash (XRBC)</strong> on the <span class="nowrap">XRP Ledger</span>.
+          Signing is handled in <strong>Xaman</strong> on mobile for safer review and execution.
+        </p>
+        <dl class="factlist" aria-label="XRBC details">
+          <div class="fact"><strong>Symbol</strong><span class="mono">XRBC</span></div>
+          <div class="fact"><strong>Issuer</strong><span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span> <span class="muted">(blackholed, immutable, beyond temptation)</span></div>
+          <div class="fact"><strong>Currency Code</strong><span class="mono">5852626974636F696E6361736800000000000000</span></div>
+          <div class="fact"><strong>Total Supply</strong><span class="mono">21,000,000</span> — because legends matter.</div>
+        </dl>
+      </section>
+
+      <!-- Security measures summary -->
+      <section>
+        <h3>Security measures</h3>
+        <ul class="bullet small">
+          <li><strong>Mobile-only signing</strong> via Xaman; desktop shows a QR that opens this verified page on your phone.</li>
+          <li>No keys ever requested or stored; only the public account address may be cached (localStorage).</li>
+          <li>XRPL calls validated; errors handled; no <span class="mono">eval</span> or dynamic script injection.</li>
+          <li>XRBC issuer &amp; currency code are constants; XRP↔drops conversion is precise.</li>
+          <li>Trustline flow provided before trading; AMM helper estimates effective price incl. fee.</li>
+        </ul>
+      </section>
+
+      <!-- Rights, license, ChatGPT link -->
+      <section>
+        <h3>Rights &amp; credits</h3>
+        <p class="small">
+          © <span id="xrbc-year"></span> XRBitcoinCash. All rights reserved.
+          Code/license: see the repository’s <a href="/LICENSE" class="muted">LICENSE</a> file.
+        </p>
+        <a class="cta-chatgpt" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" aria-label="Talk to ChatGPT">
+          <!-- Optional: place an approved ChatGPT mark you host at /assets/chatgpt-mark.svg -->
+          <img src="/assets/chatgpt-mark.svg" alt="" onerror="this.remove()">
+          <span>Built with assistance from ChatGPT</span>
+        </a>
+        <p class="small muted" style="margin-top:8px">
+          Trading involves risk. Always verify the URL starts with
+          <span class="mono">https://xrbitcoincash.com</span>.
+        </p>
+      </section>
+    </div>
+
+    <div class="legal small">
+      <span>XRBC · XRBC/XRP Trading &amp; Ledger Portal</span>
+      <span class="mono">Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
+    </div>
+  </div>
+
+  <script>
+    // Set current year automatically
+    (function(){ var el=document.getElementById('xrbc-year'); if(el){ el.textContent=new Date().getFullYear(); }})();
+  </script>
+</footer>
+<!-- ===== /XRBC Footer ===== -->
+
 </body>
-</html>    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/trade.html" }]
+</html>    
  
