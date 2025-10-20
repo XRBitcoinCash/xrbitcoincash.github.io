@@ -4,8 +4,8 @@
   <!-- favicon -->
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="shortcut icon" href="/favicon.png" type="image/png">
-
   <meta name="msapplication-TileImage" content="/favicon.png">
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
@@ -33,13 +33,15 @@
   <meta name="twitter:description" content="Trade XRBC fast on XRPL. Explore NFTs and on-ledger transparency." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-  <!-- External CSS -->
-  <link rel="stylesheet" href="xrbc.css">
+  <!-- Your base site CSS (existing) -->
+  <link rel="stylesheet" href="/xrbc.css">
+  <!-- Holiday/UI theming CSS (from /assets/) -->
+  <link rel="stylesheet" href="/assets/xrbc-holiday.css">
 </head>
 
 <body>
   <!-- 🌙 Light/Dark Mode Toggle -->
-  <button class="toggle-theme" id="themeToggle">☀️</button>
+  <button class="toggle-theme" id="themeToggle" aria-label="Toggle light/dark theme">☀️</button>
   <script>
     const toggle = document.getElementById('themeToggle');
     toggle.addEventListener('click', () => {
@@ -52,6 +54,11 @@
     <div class="brand">
       <img src="/xrbc-nft.png" alt="XRBC logo" />
       <h1>XRBitcoinCash</h1>
+    </div>
+
+    <!-- Minimal rotator chip (optional UI) -->
+    <div aria-live="polite" style="margin-top:8px">
+      <span data-holiday-rotator data-variant="chip"></span>
     </div>
   </header>
 
@@ -162,6 +169,7 @@
     <span>Loading security checks…</span>
   </nav>
 
+  <!-- Your existing security badge JS (unchanged) -->
   <script>
   (() => {
     const targets = [
@@ -236,7 +244,6 @@
         </div>
       `;
 
-      // Optional: update the recert countdown from provenance.json
       const provOk = results.find(r => r.key === "provenance" && r.ok);
       if (provOk) {
         fetch("/ai/provenance.json", { cache: "no-store" })
@@ -257,6 +264,8 @@
   })();
   </script>
 
-  <!-- No ChatGPT/auditor scripts below — only basic page JS may go here -->
+  <!-- Load the Holiday Rotator JS from /assets/ (your big script saved here) -->
+  <script defer src="/assets/holiday-rotator.js"></script>
+  <!-- No other scripts below -->
 </body>
 </html>
