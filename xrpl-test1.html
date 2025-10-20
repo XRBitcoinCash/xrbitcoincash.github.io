@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoinCash — Holiday Rotator Test</title>
+  <title>XRBitcoinCash — Holiday-Aware UI</title>
 
   <!-- Favicons -->
   <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- Social -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade XRBC, explore NFTs, and verify on-ledger." />
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade XRBC fast, explore NFTs, and verify on-ledger." />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
   <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees and ~3s finality." />
@@ -18,19 +19,22 @@
   <meta property="og:url" content="https://xrbitcoincash.com/" />
   <meta name="twitter:card" content="summary_large_image" />
 
+  <!-- Page Styles (holiday background blends under this) -->
   <style>
     :root{
       --bg:#0b0f18; --panel:#0f172a; --edge:rgba(255,255,255,.12);
       --ink:#e6f0ff; --muted:#9EB2D0; --accent:#00e5ff;
+      --maxw:1100px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; background:
+      margin:0; color:var(--ink);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
         radial-gradient(1000px 600px at 80% -10%, rgba(0,229,255,.06), transparent 50%),
         radial-gradient(900px 700px at -20% 80%, rgba(255,230,0,.05), transparent 60%),
         linear-gradient(180deg, #0e1421, #0b0f18 50%, #09101a 100%);
-      color:var(--ink); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     body.light-mode{
       --bg:#f7fbff; --panel:#ffffff; --edge:rgba(0,0,0,.12);
@@ -38,181 +42,199 @@
       background:#f7fbff;
     }
 
+    /* Layout shells */
+    .wrap{position:relative; z-index:1}
     header{
-      padding:18px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between;
+      position:relative; z-index:2;
+      padding:16px; display:flex; gap:12px; align-items:center; justify-content:space-between;
       border-bottom:1px solid var(--edge);
       background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
     }
     .brand{display:flex; align-items:center; gap:12px}
     .brand img{width:36px; height:36px; border-radius:8px}
-    .brand h1{font-size:18px; margin:0; letter-spacing:.02em}
+    .brand h1{font-size:clamp(18px, 2vw, 22px); margin:0; letter-spacing:.02em}
 
     .toggle-theme{
       border:1px solid var(--edge); background:var(--panel); color:var(--ink);
       border-radius:10px; padding:8px 10px; cursor:pointer;
     }
 
-    main{padding:18px 16px; max-width:1100px; margin:0 auto}
+    main{padding:18px 16px; max-width:var(--maxw); margin:0 auto}
     .panel{
       background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--panel);
-      border:1px solid var(--edge); border-radius:16px; padding:16px; margin-bottom:16px;
-      box-shadow: 0 0 0 1px rgba(0,229,255,.10), 0 0 40px rgba(0,229,255,.05);
+      border:1px solid var(--edge); border-radius:16px; padding:clamp(14px, 2vw, 18px); margin-bottom:16px;
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent), 0 0 40px rgba(0,229,255,.05);
     }
+
     .hero{
-      display:grid; grid-template-columns: 1fr 320px; gap:18px; align-items:center;
+      display:grid; grid-template-columns: 1fr minmax(220px, 320px); gap:18px; align-items:center;
+    }
+    @media (max-width:960px){
+      .hero{grid-template-columns:1fr}
     }
     .hero aside{
-      border:1px solid var(--edge); border-radius:16px; background:var(--panel); padding:12px; text-align:center;
+      border:1px solid var(--edge); border-radius:16px; background:var(--panel);
+      padding:12px; text-align:center
     }
-    .hero aside img{width:200px; height:auto}
+    .hero aside img{width:min(220px, 60vw); height:auto}
 
     .btn{
       display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.16); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.16);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
       color:var(--ink); text-decoration:none; cursor:pointer; white-space:nowrap;
+      transition: filter .15s ease;
     }
-    .btn.primary{border-color: rgba(0,229,255,.45)}
+    .btn.primary{border-color: color-mix(in srgb, var(--accent) 45%, transparent)}
+    .btn:hover{filter:brightness(1.06)}
     .muted{color:var(--muted)}
 
     .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
-    @media (max-width:960px){ .grid{grid-template-columns:1fr} .hero{grid-template-columns:1fr} }
+    @media (max-width:960px){ .grid{grid-template-columns:1fr} }
 
     .card{border:1px solid var(--edge); border-radius:16px; background:var(--panel); padding:16px}
-    .ecosystem-footer{border-top:1px solid var(--edge); margin-top:28px; padding:18px 16px; background:linear-gradient(180deg, rgba(255,255,255,.02), transparent)}
-    .eco-link{display:inline-flex; align-items:center; gap:8px; color:var(--ink); text-decoration:none; padding:8px 10px; border-radius:10px; border:1px solid var(--edge); background:var(--panel); margin:6px 8px 6px 0}
+
+    /* Footer centered */
+    .ecosystem-footer{
+      border-top:1px solid var(--edge);
+      margin-top:28px; padding:24px 16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+      text-align:center;
+    }
+    .ecosystem-footer .eco-links{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:12px auto 0 auto; max-width:var(--maxw);
+    }
+    .eco-link{
+      display:inline-flex; align-items:center; gap:8px; color:var(--ink); text-decoration:none;
+      padding:8px 10px; border-radius:10px; border:1px solid var(--edge); background:var(--panel);
+    }
     .eco-link img{width:22px; height:22px; border-radius:6px}
 
-    /* Let the rotator's --accent drive subtle accents */
+    /* Accent helpers */
     .accent-ring{box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent) inset}
-    a.btn.primary:hover{filter:brightness(1.06)}
+
+    /* Holiday scenery layer lives under .wrap; provided by holiday-embed.js.
+       If your script auto-creates it, no problem—having it here ensures stacking. */
+    .holiday-scenery{
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+    }
   </style>
 </head>
 <body>
-  <!-- Theme Toggle -->
-  <button class="toggle-theme" id="themeToggle">☀️</button>
+
+  <!-- Holiday background layer (dual-scene, auto-updated by /assets/holiday-embed.js) -->
+  <div class="holiday-scenery" id="holidayScenery" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="/xrbc-nft.png" alt="XRBC logo" />
+        <h1 id="heroTitle">XRBitcoinCash</h1>
+      </div>
+
+      <!-- Theme toggle -->
+      <button class="toggle-theme" id="themeToggle" aria-label="Toggle theme">☀️</button>
+    </header>
+
+    <main>
+      <!-- HERO (no rotator widgets—background only) -->
+      <section class="hero panel accent-ring">
+        <div>
+          <h2 style="margin:0 0 6px 0; font-size:clamp(22px, 3vw, 30px)">Trade XRBC fast on XRPL</h2>
+          <p class="muted" style="margin:0 0 12px 0">
+            Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <a href="https://xrbitcoincash.com/nfts.html" class="btn primary">🎨 NFT Gallery</a>
+            <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary">🚀 Trade XRBC Now</a>
+            <a href="https://xrbitcoincash.com/bs/" class="btn">Blockchain Specs</a>
+            <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="btn" target="_blank" rel="noopener noreferrer">
+              💧 Sologenic Liquidity Pool
+            </a>
+            <a href="/whitepaper.html" class="btn">Whitepaper</a>
+            <a href="https://xrbitcoincash.com/about.html" class="btn">About XRBC</a>
+          </div>
+        </div>
+        <aside class="card">
+          <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
+          <p class="muted small" style="margin-top:10px">
+            <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
+          </p>
+        </aside>
+      </section>
+
+      <!-- CONTENT -->
+      <section class="grid">
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">About XRBC</h3>
+          <p class="muted" style="margin:0">
+            XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
+            Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
+            Trustline cap: <strong>20,999,999.999999996</strong>.
+          </p>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Trading</h3>
+          <p class="muted" style="margin:0">
+            Trade directly on-ledger using the built-in DEX: place limit orders, swap via AMMs, or tap liquidity pools like Sologenic AMM.
+          </p>
+        </div>
+        <div class="card">
+          <h3 style="margin:0 0 8px 0">Security</h3>
+          <p class="muted" style="margin:0 0 10px 0">Automated checks for manifests and provenance.</p>
+          <nav id="aiBadges" class="ai-badges" aria-live="polite" style="font-size:0.95rem;opacity:0.95">
+            <span>Loading security checks…</span>
+          </nav>
+          <p class="muted" style="margin-top:10px;">
+            🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER (centered) -->
+    <footer class="ecosystem-footer">
+      <div class="footer-container" style="max-width:var(--maxw); margin:0 auto">
+        <h3 style="margin:0 0 6px 0">XRBitcoin Ecosystem</h3>
+        <p class="muted" style="margin:0 0 10px 0">
+          Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
+        </p>
+
+        <div class="eco-links">
+          <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
+            <img src="/xrbc-nft.png" alt=""><span>XRBitcoinCash</span>
+          </a>
+          <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+            <img src="/XRBitcoin/xrbitcoin-logo.png" alt=""><span>XRBitcoin</span>
+          </a>
+          <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+            <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt=""><span>Jesus Christ Saves</span>
+          </a>
+          <a href="https://x.com/XRbitcoincash" class="eco-link" target="_blank" rel="noopener">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="" style="width:22px; height:22px;">
+            <span>Twitter</span>
+          </a>
+          <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
+            <img src="/xrbc-nft.png" alt="" style="width:22px; height:22px;">
+            <span>Security Roles</span>
+          </a>
+        </div>
+
+        <p class="muted" style="margin:12px 0 0 0"><strong>Built on the XRP Ledger.</strong></p>
+      </div>
+    </footer>
+  </div><!-- /.wrap -->
+
+  <!-- Theme toggle behavior -->
   <script>
     const toggle = document.getElementById('themeToggle');
-    toggle.addEventListener('click', () => {
+    toggle?.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
     });
   </script>
 
-  <header>
-    <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBC logo" />
-      <h1 id="heroTitle">XRBitcoinCash</h1>
-    </div>
-
-    <!-- Small chip in header -->
-    <div data-holiday-rotator></div>
-  </header>
-
-  <main>
-    <!-- Banner variant just under header -->
-    <div style="margin:12px 0 18px 0">
-      <div data-holiday-rotator
-           data-variant="banner"
-           data-cats="national,christian,jewish,muslim,hindu,buddhist,cultural"></div>
-    </div>
-
-    <section class="hero panel accent-ring">
-      <div>
-        <h2>Trade XRBC fast on XRPL</h2>
-        <p class="muted">Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap">
-          <a href="https://xrbitcoincash.com/nfts.html" class="btn primary">🎨 NFT Gallery</a>
-          <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary">🚀 Trade XRBC Now</a>
-          <a href="https://xrbitcoincash.com/bs/" class="btn">Blockchain Specs</a>
-          <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="btn" target="_blank" rel="noopener noreferrer">
-            💧 Sologenic Liquidity Pool
-          </a>
-          <a href="/whitepaper.html" class="btn">Whitepaper</a>
-          <a href="https://xrbitcoincash.com/about.html" class="btn">About XRBC</a>
-        </div>
-      </div>
-      <aside class="card">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
-        <p class="muted small" style="margin-top:10px">
-          <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
-        </p>
-      </aside>
-    </section>
-
-    <section class="grid">
-      <div class="card">
-        <h3>About XRBC</h3>
-        <p class="muted">
-          XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
-          Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
-          Trustline cap: <strong>20,999,999.999999996</strong>.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Trading</h3>
-        <p class="muted">
-          Trade directly on-ledger using the built-in DEX: place limit orders, swap via AMMs, or tap liquidity pools like Sologenic AMM.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Rotator (filtered example)</h3>
-        <p class="muted">Only National + Cultural + Christian:</p>
-        <div data-holiday-rotator data-cats="national,cultural,christian"></div>
-      </div>
-    </section>
-
-    <!-- Security Badge -->
-    <section class="panel">
-      <h3 style="margin:0 0 10px 0">Security Badge</h3>
-      <nav id="aiBadges" class="ai-badges" aria-live="polite" style="font-size:0.95rem;opacity:0.95">
-        <span>Loading security checks…</span>
-      </nav>
-      <p class="muted" style="margin-top:10px;">
-        🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
-      </p>
-    </section>
-  </main>
-
-  <footer class="ecosystem-footer">
-    <div class="footer-container">
-      <h3>XRBitcoin Ecosystem</h3>
-      <p class="muted">XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).</p>
-
-      <div>
-        <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
-          <img src="/xrbc-nft.png" alt=""> <span>XRBitcoinCash</span>
-        </a>
-        <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/XRBitcoin/xrbitcoin-logo.png" alt=""> <span>XRBitcoin</span>
-        </a>
-        <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt=""> <span>Jesus Christ Saves</span>
-        </a>
-        <a href="https://x.com/XRbitcoincash" class="eco-link" target="_blank" rel="noopener">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="" style="width:22px; height:22px;">
-          <span>Twitter</span>
-        </a>
-        <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
-          <img src="/xrbc-nft.png" alt="" style="width:22px; height:22px;">
-          <span>Security Roles</span>
-        </a>
-      </div>
-
-      <p class="muted"><strong>Built on the XRP Ledger.</strong></p>
-    </div>
-  </footer>
-
-  <!-- Hook the rotator to tweak UI accents / title -->
-  <script>
-    window.HolidayRotator?.onChange(({holiday}) => {
-      const title = document.getElementById('heroTitle');
-      if (title && holiday) {
-        title.textContent = `${holiday.meta?.emoji || '📅'} XRBitcoinCash`;
-      }
-    });
-  </script>
-
-  <!-- Security Badge script -->
+  <!-- Security Badge script (unchanged logic) -->
   <script>
     (() => {
       const targets = [
@@ -300,9 +322,14 @@
     })();
   </script>
 
-  <!-- Load the rotator ONCE at the end -->
+  <!-- Holiday Rotator (background-only usage; no chips/banners on page) -->
   <script src="/assets/holiday-embed.js"></script>
+  <script>
+    // Optional: softly reflect the holiday in the hero title
+    window.HolidayRotator?.onChange?.(({holiday}) => {
+      const title = document.getElementById('heroTitle');
+      if (title && holiday) title.textContent = `${holiday.meta?.emoji || '📅'} XRBitcoinCash`;
+    });
+  </script>
 </body>
 </html>
-
-
