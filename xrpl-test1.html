@@ -541,13 +541,13 @@ Scoring details:
     };
   }
 
-  // ===== 9) HUMAN GATE + COOLDOWN (new) =====
+  // ===== 9) HUMAN GATE + COOLDOWN (one-minute minimum) =====
   let humanVerified = false;
   let holdTimer = null;
 
   let cooldownUntil = 0;
-  const MIN_COOLDOWN_MS = 8000;  // base pause after each call
-  const MAX_COOLDOWN_MS = 60000; // safety ceiling
+  const MIN_COOLDOWN_MS = 60000;  // ⬅️ changed from 8000 to 60000 (1 minute)
+  const MAX_COOLDOWN_MS = 60000;  // ⬅️ keep ceiling at 1 minute to match your request
 
   function msLeft() {
     return Math.max(0, cooldownUntil - Date.now());
@@ -617,7 +617,7 @@ Scoring details:
     ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
   }
 
-  // ===== 10) CHAT FUNCTION (kept, with corrected error handling & cooldown hooks) =====
+  // ===== 10) CHAT FUNCTION (kept; model changed to lighter one) =====
   async function postChat(q) {
     if (proxyTimedOut) {
       append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat above.</p>`);
@@ -635,7 +635,7 @@ Scoring details:
     if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
 
     try {
-      // Start a short cooldown immediately to avoid bursts
+      // Start a cool-down immediately (1 minute)
       startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
 
       const ctrl = new AbortController();
@@ -644,8 +644,8 @@ Scoring details:
       const evidenceMsg = await collectEvidence();
 
       const payload = {
-        model: "gpt-5-thinking",    // if your proxy forwards this
-        temperature: 0.2,           // lock low randomness (server should also enforce)
+        model: "o3-mini-2025-01-31",   // ⬅️ changed to lighter model
+        temperature: 0.2,
         messages: [SYSTEM, evidenceMsg, INSTRUCTIONS]
                   .concat(chatHistory.slice(-6))
                   .concat([{ role: "user", content: q }])
@@ -666,12 +666,12 @@ Scoring details:
         const errText = await resp.text();
         const retryAfter = Number(resp.headers.get("retry-after") || 0);
         if (resp.status === 429) {
-          const ms = retryAfter ? retryAfter * 1000 : 15000;
+          const ms = retryAfter ? retryAfter * 1000 : MIN_COOLDOWN_MS;
           startCooldown(ms, "Server is pausing to prevent spam and protect model limits.");
           append(`<p style="color:#f88"><strong>Temporarily Paused:</strong> We’re throttling requests for ${Math.ceil(ms/1000)}s to avoid hitting model limits. Please wait…</p>`);
         } else {
           append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${esc(errText)}</p>`);
-          startCooldown(10000, "Cooling down briefly after an error.");
+          startCooldown(MIN_COOLDOWN_MS, "Cooling down briefly after an error.");
         }
         return;
       }
@@ -696,7 +696,7 @@ Scoring details:
             ans = JSON.stringify(rubric) + "\n" + rest.join("\n");
           }
         }
-      } catch { /* if parsing fails, just show the model output */ }
+      } catch { /* if parsing fails, leave output as-is */ }
 
       // Pretty print
       const [firstLine2, ...rest2] = ans.split("\n");
@@ -710,7 +710,7 @@ Scoring details:
 
       renderMessage({ role: "assistant", content: pretty });
 
-      // Successful call — keep a gentle cool-down to prevent bursts
+      // Keep cool-down at 1 minute after success
       startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
 
       chatHistory.push({ role: "assistant", content: ans });
@@ -718,8 +718,7 @@ Scoring details:
 
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
-      // showFallback also prevents immediate retries
-      startCooldown(12000, "Cooling down after a network error.");
+      startCooldown(MIN_COOLDOWN_MS, "Cooling down after a network error.");
       showFallback();
     }
   }
@@ -770,7 +769,6 @@ Scoring details:
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
-
 
 
 </body>
