@@ -169,6 +169,18 @@
       Transparency
     </button>
   </div>
+<!-- ✅ HUMAN CHECK + STATUS (anti-spam, free, no keys) -->
+<div id="humanGate" style="margin:10px 0 12px 0; padding:12px; border:1px dashed rgba(0,229,255,0.35); border-radius:10px;">
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <button id="holdVerify" class="btn ghost" style="min-width:220px;">
+      ⏸️ Press & Hold 2.5s to Verify Human
+    </button>
+    <div id="gateStatus" class="muted small" style="line-height:1.5;">
+      This prevents spam bursts that could hit rate limits. Releasing early cancels.
+    </div>
+  </div>
+  <div id="cooldownStatus" class="muted small" style="margin-top:8px; display:none;"></div>
+</div>
 
 <div class="audit-input-wrap">
   <textarea id="auditInput"
