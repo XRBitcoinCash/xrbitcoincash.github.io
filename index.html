@@ -267,6 +267,10 @@
 (() => {
   "use strict";
 
+  // ===== 0) CONSTANTS (client enforced) =====
+  const SAFE_CLIENT_MODEL = "gpt-5-nano"; // we require this
+  const EXPECTED_ENV_PATH = "/env-check"; // must echo nano server-side
+
   // ===== 1) SCROLL FADE-IN (unchanged) =====
   const features = document.querySelectorAll(".feature");
   const fadeObserver = new IntersectionObserver(
@@ -280,15 +284,15 @@
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2) CONFIG (unchanged endpoints/URL) =====
-  const PROXY = "https://xrbc-frontend.onrender.com"; // your secure proxy
-  const CHAT_PATH = "/chat";                           // chat endpoint on your proxy
-  const RPC_PATH  = "/";                               // XRPL passthrough on your proxy (root POST)
+  // ===== 2) CONFIG (endpoints/URL) =====
+  const PROXY = "https://xrbc-frontend.onrender.com";
+  const CHAT_PATH = "/chat";
+  const RPC_PATH  = "/";
   const FALLBACK_URL = "https://chat.openai.com/?model=gpt-5";
   const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/";
   const MAX_WAIT_MS = 52000;
 
-  // XRPL issuers & currency hex (from your manifests)
+  // XRPL issuers & currency hex
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
   const XRB_ISSUER  = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT";
   const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
@@ -303,13 +307,13 @@
   const voiceBtn = document.getElementById("auditVoice");
   const quickBtns= document.querySelectorAll(".auditQuick");
 
-  // Human gate elements
   const holdBtn = document.getElementById("holdVerify");
   const gateStatus = document.getElementById("gateStatus");
   const cooldownStatus = document.getElementById("cooldownStatus");
 
   let keepAliveInterval = null;
   let proxyTimedOut = false;
+  let isBusy = false; // one-click guard
 
   // ===== 4) UTILS =====
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -324,12 +328,10 @@
     .replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
-  // ===== 5) LOCAL CHAT MEMORY (preserved) =====
+  // ===== 5) LOCAL CHAT MEMORY (kept; trimmed for tokens) =====
   let chatHistory = [];
-  try {
-    const raw = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
-    chatHistory = Array.isArray(raw) ? raw : [];
-  } catch { chatHistory = []; }
+  try { chatHistory = JSON.parse(sessionStorage.getItem("xrbc_chat_history")||"[]") || []; }
+  catch { chatHistory = []; }
   const saveChatHistory = () =>
     sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
   const renderMessage = m => {
@@ -342,16 +344,11 @@
   };
   chatHistory.slice(-10).forEach(renderMessage);
 
-  // Keep history for the model but cap per-message size to control tokens
-  function packHistoryForLLM(hist, maxMsgs = 6, maxCharsPerMsg = 240) {
-    const last = hist.slice(-maxMsgs);
-    return last.map(m => ({
-      role: m.role,
-      content: String(m.content).slice(0, maxCharsPerMsg)
-    }));
+  function packHistoryForLLM(hist, maxMsgs = 4, maxCharsPerMsg = 200) {
+    return hist.slice(-maxMsgs).map(m => ({ role: m.role, content: String(m.content).slice(0, maxCharsPerMsg) }));
   }
 
-  // ===== 6) WAKE PROXY (unchanged) =====
+  // ===== 6) PROXY WAKE & ENV VALIDATION =====
   async function wakeProxy(maxMs = MAX_WAIT_MS) {
     const start = Date.now();
     let attempt = 0;
@@ -367,7 +364,7 @@
         clearTimeout(t);
         if (r.ok) {
           if (status) status.innerHTML = `✅ Proxy online after ${attempt} attempt${attempt>1?"s":""}.`;
-          await sleep(800);
+          await sleep(500);
           status?.remove();
           return true;
         }
@@ -381,10 +378,16 @@
   }
 
   async function resolveChatGPTLink() {
-    try {
-      await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" });
-      return FALLBACK_URL;
-    } catch { return FALLBACK_WEB3_URL; }
+    try { await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" }); return FALLBACK_URL; }
+    catch { return FALLBACK_WEB3_URL; }
+  }
+
+  function banner(html) {
+    append(`
+      <div style="border:1px solid rgba(255,80,80,0.25); border-radius:12px; padding:16px; background:#201416; margin-top:10px;">
+        ${html}
+      </div>
+    `);
   }
 
   async function showFallback() {
@@ -393,26 +396,50 @@
     const fallbackLink = await resolveChatGPTLink();
     append(`
       <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
-        <p style="color:#9EB2D0;">⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
-        You can continue your conversation directly with ChatGPT below:</p>
+        <p style="color:#9EB2D0;">⚠️ The secure XRBC proxy is currently unavailable or still waking up.</p>
         <div style="text-align:center;margin-top:14px;">
           <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">💬 Open ChatGPT Fallback</a>
         </div>
         <p style="margin-top:10px; color:#777; font-size:0.85rem;">
-          Tip: Render free plans can take 30–45 seconds to start after inactivity. If you retry in a moment, the integrated Security Center should come online automatically.
+          Tip: Render free plans can cold-start after inactivity.
         </p>
       </div>
     `);
   }
 
+  async function requireNanoServer() {
+    try {
+      const r = await fetch(`${PROXY}${EXPECTED_ENV_PATH}`, { cache: "no-store" });
+      const j = await r.json().catch(()=> ({}));
+      const m = (j && j.model) || "";
+      if (m !== SAFE_CLIENT_MODEL) {
+        banner(`
+          <p style="color:#ffb3b3;">
+            ❌ Server is reporting <code>${esc(m||"unknown")}</code>, expected <code>${SAFE_CLIENT_MODEL}</code>.<br>
+            Redeploy proxy with <code>SAFE_MODEL=${SAFE_CLIENT_MODEL}</code> and force the correct <em>max_tokens</em> field.
+          </p>
+        `);
+        return false;
+      }
+      return true;
+    } catch {
+      // If env-check missing, allow but warn.
+      banner(`<p style="color:#ffd9a6;">⚠️ Could not confirm server model. Ensure proxy forces <code>${SAFE_CLIENT_MODEL}</code> and caps tokens.</p>`);
+      return true;
+    }
+  }
+
   // ===== 7) TOGGLE WIDGET =====
-  auditToggle.addEventListener("click", async () => {
+  auditToggle?.addEventListener("click", async () => {
     const wasHidden = widget.style.display === "none" || widget.style.display === "";
     widget.style.display = wasHidden ? "block" : "none";
     if (!wasHidden) { clearInterval(keepAliveInterval); keepAliveInterval = null; return; }
 
     const proxyReady = await Promise.race([ wakeProxy(MAX_WAIT_MS), sleep(MAX_WAIT_MS + 2000).then(() => false) ]);
     if (!proxyReady) { showFallback(); return; }
+
+    const okModel = await requireNanoServer();
+    if (!okModel) return;
 
     keepAliveInterval = setInterval(() => {
       fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
@@ -421,12 +448,8 @@
 
   // ===== 8) EVIDENCE HELPERS =====
   async function get(url){
-    try {
-      const r = await fetch(url, { cache: "no-store" });
-      return { ok:r.ok, status:r.status, text: await r.text() };
-    } catch (e) {
-      return { ok:false, status:0, text:String(e) };
-    }
+    try { const r = await fetch(url, { cache: "no-store" }); return { ok:r.ok, status:r.status, text: await r.text() }; }
+    catch (e) { return { ok:false, status:0, text:String(e) }; }
   }
   async function rpc(method, params = {}) {
     try {
@@ -447,7 +470,7 @@
     content:
 `You are an impartial XRPL site auditor.
 Use only the provided evidence (site manifests, security.txt, provenance, and on-ledger XRPL data).
-If a fact cannot be verified, state what is missing and how to verify it.
+If a fact cannot be verified, say what is missing and how to verify it.
 Never ask for seeds or secret keys. Remind users to verify wallet signing payloads in their wallet.
 Be concise and specific.`
   };
@@ -472,18 +495,17 @@ Be concise and specific.`
 }
 
 Scoring details:
-- issuer_blackholed = pass if AccountRoot shows master disabled AND no RegularKey; warn if only one holds; fail otherwise.
-- manifests_accessible = pass if universal-ai.json (XRBC + XRBitcoin) and /.well-known/security.txt return 200; warn if any missing; fail if all missing.
+- issuer_blackholed = pass if master disabled AND no RegularKey; warn if only one holds; fail otherwise.
+- manifests_accessible = pass if XRBC + XRBitcoin universal-ai.json and /.well-known/security.txt return 200; warn if any missing; fail if all missing.
 - read_only_endpoints = pass if endpoints list only read-only XRPL methods; warn if unclear; fail if mutating methods present.
-- wallet_connect_flow = "pass" if wallet_connect_detection == "absent" OR if a connect UI exists but delegates signing entirely to a known wallet app and never asks for seeds/secret keys; "warn" only if unclear; "fail" if any component requests seeds/secret keys or auto-initiates signing.
-- dex_liquidity_presence = pass if an AMM pool exists OR book_offers >= 3; warn if 1–2; fail if none/errored.
+- wallet_connect_flow = pass if wallet_connect_detection == absent OR if connect delegates signing entirely to a known wallet and never asks for secrets; warn if unclear; fail if any component requests seeds or auto-initiates signing.
+- dex_liquidity_presence = pass if an AMM exists OR book_offers >= 3; warn if 1–2; fail if none/errored.
 
 2) Then a short human explanation (3–6 sentences).`
   };
 
-  // === COMPACT EVIDENCE BUILDER (replaces giant dumps) ===
+  // Compact evidence builder
   async function collectEvidence() {
-    // Site docs: only statuses
     const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
       get("/universal-ai.json"),
       get("/XRBitcoin/universal-ai.json"),
@@ -492,11 +514,9 @@ Scoring details:
       get("/ai/provenance.json")
     ]);
 
-    // XRPL account facts (just what we need)
     const xrbcInfo = await rpc("account_info", { account: XRBC_ISSUER, ledger_index:"validated" });
     const xrbInfo  = await rpc("account_info", { account: XRB_ISSUER,  ledger_index:"validated" });
 
-    // Orderbooks (counts only)
     const bookXRB  = await rpc("book_offers", {
       taker_gets: { currency:"XRP" },
       taker_pays: { currency: HEX_XRB, issuer: XRB_ISSUER },
@@ -508,23 +528,17 @@ Scoring details:
       ledger_index:"validated", limit:10
     });
 
-    // Parse to compact facts
     const lsfDisableMaster = 0x00100000;
     function parseIssuer(ai) {
-      const ok = ai && ai.result && ai.result.account_data;
-      if (!ok) return { ok:false };
-      const d = ai.result.account_data;
+      const d = ai?.result?.account_data;
+      if (!d) return { ok:false };
       const flags = Number(d.Flags || 0);
       const masterDisabled = (flags & lsfDisableMaster) === lsfDisableMaster;
       const hasRegularKey  = typeof d.RegularKey === "string" && d.RegularKey.length > 0;
       return { ok:true, masterDisabled, hasRegularKey, blackholed: masterDisabled && !hasRegularKey };
     }
-    function offerCount(resp) {
-      const arr = resp && resp.result && Array.isArray(resp.result.offers) ? resp.result.offers : [];
-      return arr.length;
-    }
+    const offersLen = r => Array.isArray(r?.result?.offers) ? r.result.offers.length : 0;
 
-    // Wallet connect detection on page (hard flag)
     const hasWalletUI = !!document.querySelector(
       '[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'
     );
@@ -537,26 +551,23 @@ Scoring details:
         outbound_exchanges: Array.from(document.querySelectorAll('a[href*="sologenic.org"],a[href*="xpmarket.com"]')).map(a=>a.href)
       },
       manifests: {
-        xrbc_universal_ai_200: xrbcDoc.ok,
-        xrb_universal_ai_200: xrbDoc.ok,
-        ai_index_200: aiIdx.ok,
-        security_txt_200: secTxt.ok,
-        provenance_200: provDoc.ok
+        xrbc_universal_ai_200: !!xrbcDoc.ok,
+        xrb_universal_ai_200:  !!xrbDoc.ok,
+        ai_index_200:           !!aiIdx.ok,
+        security_txt_200:       !!secTxt.ok,
+        provenance_200:         !!provDoc.ok
       },
       issuers: {
         xrbc: parseIssuer(xrbcInfo),
         xrb:  parseIssuer(xrbInfo)
       },
       orderbooks: {
-        xrbc_offers: offerCount(bookXRBC),
-        xrb_offers:  offerCount(bookXRB)
+        xrbc_offers: offersLen(bookXRBC),
+        xrb_offers:  offersLen(bookXRB)
       },
-      endpoints: {
-        read_only_claim: true
-      }
+      endpoints: { read_only_claim: true }
     };
 
-    // one small JSON blob instead of giant dumps
     return { role: "user", content: JSON.stringify({ EVIDENCE: facts }) };
   }
 
@@ -568,15 +579,10 @@ Scoring details:
   const MIN_COOLDOWN_MS = 60000;
   const MAX_COOLDOWN_MS = 60000;
 
-  function msLeft() {
-    return Math.max(0, cooldownUntil - Date.now());
-  }
+  function msLeft() { return Math.max(0, cooldownUntil - Date.now()); }
   function showCooldown(reason = "Pausing briefly to prevent spam and protect the model’s rate limits.") {
     const left = msLeft();
-    if (left <= 0) {
-      cooldownStatus.style.display = "none";
-      return;
-    }
+    if (left <= 0) { cooldownStatus.style.display = "none"; return; }
     cooldownStatus.style.display = "block";
     cooldownStatus.textContent = `⏳ ${reason} You can ask again in ${Math.ceil(left / 1000)}s.`;
   }
@@ -603,14 +609,11 @@ Scoring details:
       append(`<p class="muted small" style="color:#f88">⚠️ Please press and hold the “Verify Human” button for 2.5 seconds before asking. This blocks spam and protects the model limits.</p>`);
       return false;
     }
-    if (msLeft() > 0) {
-      showCooldown();
-      return false;
-    }
+    if (msLeft() > 0) { showCooldown(); return false; }
     return true;
   }
 
-  // Press & hold human verification
+  // Press & hold verify
   if (holdBtn) {
     const startHold = () => {
       if (humanVerified) return;
@@ -636,25 +639,30 @@ Scoring details:
     ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
   }
 
-  // ===== 10) CHAT FUNCTION (model switched to gpt-5-nano) =====
+  // ===== 10) CHAT FUNCTION =====
   async function postChat(q) {
     if (proxyTimedOut) {
       append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat above.</p>`);
       return;
     }
-
-    renderMessage({ role: "user", content: q });
-    chatHistory.push({ role: "user", content: q });
-    saveChatHistory();
-
-    const spinnerId = "spinner-" + Date.now();
-    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
-
-    const awake = await wakeProxy();
-    if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
+    if (isBusy) return; // one-click guard
+    isBusy = true;
 
     try {
-      // Start a cool-down immediately (1 minute)
+      renderMessage({ role: "user", content: q });
+      chatHistory.push({ role: "user", content: q });
+      saveChatHistory();
+
+      const spinnerId = "spinner-" + Date.now();
+      append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
+
+      const awake = await wakeProxy();
+      if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
+
+      const okModel = await requireNanoServer();
+      if (!okModel) { document.getElementById(spinnerId)?.remove(); return; }
+
+      // start cooldown immediately
       startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
 
       const ctrl = new AbortController();
@@ -662,16 +670,17 @@ Scoring details:
 
       const evidenceMsg = await collectEvidence();
 
+      // Send both max_tokens & max_output_tokens (server may use either API)
       const payload = {
-        model: "gpt-5-nano",        // ⬅️ CHEAPEST MODEL
-        temperature: 0,             // deterministic
-        max_output_tokens: 400,     // cap output
-        // NOTE: we don't force response_format to keep your "two-part" output behavior
+        model: SAFE_CLIENT_MODEL,
+        temperature: 0,
+        max_tokens: 400,
+        max_output_tokens: 400,
         messages: [
           SYSTEM,
           INSTRUCTIONS,
           evidenceMsg,
-          ...packHistoryForLLM(chatHistory, 6, 240), // history preserved, token-safe
+          ...packHistoryForLLM(chatHistory, 4, 200),
           { role: "user", content: q }
         ]
       };
@@ -686,14 +695,13 @@ Scoring details:
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
-      // Authoritative error guard
       if (!resp.ok) {
         const errText = await resp.text();
         const retryAfter = Number(resp.headers.get("retry-after") || 0);
         if (resp.status === 429) {
           const ms = retryAfter ? retryAfter * 1000 : MIN_COOLDOWN_MS;
-          startCooldown(ms, "Server is pausing to prevent spam and protect model limits.");
-          append(`<p style="color:#f88"><strong>Temporarily Paused:</strong> We’re throttling requests for ${Math.ceil(ms/1000)}s to avoid hitting model limits. Please wait…</p>`);
+          startCooldown(ms, "Server is pausing to prevent org-wide rate limits.");
+          append(`<p style="color:#f88"><strong>Temporarily Paused:</strong> Throttling for ${Math.ceil(ms/1000)}s to avoid limits. Please wait…</p>`);
         } else {
           append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${esc(errText)}</p>`);
           startCooldown(MIN_COOLDOWN_MS, "Cooling down briefly after an error.");
@@ -701,27 +709,31 @@ Scoring details:
         return;
       }
 
+      // Try to read model headers (if server set them) and warn if wrong
+      try {
+        const used = resp.headers.get("X-Model-Used");
+        if (used && used !== SAFE_CLIENT_MODEL) {
+          banner(`<p style="color:#ffb3b3;">❌ Proxy used <code>${esc(used)}</code>. Force <code>${SAFE_CLIENT_MODEL}</code> in the server and redeploy.</p>`);
+        }
+      } catch {}
+
       let ans = (await resp.json())?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
 
-      // ===== HARD-FIX: if wallet_connect_detection == "absent", correct mis-scores =====
+      // Wallet-connect mis-score hard fix
       try {
-        const walletFlag =
-          (evidenceMsg.content.includes('"wallet_connect_detection":"absent"') || evidenceMsg.content.includes('"wallet_connect_detection": "absent"')) ? "absent" :
-          (evidenceMsg.content.includes('"wallet_connect_detection":"present"') || evidenceMsg.content.includes('"wallet_connect_detection": "present"')) ? "present" : "unknown";
+        const flagAbsent = /"wallet_connect_detection"\s*:\s*"absent"/.test(evidenceMsg.content);
         const [firstLine, ...rest] = ans.split("\n");
         const rubric = JSON.parse(firstLine.trim());
-        if (walletFlag === "absent") {
+        if (flagAbsent) {
           const wItem = Array.isArray(rubric.evidence) ? rubric.evidence.find(e => e.item === "wallet_connect_flow") : null;
           if (wItem && wItem.status !== "pass") {
             wItem.status = "pass";
             wItem.details = "No on-site wallet connect UI detected; lowest exposure.";
-            rubric.reasons = Array.from(new Set(
-              (rubric.reasons || []).concat("No on-site wallet connect UI; lowest exposure.")
-            ));
+            rubric.reasons = Array.from(new Set((rubric.reasons||[]).concat("No on-site wallet connect UI; lowest exposure.")));
             ans = JSON.stringify(rubric) + "\n" + rest.join("\n");
           }
         }
-      } catch { /* leave output as-is on parse issues */ }
+      } catch {}
 
       // Pretty print
       const [firstLine2, ...rest2] = ans.split("\n");
@@ -731,53 +743,63 @@ Scoring details:
         pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric2.verdict)}</code>\n\n` +
                  `• ${rubric2.reasons.map(esc).join("\n• ")}\n\n` +
                  rest2.join("\n");
-      } catch { /* keep full text if JSON parsing fails */ }
-
+      } catch {}
       renderMessage({ role: "assistant", content: pretty });
 
-      // Keep cool-down at 1 minute after success
+      // keep cooldown at 1 minute
       startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
 
       chatHistory.push({ role: "assistant", content: ans });
       saveChatHistory();
 
     } catch (err) {
-      document.getElementById(spinnerId)?.remove();
+      append(`<p style="color:#f88"><strong>Network/Proxy error:</strong> ${esc(String(err))}</p>`);
       startCooldown(MIN_COOLDOWN_MS, "Cooling down after a network error.");
       showFallback();
+    } finally {
+      isBusy = false;
     }
   }
 
-  // ===== 11) INPUT/CONTROLS =====
-  send.addEventListener("click", () => {
-    if (!requireHumanAndCooldown()) return;
-    const q = (inputEl.value || "").trim();
-    if (!q) return;
-    inputEl.value = "";
-    postChat(q);
-  });
-
-  inputEl.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      send.click();
-    }
-  });
-
-  quickBtns.forEach(btn =>
-    btn.addEventListener("click", () => {
+  // ===== 11) INPUT/CONTROLS (single-wire) =====
+  if (!send.dataset.wired) {
+    send.dataset.wired = "1";
+    send.addEventListener("click", () => {
       if (!requireHumanAndCooldown()) return;
-      postChat(btn.dataset.q);
-    })
-  );
+      const q = (inputEl.value || "").trim();
+      if (!q) return;
+      inputEl.value = "";
+      postChat(q);
+    });
+  }
 
-  // ===== 12) VOICE (unchanged) =====
+  if (!inputEl.dataset.wired) {
+    inputEl.dataset.wired = "1";
+    inputEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        send.click();
+      }
+    });
+  }
+
+  if (!quickBtns[0]?.dataset.wired) {
+    quickBtns.forEach(btn => {
+      btn.dataset.wired = "1";
+      btn.addEventListener("click", () => {
+        if (!requireHumanAndCooldown()) return;
+        postChat(btn.dataset.q);
+      });
+    });
+  }
+
+  // ===== 12) VOICE =====
   if ("webkitSpeechRecognition" in window) {
     const recog = new webkitSpeechRecognition();
     recog.continuous = false;
     recog.interimResults = false;
     recog.lang = "en-US";
-    voiceBtn.addEventListener("click", () => {
+    voiceBtn?.addEventListener("click", () => {
       recog.start();
       voiceBtn.textContent = "🎤 Listening...";
     });
@@ -787,10 +809,10 @@ Scoring details:
     };
     recog.onend = () => { voiceBtn.textContent = "🎤 Voice"; };
   } else {
-    voiceBtn.style.display = "none";
+    voiceBtn && (voiceBtn.style.display = "none");
   }
 
-  // ===== 13) CLEANUP (unchanged) =====
+  // ===== 13) CLEANUP =====
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
