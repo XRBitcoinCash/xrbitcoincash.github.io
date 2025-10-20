@@ -1,800 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- favicon -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
- <link rel="ai-manifest" href="/universal-ai.json">
-<link rel="ai-manifest" href="/XRBitcoin/universal-ai.json">
-<link rel="security" href="/.well-known/security.txt">
-<link rel="schema.dcterms" href="/ai/schemas/universal-ai.v1.json">
-<link rel="alternate" type="application/json" href="/.well-known/ai.json">
-<link rel="source" href="/ai/provenance.json">
-
-  <meta name="msapplication-TileImage" content="/favicon.png">
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash — Local Auditor (No LLM)</title>
 
-  <title>XRBitcoinCash</title>
-
-  <!-- Icons -->
-  <link rel="icon" href="/xrbc-nft.png" />
+  <link rel="icon" href="/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
-
-  <!-- Primary SEO -->
-  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token with integrated ChatGPT-powered Security Center. Trade XRBC, explore NFTs, and verify wallet safety directly on-page." />
-  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket, ChatGPT, AI Security Center, wallet safety, crypto transparency" />
-  <link rel="canonical" href="https://xrbitcoincash.com/" />
-
-  <!-- Acknowledgement -->
-  <meta name="generator" content="Built with assistance from ChatGPT AI" />
-  <meta name="credit" content="Security Center powered by ChatGPT AI — thank you to OpenAI for enabling transparent wallet safety audits." />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees, 3s finality, and now an AI-powered Security Center by ChatGPT for wallet safety & transparency." />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-  <meta property="og:url" content="https://xrbitcoincash.com/" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
-  <meta name="twitter:description" content="XRBitcoinCash now features a ChatGPT-powered Security Center — ask about wallet safety, XRPL standards, and liquidity directly on-site." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- External CSS -->
   <link rel="stylesheet" href="xrbc.css">
+
+  <!-- AI / security metadata (unchanged) -->
+  <link rel="ai-manifest" href="/universal-ai.json">
+  <link rel="ai-manifest" href="/XRBitcoin/universal-ai.json">
+  <link rel="security" href="/.well-known/security.txt">
+  <link rel="schema.dcterms" href="/ai/schemas/universal-ai.v1.json">
+  <link rel="alternate" type="application/json" href="/.well-known/ai.json">
+  <link rel="source" href="/ai/provenance.json">
+  <meta name="generator" content="Local Auditor (rule-based, no LLM)">
 </head>
 
 <body>
-  <!-- 🌙 Light/Dark Mode Toggle -->
-  <button class="toggle-theme" id="themeToggle">☀️</button>
-  <script>
-    const toggle = document.getElementById('themeToggle');
-    toggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
-    });
-  </script>
-
   <header>
     <div class="brand">
       <img src="/xrbc-nft.png" alt="XRBC logo" />
-     <h1>XRBitcoinCash</h1>
-
+      <h1>XRBitcoinCash</h1>
     </div>
   </header>
 
-
-<main>
-  <section class="hero">
-    <div class="particles">
-      <div class="particle" style="top:20%;left:10%;animation-delay:0s"></div>
-      <div class="particle" style="top:50%;left:30%;animation-delay:1s"></div>
-      <div class="particle" style="top:80%;left:50%;animation-delay:2s"></div>
-      <div class="particle" style="top:40%;left:70%;animation-delay:3s"></div>
-      <div class="particle" style="top:60%;left:90%;animation-delay:4s"></div>
-    </div>
-   
-    <div>
-      <h2>Trade XRBC fast on XRPL</h2>
-      <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
-      <div class="button-group">
-        <a href="https://xrbitcoincash.com/nfts.html" class="btn primary">🎨 NFT Gallery</a>
-        <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary glow-green">🚀 Trade XRBC Now</a>
-        <a href="https://xrbitcoincash.com/bs/" class="btn primary">Blockchain Specs</a>
-        <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" 
-           class="btn primary" target="_blank" rel="noopener noreferrer">
-           💧 Sologenic Liquidity Pool
-        </a>
-
-        <a href="/whitepaper.html" class="btn ghost glow-white">Whitepaper</a>
-        <a href="https://xrbitcoincash.com/about.html" class="btn ghost">About XRBC</a>
-      </div>
-    </div>
-
-    <aside class="card nft glow-green">
-      <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
-      <p class="muted small" style="margin-top:10px">
-        <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
-      </p>
-    </aside>
-  </section>
-
-  <section class="grid">
-    <div class="feature card">
-      <h3>About XRBC</h3>
-      <p class="muted">
-        XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
-        Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
-        With a trustline cap of <strong>20,999,999.999999996</strong>, XRBC is designed for sustainable liquidity and long-term growth.
-      </p>
-    </div>
-    <div class="feature card">
-      <h3>Trading</h3>
-      <p class="muted">
-        Trading on XRPL means you can exchange assets directly on-ledger without intermediaries. Using the built-in decentralized exchange (DEX),
-        you can place limit orders, swap instantly through liquidity pools, or trade via automated market makers like Sologenic AMM.
-      </p>
-    </div>
-    <div class="feature card">
-      <h3>NFTs</h3>
-      <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
-    </div>
-  </section>
-
-  <!-- Security Center -->
-  <section class="card glow-red" style="margin-top:28px;">
-    <h2 style="display:flex; align-items:center; gap:12px; font-size:1.4rem; color:var(--accent);">
-      🛡️ Security Center · Site & Wallet Safety
-    </h2>
-    <p class="muted" style="margin-top:8px; font-size:1rem;">
-      Powered by <strong style="color:var(--accent);">ChatGPT AI</strong>.<br>
-      Ask about the safety of connecting your wallet, how this site was built, XRBC’s compliance with XRPL standards, and liquidity transparency.
-    </p>
-    <button id="auditToggle" class="btn cta" style="margin-top:14px;">🔍 Ask ChatGPT Now</button>
-<p class="muted" style="margin-top:12px; font-size:0.95rem; line-height:1.6; border-left:3px solid var(--accent); padding-left:12px; background:rgba(0,229,255,0.04); border-radius:6px;">
-  💾 <strong>Local Storage Active:</strong> This page securely uses local storage to enhance your on-page Q&amp;A experience.  
-  It keeps short-term chat memory available while you explore project details — ensuring smoother, more relevant responses.  
-  All information remains private on your device and is never shared externally.
-</p>
-
-  <!-- ChatGPT Auditor widget (must exist for the button to work) -->
-<div id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:2px solid rgba(0,229,255,0.2); border-radius:12px; background:#0F1724;">
-  <div id="auditOutput" style="max-height:260px; overflow:auto; margin-bottom:12px; font-size:0.95rem;">
-    <p class="muted">🤖 Ready. Ask about XRBC wallet safety, site security, XRPL standards, or liquidity.</p>
-  </div>
-
-  <!-- Quick questions (optional) -->
-  <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
-    <button class="btn ghost auditQuick" 
-      data-q="How was this site built, and is it safe to connect my wallet here? Please explain whether the page contains any hidden or malicious code, how wallet connections are handled, and why users can trust this site.">
-      Wallet Safety
-    </button>
-
-    <button class="btn ghost auditQuick" 
-      data-q="Was this project built correctly on the XRP Ledger? Does it meet XRPL standards for issued tokens, trustlines, and decentralized trading?">
-      XRPL Standards
-    </button>
-
-    <button class="btn ghost auditQuick" 
-      data-q="How is liquidity for XRBitcoinCash provided on XRPL, and what makes it reliable for trading?">
-      Liquidity
-    </button>
-
-    <button class="btn ghost auditQuick" 
-      data-q="What makes this project safer than others? Please explain transparency, control of supply, and how users can verify everything on-ledger.">
-      Transparency
-    </button>
-  </div>
-<!-- ✅ HUMAN CHECK + STATUS (anti-spam, free, no keys) -->
-<div id="humanGate" style="margin:10px 0 12px 0; padding:12px; border:1px dashed rgba(0,229,255,0.35); border-radius:10px;">
-  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-    <button id="holdVerify" class="btn ghost" style="min-width:220px;">
-      ⏸️ Press & Hold 2.5s to Verify Human
-    </button>
-    <div id="gateStatus" class="muted small" style="line-height:1.5;">
-      This prevents spam bursts that could hit rate limits. Releasing early cancels.
-    </div>
-  </div>
-  <div id="cooldownStatus" class="muted small" style="margin-top:8px; display:none;"></div>
-</div>
-
-<div class="audit-input-wrap">
-  <textarea id="auditInput"
-            placeholder="Ask about XRBC, XRBitcoin, or wallet safety..."
-            rows="3"></textarea>
-
-  <!-- row of main buttons -->
-
-
-  <div class="audit-buttons">
-    <button id="auditSend" class="btn primary">Send</button>
-    <button id="auditVoice" class="btn ghost">🎙️ Voice</button>
-    <a href="https://chat.openai.com/"
-       target="_blank"
-       rel="noopener"
-       class="btn-glow-link">✨ Continue in ChatGPT</a>
-  </div>
-
-  <p class="helper small">
-    💬 For deeper or extended chats, tap “Continue in ChatGPT”.
-  </p>
-</div>
-
-
-  <p class="muted small" style="margin-top:8px; font-size:0.8rem;">🎙️ Use your mic to ask verbally (Chrome recommended).</p>
-</div>
-
-  
-  </section>
-</main>
-
-<footer class="ecosystem-footer">
-  <div class="footer-container">
-    <h3>XRBitcoin Ecosystem</h3>
-    <p class="ecosystem-desc">
-      Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
-    </p>
-
-    <div class="ecosystem-links">
-      <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo">
-        <span>XRBitcoinCash</span>
-      </a>
-
-      <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
-        <span>XRBitcoin</span>
-      </a>
-
-      <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
-        <span>Jesus Christ Saves</span>
-      </a>
-
-      <a href="https://x.com/XRbitcoincash" target="_blank" class="eco-link" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" style="width:22px; height:22px;">
-        <span>Twitter</span>
-      </a>
-
-      <!-- 🔐 Security Roles link -->
-      <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
-        <img src="/xrbc-nft.png" alt="Security logo" style="width:28px; height:28px;">
-        <span>Security Roles</span>
-      </a>
-    </div>
-
-    <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
-  </div>
-</footer>
-<!-- 🔐 Security Recertification Countdown -->
-<p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
-  🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
-</p>
-<!-- AI / Security badges (optional, human-facing) -->
-<nav class="ai-badges" style="margin-top:12px;font-size:0.95rem;opacity:0.9">
-  <a href="/universal-ai.json" rel="nofollow">XRBC AI Manifest</a> ·
-  <a href="/XRBitcoin/universal-ai.json" rel="nofollow">XRBitcoin AI Manifest</a> ·
-  <a href="/.well-known/ai.json" rel="nofollow">AI Index</a> ·
-  <a href="/ai/provenance.json" rel="nofollow">Provenance</a> ·
-  <a href="/.well-known/security.txt" rel="nofollow">Security.txt</a>
-</nav>
-
-<script>
-(() => {
-  "use strict";
-
-  // ===== 1) SCROLL FADE-IN (unchanged) =====
-  const features = document.querySelectorAll(".feature");
-  const fadeObserver = new IntersectionObserver(
-    entries => entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add("visible");
-        fadeObserver.unobserve(e.target);
-      }
-    }),
-    { threshold: 0.2 }
-  );
-  features.forEach(f => fadeObserver.observe(f));
-
-  // ===== 2) CONFIG (unchanged endpoints/URL) =====
-  const PROXY = "https://xrbc-frontend.onrender.com"; // your secure proxy
-  const CHAT_PATH = "/chat";                           // chat endpoint on your proxy
-  const RPC_PATH  = "/";                               // XRPL passthrough on your proxy (root POST)
-  const FALLBACK_URL = "https://chat.openai.com/?model=gpt-5";
-  const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/";
-  const MAX_WAIT_MS = 52000;
-
-  // XRPL issuers & currency hex (from your manifests)
-  const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
-  const XRB_ISSUER  = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT";
-  const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
-  const HEX_XRB     = "5852626974636F696E0000000000000000000000";
-
-  // ===== 3) ELEMENTS =====
-  const auditToggle = document.getElementById("auditToggle");
-  const widget   = document.getElementById("auditWidget");
-  const output   = document.getElementById("auditOutput");
-  const inputEl  = document.getElementById("auditInput");
-  const send     = document.getElementById("auditSend");
-  const voiceBtn = document.getElementById("auditVoice");
-  const quickBtns= document.querySelectorAll(".auditQuick");
-
-  // Human gate elements
-  const holdBtn = document.getElementById("holdVerify");
-  const gateStatus = document.getElementById("gateStatus");
-  const cooldownStatus = document.getElementById("cooldownStatus");
-
-  let keepAliveInterval = null;
-  let proxyTimedOut = false;
-
-  // ===== 4) UTILS =====
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const append = html => {
-    const w = document.createElement("div");
-    w.className = "chat-block";
-    w.innerHTML = html;
-    output.appendChild(w);
-    w.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  };
-  const esc = s => String(s)
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-
-  // ===== 5) LOCAL CHAT MEMORY (preserved) =====
-  let chatHistory = [];
-  try {
-    const raw = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
-    chatHistory = Array.isArray(raw) ? raw : [];
-  } catch { chatHistory = []; }
-  const saveChatHistory = () =>
-    sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
-  const renderMessage = m => {
-    if (typeof m === "string") { append(m); return; }
-    if (m.role === "user") {
-      append(`<p><strong style="color:#9EB2D0">You:</strong> ${esc(m.content)}</p>`);
-    } else if (m.role === "assistant") {
-      append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">AI Auditor:</strong> ${esc(m.content)}</p>`);
-    }
-  };
-  chatHistory.slice(-10).forEach(renderMessage);
-
-  // Keep history for the model but cap per-message size to control tokens
-  function packHistoryForLLM(hist, maxMsgs = 6, maxCharsPerMsg = 240) {
-    const last = hist.slice(-maxMsgs);
-    return last.map(m => ({
-      role: m.role,
-      content: String(m.content).slice(0, maxCharsPerMsg)
-    }));
-  }
-
-  // ===== 6) WAKE PROXY (unchanged) =====
-  async function wakeProxy(maxMs = MAX_WAIT_MS) {
-    const start = Date.now();
-    let attempt = 0;
-    append(`<p id="wakeStatus" style="color:#888;">🕓 Waking secure AI proxy...</p>`);
-    while (Date.now() - start < maxMs) {
-      attempt++;
-      try {
-        const status = document.getElementById("wakeStatus");
-        if (status) status.innerHTML = `🟡 Attempt ${attempt}: contacting secure XRBC proxy...`;
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 12000);
-        const r = await fetch(`${PROXY}/healthz?ts=${Date.now()}`, { cache: "no-store", signal: ctrl.signal });
-        clearTimeout(t);
-        if (r.ok) {
-          if (status) status.innerHTML = `✅ Proxy online after ${attempt} attempt${attempt>1?"s":""}.`;
-          await sleep(800);
-          status?.remove();
-          return true;
-        }
-      } catch {}
-      const delay = Math.min(10000, Math.round(600 * Math.pow(1.7, attempt)));
-      await sleep(delay);
-    }
-    const status = document.getElementById("wakeStatus");
-    if (status) status.innerHTML = `❌ Proxy not responding (after ${attempt} attempts).`;
-    return false;
-  }
-
-  async function resolveChatGPTLink() {
-    try {
-      await fetch(FALLBACK_URL, { method: "HEAD", mode: "no-cors" });
-      return FALLBACK_URL;
-    } catch { return FALLBACK_WEB3_URL; }
-  }
-
-  async function showFallback() {
-    proxyTimedOut = true;
-    widget.style.display = "block";
-    const fallbackLink = await resolveChatGPTLink();
-    append(`
-      <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
-        <p style="color:#9EB2D0;">⚠️ The secure XRBC proxy is currently unavailable or still waking up.<br><br>
-        You can continue your conversation directly with ChatGPT below:</p>
-        <div style="text-align:center;margin-top:14px;">
-          <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">💬 Open ChatGPT Fallback</a>
-        </div>
-        <p style="margin-top:10px; color:#777; font-size:0.85rem;">
-          Tip: Render free plans can take 30–45 seconds to start after inactivity. If you retry in a moment, the integrated Security Center should come online automatically.
+  <main>
+    <section class="hero">
+      <div>
+        <h2>🛡️ Security Center · Local Auditor (No LLM)</h2>
+        <p class="muted">
+          This widget runs entirely in your browser using deterministic rules. It fetches site manifests & XRPL data,
+          then produces the same JSON rubric + short explanation — without calling OpenAI (so no 429s).
         </p>
+        <div class="button-group">
+          <button id="auditToggle" class="btn primary">🔍 Open Auditor</button>
+        </div>
       </div>
-    `);
-  }
+    </section>
 
-  // ===== 7) TOGGLE WIDGET =====
-  auditToggle.addEventListener("click", async () => {
-    const wasHidden = widget.style.display === "none" || widget.style.display === "";
-    widget.style.display = wasHidden ? "block" : "none";
-    if (!wasHidden) { clearInterval(keepAliveInterval); keepAliveInterval = null; return; }
+    <section class="card" id="auditWidget" style="display:none; margin-top:16px; padding:14px; border:2px solid rgba(0,229,255,0.2); border-radius:12px; background:#0F1724;">
+      <div id="auditOutput" style="max-height:320px; overflow:auto; margin-bottom:12px; font-size:0.95rem;">
+        <p class="muted">🤖 Ready. Ask about XRBC wallet safety, site security, XRPL standards, or liquidity.</p>
+        <p class="muted small">Mode: <strong>Local / Rule-Based</strong> — no OpenAI calls are made.</p>
+      </div>
 
-    const proxyReady = await Promise.race([ wakeProxy(MAX_WAIT_MS), sleep(MAX_WAIT_MS + 2000).then(() => false) ]);
-    if (!proxyReady) { showFallback(); return; }
+      <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px;">
+        <button class="btn ghost auditQuick"
+          data-q="How was this site built, and is it safe to connect my wallet here?">
+          Wallet Safety
+        </button>
+        <button class="btn ghost auditQuick"
+          data-q="Was this project built correctly on the XRP Ledger?">
+          XRPL Standards
+        </button>
+        <button class="btn ghost auditQuick"
+          data-q="How is liquidity for XRBitcoinCash provided on XRPL?">
+          Liquidity
+        </button>
+        <button class="btn ghost auditQuick"
+          data-q="Why should users trust this site?">
+          Transparency
+        </button>
+      </div>
 
-    keepAliveInterval = setInterval(() => {
-      fetch(`${PROXY}/healthz?ts=${Date.now()}`).catch(() => {});
-    }, 60000);
-  });
+      <!-- Human gate + cool-down (kept) -->
+      <div id="humanGate" style="margin:10px 0 12px 0; padding:12px; border:1px dashed rgba(0,229,255,0.35); border-radius:10px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <button id="holdVerify" class="btn ghost" style="min-width:220px;">
+            ⏸️ Press & Hold 2.5s to Verify Human
+          </button>
+          <div id="gateStatus" class="muted small" style="line-height:1.5;">
+            This prevents spam bursts and keeps XRPL calls reasonable.
+          </div>
+        </div>
+        <div id="cooldownStatus" class="muted small" style="margin-top:8px; display:none;"></div>
+      </div>
 
-  // ===== 8) EVIDENCE HELPERS =====
-  async function get(url){
-    try {
-      const r = await fetch(url, { cache: "no-store" });
-      return { ok:r.ok, status:r.status, text: await r.text() };
-    } catch (e) {
-      return { ok:false, status:0, text:String(e) };
-    }
-  }
-  async function rpc(method, params = {}) {
-    try {
-      const r = await fetch(`${PROXY}${RPC_PATH}`, {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({ method, params: [params] })
-      });
-      if (!r.ok) return { error: await r.text(), status: r.status };
-      return await r.json();
-    } catch (e) {
-      return { error: String(e) };
-    }
-  }
+      <div class="audit-input-wrap">
+        <textarea id="auditInput" rows="3"
+          placeholder="Ask anything — the Local Auditor will run the checks and return a rubric..."></textarea>
+        <div class="audit-buttons">
+          <button id="auditSend" class="btn primary">Run Audit</button>
+          <button id="auditVoice" class="btn ghost">🎙️ Voice</button>
+          <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="btn-glow-link">
+            ✨ Continue in ChatGPT (optional)
+          </a>
+        </div>
+        <p class="helper small">💾 Local storage keeps the last few messages on this device only.</p>
+      </div>
+    </section>
+  </main>
 
-  const SYSTEM = {
-    role: "system",
-    content:
-`You are an impartial XRPL site auditor.
-Use only the provided evidence (site manifests, security.txt, provenance, and on-ledger XRPL data).
-If a fact cannot be verified, state what is missing and how to verify it.
-Never ask for seeds or secret keys. Remind users to verify wallet signing payloads in their wallet.
-Be concise and specific.`
-  };
+  <script>
+  (() => {
+    "use strict";
 
-  const INSTRUCTIONS = {
-    role: "user",
-    content:
-`Return two parts:
+    // ===== Config (no GPT, XRPL only) =====
+    const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
+    const XRB_ISSUER  = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT";
+    const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
+    const HEX_XRB     = "5852626974636F696E0000000000000000000000";
 
-1) JSON-RUBRIC ONLY on the first line:
-{
-  "verdict": "safe|caution|unsafe",
-  "reasons": ["..."],
-  "evidence": [
-    {"item":"issuer_blackholed","status":"pass|warn|fail","details":"..."},
-    {"item":"manifests_accessible","status":"pass|warn|fail","details":"..."},
-    {"item":"read_only_endpoints","status":"pass|warn|fail","details":"..."},
-    {"item":"wallet_connect_flow","status":"pass|warn|fail","details":"..."},
-    {"item":"dex_liquidity_presence","status":"pass|warn|fail","details":"..."}
-  ],
-  "recommended_actions": ["..."]
-}
+    // Prefer public CORS-friendly XRPL cluster; fallback to your proxy root (passthrough) if needed
+    const XRPL_ENDPOINTS = [
+      "https://xrplcluster.com",                 // public
+      "https://xrbc-frontend.onrender.com"       // your proxy (root POST) — still not OpenAI
+    ];
 
-Scoring details:
-- issuer_blackholed = pass if AccountRoot shows master disabled AND no RegularKey; warn if only one holds; fail otherwise.
-- manifests_accessible = pass if universal-ai.json (XRBC + XRBitcoin) and /.well-known/security.txt return 200; warn if any missing; fail if all missing.
-- read_only_endpoints = pass if endpoints list only read-only XRPL methods; warn if unclear; fail if mutating methods present.
-- wallet_connect_flow = "pass" if wallet_connect_detection == "absent" OR if a connect UI exists but delegates signing entirely to a known wallet app and never asks for seeds/secret keys; "warn" only if unclear; "fail" if any component requests seeds/secret keys or auto-initiates signing.
-- dex_liquidity_presence = pass if an AMM pool exists OR book_offers >= 3; warn if 1–2; fail if none/errored.
+    // ===== Elements =====
+    const auditToggle = document.getElementById("auditToggle");
+    const widget      = document.getElementById("auditWidget");
+    const output      = document.getElementById("auditOutput");
+    const inputEl     = document.getElementById("auditInput");
+    const send        = document.getElementById("auditSend");
+    const voiceBtn    = document.getElementById("auditVoice");
+    const quickBtns   = document.querySelectorAll(".auditQuick");
 
-2) Then a short human explanation (3–6 sentences).`
-  };
+    const holdBtn       = document.getElementById("holdVerify");
+    const gateStatus    = document.getElementById("gateStatus");
+    const cooldownStatus= document.getElementById("cooldownStatus");
 
-  // === COMPACT EVIDENCE BUILDER (replaces giant dumps) ===
-  async function collectEvidence() {
-    // Site docs: only statuses
-    const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
-      get("/universal-ai.json"),
-      get("/XRBitcoin/universal-ai.json"),
-      get("/.well-known/ai.json"),
-      get("/.well-known/security.txt"),
-      get("/ai/provenance.json")
-    ]);
+    // ===== Utils =====
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const append = html => {
+      const w = document.createElement("div");
+      w.className = "chat-block";
+      w.innerHTML = html;
+      output.appendChild(w);
+      w.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+    const esc = s => String(s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
-    // XRPL account facts (just what we need)
-    const xrbcInfo = await rpc("account_info", { account: XRBC_ISSUER, ledger_index:"validated" });
-    const xrbInfo  = await rpc("account_info", { account: XRB_ISSUER,  ledger_index:"validated" });
-
-    // Orderbooks (counts only)
-    const bookXRB  = await rpc("book_offers", {
-      taker_gets: { currency:"XRP" },
-      taker_pays: { currency: HEX_XRB, issuer: XRB_ISSUER },
-      ledger_index:"validated", limit:10
-    });
-    const bookXRBC = await rpc("book_offers", {
-      taker_gets: { currency:"XRP" },
-      taker_pays: { currency: HEX_XRBC, issuer: XRBC_ISSUER },
-      ledger_index:"validated", limit:10
-    });
-
-    // Parse to compact facts
-    const lsfDisableMaster = 0x00100000;
-    function parseIssuer(ai) {
-      const ok = ai && ai.result && ai.result.account_data;
-      if (!ok) return { ok:false };
-      const d = ai.result.account_data;
-      const flags = Number(d.Flags || 0);
-      const masterDisabled = (flags & lsfDisableMaster) === lsfDisableMaster;
-      const hasRegularKey  = typeof d.RegularKey === "string" && d.RegularKey.length > 0;
-      return { ok:true, masterDisabled, hasRegularKey, blackholed: masterDisabled && !hasRegularKey };
-    }
-    function offerCount(resp) {
-      const arr = resp && resp.result && Array.isArray(resp.result.offers) ? resp.result.offers : [];
-      return arr.length;
-    }
-
-    // Wallet connect detection on page (hard flag)
-    const hasWalletUI = !!document.querySelector(
-      '[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'
-    );
-
-    const facts = {
-      page: {
-        url: location.href,
-        canonical: (document.querySelector('link[rel="canonical"]')||{}).href || null,
-        wallet_connect_detection: hasWalletUI ? "present" : "absent",
-        outbound_exchanges: Array.from(document.querySelectorAll('a[href*="sologenic.org"],a[href*="xpmarket.com"]')).map(a=>a.href)
-      },
-      manifests: {
-        xrbc_universal_ai_200: xrbcDoc.ok,
-        xrb_universal_ai_200: xrbDoc.ok,
-        ai_index_200: aiIdx.ok,
-        security_txt_200: secTxt.ok,
-        provenance_200: provDoc.ok
-      },
-      issuers: {
-        xrbc: parseIssuer(xrbcInfo),
-        xrb:  parseIssuer(xrbInfo)
-      },
-      orderbooks: {
-        xrbc_offers: offerCount(bookXRBC),
-        xrb_offers:  offerCount(bookXRB)
-      },
-      endpoints: {
-        read_only_claim: true
+    // ===== Local chat memory (kept) =====
+    let chatHistory = [];
+    try { chatHistory = JSON.parse(sessionStorage.getItem("xrbc_chat_history")||"[]") || []; }
+    catch { chatHistory = []; }
+    const saveChatHistory = () =>
+      sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
+    const renderMessage = m => {
+      if (typeof m === "string") { append(m); return; }
+      if (m.role === "user") {
+        append(`<p><strong style="color:#9EB2D0">You:</strong> ${esc(m.content)}</p>`);
+      } else if (m.role === "assistant") {
+        append(`<p style="white-space:pre-line"><strong style="color:#00E5FF">Local Auditor:</strong> ${esc(m.content)}</p>`);
       }
     };
+    chatHistory.slice(-10).forEach(renderMessage);
 
-    // one small JSON blob instead of giant dumps
-    return { role: "user", content: JSON.stringify({ EVIDENCE: facts }) };
-  }
+    // ===== Simple toggle =====
+    auditToggle?.addEventListener("click", () => {
+      const wasHidden = widget.style.display === "none" || widget.style.display === "";
+      widget.style.display = wasHidden ? "block" : "none";
+    });
 
-  // ===== 9) HUMAN GATE + COOLDOWN =====
-  let humanVerified = false;
-  let holdTimer = null;
-
-  let cooldownUntil = 0;
-  const MIN_COOLDOWN_MS = 60000;
-  const MAX_COOLDOWN_MS = 60000;
-
-  function msLeft() {
-    return Math.max(0, cooldownUntil - Date.now());
-  }
-  function showCooldown(reason = "Pausing briefly to prevent spam and protect the model’s rate limits.") {
-    const left = msLeft();
-    if (left <= 0) {
-      cooldownStatus.style.display = "none";
-      return;
-    }
-    cooldownStatus.style.display = "block";
-    cooldownStatus.textContent = `⏳ ${reason} You can ask again in ${Math.ceil(left / 1000)}s.`;
-  }
-  function tickCooldown() {
-    if (msLeft() <= 0) {
-      cooldownStatus.style.display = "none";
-      send.disabled = false;
-      quickBtns.forEach(b => b.disabled = false);
-      return;
-    }
-    send.disabled = true;
-    quickBtns.forEach(b => (b.disabled = true));
-    showCooldown();
-    requestAnimationFrame(tickCooldown);
-  }
-  function startCooldown(ms, reason) {
-    const now = Date.now();
-    cooldownUntil = Math.max(cooldownUntil, now + Math.min(Math.max(ms, 1000), MAX_COOLDOWN_MS));
-    tickCooldown();
-    showCooldown(reason);
-  }
-  function requireHumanAndCooldown() {
-    if (!humanVerified) {
-      append(`<p class="muted small" style="color:#f88">⚠️ Please press and hold the “Verify Human” button for 2.5 seconds before asking. This blocks spam and protects the model limits.</p>`);
-      return false;
-    }
-    if (msLeft() > 0) {
-      showCooldown();
-      return false;
-    }
-    return true;
-  }
-
-  // Press & hold human verification
-  if (holdBtn) {
-    const startHold = () => {
-      if (humanVerified) return;
-      holdBtn.textContent = "⏱️ Keep holding…";
-      gateStatus.textContent = "Verifying… don’t release yet.";
-      holdTimer = setTimeout(() => {
-        humanVerified = true;
-        holdBtn.textContent = "✅ Verified Human";
-        holdBtn.classList.add("glow-green");
-        holdBtn.disabled = true;
-        gateStatus.textContent = "Thanks! You’re verified. You can ask now.";
-      }, 2500);
-    };
-    const cancelHold = () => {
-      if (humanVerified) return;
-      if (holdTimer) clearTimeout(holdTimer);
-      holdTimer = null;
-      holdBtn.textContent = "⏸️ Press & Hold 2.5s to Verify Human";
-      gateStatus.textContent = "Release detected — hold continuously until it completes.";
-    };
-    holdBtn.addEventListener("mousedown", startHold);
-    holdBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(); }, { passive: false });
-    ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
-  }
-
-  // ===== 10) CHAT FUNCTION (model switched to gpt-5-nano) =====
-  async function postChat(q) {
-    if (proxyTimedOut) {
-      append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat above.</p>`);
-      return;
+    // ===== Lightweight fetchers =====
+    async function get(url){
+      try {
+        const r = await fetch(url, { cache: "no-store" });
+        return { ok:r.ok, status:r.status, text: await r.text() };
+      } catch (e) {
+        return { ok:false, status:0, text:String(e) };
+      }
     }
 
-    renderMessage({ role: "user", content: q });
-    chatHistory.push({ role: "user", content: q });
-    saveChatHistory();
+    async function rpc(method, params = {}) {
+      for (const ep of XRPL_ENDPOINTS) {
+        try {
+          const r = await fetch(ep, {
+            method: "POST",
+            headers: { "Content-Type":"application/json" },
+            body: JSON.stringify({ method, params: [params] })
+          });
+          if (!r.ok) continue;
+          const j = await r.json();
+          if (j && (j.result || j.error)) return j;
+        } catch (_) {}
+      }
+      return { error: "All XRPL endpoints failed" };
+    }
 
-    const spinnerId = "spinner-" + Date.now();
-    append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
+    // ===== Evidence collection =====
+    async function collectEvidence() {
+      // Site docs: just statuses
+      const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
+        get("/universal-ai.json"),
+        get("/XRBitcoin/universal-ai.json"),
+        get("/.well-known/ai.json"),
+        get("/.well-known/security.txt"),
+        get("/ai/provenance.json")
+      ]);
 
-    const awake = await wakeProxy();
-    if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
+      // XRPL account facts
+      const xrbcInfo = await rpc("account_info", { account: XRBC_ISSUER, ledger_index:"validated" });
+      const xrbInfo  = await rpc("account_info", { account: XRB_ISSUER,  ledger_index:"validated" });
 
-    try {
-      // Start a cool-down immediately (1 minute)
-      startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
-
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 60000);
-
-      const evidenceMsg = await collectEvidence();
-
-      const payload = {
-        model: "gpt-5-nano",        // ⬅️ CHEAPEST MODEL
-        temperature: 0,             // deterministic
-        max_output_tokens: 400,     // cap output
-        // NOTE: we don't force response_format to keep your "two-part" output behavior
-        messages: [
-          SYSTEM,
-          INSTRUCTIONS,
-          evidenceMsg,
-          ...packHistoryForLLM(chatHistory, 6, 240), // history preserved, token-safe
-          { role: "user", content: q }
-        ]
-      };
-
-      const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: ctrl.signal
+      // Orderbooks (counts only)
+      const bookXRB  = await rpc("book_offers", {
+        taker_gets: { currency:"XRP" },
+        taker_pays: { currency: HEX_XRB, issuer: XRB_ISSUER },
+        ledger_index:"validated", limit:10
+      });
+      const bookXRBC = await rpc("book_offers", {
+        taker_gets: { currency:"XRP" },
+        taker_pays: { currency: HEX_XRBC, issuer: XRBC_ISSUER },
+        ledger_index:"validated", limit:10
       });
 
-      clearTimeout(timer);
-      document.getElementById(spinnerId)?.remove();
+      // Parse compact facts
+      const lsfDisableMaster = 0x00100000;
+      function parseIssuer(ai) {
+        const d = ai?.result?.account_data;
+        if (!d) return { ok:false };
+        const flags = Number(d.Flags || 0);
+        const masterDisabled = (flags & lsfDisableMaster) === lsfDisableMaster;
+        const hasRegularKey  = typeof d.RegularKey === "string" && d.RegularKey.length > 0;
+        return { ok:true, masterDisabled, hasRegularKey, blackholed: masterDisabled && !hasRegularKey };
+      }
+      const offersLen = r => Array.isArray(r?.result?.offers) ? r.result.offers.length : 0;
 
-      // Authoritative error guard
-      if (!resp.ok) {
-        const errText = await resp.text();
-        const retryAfter = Number(resp.headers.get("retry-after") || 0);
-        if (resp.status === 429) {
-          const ms = retryAfter ? retryAfter * 1000 : MIN_COOLDOWN_MS;
-          startCooldown(ms, "Server is pausing to prevent spam and protect model limits.");
-          append(`<p style="color:#f88"><strong>Temporarily Paused:</strong> We’re throttling requests for ${Math.ceil(ms/1000)}s to avoid hitting model limits. Please wait…</p>`);
-        } else {
-          append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${esc(errText)}</p>`);
-          startCooldown(MIN_COOLDOWN_MS, "Cooling down briefly after an error.");
+      // Wallet connect detection on-page
+      const hasWalletUI = !!document.querySelector(
+        '[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'
+      );
+
+      return {
+        manifests: {
+          xrbc_universal_ai_200: xrbcDoc.ok,
+          xrb_universal_ai_200:  xrbDoc.ok,
+          ai_index_200:          aiIdx.ok,
+          security_txt_200:      secTxt.ok,
+          provenance_200:        provDoc.ok
+        },
+        issuers: {
+          xrbc: parseIssuer(xrbcInfo),
+          xrb:  parseIssuer(xrbInfo)
+        },
+        orderbooks: {
+          xrbc_offers: offersLen(bookXRBC),
+          xrb_offers:  offersLen(bookXRB)
+        },
+        page: {
+          wallet_connect_detection: hasWalletUI ? "present" : "absent",
+          url: location.href
         }
+      };
+    }
+
+    // ===== Deterministic scoring (no LLM) =====
+    function score(facts) {
+      const reasons = [];
+      const evidence = [];
+
+      // issuer_blackholed
+      const i1 = facts.issuers.xrbc, i2 = facts.issuers.xrb;
+      let ibStatus = "fail", ibDetails = "";
+      const ok1 = i1?.ok && i1.masterDisabled && !i1.hasRegularKey;
+      const ok2 = i2?.ok && i2.masterDisabled && !i2.hasRegularKey;
+      if (ok1 && ok2) { ibStatus = "pass"; ibDetails = "Both issuers: master disabled, no RegularKey."; }
+      else if ((i1?.ok && (i1.masterDisabled || !i1.hasRegularKey)) ||
+               (i2?.ok && (i2.masterDisabled || !i2.hasRegularKey))) {
+        ibStatus = "warn"; ibDetails = "Only one issuer fully blackholed or partial flags present.";
+      } else {
+        ibDetails = "Neither issuer fully blackholed.";
+      }
+      evidence.push({ item:"issuer_blackholed", status:ibStatus, details:ibDetails });
+      if (ibStatus !== "pass") reasons.push("Issuer blackhole status not fully satisfied.");
+
+      // manifests_accessible
+      const m = facts.manifests;
+      const all = [m.xrbc_universal_ai_200, m.xrb_universal_ai_200, m.security_txt_200];
+      let manStatus = "fail", manDetails = "All key manifests missing.";
+      if (all.filter(Boolean).length === 3) { manStatus="pass"; manDetails="XRBC & XRBitcoin manifests and security.txt are reachable."; }
+      else if (all.filter(Boolean).length >= 1) { manStatus="warn"; manDetails="Some, not all, key manifests reachable."; }
+      evidence.push({ item:"manifests_accessible", status:manStatus, details:manDetails });
+      if (manStatus === "warn") reasons.push("Not all manifests are reachable.");
+      if (manStatus === "fail") reasons.push("No manifests reachable.");
+
+      // read_only_endpoints (in local mode, page has no write ops)
+      const roStatus = "pass";
+      evidence.push({ item:"read_only_endpoints", status:roStatus, details:"Local Auditor performs read-only XRPL RPC and static fetches." });
+
+      // wallet_connect_flow
+      const wcAbsent = facts.page.wallet_connect_detection === "absent";
+      evidence.push({
+        item:"wallet_connect_flow",
+        status: wcAbsent ? "pass" : "warn",
+        details: wcAbsent ? "No on-site wallet connect UI detected." : "Wallet UI present; ensure it delegates signing to a known wallet."
+      });
+      if (!wcAbsent) reasons.push("Wallet UI present — verify signing flows carefully.");
+
+      // dex_liquidity_presence
+      const offers = Math.max(Number(facts.orderbooks.xrbc_offers||0), Number(facts.orderbooks.xrb_offers||0));
+      let dexStatus = "fail", dexDetails = "No offers detected.";
+      if (offers >= 3) { dexStatus="pass"; dexDetails=`Order book has ${offers}+ offers.`; }
+      else if (offers >= 1) { dexStatus="warn"; dexDetails=`Order book has ${offers} offer(s).`; }
+      evidence.push({ item:"dex_liquidity_presence", status:dexStatus, details:dexDetails });
+      if (dexStatus === "warn") reasons.push("Low order-book depth.");
+      if (dexStatus === "fail") reasons.push("No order-book depth detected.");
+
+      // verdict
+      const worst = [ibStatus, manStatus, roStatus, wcAbsent ? "pass":"warn", dexStatus];
+      const order = { pass:0, warn:1, fail:2 };
+      const maxScore = Math.max(...worst.map(s => order[s]));
+      const verdict = (maxScore === 0) ? "safe" : (maxScore === 1 ? "caution" : "unsafe");
+
+      const recommended_actions = [
+        "Verify wallet signing payloads in your wallet before confirming.",
+        "Bookmark the issuer accounts and re-check flags periodically.",
+        "Avoid interacting with sites that request seeds or private keys."
+      ];
+
+      if (manStatus !== "pass") recommended_actions.push("Host all manifests and /.well-known/security.txt; keep them reachable.");
+      if (dexStatus !== "pass") recommended_actions.push("Improve liquidity depth to strengthen DEX presence.");
+
+      if (reasons.length === 0) reasons.push("All core checks satisfied.");
+
+      return { verdict, reasons, evidence, recommended_actions };
+    }
+
+    function explain(rubric) {
+      const v = rubric.verdict === "safe" ? "The project looks safe based on on-ledger flags, reachable manifests, and read-only behavior."
+        : rubric.verdict === "caution" ? "Most checks look OK, but one or more items need attention. Review the evidence before connecting a wallet."
+        : "Key checks failed (see evidence). Resolve these before connecting a wallet.";
+      return v + " Always verify the signing payloads in your wallet.";
+    }
+
+    // ===== Human gate + cooldown =====
+    let humanVerified = false, holdTimer = null;
+    let cooldownUntil = 0;
+    const MIN_COOLDOWN_MS = 60000, MAX_COOLDOWN_MS = 60000;
+
+    function msLeft() { return Math.max(0, cooldownUntil - Date.now()); }
+    function showCooldown(reason = "Pausing briefly to prevent spam and protect XRPL endpoints.") {
+      const left = msLeft();
+      if (left <= 0) { cooldownStatus.style.display = "none"; return; }
+      cooldownStatus.style.display = "block";
+      cooldownStatus.textContent = `⏳ ${reason} You can ask again in ${Math.ceil(left / 1000)}s.`;
+    }
+    function tickCooldown() {
+      if (msLeft() <= 0) {
+        cooldownStatus.style.display = "none";
+        send.disabled = false;
+        quickBtns.forEach(b => b.disabled = false);
         return;
       }
-
-      let ans = (await resp.json())?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
-
-      // ===== HARD-FIX: if wallet_connect_detection == "absent", correct mis-scores =====
-      try {
-        const walletFlag =
-          (evidenceMsg.content.includes('"wallet_connect_detection":"absent"') || evidenceMsg.content.includes('"wallet_connect_detection": "absent"')) ? "absent" :
-          (evidenceMsg.content.includes('"wallet_connect_detection":"present"') || evidenceMsg.content.includes('"wallet_connect_detection": "present"')) ? "present" : "unknown";
-        const [firstLine, ...rest] = ans.split("\n");
-        const rubric = JSON.parse(firstLine.trim());
-        if (walletFlag === "absent") {
-          const wItem = Array.isArray(rubric.evidence) ? rubric.evidence.find(e => e.item === "wallet_connect_flow") : null;
-          if (wItem && wItem.status !== "pass") {
-            wItem.status = "pass";
-            wItem.details = "No on-site wallet connect UI detected; lowest exposure.";
-            rubric.reasons = Array.from(new Set(
-              (rubric.reasons || []).concat("No on-site wallet connect UI; lowest exposure.")
-            ));
-            ans = JSON.stringify(rubric) + "\n" + rest.join("\n");
-          }
-        }
-      } catch { /* leave output as-is on parse issues */ }
-
-      // Pretty print
-      const [firstLine2, ...rest2] = ans.split("\n");
-      let pretty = ans;
-      try {
-        const rubric2 = JSON.parse(firstLine2.trim());
-        pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric2.verdict)}</code>\n\n` +
-                 `• ${rubric2.reasons.map(esc).join("\n• ")}\n\n` +
-                 rest2.join("\n");
-      } catch { /* keep full text if JSON parsing fails */ }
-
-      renderMessage({ role: "assistant", content: pretty });
-
-      // Keep cool-down at 1 minute after success
-      startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
-
-      chatHistory.push({ role: "assistant", content: ans });
-      saveChatHistory();
-
-    } catch (err) {
-      document.getElementById(spinnerId)?.remove();
-      startCooldown(MIN_COOLDOWN_MS, "Cooling down after a network error.");
-      showFallback();
+      send.disabled = true;
+      quickBtns.forEach(b => (b.disabled = true));
+      showCooldown();
+      requestAnimationFrame(tickCooldown);
     }
-  }
-
-  // ===== 11) INPUT/CONTROLS =====
-  send.addEventListener("click", () => {
-    if (!requireHumanAndCooldown()) return;
-    const q = (inputEl.value || "").trim();
-    if (!q) return;
-    inputEl.value = "";
-    postChat(q);
-  });
-
-  inputEl.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      send.click();
+    function startCooldown(ms, reason) {
+      const now = Date.now();
+      cooldownUntil = Math.max(cooldownUntil, now + Math.min(Math.max(ms, 1000), MAX_COOLDOWN_MS));
+      tickCooldown();
+      showCooldown(reason);
     }
-  });
+    function requireHumanAndCooldown() {
+      if (!humanVerified) {
+        append(`<p class="muted small" style="color:#f88">⚠️ Please press and hold the “Verify Human” button for 2.5 seconds before asking.</p>`);
+        return false;
+      }
+      if (msLeft() > 0) { showCooldown(); return false; }
+      return true;
+    }
 
-  quickBtns.forEach(btn =>
-    btn.addEventListener("click", () => {
+    if (holdBtn) {
+      const startHold = () => {
+        if (humanVerified) return;
+        holdBtn.textContent = "⏱️ Keep holding…";
+        gateStatus.textContent = "Verifying… don’t release yet.";
+        holdTimer = setTimeout(() => {
+          humanVerified = true;
+          holdBtn.textContent = "✅ Verified Human";
+          holdBtn.classList.add("glow-green");
+          holdBtn.disabled = true;
+          gateStatus.textContent = "Thanks! You’re verified. You can ask now.";
+        }, 2500);
+      };
+      const cancelHold = () => {
+        if (humanVerified) return;
+        if (holdTimer) clearTimeout(holdTimer);
+        holdTimer = null;
+        holdBtn.textContent = "⏸️ Press & Hold 2.5s to Verify Human";
+        gateStatus.textContent = "Release detected — hold continuously until it completes.";
+      };
+      holdBtn.addEventListener("mousedown", startHold);
+      holdBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(); }, { passive: false });
+      ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
+    }
+
+    // ===== Run local audit =====
+    let isBusy = false;
+    async function runLocalAudit(questionText) {
+      if (isBusy) return;
+      isBusy = true;
+      try {
+        renderMessage({ role: "user", content: questionText || (inputEl.value || "").trim() || "Run audit" });
+        startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
+
+        const facts = await collectEvidence();
+        const rubric = score(facts);
+        const firstLine = JSON.stringify(rubric);
+        const explanation = explain(rubric);
+
+        const pretty =
+          `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric.verdict)}</code>\n\n` +
+          `• ${rubric.reasons.map(esc).join("\n• ")}\n\n` +
+          `<span class="muted">Evidence:</span> ${esc(firstLine)}\n\n` +
+          explanation;
+
+        renderMessage({ role: "assistant", content: pretty });
+        chatHistory.push({ role: "assistant", content: firstLine + "\n" + explanation });
+        saveChatHistory();
+      } catch (err) {
+        append(`<p style="color:#f88"><strong>Error:</strong> ${esc(String(err))}</p>`);
+      } finally {
+        isBusy = false;
+      }
+    }
+
+    // ===== Controls =====
+    send.addEventListener("click", () => {
       if (!requireHumanAndCooldown()) return;
-      postChat(btn.dataset.q);
-    })
-  );
-
-  // ===== 12) VOICE (unchanged) =====
-  if ("webkitSpeechRecognition" in window) {
-    const recog = new webkitSpeechRecognition();
-    recog.continuous = false;
-    recog.interimResults = false;
-    recog.lang = "en-US";
-    voiceBtn.addEventListener("click", () => {
-      recog.start();
-      voiceBtn.textContent = "🎤 Listening...";
+      runLocalAudit();
+      inputEl.value = "";
     });
-    recog.onresult = e => {
-      inputEl.value = e.results[0][0].transcript;
-      send.click();
-    };
-    recog.onend = () => { voiceBtn.textContent = "🎤 Voice"; };
-  } else {
-    voiceBtn.style.display = "none";
-  }
 
-  // ===== 13) CLEANUP (unchanged) =====
-  window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
-})();
-</script>
+    inputEl.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        send.click();
+      }
+    });
 
+    quickBtns.forEach(btn =>
+      btn.addEventListener("click", () => {
+        if (!requireHumanAndCooldown()) return;
+        runLocalAudit(btn.dataset.q);
+      })
+    );
 
+    // ===== Voice (optional) =====
+    if ("webkitSpeechRecognition" in window) {
+      const recog = new webkitSpeechRecognition();
+      recog.continuous = false;
+      recog.interimResults = false;
+      recog.lang = "en-US";
+      voiceBtn?.addEventListener("click", () => {
+        recog.start();
+        voiceBtn.textContent = "🎤 Listening...";
+      });
+      recog.onresult = e => {
+        inputEl.value = e.results[0][0].transcript;
+        send.click();
+      };
+      recog.onend = () => { voiceBtn.textContent = "🎤 Voice"; };
+    } else {
+      voiceBtn && (voiceBtn.style.display = "none");
+    }
+  })();
+  </script>
 </body>
 </html>
