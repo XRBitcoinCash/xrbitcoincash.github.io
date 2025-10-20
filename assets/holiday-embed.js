@@ -1,87 +1,7 @@
-// /assets/holiday-embed.js
 // Unified holiday rotator + dual-scenery background + theme — drop-in anywhere.
+// NOTE: This version does NOT inject CSS. All styles live in xrbc-holiday.css.
 
 (() => {
-  /* ======================== CSS (widgets + scenery) ======================== */
-  const CSS = `
-  :root{
-    --hr-bg:#0b1422; --hr-edge:rgba(255,255,255,.16);
-    --hr-ink:#e6f0ff; --hr-muted:#9EB2D0;
-    --accent: var(--accent, #00e5ff);
-  }
-  [data-holiday-rotator]{display:inline-block}
-  .hr-chip{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.4rem .7rem; border-radius:999px;
-    border:1px solid var(--hr-edge); color:var(--hr-ink); background:var(--hr-bg);
-    box-shadow:0 0 0 2px rgba(0,229,255,.10);
-  }
-  .hr-chip .hr-date{ color:var(--hr-muted) }
-  .hr-chip .hr-emoji{ font-size:1.1rem }
-  .hr-banner{
-    display:flex; align-items:center; gap:.8rem;
-    padding:.7rem .9rem; border-radius:14px;
-    border:1px solid var(--hr-edge); color:var(--hr-ink); background:var(--hr-bg);
-    box-shadow:0 0 0 2px rgba(0,229,255,.10), 0 0 30px rgba(0,229,255,.05) inset;
-  }
-  .hr-banner .hr-emoji{ font-size:1.6rem }
-  .hr-banner .hr-title{ font-weight:700 }
-  .hr-banner .hr-sub{ color:var(--hr-muted); font-size:.92rem }
-
-  /* Scenery layer (2 sides + ambient), injected automatically */
-  .holiday-scenery{
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    --scene-left:none; --scene-right:none;
-    --scene-opacity:.35;
-    --scene-blend:screen;           /* good on dark */
-    --scene-blend-light:multiply;   /* good on light */
-    --ambient:
-      radial-gradient(800px 500px at 15% 85%, rgba(255,255,255,.03), transparent 60%),
-      radial-gradient(1000px 600px at 85% 90%, rgba(255,255,255,.03), transparent 60%);
-    background-image: var(--scene-left), var(--scene-right), var(--ambient);
-    background-repeat: no-repeat,no-repeat,no-repeat;
-    background-position:
-      left -6% bottom -4%,
-      right -8% bottom -8%,
-      center;
-    background-size:
-      min(60vw, 900px) auto,
-      min(55vw, 820px) auto,
-      cover;
-    opacity: var(--scene-opacity);
-    mix-blend-mode: var(--scene-blend);
-    transition: background-image .4s ease, opacity .3s ease;
-    filter: saturate(1.05);
-  }
-  [data-theme="light"] .holiday-scenery,
-  body.light-mode .holiday-scenery{
-    mix-blend-mode: var(--scene-blend-light);
-    opacity:.28;
-    filter: saturate(1.1) contrast(1.02);
-  }
-  .holiday-scenery::before, .holiday-scenery::after{
-    content:""; position:absolute; inset:0; pointer-events:none;
-    background:
-      radial-gradient(900px 520px at 0% 100%, rgba(11,15,24,0) 0%, rgba(11,15,24,.12) 45%, rgba(11,15,24,.5) 90%),
-      linear-gradient(180deg, transparent 0%, rgba(11,15,24,.15) 100%);
-  }
-  [data-theme="light"] .holiday-scenery::before,
-  [data-theme="light"] .holiday-scenery::after,
-  body.light-mode .holiday-scenery::before,
-  body.light-mode .holiday-scenery::after{
-    background:
-      radial-gradient(900px 520px at 0% 100%, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 55%, rgba(255,255,255,1) 100%),
-      linear-gradient(180deg, transparent 0%, rgba(255,255,255,.35) 100%);
-  }
-  `;
-
-  if (!document.getElementById('holiday-embed-css')) {
-    const s = document.createElement('style');
-    s.id = 'holiday-embed-css';
-    s.textContent = CSS;
-    document.head.appendChild(s);
-  }
-
   /* ======================== Utility + SVG library ========================= */
   const svgUrl = (svg) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 
@@ -196,13 +116,6 @@
   };
 
   /* ============================ Holiday dataset ============================ */
-  // rule types:
-  // - fixed: {month, day}
-  // - nthWeekday: {month, weekday(0=Sun..6), nth(1..5)}
-  // - lastWeekday: {month, weekday}
-  // - easterOffset: {offset} from Western Easter
-  // - fixedList: {dates: ["YYYY-MM-DD", ...]} for lunar/observational/orthodox etc.
-  // meta: {emoji, tone, info?}
   const HOLIDAYS = [
     // National / Civic
     { id:"new_year",        name:"New Year's Day",             cat:"national", rule:{type:"fixed", month:1, day:1},          meta:{emoji:"🎆"} },
@@ -229,7 +142,7 @@
     { id:"black_friday",    name:"Black Friday",               cat:"cultural", rule:{type:"custom", fn:"dayAfterThanksgivingUS"}, meta:{emoji:"🛍️"} },
     { id:"boxing_day",      name:"Boxing Day",                 cat:"national", rule:{type:"fixed", month:12, day:26},        meta:{emoji:"🎁"} },
 
-    // Universal/civic observances
+    // Universal / civic
     { id:"womens_day",      name:"International Women's Day",  cat:"cultural", rule:{type:"fixed", month:3, day:8},          meta:{emoji:"🌸"} },
     { id:"earth_day",       name:"Earth Day",                  cat:"cultural", rule:{type:"fixed", month:4, day:22},         meta:{emoji:"🌍"} },
     { id:"workers_day",     name:"International Workers' Day", cat:"cultural", rule:{type:"fixed", month:5, day:1},          meta:{emoji:"🛠️"} },
@@ -239,7 +152,7 @@
     { id:"songkran",        name:"Songkran (TH)",              cat:"cultural", rule:{type:"fixed", month:4, day:13},         meta:{emoji:"💧"} },
     { id:"guy_fawkes",      name:"Bonfire Night (UK)",         cat:"cultural", rule:{type:"fixed", month:11, day:5},         meta:{emoji:"🎆"} },
 
-    // Christian (Western) — computed via Western Easter
+    // Christian (Western, via Easter)
     { id:"epiphany",        name:"Epiphany",                   cat:"christian", rule:{type:"fixed", month:1, day:6},         meta:{emoji:"⭐"} },
     { id:"ash_wednesday",   name:"Ash Wednesday",              cat:"christian", rule:{type:"easterOffset", offset:-46},      meta:{emoji:"⛪", tone:"solemn"} },
     { id:"mardi_gras",      name:"Mardi Gras",                 cat:"christian", rule:{type:"easterOffset", offset:-47},      meta:{emoji:"🎭"} },
@@ -250,22 +163,22 @@
     { id:"pentecost",       name:"Pentecost",                  cat:"christian", rule:{type:"easterOffset", offset:49},       meta:{emoji:"🕊️"} },
     { id:"christmas",       name:"Christmas (Western)",        cat:"christian", rule:{type:"fixed", month:12, day:25},       meta:{emoji:"🎄"} },
 
-    // Orthodox (fixed lists / fixed date)
+    // Orthodox (fixed lists)
     { id:"orthodox_christmas", name:"Christmas (Orthodox)",    cat:"christian", rule:{type:"fixed", month:1, day:7},        meta:{emoji:"🎄"} },
     { id:"orthodox_easter", name:"Easter (Orthodox)",          cat:"christian", rule:{type:"fixedList", dates:["2025-04-20","2026-04-12","2027-05-02","2028-04-16"]}, meta:{emoji:"🌅"} },
 
-    // Jewish (fixed lists – replace with authoritative tables if desired)
+    // Jewish (fixed lists)
     { id:"passover_start",  name:"Passover (Pesach) Begins",   cat:"jewish",    rule:{type:"fixedList", dates:["2025-04-12","2026-04-01","2027-04-21","2028-04-10"]}, meta:{emoji:"🍷"} },
     { id:"rosh_hashanah",   name:"Rosh Hashanah (Eve)",        cat:"jewish",    rule:{type:"fixedList", dates:["2025-09-22","2026-09-11","2027-10-01","2028-09-20"]}, meta:{emoji:"📯"} },
     { id:"yom_kippur",      name:"Yom Kippur (Eve)",           cat:"jewish",    rule:{type:"fixedList", dates:["2025-10-01","2026-09-20","2027-10-10","2028-09-29"]}, meta:{emoji:"🕯️", tone:"solemn"} },
     { id:"hanukkah_start",  name:"Hanukkah Begins",            cat:"jewish",    rule:{type:"fixedList", dates:["2025-12-14","2026-12-04","2027-12-24","2028-12-12"]}, meta:{emoji:"🕎"} },
 
-    // Muslim (approx lists – observational)
+    // Muslim (approx; observational)
     { id:"ramadan_start",   name:"Ramadan Begins (approx.)",   cat:"muslim",    rule:{type:"fixedList", dates:["2025-03-01","2026-02-18","2027-02-08","2028-01-28"]}, meta:{emoji:"🌙", tone:"solemn"} },
     { id:"eid_fitr",        name:"Eid al-Fitr (approx.)",      cat:"muslim",    rule:{type:"fixedList", dates:["2025-03-31","2026-03-29","2027-03-20","2028-03-09"]}, meta:{emoji:"🕌"} },
     { id:"eid_adha",        name:"Eid al-Adha (approx.)",      cat:"muslim",    rule:{type:"fixedList", dates:["2025-06-07","2026-05-27","2027-05-17","2028-05-05"]}, meta:{emoji:"🕋"} },
 
-    // Hindu / Buddhist (fixed lists where needed)
+    // Hindu / Buddhist
     { id:"holi",            name:"Holi",                       cat:"hindu",     rule:{type:"fixedList", dates:["2025-03-14","2026-03-03","2027-03-22","2028-03-11"]}, meta:{emoji:"🌈"} },
     { id:"diwali",          name:"Diwali/Deepavali",           cat:"hindu",     rule:{type:"fixedList", dates:["2025-10-20","2026-11-08","2027-10-29","2028-10-17"]}, meta:{emoji:"🪔"} },
     { id:"vesak",           name:"Vesak",                      cat:"buddhist",  rule:{type:"fixedList", dates:["2025-05-12","2026-05-01","2027-05-20","2028-05-09"]}, meta:{emoji:"🪷"} },
@@ -365,9 +278,7 @@
   }
 
   /* ============================= Scene mapping ============================= */
-  // Specific-id scenes first; category fallbacks after.
   const SCENES = {
-    // National fireworks
     us_independence:{left:SVGS.fireworks,right:SVGS.fireworks,accent:'#00e5ff'},
     canada:{left:SVGS.fireworks,right:SVGS.fireworks,accent:'#00e5ff'},
     bastille:{left:SVGS.fireworks,right:SVGS.fireworks,accent:'#00e5ff'},
@@ -381,7 +292,6 @@
     china_national_day:{left:SVGS.lanterns,right:SVGS.fireworks,accent:'#ffd54f'},
     nigeria_independence:{left:SVGS.fireworks,right:SVGS.fireworks,accent:'#00e5ff'},
 
-    // Seasonal / cultural
     valentines:{left:SVGS.hearts,right:SVGS.hearts,accent:'#ff4081'},
     st_patrick:{left:SVGS.shamrock,right:SVGS.shamrock,accent:'#00c878'},
     cinco:{left:SVGS.papelPicado,right:SVGS.papelPicado,accent:'#ffd54f'},
@@ -518,9 +428,8 @@
   function applySceneFromPair(pair){
     const node = ensureSceneryLayer(); if (!node) return;
     const primary = pair?.primary?.h || null;
-    const companion = pair?.companion?.h || null;
+    theCompanion = pair?.companion?.h || null;
 
-    // Pick scenes by id first, then fallback to category
     const pickScene = (h) => {
       if (!h) return null;
       const id = (h.id||'').toLowerCase();
@@ -529,12 +438,11 @@
     };
 
     const s1 = pickScene(primary);
-    const s2 = pickScene(companion);
+    const s2 = pickScene(theCompanion);
 
     const left  = s1?.left  || CAT_SCENES[(primary?.cat||'').toLowerCase()]?.left  || 'none';
-    const right = s2?.right || CAT_SCENES[(companion?.cat||'').toLowerCase()]?.right || left;
+    const right = s2?.right || CAT_SCENES[(theCompanion?.cat||'').toLowerCase()]?.right || left;
 
-    // tone + accent derive from primary
     const tone = primary?.meta?.tone || s1?.tone || 'celebration';
     const accent = s1?.accent || '#00e5ff';
     const opacity = tone === 'solemn' ? .26 : .35;
@@ -543,7 +451,6 @@
     node.style.setProperty('--scene-right', right);
     node.style.setProperty('--scene-opacity', opacity);
 
-    // page accent + tone tag (your CSS can react to these)
     document.documentElement.style.setProperty('--accent', accent);
     document.body.setAttribute('data-tone', tone);
   }
@@ -560,30 +467,28 @@
   }
 
   function tick(){
-    // 1) Compute the global pair from DEFAULT_CATS (inclusive, diverse)
+    // Inclusive global model
     const model = computeModel({ categories: DEFAULT_CATS });
 
-    // 2) Render every widget with its own category filter (if provided)
+    // Render each widget with its own filter (if provided)
     document.querySelectorAll('[data-holiday-rotator]').forEach(el => {
       const categories = parseCats(el.dataset.cats);
       const localModel = computeModel({ categories });
       renderInto(el, localModel);
     });
 
-    // 3) Apply global dual-scenery from the inclusive model
+    // Apply scenery & notify listeners
     applySceneFromPair(model);
-
-    // 4) Notify listeners (keeps your custom hooks working)
     dispatchHolidayChange({
-      holiday: model.primary?.h || null,          // backward-compat
+      holiday: model.primary?.h || null,
       date:    model.primary?.date || null,
-      companion: model.companion?.h || null,      // NEW: the right-side holiday
+      companion: model.companion?.h || null,
       companionDate: model.companion?.date || null,
       nextRefreshAt: model.nextRefreshAt,
       occurrences: model.occurrences
     });
 
-    // 5) Schedule next daily refresh (00:01 local)
+    // Schedule next daily refresh (00:01 local)
     const at = at0001Tomorrow(new Date());
     const ms = at - new Date();
     clearTimeout(tick._timer);
