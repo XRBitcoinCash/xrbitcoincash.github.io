@@ -267,7 +267,7 @@
 (() => {
   "use strict";
 
-  // ===== 1) SCROLL FADE-IN =====
+  /* ========= 1) SCROLL FADE-IN ========= */
   const features = document.querySelectorAll(".feature");
   const fadeObserver = new IntersectionObserver(
     entries => entries.forEach(e => {
@@ -280,25 +280,26 @@
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2) CONFIG =====
-  const PROXY = "https://xrbc-frontend.onrender.com"; // secure proxy
-  const CHAT_PATH = "/chat";                           // chat endpoint on proxy
-  const RPC_PATH  = "/";                               // XRPL passthrough on proxy (root POST)
+  /* ========= 2) CONFIG ========= */
+  const PROXY = "https://xrbc-frontend.onrender.com";
+  const CHAT_PATH = "/chat";     // proxy expects Chat-style payloads
+  const RPC_PATH  = "/";         // XRPL passthrough on proxy (root POST)
+
+  // Prefer o3-mini; proxy can map headers to Responses upstream.
+  const MODEL_PREFERRED = "o3-mini-2025-01-31";
+  const MODEL_FALLBACK  = "gpt-5-mini"; // chat-friendly, higher limits than base
+
   const FALLBACK_URL = "https://chat.openai.com/?model=o3-mini-2025-01-31";
   const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/";
   const MAX_WAIT_MS = 52000;
 
-  // ▶ Models (preferred + fallback) with wire auto-detect
-  const MODEL_PREFERRED = "o3-mini-2025-01-31";
-  const MODEL_FALLBACK  = "o3-mini";
-
-  // XRPL issuers & currency hex (from your manifests)
+  // XRPL issuers & currency hex
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
   const XRB_ISSUER  = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT";
   const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
   const HEX_XRB     = "5852626974636F696E0000000000000000000000";
 
-  // ===== 3) ELEMENTS =====
+  /* ========= 3) ELEMENTS ========= */
   const auditToggle = document.getElementById("auditToggle");
   const widget   = document.getElementById("auditWidget");
   const output   = document.getElementById("auditOutput");
@@ -307,7 +308,7 @@
   const voiceBtn = document.getElementById("auditVoice");
   const quickBtns= document.querySelectorAll(".auditQuick");
 
-  // Human gate elements
+  // Human gate
   const holdBtn = document.getElementById("holdVerify");
   const gateStatus = document.getElementById("gateStatus");
   const cooldownStatus = document.getElementById("cooldownStatus");
@@ -315,7 +316,7 @@
   let keepAliveInterval = null;
   let proxyTimedOut = false;
 
-  // ===== 4) UTILS =====
+  /* ========= 4) UTILS ========= */
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const append = html => {
     const w = document.createElement("div");
@@ -328,7 +329,7 @@
     .replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
-  // ===== 5) LOCAL CHAT MEMORY =====
+  /* ========= 5) LOCAL CHAT MEMORY ========= */
   let chatHistory = [];
   try {
     const raw = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
@@ -346,7 +347,7 @@
   };
   chatHistory.slice(-10).forEach(renderMessage);
 
-  // ===== 6) WAKE PROXY =====
+  /* ========= 6) WAKE PROXY ========= */
   async function wakeProxy(maxMs = MAX_WAIT_MS) {
     const start = Date.now();
     let attempt = 0;
@@ -400,9 +401,8 @@
     `);
   }
 
-  // ===== 7) TOGGLE WIDGET =====
-  const auditToggleEl = auditToggle; // name clarity
-  auditToggleEl.addEventListener("click", async () => {
+  /* ========= 7) TOGGLE WIDGET ========= */
+  auditToggle.addEventListener("click", async () => {
     const wasHidden = widget.style.display === "none" || widget.style.display === "";
     widget.style.display = wasHidden ? "block" : "none";
     if (!wasHidden) { clearInterval(keepAliveInterval); keepAliveInterval = null; return; }
@@ -415,7 +415,7 @@
     }, 60000);
   });
 
-  // ===== 8) EVIDENCE-GATHERING =====
+  /* ========= 8) EVIDENCE-GATHERING ========= */
   async function get(url){
     try {
       const r = await fetch(url, { cache: "no-store" });
@@ -541,7 +541,7 @@ Scoring details:
     };
   }
 
-  // ===== 9) HUMAN GATE + COOLDOWN =====
+  /* ========= 9) HUMAN GATE + COOLDOWN ========= */
   let humanVerified = false;
   let holdTimer = null;
 
@@ -552,20 +552,19 @@ Scoring details:
   function msLeft() { return Math.max(0, cooldownUntil - Date.now()); }
   function showCooldown(reason = "Pausing briefly to prevent spam and protect the model’s rate limits.") {
     const left = msLeft();
-    if (left <= 0) { cooldownStatus && (cooldownStatus.style.display = "none"); return; }
-    if (cooldownStatus) {
-      cooldownStatus.style.display = "block";
-      cooldownStatus.textContent = `⏳ ${reason} You can ask again in ${Math.ceil(left / 1000)}s.`;
-    }
+    if (!cooldownStatus) return;
+    if (left <= 0) { cooldownStatus.style.display = "none"; return; }
+    cooldownStatus.style.display = "block";
+    cooldownStatus.textContent = `⏳ ${reason} You can ask again in ${Math.ceil(left / 1000)}s.`;
   }
   function tickCooldown() {
     if (msLeft() <= 0) {
       if (cooldownStatus) cooldownStatus.style.display = "none";
-      send && (send.disabled = false);
+      if (send) send.disabled = false;
       quickBtns.forEach(b => b.disabled = false);
       return;
     }
-    send && (send.disabled = true);
+    if (send) send.disabled = true;
     quickBtns.forEach(b => (b.disabled = true));
     showCooldown();
     requestAnimationFrame(tickCooldown);
@@ -589,13 +588,13 @@ Scoring details:
     const startHold = () => {
       if (humanVerified) return;
       holdBtn.textContent = "⏱️ Keep holding…";
-      gateStatus && (gateStatus.textContent = "Verifying… don’t release yet.");
+      if (gateStatus) gateStatus.textContent = "Verifying… don’t release yet.";
       holdTimer = setTimeout(() => {
         humanVerified = true;
         holdBtn.textContent = "✅ Verified Human";
         holdBtn.classList.add("glow-green");
         holdBtn.disabled = true;
-        gateStatus && (gateStatus.textContent = "Thanks! You’re verified. You can ask now.");
+        if (gateStatus) gateStatus.textContent = "Thanks! You’re verified. You can ask now.";
       }, 2500);
     };
     const cancelHold = () => {
@@ -603,59 +602,48 @@ Scoring details:
       if (holdTimer) clearTimeout(holdTimer);
       holdTimer = null;
       holdBtn.textContent = "⏸️ Press & Hold 2.5s to Verify Human";
-      gateStatus && (gateStatus.textContent = "Release detected — hold continuously until it completes.");
+      if (gateStatus) gateStatus.textContent = "Release detected — hold continuously until it completes.";
     };
     holdBtn.addEventListener("mousedown", startHold);
     holdBtn.addEventListener("touchstart", (e) => { e.preventDefault(); startHold(); }, { passive: false });
     ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
   }
 
-  // ===== 10) GPT CALL — o3-mini with auto wire/model fallback =====
-  function toResponsesInput(messages) {
-    // Convert simple {role, content:string} into Responses API shape
-    return messages.map(m => ({
-      role: m.role,
-      content: [{ type: "text", text: typeof m.content === "string" ? m.content : JSON.stringify(m.content) }]
-    }));
-  }
-
-  async function callProxy({ model, wire, messages }) {
+  /* ========= 10) GPT CALL — Chat only (fixes 400 “messages” error) ========= */
+  async function callChat(model, messages) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 60000);
-
-    const isChat = wire === "chat";
-    const payload = isChat
-      ? { model, temperature: 0.2, messages }
-      : { model, reasoning: { effort: "medium" }, input: toResponsesInput(messages), max_output_tokens: 1200 };
 
     const res = await fetch(`${PROXY}${CHAT_PATH}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Proxy-Mode": isChat ? "chat" : "responses"
+        // Hints to your proxy so it can map to Responses upstream if desired:
+        "X-Model-Hint": model,
+        "X-Wire-Hint": "chat"
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        model,                   // your proxy can remap this to Responses internally
+        temperature: 0.2,
+        messages                 // ALWAYS include messages[] to satisfy proxy schema
+      }),
       signal: ctrl.signal
-    }).catch(e => ({ ok: false, status: 0, text: String(e) }));
+    }).catch(e => ({ ok: false, status: 0, _err: String(e) }));
 
     clearTimeout(timer);
     return res;
   }
 
-  async function extractAnswer(res) {
-    const text = await res.text();
-    // Try JSON parse; if fails, return raw text
+  async function parseChatResponse(res) {
+    const raw = await res.text();
     try {
-      const data = JSON.parse(text);
+      const data = JSON.parse(raw);
       return (
-        data.output_text ??
         data.choices?.[0]?.message?.content ??
-        (Array.isArray(data.output) && data.output[0]?.content?.[0]?.text) ??
-        text
+        data.output_text ?? // if proxy remapped to Responses and normalized
+        raw
       );
-    } catch {
-      return text || "No answer (proxy connected but returned empty).";
-    }
+    } catch { return raw || "No answer (proxy connected but returned empty)."; }
   }
 
   async function postChat(q) {
@@ -673,11 +661,12 @@ Scoring details:
 
     const awake = await wakeProxy();
     if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
+    document.getElementById(spinnerId)?.remove();
 
     try {
-      startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
-      const evidenceMsg = await collectEvidence();
+      startCooldown(8000, "Preventing rapid-fire requests.");
 
+      const evidenceMsg = await collectEvidence();
       const messages = [
         { role: "system", content: SYSTEM.content },
         evidenceMsg,
@@ -686,57 +675,55 @@ Scoring details:
         { role: "user", content: q }
       ];
 
-      document.getElementById(spinnerId)?.remove();
+      // 1) Try preferred model (chat)
+      let res = await callChat(MODEL_PREFERRED, messages);
 
-      // Try sequence:
-      // 1) Chat wire + preferred model
-      // 2) Responses wire + preferred model (if schema error / missing messages array)
-      // 3) Same wire + fallback model (if model unrecognized)
-      let res = await callProxy({ model: MODEL_PREFERRED, wire: "chat", messages });
-
-      let bodyTxt = res?.ok ? "" : (await (async () => res?.text ? res.text() : "")());
-      const lower = (bodyTxt || "").toLowerCase();
-
-      const needsResponsesWire =
-        !res.ok && (
-          lower.includes("missing or invalid messages array") ||
-          lower.includes("invalid schema") ||
-          res.status === 415 || res.status === 422
-        );
-
-      const modelUnknown =
-        !res.ok && (res.status === 404 || lower.includes("model not found") || lower.includes("unknown model"));
-
-      if (needsResponsesWire) {
-        res = await callProxy({ model: MODEL_PREFERRED, wire: "responses", messages });
-        bodyTxt = res?.ok ? "" : (await (async () => res?.text ? res.text() : "")());
-      }
-
-      if ((!res.ok && modelUnknown) || (!res.ok && lower.includes("model") && res.status === 400)) {
-        // Retry with fallback model on the last used wire
-        const lastWire = needsResponsesWire ? "responses" : "chat";
-        res = await callProxy({ model: MODEL_FALLBACK, wire: lastWire, messages });
-        bodyTxt = res?.ok ? "" : (await (async () => res?.text ? res.text() : "")());
+      // If the proxy complains about messages array, try a minimal echo to prove shape
+      if (!res.ok) {
+        const body = await res.text().catch(()=> "");
+        const low = (body || "").toLowerCase();
+        if (low.includes("missing") && low.includes("messages")) {
+          // minimal schema probe
+          const probe = await callChat(MODEL_PREFERRED, [
+            { role: "system", content: "You are a concise assistant." },
+            { role: "user", content: "Say: OK" }
+          ]);
+          if (!probe.ok) {
+            // 2) Fallback model (chat)
+            res = await callChat(MODEL_FALLBACK, messages);
+          } else {
+            // probe passed; re-try full payload once (maybe transient)
+            res = await callChat(MODEL_PREFERRED, messages);
+          }
+        } else if (res.status === 404 || low.includes("model not found")) {
+          // 2) Fallback model (chat)
+          res = await callChat(MODEL_FALLBACK, messages);
+        } else {
+          // keep original res for handling below
+          res = { ok: false, status: res.status, _body: body };
+        }
       }
 
       if (!res.ok) {
+        const body = res._body || (await res.text().catch(()=> "")) || res._err || "";
+        const low = (body || "").toLowerCase();
         const retryAfterSec = Number(res.headers?.get?.("retry-after") || 0);
         let ms = retryAfterSec ? retryAfterSec * 1000 : 15000;
-        ms = Math.max(5000, Math.min(ms, 120000)); // clamp UI cooldown 5s..120s
+        ms = Math.max(5000, Math.min(ms, 120000)); // clamp 5s..120s
 
-        if (res.status === 429 || lower.includes("rate limit")) {
+        if (res.status === 429 || low.includes("rate limit")) {
           startCooldown(ms, "Server is pausing to protect model limits.");
           append(`<p style="color:#f88"><strong>Temporarily Paused:</strong> Throttling for ${Math.ceil(ms/1000)}s.</p>`);
         } else {
-          append(`<p style="color:#f88"><strong>Upstream error:</strong> ${res.status || ""} ${esc(bodyTxt || "Unknown error")}</p>`);
+          append(`<p style="color:#f88"><strong>Upstream error:</strong> ${res.status || ""} ${esc(body || "Unknown error")}</p>`);
           startCooldown(10000, "Cooling down briefly after an error.");
         }
         return;
       }
 
-      let ans = await extractAnswer(res);
+      let ans = await parseChatResponse(res);
 
-      // Enforce wallet_connect_flow=pass when wallet UI is absent
+      // Wallet-connect absent => force PASS on that evidence item if JSON rubric present
       try {
         const walletAbsent = /"wallet_connect_detection"\s*:\s*"absent"/.test(messages[1]?.content || "");
         const [first, ...rest] = ans.split("\n");
@@ -755,26 +742,25 @@ Scoring details:
       // Pretty print if the first line is JSON
       let pretty = ans;
       try {
-        const [firstLine2, ...rest2] = ans.split("\n");
-        const rubric2 = JSON.parse(firstLine2.trim());
-        pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric2.verdict)}</code>\n\n` +
-                 `• ${rubric2.reasons.map(esc).join("\n• ")}\n\n` +
-                 rest2.join("\n");
-      } catch { /* keep raw */ }
+        const [fl, ...rest] = ans.split("\n");
+        const rubric = JSON.parse(fl.trim());
+        pretty = `🧾 <strong>Audit verdict:</strong> <code>${esc(rubric.verdict)}</code>\n\n` +
+                 `• ${rubric.reasons.map(esc).join("\n• ")}\n\n` +
+                 rest.join("\n");
+      } catch {}
 
       renderMessage({ role: "assistant", content: pretty });
-      startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
+      startCooldown(8000, "Preventing rapid-fire requests.");
       chatHistory.push({ role: "assistant", content: ans });
       saveChatHistory();
 
     } catch (err) {
-      document.getElementById(spinnerId)?.remove();
       startCooldown(12000, "Cooling down after a network error.");
       showFallback();
     }
   }
 
-  // ===== 11) INPUT/CONTROLS =====
+  /* ========= 11) INPUT/CONTROLS ========= */
   send.addEventListener("click", () => {
     if (!requireHumanAndCooldown()) return;
     const q = (inputEl.value || "").trim();
@@ -797,7 +783,7 @@ Scoring details:
     })
   );
 
-  // ===== 12) VOICE =====
+  /* ========= 12) VOICE ========= */
   if ("webkitSpeechRecognition" in window) {
     const recog = new webkitSpeechRecognition();
     recog.continuous = false;
@@ -816,7 +802,7 @@ Scoring details:
     voiceBtn.style.display = "none";
   }
 
-  // ===== 13) CLEANUP =====
+  /* ========= 13) CLEANUP ========= */
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
