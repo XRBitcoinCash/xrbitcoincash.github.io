@@ -280,7 +280,7 @@
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2) CONFIG (mostly unchanged) =====
+  // ===== 2) CONFIG (unchanged endpoints/URL) =====
   const PROXY = "https://xrbc-frontend.onrender.com"; // your secure proxy
   const CHAT_PATH = "/chat";                           // chat endpoint on your proxy
   const RPC_PATH  = "/";                               // XRPL passthrough on your proxy (root POST)
@@ -294,7 +294,7 @@
   const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
   const HEX_XRB     = "5852626974636F696E0000000000000000000000";
 
-  // ===== 3) ELEMENTS (renamed auditToggle to avoid collision) =====
+  // ===== 3) ELEMENTS =====
   const auditToggle = document.getElementById("auditToggle");
   const widget   = document.getElementById("auditWidget");
   const output   = document.getElementById("auditOutput");
@@ -303,7 +303,7 @@
   const voiceBtn = document.getElementById("auditVoice");
   const quickBtns= document.querySelectorAll(".auditQuick");
 
-  // Human gate elements (already in your HTML)
+  // Human gate elements
   const holdBtn = document.getElementById("holdVerify");
   const gateStatus = document.getElementById("gateStatus");
   const cooldownStatus = document.getElementById("cooldownStatus");
@@ -311,7 +311,7 @@
   let keepAliveInterval = null;
   let proxyTimedOut = false;
 
-  // ===== 4) UTILS (unchanged) =====
+  // ===== 4) UTILS =====
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const append = html => {
     const w = document.createElement("div");
@@ -324,7 +324,7 @@
     .replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
-  // ===== 5) LOCAL CHAT MEMORY (unchanged) =====
+  // ===== 5) LOCAL CHAT MEMORY (preserved) =====
   let chatHistory = [];
   try {
     const raw = JSON.parse(sessionStorage.getItem("xrbc_chat_history") || "[]");
@@ -341,6 +341,15 @@
     }
   };
   chatHistory.slice(-10).forEach(renderMessage);
+
+  // Keep history for the model but cap per-message size to control tokens
+  function packHistoryForLLM(hist, maxMsgs = 6, maxCharsPerMsg = 240) {
+    const last = hist.slice(-maxMsgs);
+    return last.map(m => ({
+      role: m.role,
+      content: String(m.content).slice(0, maxCharsPerMsg)
+    }));
+  }
 
   // ===== 6) WAKE PROXY (unchanged) =====
   async function wakeProxy(maxMs = MAX_WAIT_MS) {
@@ -396,7 +405,7 @@
     `);
   }
 
-  // ===== 7) TOGGLE WIDGET (renamed variable) =====
+  // ===== 7) TOGGLE WIDGET =====
   auditToggle.addEventListener("click", async () => {
     const wasHidden = widget.style.display === "none" || widget.style.display === "";
     widget.style.display = wasHidden ? "block" : "none";
@@ -410,7 +419,7 @@
     }, 60000);
   });
 
-  // ===== 8) EVIDENCE-GATHERING (with explicit wallet flag) =====
+  // ===== 8) EVIDENCE HELPERS =====
   async function get(url){
     try {
       const r = await fetch(url, { cache: "no-store" });
@@ -443,7 +452,6 @@ Never ask for seeds or secret keys. Remind users to verify wallet signing payloa
 Be concise and specific.`
   };
 
-  // UPDATED: explicit wallet scoring rule (no connect = pass)
   const INSTRUCTIONS = {
     role: "user",
     content:
@@ -467,15 +475,16 @@ Scoring details:
 - issuer_blackholed = pass if AccountRoot shows master disabled AND no RegularKey; warn if only one holds; fail otherwise.
 - manifests_accessible = pass if universal-ai.json (XRBC + XRBitcoin) and /.well-known/security.txt return 200; warn if any missing; fail if all missing.
 - read_only_endpoints = pass if endpoints list only read-only XRPL methods; warn if unclear; fail if mutating methods present.
-- wallet_connect_flow = "pass" if wallet_connect_detection == "absent" OR if a connect UI exists but delegates signing entirely to a known wallet app and never asks for seeds/secret keys; "warn" only if a connect UI exists but behavior is unclear; "fail" only if any component requests seeds/secret keys or auto-initiates signing.
+- wallet_connect_flow = "pass" if wallet_connect_detection == "absent" OR if a connect UI exists but delegates signing entirely to a known wallet app and never asks for seeds/secret keys; "warn" only if unclear; "fail" if any component requests seeds/secret keys or auto-initiates signing.
 - dex_liquidity_presence = pass if an AMM pool exists OR book_offers >= 3; warn if 1–2; fail if none/errored.
 
 2) Then a short human explanation (3–6 sentences).`
   };
 
+  // === COMPACT EVIDENCE BUILDER (replaces giant dumps) ===
   async function collectEvidence() {
-    // Site documents
-    const [xrbc, xrb, idx, sec, prov] = await Promise.all([
+    // Site docs: only statuses
+    const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
       get("/universal-ai.json"),
       get("/XRBitcoin/universal-ai.json"),
       get("/.well-known/ai.json"),
@@ -483,18 +492,11 @@ Scoring details:
       get("/ai/provenance.json")
     ]);
 
-    // On-ledger checks
-    async function issuerFacts(account){
-      const info = await rpc("account_info", { account, ledger_index:"validated" });
-      const objs = await rpc("account_objects", { account, type:"signer_list", ledger_index:"validated" });
-      return { info, objs };
-    }
-    const [xrbcLedger, xrbLedger] = await Promise.all([
-      issuerFacts(XRBC_ISSUER),
-      issuerFacts(XRB_ISSUER)
-    ]);
+    // XRPL account facts (just what we need)
+    const xrbcInfo = await rpc("account_info", { account: XRBC_ISSUER, ledger_index:"validated" });
+    const xrbInfo  = await rpc("account_info", { account: XRB_ISSUER,  ledger_index:"validated" });
 
-    // Orderbooks
+    // Orderbooks (counts only)
     const bookXRB  = await rpc("book_offers", {
       taker_gets: { currency:"XRP" },
       taker_pays: { currency: HEX_XRB, issuer: XRB_ISSUER },
@@ -506,48 +508,65 @@ Scoring details:
       ledger_index:"validated", limit:10
     });
 
-    // Explicit wallet-connect detection (hard flag)
+    // Parse to compact facts
+    const lsfDisableMaster = 0x00100000;
+    function parseIssuer(ai) {
+      const ok = ai && ai.result && ai.result.account_data;
+      if (!ok) return { ok:false };
+      const d = ai.result.account_data;
+      const flags = Number(d.Flags || 0);
+      const masterDisabled = (flags & lsfDisableMaster) === lsfDisableMaster;
+      const hasRegularKey  = typeof d.RegularKey === "string" && d.RegularKey.length > 0;
+      return { ok:true, masterDisabled, hasRegularKey, blackholed: masterDisabled && !hasRegularKey };
+    }
+    function offerCount(resp) {
+      const arr = resp && resp.result && Array.isArray(resp.result.offers) ? resp.result.offers : [];
+      return arr.length;
+    }
+
+    // Wallet connect detection on page (hard flag)
     const hasWalletUI = !!document.querySelector(
       '[href*="xumm.app"],[href*="xaman.app"],[data-wallet],.wallet-connect'
     );
-    const walletConnectDetection = hasWalletUI ? "present" : "absent";
 
-    const pageFp = {
-      url: location.href,
-      wallet_connect_detection: walletConnectDetection,
-      outboundExchanges: Array.from(document.querySelectorAll('a[href*="sologenic.org"],a[href*="xpmarket.com"]')).map(a=>a.href),
-      canonical: (document.querySelector('link[rel="canonical"]')||{}).href || null
+    const facts = {
+      page: {
+        url: location.href,
+        canonical: (document.querySelector('link[rel="canonical"]')||{}).href || null,
+        wallet_connect_detection: hasWalletUI ? "present" : "absent",
+        outbound_exchanges: Array.from(document.querySelectorAll('a[href*="sologenic.org"],a[href*="xpmarket.com"]')).map(a=>a.href)
+      },
+      manifests: {
+        xrbc_universal_ai_200: xrbcDoc.ok,
+        xrb_universal_ai_200: xrbDoc.ok,
+        ai_index_200: aiIdx.ok,
+        security_txt_200: secTxt.ok,
+        provenance_200: provDoc.ok
+      },
+      issuers: {
+        xrbc: parseIssuer(xrbcInfo),
+        xrb:  parseIssuer(xrbInfo)
+      },
+      orderbooks: {
+        xrbc_offers: offerCount(bookXRBC),
+        xrb_offers:  offerCount(bookXRB)
+      },
+      endpoints: {
+        read_only_claim: true
+      }
     };
 
-    return {
-      role: "user",
-      content:
-`EVIDENCE:
-- xrbc_manifest (status ${xrbc.status}):\n${xrbc.text}
-- xrbitcoin_manifest (status ${xrb.status}):\n${xrb.text}
-- ai_index (status ${idx.status}):\n${idx.text}
-- security_txt (status ${sec.status}):\n${sec.text}
-- provenance (status ${prov.status}):\n${prov.text}
-
-- on_ledger:
-  xrbc_account_info:\n${JSON.stringify(xrbcLedger.info, null, 2)}
-  xrbc_account_objects:\n${JSON.stringify(xrbcLedger.objs, null, 2)}
-  xrbitcoin_account_info:\n${JSON.stringify(xrbLedger.info, null, 2)}
-  xrbitcoin_account_objects:\n${JSON.stringify(xrbLedger.objs, null, 2)}
-  book_offers_xrbitcoin:\n${JSON.stringify(bookXRB, null, 2)}
-  book_offers_xrbc:\n${JSON.stringify(bookXRBC, null, 2)}
-
-- page_fingerprint:\n${JSON.stringify(pageFp, null, 2)}`
-    };
+    // one small JSON blob instead of giant dumps
+    return { role: "user", content: JSON.stringify({ EVIDENCE: facts }) };
   }
 
-  // ===== 9) HUMAN GATE + COOLDOWN (one-minute minimum) =====
+  // ===== 9) HUMAN GATE + COOLDOWN =====
   let humanVerified = false;
   let holdTimer = null;
 
   let cooldownUntil = 0;
-  const MIN_COOLDOWN_MS = 60000;  // ⬅️ changed from 8000 to 60000 (1 minute)
-  const MAX_COOLDOWN_MS = 60000;  // ⬅️ keep ceiling at 1 minute to match your request
+  const MIN_COOLDOWN_MS = 60000;
+  const MAX_COOLDOWN_MS = 60000;
 
   function msLeft() {
     return Math.max(0, cooldownUntil - Date.now());
@@ -617,7 +636,7 @@ Scoring details:
     ["mouseup","mouseleave","touchend","touchcancel"].forEach(evt => holdBtn.addEventListener(evt, cancelHold));
   }
 
-  // ===== 10) CHAT FUNCTION (kept; model changed to lighter one) =====
+  // ===== 10) CHAT FUNCTION (model switched to gpt-5-nano) =====
   async function postChat(q) {
     if (proxyTimedOut) {
       append(`<p style="color:#f88"><strong>Note:</strong> Proxy fallback mode active — please use the backup chat above.</p>`);
@@ -644,11 +663,17 @@ Scoring details:
       const evidenceMsg = await collectEvidence();
 
       const payload = {
-        model: "o3-mini-2025-01-31",   // ⬅️ changed to lighter model
-        temperature: 0.2,
-        messages: [SYSTEM, evidenceMsg, INSTRUCTIONS]
-                  .concat(chatHistory.slice(-6))
-                  .concat([{ role: "user", content: q }])
+        model: "gpt-5-nano",        // ⬅️ CHEAPEST MODEL
+        temperature: 0,             // deterministic
+        max_output_tokens: 400,     // cap output
+        // NOTE: we don't force response_format to keep your "two-part" output behavior
+        messages: [
+          SYSTEM,
+          INSTRUCTIONS,
+          evidenceMsg,
+          ...packHistoryForLLM(chatHistory, 6, 240), // history preserved, token-safe
+          { role: "user", content: q }
+        ]
       };
 
       const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
@@ -661,7 +686,7 @@ Scoring details:
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
-      // Single, authoritative error guard
+      // Authoritative error guard
       if (!resp.ok) {
         const errText = await resp.text();
         const retryAfter = Number(resp.headers.get("retry-after") || 0);
@@ -681,8 +706,8 @@ Scoring details:
       // ===== HARD-FIX: if wallet_connect_detection == "absent", correct mis-scores =====
       try {
         const walletFlag =
-          (evidenceMsg.content.includes('"wallet_connect_detection": "absent"') ? "absent" :
-           evidenceMsg.content.includes('"wallet_connect_detection": "present"') ? "present" : "unknown");
+          (evidenceMsg.content.includes('"wallet_connect_detection":"absent"') || evidenceMsg.content.includes('"wallet_connect_detection": "absent"')) ? "absent" :
+          (evidenceMsg.content.includes('"wallet_connect_detection":"present"') || evidenceMsg.content.includes('"wallet_connect_detection": "present"')) ? "present" : "unknown";
         const [firstLine, ...rest] = ans.split("\n");
         const rubric = JSON.parse(firstLine.trim());
         if (walletFlag === "absent") {
@@ -696,7 +721,7 @@ Scoring details:
             ans = JSON.stringify(rubric) + "\n" + rest.join("\n");
           }
         }
-      } catch { /* if parsing fails, leave output as-is */ }
+      } catch { /* leave output as-is on parse issues */ }
 
       // Pretty print
       const [firstLine2, ...rest2] = ans.split("\n");
@@ -723,7 +748,7 @@ Scoring details:
     }
   }
 
-  // ===== 11) INPUT/CONTROLS (wire guards) =====
+  // ===== 11) INPUT/CONTROLS =====
   send.addEventListener("click", () => {
     if (!requireHumanAndCooldown()) return;
     const q = (inputEl.value || "").trim();
