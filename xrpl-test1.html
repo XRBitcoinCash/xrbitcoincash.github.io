@@ -18,8 +18,26 @@
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:url" content="https://xrbitcoincash.com/" />
   <meta name="twitter:card" content="summary_large_image" />
+<style>
+  :root{--accent:#00e5ff}
+  .holiday-scenery{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:var(--scene-left),var(--scene-right);
+    background-repeat:no-repeat,no-repeat;background-position:left bottom,right bottom;
+    background-size:contain,contain;opacity:var(--scene-opacity,.35);}
+  body[data-tone="solemn"] .holiday-scenery{opacity:.26}
+  [data-holiday-rotator] .hr-chip{display:inline-flex;gap:.5rem;align-items:center;
+    padding:.35rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);backdrop-filter:blur(2px);font:600 14px/1.2 system-ui}
+  [data-holiday-rotator] .hr-banner{display:flex;gap:.75rem;align-items:center;
+    padding:.6rem .8rem;border-radius:14px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.06);backdrop-filter:blur(2px)}
+  .hr-emoji{font-size:1.1rem}
+  .hr-title{font-weight:700}
+  .hr-sub{opacity:.75;font-size:.9rem}
+</style>
 
 <script defer src="https://xrbitcoincash.github.io/assets/holiday-embed.js"></script>
+
 
 </head>
 <body>
