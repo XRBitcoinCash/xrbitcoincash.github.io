@@ -267,11 +267,11 @@
 (() => {
   "use strict";
 
-  // ===== 0) CONSTANTS (client enforced) =====
-  const SAFE_CLIENT_MODEL = "gpt-5-nano"; // we require this
-  const EXPECTED_ENV_PATH = "/env-check"; // must echo nano server-side
+  // ===== 0) CLIENT ENFORCEMENT =====
+  const SAFE_CLIENT_MODEL = "gpt-5-nano";  // required model
+  const EXPECTED_ENV_PATH = "/env-check";  // proxy must echo nano here
 
-  // ===== 1) SCROLL FADE-IN (unchanged) =====
+  // ===== 1) SCROLL FADE-IN =====
   const features = document.querySelectorAll(".feature");
   const fadeObserver = new IntersectionObserver(
     entries => entries.forEach(e => {
@@ -284,7 +284,7 @@
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2) CONFIG (endpoints/URL) =====
+  // ===== 2) CONFIG =====
   const PROXY = "https://xrbc-frontend.onrender.com";
   const CHAT_PATH = "/chat";
   const RPC_PATH  = "/";
@@ -313,7 +313,7 @@
 
   let keepAliveInterval = null;
   let proxyTimedOut = false;
-  let isBusy = false; // one-click guard
+  let isBusy = false; // double-click guard
 
   // ===== 4) UTILS =====
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -328,12 +328,15 @@
     .replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 
-  // ===== 5) LOCAL CHAT MEMORY (kept; trimmed for tokens) =====
+  const banner = (html, color="#201416") => {
+    append(`<div style="border:1px solid rgba(255,80,80,0.25);border-radius:12px;padding:16px;background:${color};margin-top:10px;">${html}</div>`);
+  };
+
+  // ===== 5) LOCAL CHAT MEMORY (kept, token-trimmed) =====
   let chatHistory = [];
   try { chatHistory = JSON.parse(sessionStorage.getItem("xrbc_chat_history")||"[]") || []; }
   catch { chatHistory = []; }
-  const saveChatHistory = () =>
-    sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
+  const saveChatHistory = () => sessionStorage.setItem("xrbc_chat_history", JSON.stringify(chatHistory.slice(-10)));
   const renderMessage = m => {
     if (typeof m === "string") { append(m); return; }
     if (m.role === "user") {
@@ -382,27 +385,17 @@
     catch { return FALLBACK_WEB3_URL; }
   }
 
-  function banner(html) {
-    append(`
-      <div style="border:1px solid rgba(255,80,80,0.25); border-radius:12px; padding:16px; background:#201416; margin-top:10px;">
-        ${html}
-      </div>
-    `);
-  }
-
   async function showFallback() {
     proxyTimedOut = true;
     widget.style.display = "block";
     const fallbackLink = await resolveChatGPTLink();
     append(`
-      <div style="border:1px solid rgba(0,229,255,0.25); border-radius:12px; padding:16px; background:#101820; margin-top:10px;">
+      <div style="border:1px solid rgba(0,229,255,0.25);border-radius:12px;padding:16px;background:#101820;margin-top:10px;">
         <p style="color:#9EB2D0;">⚠️ The secure XRBC proxy is currently unavailable or still waking up.</p>
         <div style="text-align:center;margin-top:14px;">
           <a href="${fallbackLink}" target="_blank" class="btn primary glow-blue">💬 Open ChatGPT Fallback</a>
         </div>
-        <p style="margin-top:10px; color:#777; font-size:0.85rem;">
-          Tip: Render free plans can cold-start after inactivity.
-        </p>
+        <p style="margin-top:10px;color:#777;font-size:0.85rem;">Tip: Render free plans can cold-start after inactivity.</p>
       </div>
     `);
   }
@@ -415,16 +408,15 @@
       if (m !== SAFE_CLIENT_MODEL) {
         banner(`
           <p style="color:#ffb3b3;">
-            ❌ Server is reporting <code>${esc(m||"unknown")}</code>, expected <code>${SAFE_CLIENT_MODEL}</code>.<br>
-            Redeploy proxy with <code>SAFE_MODEL=${SAFE_CLIENT_MODEL}</code> and force the correct <em>max_tokens</em> field.
+            ❌ Server is reporting <code>${esc(m || "unknown")}</code>, expected <code>${SAFE_CLIENT_MODEL}</code>.<br>
+            Redeploy proxy with <code>SAFE_MODEL=${SAFE_CLIENT_MODEL}</code> and ensure it uses the correct API field (<em>max_tokens</em> for Chat Completions or <em>max_output_tokens</em> for Responses).
           </p>
         `);
         return false;
       }
       return true;
     } catch {
-      // If env-check missing, allow but warn.
-      banner(`<p style="color:#ffd9a6;">⚠️ Could not confirm server model. Ensure proxy forces <code>${SAFE_CLIENT_MODEL}</code> and caps tokens.</p>`);
+      banner(`<p style="color:#ffd9a6;">⚠️ Could not confirm server model. Ensure proxy forces <code>${SAFE_CLIENT_MODEL}</code> and caps tokens.</p>`, "#2a2220");
       return true;
     }
   }
@@ -504,7 +496,7 @@ Scoring details:
 2) Then a short human explanation (3–6 sentences).`
   };
 
-  // Compact evidence builder
+  // Compact evidence builder (status & counts only)
   async function collectEvidence() {
     const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
       get("/universal-ai.json"),
@@ -662,7 +654,7 @@ Scoring details:
       const okModel = await requireNanoServer();
       if (!okModel) { document.getElementById(spinnerId)?.remove(); return; }
 
-      // start cooldown immediately
+      // Start cooldown immediately
       startCooldown(MIN_COOLDOWN_MS, "Preventing rapid-fire requests.");
 
       const ctrl = new AbortController();
@@ -670,7 +662,7 @@ Scoring details:
 
       const evidenceMsg = await collectEvidence();
 
-      // Send both max_tokens & max_output_tokens (server may use either API)
+      // Send both max_tokens & max_output_tokens (proxy may use either API)
       const payload = {
         model: SAFE_CLIENT_MODEL,
         temperature: 0,
@@ -687,7 +679,10 @@ Scoring details:
 
       const resp = await fetch(`${PROXY}${CHAT_PATH}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Client-Model": SAFE_CLIENT_MODEL   // helps you debug on the server
+        },
         body: JSON.stringify(payload),
         signal: ctrl.signal
       });
@@ -695,6 +690,7 @@ Scoring details:
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
+      // If server rejected or errored
       if (!resp.ok) {
         const errText = await resp.text();
         const retryAfter = Number(resp.headers.get("retry-after") || 0);
@@ -709,11 +705,12 @@ Scoring details:
         return;
       }
 
-      // Try to read model headers (if server set them) and warn if wrong
+      // Verify the server actually used nano (header)
       try {
         const used = resp.headers.get("X-Model-Used");
         if (used && used !== SAFE_CLIENT_MODEL) {
           banner(`<p style="color:#ffb3b3;">❌ Proxy used <code>${esc(used)}</code>. Force <code>${SAFE_CLIENT_MODEL}</code> in the server and redeploy.</p>`);
+          return;
         }
       } catch {}
 
@@ -761,7 +758,7 @@ Scoring details:
     }
   }
 
-  // ===== 11) INPUT/CONTROLS (single-wire) =====
+  // ===== 11) INPUT/CONTROLS =====
   if (!send.dataset.wired) {
     send.dataset.wired = "1";
     send.addEventListener("click", () => {
@@ -816,6 +813,7 @@ Scoring details:
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
+
 
 
 </body>
