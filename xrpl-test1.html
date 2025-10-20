@@ -280,15 +280,15 @@
   );
   features.forEach(f => fadeObserver.observe(f));
 
-  // ===== 2) CONFIG =====
-  const PROXY = "https://xrbc-frontend.onrender.com";
-  const CHAT_PATH = "/chat";
-  const RPC_PATH  = "/";
+  // ===== 2) CONFIG (unchanged endpoints/URL) =====
+  const PROXY = "https://xrbc-frontend.onrender.com"; // your secure proxy
+  const CHAT_PATH = "/chat";                           // chat endpoint on your proxy
+  const RPC_PATH  = "/";                               // XRPL passthrough on your proxy (root POST)
   const FALLBACK_URL = "https://chat.openai.com/?model=gpt-5";
   const FALLBACK_WEB3_URL = "https://chatgpt.eth.link/";
   const MAX_WAIT_MS = 52000;
 
-  // XRPL issuers & currency hex
+  // XRPL issuers & currency hex (from your manifests)
   const XRBC_ISSUER = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw";
   const XRB_ISSUER  = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT";
   const HEX_XRBC    = "5852626974636F696E6361736800000000000000";
@@ -310,9 +310,6 @@
 
   let keepAliveInterval = null;
   let proxyTimedOut = false;
-
-  // Prevent double-fire across the whole tab
-  let isBusy = false;
 
   // ===== 4) UTILS =====
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -484,7 +481,7 @@ Scoring details:
 2) Then a short human explanation (3–6 sentences).`
   };
 
-  // === COMPACT EVIDENCE BUILDER (no giant dumps) ===
+  // === COMPACT EVIDENCE BUILDER (replaces giant dumps) ===
   async function collectEvidence() {
     // Site docs: only statuses
     const [xrbcDoc, xrbDoc, aiIdx, secTxt, provDoc] = await Promise.all([
@@ -554,10 +551,12 @@ Scoring details:
         xrbc_offers: offerCount(bookXRBC),
         xrb_offers:  offerCount(bookXRB)
       },
-      endpoints: { read_only_claim: true }
+      endpoints: {
+        read_only_claim: true
+      }
     };
 
-    // One small JSON blob instead of giant dumps
+    // one small JSON blob instead of giant dumps
     return { role: "user", content: JSON.stringify({ EVIDENCE: facts }) };
   }
 
@@ -644,10 +643,6 @@ Scoring details:
       return;
     }
 
-    if (isBusy) { append('<p class="muted small">⏳ Auditor is already answering…</p>'); return; }
-    isBusy = true;
-    send.disabled = true; quickBtns.forEach(b => b.disabled = true);
-
     renderMessage({ role: "user", content: q });
     chatHistory.push({ role: "user", content: q });
     saveChatHistory();
@@ -656,7 +651,7 @@ Scoring details:
     append(`<p id="${spinnerId}" style="color:#9EB2D0">⏳ Connecting to XRBC Auditor…</p>`);
 
     const awake = await wakeProxy();
-    if (!awake) { document.getElementById(spinnerId)?.remove(); isBusy = false; send.disabled = false; quickBtns.forEach(b=>b.disabled=false); showFallback(); return; }
+    if (!awake) { document.getElementById(spinnerId)?.remove(); showFallback(); return; }
 
     try {
       // Start a cool-down immediately (1 minute)
@@ -668,9 +663,10 @@ Scoring details:
       const evidenceMsg = await collectEvidence();
 
       const payload = {
-        model: "gpt-5-nano",        // CHEAPEST MODEL
+        model: "gpt-5-nano",        // ⬅️ CHEAPEST MODEL
         temperature: 0,             // deterministic
         max_output_tokens: 400,     // cap output
+        // NOTE: we don't force response_format to keep your "two-part" output behavior
         messages: [
           SYSTEM,
           INSTRUCTIONS,
@@ -690,6 +686,7 @@ Scoring details:
       clearTimeout(timer);
       document.getElementById(spinnerId)?.remove();
 
+      // Authoritative error guard
       if (!resp.ok) {
         const errText = await resp.text();
         const retryAfter = Number(resp.headers.get("retry-after") || 0);
@@ -701,13 +698,12 @@ Scoring details:
           append(`<p style="color:#f88"><strong>Upstream error:</strong> ${resp.status} ${esc(errText)}</p>`);
           startCooldown(MIN_COOLDOWN_MS, "Cooling down briefly after an error.");
         }
-        isBusy = false; send.disabled = false; quickBtns.forEach(b=>b.disabled=false);
         return;
       }
 
       let ans = (await resp.json())?.choices?.[0]?.message?.content || "No answer (proxy connected but returned empty).";
 
-      // Wallet-connect mis-score fix
+      // ===== HARD-FIX: if wallet_connect_detection == "absent", correct mis-scores =====
       try {
         const walletFlag =
           (evidenceMsg.content.includes('"wallet_connect_detection":"absent"') || evidenceMsg.content.includes('"wallet_connect_detection": "absent"')) ? "absent" :
@@ -745,42 +741,35 @@ Scoring details:
       chatHistory.push({ role: "assistant", content: ans });
       saveChatHistory();
 
-      isBusy = false; send.disabled = false; quickBtns.forEach(b=>b.disabled=false);
-
     } catch (err) {
       document.getElementById(spinnerId)?.remove();
       startCooldown(MIN_COOLDOWN_MS, "Cooling down after a network error.");
-      isBusy = false; send.disabled = false; quickBtns.forEach(b=>b.disabled=false);
       showFallback();
     }
   }
 
-  // ===== 11) INPUT/CONTROLS (single-wire to avoid duplicate submits) =====
-  if (!send.dataset.wired) {
-    send.dataset.wired = "1";
+  // ===== 11) INPUT/CONTROLS =====
+  send.addEventListener("click", () => {
+    if (!requireHumanAndCooldown()) return;
+    const q = (inputEl.value || "").trim();
+    if (!q) return;
+    inputEl.value = "";
+    postChat(q);
+  });
 
-    send.addEventListener("click", () => {
+  inputEl.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send.click();
+    }
+  });
+
+  quickBtns.forEach(btn =>
+    btn.addEventListener("click", () => {
       if (!requireHumanAndCooldown()) return;
-      const q = (inputEl.value || "").trim();
-      if (!q) return;
-      inputEl.value = "";
-      postChat(q);
-    });
-
-    inputEl.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send.click();
-      }
-    });
-
-    quickBtns.forEach(btn =>
-      btn.addEventListener("click", () => {
-        if (!requireHumanAndCooldown()) return;
-        postChat(btn.dataset.q);
-      })
-    );
-  }
+      postChat(btn.dataset.q);
+    })
+  );
 
   // ===== 12) VOICE (unchanged) =====
   if ("webkitSpeechRecognition" in window) {
@@ -801,7 +790,7 @@ Scoring details:
     voiceBtn.style.display = "none";
   }
 
-  // ===== 13) CLEANUP =====
+  // ===== 13) CLEANUP (unchanged) =====
   window.addEventListener("beforeunload", () => clearInterval(keepAliveInterval));
 })();
 </script>
