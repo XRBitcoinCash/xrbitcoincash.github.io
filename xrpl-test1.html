@@ -48,152 +48,175 @@
       document.body.classList.toggle('light-mode');
       toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
     });
-  </script>
+</script>
 
-  <header>
-    <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBC logo" />
-      <h1>XRBitcoinCash</h1>
+<header>
+  <div class="brand">
+    <img src="/xrbc-nft.png" alt="XRBC logo" />
+    <h1>XRBitcoinCash</h1>
+  </div>
+
+  <!-- Minimal rotator chip (optional UI) -->
+  <div aria-live="polite" style="margin-top:8px">
+    <span data-holiday-rotator data-variant="chip"></span>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="particles">
+      <div class="particle" style="top:20%;left:10%;animation-delay:0s"></div>
+      <div class="particle" style="top:50%;left:30%;animation-delay:1s"></div>
+      <div class="particle" style="top:80%;left:50%;animation-delay:2s"></div>
+      <div class="particle" style="top:40%;left:70%;animation-delay:3s"></div>
+      <div class="particle" style="top:60%;left:90%;animation-delay:4s"></div>
     </div>
 
-    <!-- Minimal rotator chip (optional UI) -->
-    <div aria-live="polite" style="margin-top:8px">
-      <span data-holiday-rotator data-variant="chip"></span>
+    <div>
+      <h2>Trade XRBC fast on XRPL</h2>
+      <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
+
+      <!-- BUTTON STACK (Trade first & most prominent; others follow) -->
+      <div class="button-group" role="group" aria-label="Primary actions">
+        <!-- ✅ Primary CTA: Trade -->
+        <a
+          id="tradeNowBtn"
+          data-variant="primary-cta"
+          href="https://xrbitcoincash.github.io/trade.html"
+          class="btn primary glow-green"
+          aria-label="Trade XRBC now on the XRPL decentralized exchange"
+          title="Trade XRBC now (fast, ~3s finality)">
+          🚀 Trade XRBC Now
+          <small class="muted" style="display:block;line-height:1.1">Fast, non-custodial XRPL DEX</small>
+        </a>
+
+        <!-- Secondary CTAs -->
+        <a href="https://xrbitcoincash.com/nfts.html" class="btn primary" aria-label="Open XRBC NFT Gallery">
+          🎨 NFT Gallery
+        </a>
+
+        <a href="https://xrbitcoincash.com/bs/" class="btn primary" aria-label="View blockchain specifications">
+          Blockchain Specs
+        </a>
+
+        <a
+          href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+          class="btn primary"
+          target="_blank" rel="noopener noreferrer"
+          aria-label="Open Sologenic XRBC Liquidity Pool (new tab)">
+          💧 Sologenic Liquidity Pool
+        </a>
+
+        <a href="/whitepaper.html" class="btn ghost glow-white" aria-label="Read the XRBC whitepaper">
+          Whitepaper
+        </a>
+
+        <a href="https://xrbitcoincash.com/about.html" class="btn ghost" aria-label="About XRBitcoinCash">
+          About XRBC
+        </a>
+      </div>
     </div>
-  </header>
 
-  <main>
-    <section class="hero">
-      <div class="particles">
-        <div class="particle" style="top:20%;left:10%;animation-delay:0s"></div>
-        <div class="particle" style="top:50%;left:30%;animation-delay:1s"></div>
-        <div class="particle" style="top:80%;left:50%;animation-delay:2s"></div>
-        <div class="particle" style="top:40%;left:70%;animation-delay:3s"></div>
-        <div class="particle" style="top:60%;left:90%;animation-delay:4s"></div>
-      </div>
-
-      <div>
-        <h2>Trade XRBC fast on XRPL</h2>
-        <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
-        <div class="button-group">
-          <a href="https://xrbitcoincash.com/nfts.html" class="btn primary">🎨 NFT Gallery</a>
-          <a href="https://xrbitcoincash.github.io/trade.html" class="btn primary glow-green">🚀 Trade XRBC Now</a>
-          <a href="https://xrbitcoincash.com/bs/" class="btn primary">Blockchain Specs</a>
-          <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-             class="btn primary" target="_blank" rel="noopener noreferrer">
-             💧 Sologenic Liquidity Pool
-          </a>
-
-          <a href="/whitepaper.html" class="btn ghost glow-white">Whitepaper</a>
-          <a href="https://xrbitcoincash.com/about.html" class="btn ghost">About XRBC</a>
-        </div>
-      </div>
-
-      <aside class="card nft glow-green">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
-        <p class="muted small" style="margin-top:10px">
-          <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
-        </p>
-      </aside>
-    </section>
-
-    <section class="grid">
-      <div class="feature card">
-        <h3>About XRBC</h3>
-        <p class="muted">
-          XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
-          Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
-          With a trustline cap of <strong>20,999,999.999999996</strong>, XRBC is designed for sustainable liquidity and long-term growth.
-        </p>
-      </div>
-      <div class="feature card">
-        <h3>Trading</h3>
-        <p class="muted">
-          Trading on XRPL means you can exchange assets directly on-ledger without intermediaries. Using the built-in decentralized exchange (DEX),
-          you can place limit orders, swap instantly through liquidity pools, or trade via automated market makers like Sologenic AMM.
-        </p>
-      </div>
-      <div class="feature card">
-        <h3>NFTs</h3>
-        <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
-      </div>
-    </section>
-  </main>
-
-  <footer class="ecosystem-footer">
-    <div class="footer-container">
-      <h3>XRBitcoin Ecosystem</h3>
-      <p class="ecosystem-desc">
-        Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
+    <aside class="card nft glow-green">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
+      <p class="muted small" style="margin-top:10px">
+        <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" rel="noopener" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
       </p>
+    </aside>
+  </section>
 
-      <div class="ecosystem-links">
-        <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
-          <img src="/xrbc-nft.png" alt="XRBitcoinCash logo">
-          <span>XRBitcoinCash</span>
-        </a>
-
-        <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
-          <span>XRBitcoin</span>
-        </a>
-
-        <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
-          <span>Jesus Christ Saves</span>
-        </a>
-
-        <a href="https://x.com/XRbitcoincash" target="_blank" class="eco-link" rel="noopener">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" style="width:22px; height:22px;">
-          <span>Twitter</span>
-        </a>
-
-        <!-- 🔐 Security Roles link -->
-        <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
-          <img src="/xrbc-nft.png" alt="Security logo" style="width:28px; height:28px;">
-          <span>Security Roles</span>
-        </a>
-      </div>
-
-      <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
+  <section class="grid">
+    <div class="feature card">
+      <h3>About XRBC</h3>
+      <p class="muted">
+        XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
+        Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
+        With a trustline cap of <strong>20,999,999.999999996</strong>, XRBC is designed for sustainable liquidity and long-term growth.
+      </p>
     </div>
-  </footer>
+    <div class="feature card">
+      <h3>Trading</h3>
+      <p class="muted">
+        Trading on XRPL means you can exchange assets directly on-ledger without intermediaries. Using the built-in decentralized exchange (DEX),
+        you can place limit orders, swap instantly through liquidity pools, or trade via automated market makers like Sologenic AMM.
+      </p>
+    </div>
+    <div class="feature card">
+      <h3>NFTs</h3>
+      <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
+    </div>
+  </section>
+</main>
 
-  <!-- 🔐 Optional recert countdown (filled by script if provenance.json has timestamp) -->
-  <p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
-    🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
-  </p>
+<footer class="ecosystem-footer">
+  <div class="footer-container">
+    <h3>XRBitcoin Ecosystem</h3>
+    <p class="ecosystem-desc">
+      Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
+    </p>
 
-<!-- Bash/Auditor Commands CTA -->
+    <div class="ecosystem-links">
+      <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo">
+        <span>XRBitcoinCash</span>
+      </a>
+
+      <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
+        <span>XRBitcoin</span>
+      </a>
+
+      <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
+        <span>Jesus Christ Saves</span>
+      </a>
+
+      <a href="https://x.com/XRbitcoincash" target="_blank" class="eco-link" rel="noopener">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" style="width:22px; height:22px;">
+        <span>Twitter</span>
+      </a>
+
+      <!-- 🔐 Security Roles link -->
+      <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="Security logo" style="width:28px; height:28px;">
+        <span>Security Roles</span>
+      </a>
+    </div>
+
+    <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
+  </div>
+</footer>
+
+<!-- 🔐 Security Recert line -->
+<p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
+  🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
+</p>
+
+<!-- ✅ Security Badge (script populates this) -->
+<nav id="aiBadges" class="ai-badges" aria-live="polite" style="margin-top:12px;font-size:0.95rem;opacity:0.95">
+  <span>Loading security checks…</span>
+</nav>
+
+<!-- Developer CTAs (placed AFTER badges for hierarchy & scan) -->
 <div class="button-group" style="margin:10px 0 22px; text-align:center">
-  <p class="muted small" style="margin:0 0 8px">
-    Run our command-line audit checks and examples.
-  </p>
   <a href="https://xrbitcoincash.github.io/ai/auditor-commands.html"
-     class="btn primary" target="_blank" rel="noopener">
+     class="btn primary" target="_blank" rel="noopener"
+     aria-label="Open Auditor Commands (copy & run)">
     🛠️ Auditor Commands
   </a>
 </div>
 
-<!-- AI Surface README CTA -->
 <div class="button-group" style="margin:10px 0 22px; text-align:center">
-  <p class="muted small" style="margin:0 0 8px">
-    Read how the XRBC AI surface is structured for agents and auditors.
-  </p>
   <a href="https://xrbitcoincash.github.io/ai/README.md"
-     class="btn primary" target="_blank" rel="noopener">
+     class="btn primary" target="_blank" rel="noopener"
+     aria-label="Open AI Surface README">
     📘 AI Surface README
   </a>
 </div>
 
-  
-  <!-- ✅ Security Badge (static checks; no OpenAI) -->
-  <nav id="aiBadges" class="ai-badges" aria-live="polite" style="margin-top:12px;font-size:0.95rem;opacity:0.95">
-    <span>Loading security checks…</span>
-  </nav>
+<!-- Your existing security badge JS (unchanged) -->
+<script>
 
-  <!-- Your existing security badge JS (unchanged) -->
-  <script>
   (() => {
     const targets = [
       {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
