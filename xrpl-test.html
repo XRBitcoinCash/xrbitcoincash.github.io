@@ -1,111 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>XRBC · Experimental Dev Portal</title>
-
-  <style>
-    body {
-      background:#05070b;
-      color:#d0f0ff;
-      font-family: monospace;
-      margin:0; padding:20px;
-    }
-    h1, h2 { color:#0ff; }
-    pre, code {
-      background:#0d1117;
-      border:1px solid #1f2a34;
-      padding:10px;
-      border-radius:4px;
-      font-size:13px;
-      overflow:auto;
-    }
-    .section {
-      margin-bottom:40px;
-      border-left:3px solid #0ff;
-      padding-left:12px;
-    }
-    .matrix {
-      font-size:12px;
-      color:#0f0;
-      background:black;
-      padding:10px;
-      border-radius:3px;
-      max-height:120px;
-      overflow:auto;
-      line-height:1.3;
-    }
-  </style>
-</head>
-<body>
-  <h1>XRBC · Internal Development Sandbox</h1>
-  <p style="color:#888">[Warning] Experimental zone. Unstable APIs. Use at your own risk.</p>
-
-  <div class="section">
-    <h2>📡 Node Diagnostics</h2>
-    <pre>
-// Auto-pinging XRPL devnet nodes…
-connect(proxy://xrbitcoincash-github-io.onrender.com)
-status: [ ✓ stable ] latency=47ms
-resync interval=5000ms
-    </pre>
+<!-- Wallet Section -->
+<div class="card glow" style="margin-bottom:24px;">
+  <h2 style="margin-top:0;">Wallet</h2>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
+    <button id="connectWalletBtn" class="btn btn-primary glow-btn">Connect Wallet</button>
+    <button id="testConnectBtn" class="btn ghost glow-btn">Test Connect (Xaman)</button>
+    <button id="disconnectWalletBtn" class="btn btn-secondary glow-btn" disabled>Disconnect</button>
   </div>
+  <p id="walletStatus" class="status-text">Status: Not connected</p>
+</div>
 
-  <div class="section">
-    <h2>📊 AMM Pool Stress Simulation</h2>
-    <pre>
-function simulateAMM(x, y, amount) {
-  const k = x * y;
-  const newY = y - amount;
-  const newX = k / newY;
-  return newX - x;
-}
-simulateAMM(104933.554, 50221.220, 10);
-// => 0.00039482
-    </pre>
-    <div class="matrix">
-      01001001 01001110 01001001 01010100 <br>
-      11010110 10110001 00010101 11100001 <br>
-      10101110 01101100 01011100 11011101
-    </div>
-  </div>
+<script>
+/* Test Connect (Xaman OAuth) — uses existing #app-config only */
+(() => {
+  const testBtn   = document.getElementById('testConnectBtn');
+  const statusEl  = document.getElementById('walletStatus');
 
-  <div class="section">
-    <h2>🔐 Payload Debug</h2>
-    <pre>
-{ "TransactionType": "OfferCreate",
-  "Account": "rXXXXXXXXXXXXXXX",
-  "TakerGets": "5000000",
-  "TakerPays": {
-    "currency": "XRBC",
-    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    "value": "2500"
-  },
-  "Flags": 131072 }
-    </pre>
-  </div>
+  function readAppConfig() {
+    try {
+      const el = document.getElementById('app-config');
+      if (!el) return null;
+      return JSON.parse(el.textContent || '{}');
+    } catch (e) {
+      return null;
+    }
+  }
 
-  <div class="section">
-    <h2>🌀 Randomized Output Stream</h2>
-    <div class="matrix" id="randStream">
-      // waiting for entropy…
-    </div>
-  </div>
+  function findOAuth(cfg) {
+    if (!cfg || typeof cfg !== 'object') return null;
 
-  <script>
-    // random “matrix” stream for confusion effect
-    const out = document.getElementById("randStream");
-    setInterval(() => {
-      let s = "";
-      for (let i=0;i<8;i++) {
-        for (let j=0;j<32;j++) {
-          s += Math.random()>0.5?"1":"0";
-        }
-        s+="\n";
-      }
-      out.textContent = s;
-    }, 700);
-  </script>
-</body>
-</html>
+    // Support a few common shapes without guessing/placeholder values
+    const o =
+      cfg.xaman?.oauth ||
+      cfg.xumm?.oauth ||
+      cfg.oauth ||
+      cfg.xaman_oauth ||
+      cfg.xumm_oauth ||
+      null;
+
+    if (o?.client_id && o?.redirect_uri) {
+      return { clientId: o.client_id, redirectUri: o.redirect_uri };
+    }
+
+    // Flat keys (if your #app-config uses these)
+    if (cfg.xamanClientId && cfg.xamanRedirectUri) {
+      return { clientId: cfg.xamanClientId, redirectUri: cfg.xamanRedirectUri };
+    }
+
+    return null;
+  }
+
+  function makeAuthUrl({ clientId, redirectUri }) {
+    const u = new URL('https://oauth2.xumm.app/auth');
+    u.searchParams.set('client_id', clientId);
+    u.searchParams.set('redirect_uri', redirectUri);
+    u.searchParams.set('response_type', 'token'); // simple test flow
+    return u.toString();
+  }
+
+  testBtn?.addEventListener('click', () => {
+    const cfg   = readAppConfig();
+    const creds = findOAuth(cfg);
+
+    if (!creds) {
+      statusEl && (statusEl.textContent =
+        'Status: Test Connect unavailable — missing Xaman OAuth client_id/redirect_uri in #app-config');
+      testBtn.setAttribute('disabled', 'disabled');
+      return;
+    }
+
+    statusEl && (statusEl.textContent = 'Status: Opening Xaman (Test Connect)…');
+    window.location.href = makeAuthUrl(creds); // Desktop: QR; Mobile: deep-links into Xaman
+  });
+})();
+</script>
