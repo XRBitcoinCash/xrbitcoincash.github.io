@@ -81,9 +81,12 @@ header a {
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.35) inset,
     0 6px 16px rgba(0,0,0,0.18);
-  min-width: 0;     /* allow grid to shrink without overflow */
+  min-width: 0;               /* allow shrinking inside grid */
   max-width: 100%;
-  margin: 0;        /* prevent stray margins from pushing layout */
+  margin: 0 !important;       /* kill any external margins */
+  box-sizing: border-box;
+  overflow: hidden;           /* prevent text from pushing layout */
+  text-overflow: ellipsis;    /* safety valve (rarely needed after trims) */
 }
 
 /* Hover / focus states */
@@ -96,7 +99,8 @@ header a:focus-visible {
 /* Tablet: 2 columns */
 @media (max-width: 900px) {
   header {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    justify-items: stretch;                         /* each cell fills column */
   }
   header a {
     width: 100%;
@@ -104,33 +108,34 @@ header a:focus-visible {
   }
 }
 
-/* Phones: tighter padding + font, keep 2×2 grid, add side breathing room */
+/* Phones: 2×2 grid, smaller buttons, even edge padding + gaps */
 @media (max-width: 600px) {
   header {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns */
-    gap: 12px;                     /* even spacing between buttons both ways */
-    padding: 10px 12px;            /* even spacing from screen edges */
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;  /* 2 columns */
+    gap: 12px;                               /* even space between buttons */
+    padding: 12px 14px !important;           /* even space from screen edges */
+    justify-items: stretch;
   }
   header a {
     width: 100%;
-    font-size: 0.88rem;            /* shrink text so “Terms of Service” fits */
+    font-size: 0.84rem;                      /* smaller so “Terms of Service” fits */
     line-height: 1.15;
-    padding: 8px 9px;              /* slightly narrower to avoid side press */
-    letter-spacing: 0;
+    padding: 7px 9px;                        /* tighter without cramping */
+    letter-spacing: -0.1px;
     border-radius: 10px;
   }
 }
 
-/* Very narrow phones: micro-trim to guarantee no overlap or edge press */
+/* Very narrow phones: micro-trim to guarantee no edge press or overlap */
 @media (max-width: 360px) {
   header {
     gap: 10px;
-    padding: 10px 10px;            /* maintain equal edge spacing */
+    padding: 10px 12px !important;           /* maintain equal edge spacing */
   }
   header a {
-    font-size: 0.84rem;
-    padding: 7px 8px;
-    letter-spacing: -0.1px;
+    font-size: 0.80rem;
+    padding: 6px 8px;
+    letter-spacing: -0.2px;
   }
 }
 
@@ -168,6 +173,7 @@ footer {
   color: #888;
   font-size: 0.85rem;
 }
+
 
 
   </style>
