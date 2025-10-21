@@ -151,16 +151,15 @@
   >XRPL</span>) portal
 </h1>
 
-<!-- Wallet Section -->
-<div class="card glow" style="margin-bottom:24px;">
-  <h2 style="margin-top:0;">Wallet</h2>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
-    <button id="connectWalletBtn" class="btn btn-primary glow-btn">Connect Wallet</button>
-    <button id="testConnectBtn" class="btn ghost glow-btn">Test Connect (Xaman)</button>
-    <button id="disconnectWalletBtn" class="btn btn-secondary glow-btn" disabled>Disconnect</button>
+  <!-- Wallet Section -->
+  <div class="card glow" style="margin-bottom:24px;">
+    <h2 style="margin-top:0;">Wallet</h2>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
+      <button id="connectWalletBtn" class="btn btn-primary glow-btn">Connect Wallet</button>
+      <button id="disconnectWalletBtn" class="btn btn-secondary glow-btn" disabled>Disconnect</button>
+    </div>
+    <p id="walletStatus" class="status-text">Status: Not connected</p>
   </div>
-  <p id="walletStatus" class="status-text">Status: Not connected</p>
-</div>
 
   <button id="setTrustlineBtn" class="btn btn-primary">Set XRBC Trustline</button>
   <div id="trustlineMsg" class="status-text" style="margin-bottom:20px;">—</div>
