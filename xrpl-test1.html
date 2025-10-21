@@ -157,27 +157,46 @@
     <li><strong>Verify the domain:</strong> For security auditing, always confirm you are on <strong>https://xrbitcoincash.com/</strong> (padlock icon, HTTPS). Never sign from look-alike domains.</li>
   </ul>
 
-<!-- Open in Xaman — DEX Trade (prominent button with official logo) -->
-<a href="https://xumm.app/detect/xapp:xumm.dex" rel="noopener"
-   class="btn-xaman"
-   style="display:inline-flex;align-items:center;gap:10px;padding:12px 16px;
-          border:1px solid #2b3a4b;border-left:4px solid #3b82f6;border-radius:12px;
-          background:linear-gradient(180deg,#0e1520,#101927);color:#e7edf5;
-          text-decoration:none;font-size:14px;font-weight:600;letter-spacing:.2px;
-          box-shadow:0 0 0 1px rgba(59,130,246,.25),0 8px 20px rgba(2,6,23,.4)">
-  <!-- Xaman logo (local file) -->
-  <img src="/assets/xaman-logo.svg"
-       alt="Xaman"
-       width="18" height="18"
-       style="display:inline-block;vertical-align:middle"
-       onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'" />
-  <!-- Fallback icon if the logo is missing -->
-  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
-       style="display:none;vertical-align:middle">
-    <path fill="currentColor" d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7zm15 6h-3a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2zM5 9a1 1 0 0 0 1 1h11V7H6a1 1 0 0 0-1 1z"/>
-  </svg>
-  <span>Open in Xaman — DEX Trade</span>
-</a>
+
+  
+<!-- Trade in Xaman (green headline + button) -->
+<div style="margin-top:12px">
+
+  <!-- Stand-out green line -->
+  <div style="display:flex;align-items:center;gap:8px;
+              padding:8px 12px;border:1px solid #064e3b;border-left:4px solid #10b981;
+              border-radius:10px;background:linear-gradient(180deg,#052b1f,#073425);
+              color:#d1fae5;font-size:14px;font-weight:700;letter-spacing:.2px;margin-bottom:10px">
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11c-3.2-1.3-7-6-7-11V5l7-3zm0 5a1.25 1.25 0 100 2.5A1.25 1.25 0 0012 7zm-1.25 4.25h2.5v7.5h-2.5v-7.5z"/>
+    </svg>
+    <span>Open in Xaman — DEX Trade (mobile opens app • desktop shows QR)</span>
+  </div>
+
+  <!-- Button: XRBC logo (left) + text + XRP logo (right) -->
+  <a href="https://xumm.app/detect/xapp:xumm.dex" rel="noopener"
+     style="display:inline-flex;align-items:center;justify-content:center;gap:10px;
+            width:100%;max-width:520px;padding:12px 16px;border:1px solid #2b3a4b;
+            border-left:4px solid #10b981;border-radius:12px;
+            background:linear-gradient(180deg,#0b1a14,#0f1f18);color:#e7edf5;
+            text-decoration:none;font-size:15px;font-weight:700;letter-spacing:.25px;
+            box-shadow:0 0 0 1px rgba(16,185,129,.25),0 10px 22px rgba(2,6,23,.45)">
+    <!-- XRBC logo (left) -->
+    <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20"
+         style="display:inline-block;border-radius:4px" />
+
+    <span>Open in Xaman — Trade XRBC ↔ XRP</span>
+
+    <!-- XRP logo (inline SVG, right) -->
+    <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true">
+      <!-- Simple XRP mark (inline vector) -->
+      <path fill="currentColor"
+            d="M9 10.5a4.5 4.5 0 0 0 6.364 0l1.273-1.273a4.5 4.5 0 0 1 6.364 0l.5.5a1.25 1.25 0 1 0 1.768-1.768l-.5-.5a7 7 0 0 0-9.9 0L13.5 9.232a2 2 0 0 1-2.828 0l-1.5-1.5A1.25 1.25 0 0 0 7.404 9l1.596 1.5zM23 21.5a4.5 4.5 0 0 0-6.364 0l-1.273 1.273a4.5 4.5 0 0 1-6.364 0l-.5-.5A1.25 1.25 0 1 0 6.73 24.04l.5.5a7 7 0 0 0 9.9 0l1.868-1.867a2 2 0 0 1 2.828 0l1.5 1.5A1.25 1.25 0 1 0 25.596 23L24 21.5z"/>
+    </svg>
+  </a>
+
+</div>
+
 
 
 
