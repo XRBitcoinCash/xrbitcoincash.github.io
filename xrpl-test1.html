@@ -84,27 +84,30 @@
 <body>
 
   <!-- ===== Header (unchanged positions) ===== -->
-  <header class="site-header">
-    <div class="brand" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:0">
-      <img id="brand-logo" src="/xrbc-nft.png" alt="XRBitcoinCash (XRBC) logo" />
-      <h1
-        style="
-          margin:6px 0 6px;
-          line-height:1.06;
-          filter:
-            drop-shadow(0 0 8px rgba(16,185,129,.28))
-            drop-shadow(0 0 16px rgba(34,211,238,.14));
-          animation: emberFlicker 3.8s ease-in-out infinite;
-        "
-      >XRBitcoinCash</h1>
+<header class="site-header">
+  <div class="brand" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:0">
+    <img id="brand-logo" src="/xrbc-nft.png" alt="XRBitcoinCash (XRBC) logo" />
+    <h1
+      style="
+        margin:6px 0 6px;
+        line-height:1.06;
+        filter:
+          drop-shadow(0 0 8px rgba(16,185,129,.28))
+          drop-shadow(0 0 16px rgba(34,211,238,.14));
+        animation: emberFlicker 3.8s ease-in-out infinite;
+      "
+    >XRBitcoinCash</h1>
 
-    <a class="btn" href="/xrbc-ecosystem.html" title="XRBC Ecosystem & Information">
-  Explore the XRBC Ecosystem
-  <small>DEX, AMM, resources</small>
-</a>
-
-    </div>
-  </header>
+    <!-- Action row -->
+    <nav class="header-actions" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:6px">
+      <a class="btn ghost" href="/" title="Home">Home</a>
+      <a class="btn" href="/xrbc-ecosystem.html" title="XRBC Ecosystem & Information">
+        XRBC Ecosystem
+        <small>DEX · AMM · resources</small>
+      </a>
+    </nav>
+  </div>
+</header>
 
   <div class="container" style="max-width:800px;margin:0 auto;padding:20px;text-align:center;">
 
