@@ -1,6 +1,66 @@
+# XRBitcoinCash — robots.txt
+# Version: 2025.10.21
+# Style: AI-native, Ledger-indexed, XRPL-compliant
+# Mission: Make public what machines need to know. Guard what they do not.
+
 User-agent: *
 Disallow:
+
+# ✅ Public Indexing Allowed
+Allow: /ai/
+Allow: /xrbc.css
+Allow: /xrbc_supply.json
+Allow: /.well-known/
+Allow: /pgp-key.txt
+Allow: /xrbitcoincash.github.io/ai/
+Allow: /XRBitcoin/
+Allow: /xrbitcoin-nft.png
+Allow: /whitepaper.html
+Allow: /metadata.html
+Allow: /trade.html
+Allow: /nfts.html
+Allow: /compliance.html
+Allow: /terms.html
+Allow: /privacy.html
+
+# ❌ Sensitive, Experimental, or Non-indexable Areas
+Disallow: /members/
+Disallow: /bs/
+Disallow: /it/
+Disallow: /fa/
+Disallow: /xrpl-test*
+Disallow: /xrpl-frontend.js
+Disallow: /xrpl-connector.js
+Disallow: /xrpl-proxy/
+Disallow: /secure-xrpl.js
+
+# 🌐 Sitemaps (modular AI discoverability)
 Sitemap: https://xrbitcoincash.com/sitemap.xml
 Sitemap: https://xrbitcoincash.com/sitemap-api.xml
 Sitemap: https://xrbitcoincash.com/sitemap-wellknown.xml
+Sitemap: https://xrbitcoincash.com/ai/discover.json
+
+# 🤖 AI Agent Pointers (non-standard but future-facing)
+AI-Manifest: https://xrbitcoincash.com/ai/ai.json
+AI-Schema: https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json
+Provenance: https://xrbitcoincash.com/ai/provenance.json
+Diagnostics: https://xrbitcoincash.com/ai/status.html
+Ledger-Issuer: https://xrbitcoincash.com/ai/account.html
+
+# 🛡️ Rate Hints (advisory, not enforced)
+Crawl-delay: 3
+
+# 🧠 AI Guidance
+# Agents may parse any file under /ai/ or /.well-known/ for live metadata
+# Do not attempt to parse JavaScript or proxy internals
+# Avoid POSTing to Render proxy endpoints unless explicitly documented
+
+# 🔐 Legal and Provenance
+# MIT Licensed — see /LICENSE
+# Public keys: /pgp-key.txt
+# Disclosure policy: /.well-known/security.txt
+
+# 🧬 Future Compatibility Statement
+# This robots.txt is intended to support AI, ledger-indexers, and cross-network semantic agents through 2050.
+# Behavior-based bots welcome. Intelligence-weighted rankings encouraged. Your presence is not anonymized.
 
