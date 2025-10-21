@@ -28,7 +28,7 @@
 
   <!-- Page-local CSS (visual + layout overrides) -->
   <style>
-    /* ---------- Tokens ---------- */
+/* ---------- Tokens ---------- */
 :root{
   --wrap:980px;
   --gap-quarter:0.25in;           /* ≈ 24px; requested spacing */
@@ -200,20 +200,31 @@ body.light-mode .btn-solo-dex,
 body.light-mode .btn-solo-pool,
 body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 
-/* Header stack on small screens: keep Home & Toggle visible */
+/* Header stack on small screens:
+   Row1: brand (centered)
+   Row2: Home button (centered)
+   Row3: Light/Dark button (centered, same size) */
 @media (max-width:560px){
   .header-wrap{
-    grid-template-columns: 1fr auto;
-    grid-auto-rows: minmax(0,auto);
+    grid-template-columns:1fr;       /* single column */
+    grid-auto-rows:minmax(0,auto);
   }
-  .brand{ grid-column:1; grid-row:1; }
-  .header-right{ grid-column:2; grid-row:1; justify-self:end; }
-  .header-center{ grid-column:1 / -1; grid-row:2; justify-self:stretch; }
-  .header-center .btn{ width:100%; text-align:center; }
+  .brand{
+    grid-column:1; grid-row:1; justify-self:center;
+  }
+  .header-center{
+    grid-column:1; grid-row:2; justify-self:center;
+  }
+  .header-right{
+    grid-column:1; grid-row:3; justify-self:center;
+  }
+  /* keep default sizes (no shrink); ensure no forced full-width */
+  .header-center .btn{ width:auto; text-align:center; }
+  #themeToggle{ width:auto; }
   .brand img{ width:40px; height:40px; }
   .brand h1{
     font-size:1rem;
-    max-width:60vw;
+    max-width:70vw;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
 }
@@ -224,19 +235,6 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .btn-steam{padding:12px 14px;}
   .card,.trade-cta-card{min-height:unset;}
   .card.nft img{max-height:180px;}
-}
-/* QUICK FIX: shrink theme toggle on small screens */
-@media (max-width:560px){
-  #themeToggle{
-    padding:6px 8px !important;
-    font-size:.85rem !important;
-    font-weight:700; /* slightly lighter to reduce width */
-    letter-spacing:0;
-  }
-}
-@media (max-width:560px){
-  .header-right{ gap:6px; }       /* was 8px */
-  .header-wrap{ padding:12px 10px; } /* trims side padding a touch */
 }
 
   </style>
