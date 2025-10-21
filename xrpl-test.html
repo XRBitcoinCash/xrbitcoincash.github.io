@@ -1,75 +1,316 @@
-<!-- Wallet Section -->
-<div class="card glow" style="margin-bottom:24px;">
-  <h2 style="margin-top:0;">Wallet</h2>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:16px 0;">
-    <button id="connectWalletBtn" class="btn btn-primary glow-btn">Connect Wallet</button>
-    <button id="testConnectBtn" class="btn ghost glow-btn">Test Connect (Xaman)</button>
-    <button id="disconnectWalletBtn" class="btn btn-secondary glow-btn" disabled>Disconnect</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- favicon -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <meta name="msapplication-TileImage" content="/favicon.png">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+
+  <title>XRBitcoinCash</title>
+
+
+  <!-- Icons -->
+  <link rel="icon" href="/xrbc-nft.png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Primary SEO -->
+  <meta name="description" content="XRBitcoinCash (XRBC) — fast, low-fee XRPL token. Trade XRBC, explore NFTs, and verify details on-ledger." />
+  <meta name="keywords" content="XRBC, XRPL, XRBitcoinCash, cryptocurrency, token, liquidity pool, XUMM, XPMarket" />
+  <link rel="canonical" href="https://xrbitcoincash.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta property="og:description" content="Trade XRBC fast on XRPL. Low fees and ~3s finality with transparent, non-custodial flows." />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:url" content="https://xrbitcoincash.com/" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash — XRBC on XRPL" />
+  <meta name="twitter:description" content="Trade XRBC fast on XRPL. Explore NFTs and on-ledger transparency." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Your base site CSS (existing) -->
+  <link rel="stylesheet" href="/xrbc.css">
+  <!-- Holiday/UI theming CSS (from /assets/) -->
+  <link rel="stylesheet" href="/assets/xrbc-holiday.css">
+</head>
+
+<body>
+  <!-- 🌙 Light/Dark Mode Toggle -->
+  <button class="toggle-theme" id="themeToggle" aria-label="Toggle light/dark theme">☀️</button>
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
+    });
+</script>
+
+<header>
+  <div class="brand">
+    <img src="/xrbc-nft.png" alt="XRBC logo" />
+    <h1>XRBitcoinCash</h1>
   </div>
-  <p id="walletStatus" class="status-text">Status: Not connected</p>
+
+  <!-- Minimal rotator chip (optional UI) -->
+  <div aria-live="polite" style="margin-top:8px">
+    <span data-holiday-rotator data-variant="chip"></span>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="particles">
+      <div class="particle" style="top:20%;left:10%;animation-delay:0s"></div>
+      <div class="particle" style="top:50%;left:30%;animation-delay:1s"></div>
+      <div class="particle" style="top:80%;left:50%;animation-delay:2s"></div>
+      <div class="particle" style="top:40%;left:70%;animation-delay:3s"></div>
+      <div class="particle" style="top:60%;left:90%;animation-delay:4s"></div>
+    </div>
+
+    <div>
+      <h2>Trade XRBC fast on XRPL</h2>
+      <p>Low fees. ~3s finality. Transparent, non-custodial flows — designed for fast on-ledger trading.</p>
+
+      <!-- BUTTON STACK (Trade first & most prominent; others follow) -->
+      <div class="button-group" role="group" aria-label="Primary actions">
+        <!-- ✅ Primary CTA: Trade -->
+        <a
+          id="tradeNowBtn"
+          data-variant="primary-cta"
+          href="https://xrbitcoincash.github.io/trade.html"
+          class="btn primary glow-green"
+          aria-label="Trade XRBC now on the XRPL decentralized exchange"
+          title="Trade XRBC now (fast, ~3s finality)">
+          🚀 Trade XRBC Now
+          <small class="muted" style="display:block;line-height:1.1">Fast, non-custodial XRPL DEX</small>
+        </a>
+
+        <!-- Secondary CTAs -->
+        <a href="https://xrbitcoincash.com/nfts.html" class="btn primary" aria-label="Open XRBC NFT Gallery">
+          🎨 NFT Gallery
+        </a>
+
+        <a href="https://xrbitcoincash.com/bs/" class="btn primary" aria-label="View blockchain specifications">
+          Blockchain Specs
+        </a>
+
+        <a
+          href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+          class="btn primary"
+          target="_blank" rel="noopener noreferrer"
+          aria-label="Open Sologenic XRBC Liquidity Pool (new tab)">
+          💧 Sologenic Liquidity Pool
+        </a>
+
+        <a href="/whitepaper.html" class="btn ghost glow-white" aria-label="Read the XRBC whitepaper">
+          Whitepaper
+        </a>
+
+        <a href="https://xrbitcoincash.com/about.html" class="btn ghost" aria-label="About XRBitcoinCash">
+          About XRBC
+        </a>
+      </div>
+    </div>
+
+    <aside class="card nft glow-green">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT" />
+      <p class="muted small" style="margin-top:10px">
+        <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" rel="noopener" style="color:var(--muted)">Official XRBitcoinCash artwork</a>
+      </p>
+    </aside>
+  </section>
+
+  <section class="grid">
+    <div class="feature card">
+      <h3>About XRBC</h3>
+      <p class="muted">
+        XRBitcoinCash (XRBC) is a fast, low-fee asset on the XRP Ledger, backed by transparent tokenomics and open governance.
+        Issuer: <strong>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</strong>, Code: <strong>XRbitcoincash</strong>.
+        With a trustline cap of <strong>20,999,999.999999996</strong>, XRBC is designed for sustainable liquidity and long-term growth.
+      </p>
+    </div>
+    <div class="feature card">
+      <h3>Trading</h3>
+      <p class="muted">
+        Trading on XRPL means you can exchange assets directly on-ledger without intermediaries. Using the built-in decentralized exchange (DEX),
+        you can place limit orders, swap instantly through liquidity pools, or trade via automated market makers like Sologenic AMM.
+      </p>
+    </div>
+    <div class="feature card">
+      <h3>NFTs</h3>
+      <p class="muted">Collections, drops, and artwork tied to XRBC.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="ecosystem-footer">
+  <div class="footer-container">
+    <h3>XRBitcoin Ecosystem</h3>
+    <p class="ecosystem-desc">
+      Interlinked XRPL-based assets — XRBitcoinCash (XRBC), XRBitcoin, and Jesus Christ Saves Token (JCS).
+    </p>
+
+    <div class="ecosystem-links">
+      <a href="https://xrbitcoincash.com" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo">
+        <span>XRBitcoinCash</span>
+      </a>
+
+      <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
+        <span>XRBitcoin</span>
+      </a>
+
+      <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
+        <span>Jesus Christ Saves</span>
+      </a>
+
+      <a href="https://x.com/XRbitcoincash" target="_blank" class="eco-link" rel="noopener">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg" alt="Twitter" style="width:22px; height:22px;">
+        <span>Twitter</span>
+      </a>
+
+      <!-- 🔐 Security Roles link -->
+      <a href="/security-jobs.html" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="Security logo" style="width:28px; height:28px;">
+        <span>Security Roles</span>
+      </a>
+    </div>
+
+    <p class="ecosystem-tagline"><strong>Built on the XRP Ledger.</strong></p>
+  </div>
+</footer>
+
+<!-- 🔐 Security Recert line -->
+<p style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:8px;">
+  🔐 Security Recertification: <span id="updateCountdown">Loading...</span>
+</p>
+
+<!-- ✅ Security Badge (script populates this) -->
+<nav id="aiBadges" class="ai-badges" aria-live="polite" style="margin-top:12px;font-size:0.95rem;opacity:0.95">
+  <span>Loading security checks…</span>
+</nav>
+
+<!-- Developer CTAs (placed AFTER badges for hierarchy & scan) -->
+<div class="button-group" style="margin:10px 0 22px; text-align:center">
+  <a href="https://xrbitcoincash.github.io/ai/auditor-commands.html"
+     class="btn primary" target="_blank" rel="noopener"
+     aria-label="Open Auditor Commands (copy & run)">
+    🛠️ Auditor Commands
+  </a>
 </div>
 
+<div class="button-group" style="margin:10px 0 22px; text-align:center">
+  <a href="https://xrbitcoincash.github.io/ai/README.md"
+     class="btn primary" target="_blank" rel="noopener"
+     aria-label="Open AI Surface README">
+    📘 AI Surface README
+  </a>
+</div>
+
+<!-- Your existing security badge JS (unchanged) -->
 <script>
-/* Test Connect (Xaman OAuth) — uses existing #app-config only */
-(() => {
-  const testBtn   = document.getElementById('testConnectBtn');
-  const statusEl  = document.getElementById('walletStatus');
 
-  function readAppConfig() {
-    try {
-      const el = document.getElementById('app-config');
-      if (!el) return null;
-      return JSON.parse(el.textContent || '{}');
-    } catch (e) {
-      return null;
-    }
-  }
+  (() => {
+    const targets = [
+      {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
+      {key:"xrb_manifest",   label:"XRBitcoin Manifest", url:"/XRBitcoin/universal-ai.json", kind:"json"},
+      {key:"ai_index",       label:"AI Index",           url:"/.well-known/ai.json",         kind:"json"},
+      {key:"security_txt",   label:"security.txt",       url:"/.well-known/security.txt",    kind:"text"},
+      {key:"provenance",     label:"Provenance",         url:"/ai/provenance.json",          kind:"json"}
+    ];
 
-  function findOAuth(cfg) {
-    if (!cfg || typeof cfg !== 'object') return null;
+    const TIMEOUT_MS = 7000;
+    const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms));
 
-    // Support a few common shapes without guessing/placeholder values
-    const o =
-      cfg.xaman?.oauth ||
-      cfg.xumm?.oauth ||
-      cfg.oauth ||
-      cfg.xaman_oauth ||
-      cfg.xumm_oauth ||
-      null;
-
-    if (o?.client_id && o?.redirect_uri) {
-      return { clientId: o.client_id, redirectUri: o.redirect_uri };
+    function shield(okCount, total) {
+      const color = okCount===total ? "#2ecc71" : (okCount>0 ? "#f1c40f" : "#e74c3c");
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="${color}" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
+          <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
+        </svg>`;
     }
 
-    // Flat keys (if your #app-config uses these)
-    if (cfg.xamanClientId && cfg.xamanRedirectUri) {
-      return { clientId: cfg.xamanClientId, redirectUri: cfg.xamanRedirectUri };
-    }
+    Promise.all(targets.map(async t => {
+      const start = Date.now();
+      try {
+        const r = await Promise.race([fetch(t.url, { cache:"no-store" }), timeout(TIMEOUT_MS)]);
+        if (!r.ok) return { ...t, ok:false, status:r.status, ms:Date.now()-start };
+        if (t.kind === "json") { await r.json().catch(()=>{}); } else { await r.text().catch(()=>{}); }
+        return { ...t, ok:true, status:r.status, ms:Date.now()-start };
+      } catch (e) {
+        return { ...t, ok:false, status:0, ms:Date.now()-start, err:String(e) };
+      }
+    })).then(results => {
+      const okCount = results.filter(x => x.ok).length;
+      const total   = results.length;
+      const root    = document.getElementById("aiBadges");
+      if (!root) return;
 
-    return null;
-  }
+      root.innerHTML = `
+        <style>
+          .ai-badges .wrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+          .ai-badges .summary {
+            display:inline-flex; align-items:center; gap:8px;
+            padding:6px 10px; border-radius:999px;
+            border:1px solid rgba(0,229,255,0.35); background:rgba(0,229,255,0.06);
+          }
+          .ai-badges .chip {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:6px 10px; border-radius:999px; text-decoration:none;
+            border:1px solid rgba(255,255,255,.14);
+          }
+          .ai-badges .chip.pass { background:rgba(46,204,113,.10); border-color:rgba(46,204,113,.45); }
+          .ai-badges .chip.fail { background:rgba(231,76,60,.09);  border-color:rgba(231,76,60,.45); }
+          .ai-badges .chip:hover { filter:brightness(1.08); }
+          .ai-badges .chip small { opacity:.8; }
+        </style>
 
-  function makeAuthUrl({ clientId, redirectUri }) {
-    const u = new URL('https://oauth2.xumm.app/auth');
-    u.searchParams.set('client_id', clientId);
-    u.searchParams.set('redirect_uri', redirectUri);
-    u.searchParams.set('response_type', 'token'); // simple test flow
-    return u.toString();
-  }
+        <div class="wrap">
+          <span class="summary">
+            ${shield(okCount, total)}
+            <strong>Security Badge</strong>
+            <span>${okCount}/${total} checks OK</span>
+          </span>
 
-  testBtn?.addEventListener('click', () => {
-    const cfg   = readAppConfig();
-    const creds = findOAuth(cfg);
+          ${results.map(r => `
+            <a class="chip ${r.ok ? "pass" : "fail"}" href="${r.url}" target="_blank" rel="nofollow noopener"
+               title="${r.ok ? "OK" : "Missing/Errored"} • ${r.status || "—"} • ${r.ms}ms">
+              ${r.ok ? "✅" : "⚠️"} ${r.label}
+              <small>(${r.status || "—"})</small>
+            </a>
+          `).join("")}
+        </div>
+      `;
 
-    if (!creds) {
-      statusEl && (statusEl.textContent =
-        'Status: Test Connect unavailable — missing Xaman OAuth client_id/redirect_uri in #app-config');
-      testBtn.setAttribute('disabled', 'disabled');
-      return;
-    }
+      const provOk = results.find(r => r.key === "provenance" && r.ok);
+      if (provOk) {
+        fetch("/ai/provenance.json", { cache: "no-store" })
+          .then(r => r.json())
+          .then(j => {
+            const ts = j.updated || j.updatedAt || j.last_updated || j.timestamp || j.date;
+            const span = document.getElementById("updateCountdown");
+            if (!span || !ts) return;
+            const base = new Date(ts);
+            if (isNaN(base.getTime())) return;
+            const next = new Date(base.getTime() + 90*24*60*60*1000); // 90-day recert
+            const days = Math.max(0, Math.ceil((next - new Date()) / 86400000));
+            span.textContent = `${days} day${days===1?"":"s"}`;
+          })
+          .catch(() => {});
+      }
+    });
+  })();
+  </script>
 
-    statusEl && (statusEl.textContent = 'Status: Opening Xaman (Test Connect)…');
-    window.location.href = makeAuthUrl(creds); // Desktop: QR; Mobile: deep-links into Xaman
-  });
-})();
-</script>
+</body>
+</html>
