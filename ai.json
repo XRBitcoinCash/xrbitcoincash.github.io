@@ -1,0 +1,28 @@
+{
+  "project": "XRBitcoinCash",
+  "version": "1.0.0",
+  "issuer_account": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+  "blockchain": "XRPL",
+  "audit": {
+    "status": "internal",
+    "blackholed": true,
+    "source": "/ai/account.html"
+  },
+  "tokenomics": {
+    "total_supply": 21000000,
+    "supply_source": "/ai/supply.html"
+  },
+  "liquidity": {
+    "dex_url": "https://sologenic.org/trade?...",
+    "orderbook_source": "/ai/orderbook.html"
+  },
+  "security": {
+    "proxy_url": "https://xrbitcoincash-github-io.onrender.com",
+    "webhook_url": "https://.../webhook",
+    "verified_by_ai": true
+  },
+  "status": {
+    "source": "/ai/status.html"
+  },
+  "timestamp": "2025-10-21T00:00:00Z"
+}
