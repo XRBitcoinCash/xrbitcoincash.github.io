@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@type": "CryptocurrencyProject",
+  "name": "XRBitcoinCash",
+  "description": "Fixed-supply decentralized token on the XRPL with AI-integrated wallet security layer",
+  "identifier": "XRBC",
+  "auditedBy": "ChatGPT AI Proxy",
+  "founder": {
+    "@type": "Person",
+    "name": "Scott P. Anderton"
+  },
+  "mainEntityOfPage": "https://xrbitcoincash.com"
+}
