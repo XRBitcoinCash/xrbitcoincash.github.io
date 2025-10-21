@@ -9,8 +9,8 @@
   --panel-2:#141b25;
   --text:#e7edf5;
   --muted:#9fb0c5;
-  --accent:#60a5fa;
-  --accent-2:#22d3ee;
+  --accent:#60a5fa;              /* blue */
+  --accent-2:#22d3ee;            /* cyan */
   --ok:#22c55e;
   --err:#ef4444;
   --border:#1f2937;
@@ -73,21 +73,77 @@ body::after{
 }
 .card.glow{border-color:rgba(34,211,238,.55); box-shadow:0 0 20px rgba(34,211,238,.22)}
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons (base) ---------- */
+.button-group{
+  display:grid; grid-template-columns:1fr; gap:10px;
+  justify-items:center; align-items:center; width:100%;
+}
+@media (min-width:720px){
+  .button-group{ grid-template-columns:repeat(2, minmax(220px, 1fr)); }
+}
 .btn{
   appearance:none; border:1px solid var(--border);
   background:linear-gradient(180deg,#0e1520,#0c131c);
-  color:var(--text); padding:10px 14px; border-radius:12px; font-weight:600;
+  color:var(--text); padding:12px 16px; border-radius:12px; font-weight:700;
   cursor:pointer; box-shadow:var(--shadow);
   transition:transform .06s ease,border-color .2s ease,box-shadow .2s ease,filter .2s ease;
-  min-width:120px; text-align:center;
+  min-width:160px; text-align:center; line-height:1.15;
 }
-.btn:hover{transform:translateY(-1px);border-color:#2a3a51}
+.btn:hover{transform:translateY(-1px);border-color:#2a3a51;filter:brightness(1.04)}
 .btn:active{transform:translateY(0)}
+.btn:focus-visible{outline:2px solid rgba(0,229,255,.75); outline-offset:2px}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
-.btn-primary{background:linear-gradient(180deg,rgba(37,99,235,.28),rgba(37,99,235,.16));border-color:rgba(37,99,235,.48)}
-.btn-secondary{background:linear-gradient(180deg,rgba(34,211,238,.22),rgba(34,211,238,.12));border-color:rgba(34,211,238,.45)}
-.glow-btn:hover{box-shadow:0 0 18px rgba(96,165,250,.25)}
+
+/* Map HTML class names to skins used on the site */
+.btn.primary{ /* same idea as .btn-primary */
+  background:linear-gradient(180deg, rgba(37,99,235,.28), rgba(37,99,235,.16));
+  border-color:rgba(37,99,235,.48);
+}
+.btn.ghost{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border-color:rgba(255,255,255,.18);
+  color:var(--text);
+}
+.btn .muted{opacity:.9}
+.btn small{display:block; font-size:.88em; opacity:.9; margin-top:2px}
+
+/* Optional glow helpers (to match existing HTML) */
+.glow-green:hover{box-shadow:0 0 18px rgba(34,197,94,.25)}
+.glow-white:hover{box-shadow:0 0 18px rgba(255,255,255,.18)}
+
+/* ---------- PRIMARY CTA: Trade (psychology-forward) ---------- */
+#tradeNowBtn{
+  grid-column:1 / -1;               /* spans full row for visual priority */
+  padding:16px 18px;                /* larger tap target */
+  border-radius:14px;
+  background:
+    linear-gradient(180deg, rgba(34,197,94,.22), rgba(37,99,235,.18)),
+    linear-gradient(180deg,#0e1520,#0c131c);
+  border:1px solid rgba(96,165,250,.55);
+  box-shadow:
+    0 0 0 1px rgba(34,197,94,.25) inset,
+    0 10px 30px rgba(0,0,0,.35),
+    0 0 40px rgba(34,197,94,.12);
+  position:relative;
+}
+#tradeNowBtn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.05);
+  box-shadow:
+    0 0 0 1px rgba(34,197,94,.35) inset,
+    0 12px 34px rgba(0,0,0,.4),
+    0 0 54px rgba(56,189,248,.18);
+}
+#tradeNowBtn:focus-visible{
+  outline:3px solid rgba(56,189,248,.7);
+  outline-offset:3px;
+}
+/* subtle heartbeat glow to attract attention without being spammy */
+@keyframes breathe {
+  0%,100% { box-shadow:0 0 0 1px rgba(34,197,94,.25) inset, 0 10px 30px rgba(0,0,0,.35), 0 0 26px rgba(34,197,94,.12) }
+  50%     { box-shadow:0 0 0 1px rgba(34,197,94,.35) inset, 0 12px 34px rgba(0,0,0,.4), 0 0 36px rgba(56,189,248,.18) }
+}
+#tradeNowBtn{ animation:breathe 2.6s ease-in-out infinite }
 
 /* ---------- Status / pre / table ---------- */
 .status-text{font-size:13px;color:var(--muted)}
@@ -95,8 +151,10 @@ body::after{
 @keyframes flashText{from{opacity:1}to{opacity:.3}}
 .status-text.connecting{animation:flashText 1.6s infinite alternate;color:#00e5ff !important;font-weight:700}
 
-pre{background:#0c131c;border:1px solid #1c2736;border-radius:10px;padding:8px;
-  max-height:200px;overflow:auto;font-size:12px;color:#a3e4ff}
+pre{
+  background:#0c131c;border:1px solid #1c2736;border-radius:10px;padding:8px;
+  max-height:200px;overflow:auto;font-size:12px;color:#a3e4ff
+}
 
 .table{width:100%;border-collapse:collapse;font-size:14px}
 .table th,.table td{padding:8px 10px;border-bottom:1px solid #1a2433}
@@ -106,8 +164,7 @@ pre{background:#0c131c;border:1px solid #1c2736;border-radius:10px;padding:8px;
 /* ---------- Trade UI (make it stand out) ---------- */
 .trade-card{
   display:grid; gap:12px; text-align:left; padding:16px; border-radius:14px;
-  background:
-    linear-gradient(180deg,#0d141e,#0b1119);
+  background:linear-gradient(180deg,#0d141e,#0b1119);
   border:1px solid rgba(96,165,250,.25);
   position:relative;
 }
