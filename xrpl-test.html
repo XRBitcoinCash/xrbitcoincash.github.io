@@ -1,66 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Basic icons -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/favicon.png">
-
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <title>XRBC Ecosystem & Information · XRBitcoinCash</title>
 
-  <!-- Primary SEO -->
-  <meta name="description" content="Explore the XRBitcoinCash (XRBC) ecosystem on the XRP Ledger: verified links, DEX/AMM trading, liquidity pools, explorers, and project resources." />
-  <meta name="keywords" content="XRBC, XRBitcoinCash, XRPL, XRP Ledger, Sologenic, XPMarket, Xaman, DEX, AMM, liquidity pool" />
-  <link rel="canonical" href="https://xrbitcoincash.com/" />
+  <!-- Canonical -->
+  <link rel="canonical" href="https://xrbitcoincash.com/">
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
-  <meta property="og:description" content="Official XRBC hub: trade on XRPL DEX/AMMs, open verified pools, and access project resources." />
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-  <meta property="og:url" content="https://xrbitcoincash.com/" />
+  <!-- Basic icons -->
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="shortcut icon" href="/favicon.png" type="image/png">
+  <meta name="msapplication-TileImage" content="/favicon.png">
 
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
-  <meta name="twitter:description" content="Official XRBC hub: DEX/AMM, pools, explorers, and resources." />
-  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <!-- Open Graph / X -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="XRBC Ecosystem & Information · XRBitcoinCash">
+  <meta property="og:description" content="Official XRBC hub: trade on XRPL DEX/AMMs, open verified pools, and access project resources.">
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
+  <meta property="og:url" content="https://xrbitcoincash.com/">
+  <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Your base site CSS -->
+  <!-- Base CSS already on site (optional) -->
   <link rel="stylesheet" href="/xrbc.css">
-  <!-- Holiday/UI theming CSS (existing) -->
   <link rel="stylesheet" href="/assets/xrbc-holiday.css">
 
-  <!-- Page-local polish (aesthetic only) -->
+  <!-- Page-local CSS (visual + layout overrides) -->
   <style>
+    /* ---------- Tokens ---------- */
     :root{
-      --xrbc-green:#10b981; --xrbc-cyan:#22d3ee; --xrbc-blue:#60a5fa; --xrbc-red:#ef4444; --xrbc-purple:#7c3aed;
-      --ink:#e7edf5; --muted:#9fb0c5; --panel:#111827; --panel2:#0b1220; --border:#2b3a4b;
       --wrap:980px;
+      --gap-quarter:0.25in;           /* ≈ 24px; requested spacing */
+      --ink:#e7edf5;
+      --muted:#9fb0c5;
+      --border:#2b3a4b;
+      --xrbc-green:#10b981; --xrbc-cyan:#22d3ee; --xrbc-blue:#60a5fa; --xrbc-red:#ef4444; --xrbc-purple:#7c3aed;
     }
-    body{background:#0b0f14;color:var(--ink);}
 
-    /* Light mode only affects page background & page-level text; cards/buttons stay dark */
-    body.light-mode{ background:#ffffff; color:#0b0f14; }
-    body.light-mode .site-header{ background:linear-gradient(180deg,#f8fafc,#ffffff); border-bottom:1px solid rgba(0,0,0,.09); }
-    body.light-mode .brand h1{ color:#0b0f14; }
+    body{ background:#0b0f14; color:var(--ink); }
 
-    /* Ensure cards/buttons keep dark theme in light mode */
-    body.light-mode .card,
-    body.light-mode .trade-cta-card{ color:var(--ink); }
-    /* Buttons already set their own colors; keep as-is */
-    body.light-mode .btn,
-    body.light-mode .btn-steam,
-    body.light-mode .eco-link,
-    body.light-mode .ai-badges .summary,
-    body.light-mode .ai-badges .chip{ color:var(--ink); }
-
-    /* ===== Header (full-width bar, content centered inside) ===== */
+    /* ===== Header (full-width, STICKY so it never hides content) ===== */
     .site-header{
-      width:100%; background:linear-gradient(180deg,#0b0f14,#0b1017);
+      position:sticky; top:0; z-index:100;
+      width:100%;
+      background:linear-gradient(180deg,#0b0f14,#0b1017);
       border-bottom:1px solid rgba(255,255,255,.06);
     }
     .header-wrap{
@@ -76,38 +60,21 @@
     .header-center{justify-self:center;}
     .header-right{justify-self:end;display:flex;gap:8px;align-items:center;}
 
-    /* Buttons */
-    .btn{
+    /* Theme button (text label) */
+    #themeToggle{
       appearance:none;border:1px solid var(--border);
       background:linear-gradient(180deg,#0e1520,#0c131c);
-      color:var(--ink);padding:12px 16px;border-radius:12px;font-weight:700;
-      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+      color:#fff;padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer;
       box-shadow:0 10px 26px rgba(0,0,0,.35);
-      transition:transform .06s ease,filter .2s ease,border-color .2s ease,box-shadow .2s ease;
-      line-height:1.15;
     }
-    .btn:hover{transform:translateY(-1px);filter:brightness(1.05);border-color:#324355;}
-    .btn small{display:block;font-size:.88em;opacity:.9;line-height:1.1;}
-    .btn-sm{padding:10px 12px;border-radius:10px;font-size:.95rem;}
+    #themeToggle:hover{filter:brightness(1.05);}
 
-    /* Steampunk-tech variant (Auditor + README, and static look for Recert) */
-    .btn-steam{
-      border:1px solid #4b5563;
-      background:
-        linear-gradient(180deg,#1a1f27,#10151b),
-        radial-gradient(140% 100% at 50% 0%, rgba(255,180,90,.12), transparent 60%);
-      box-shadow:0 0 0 1px rgba(255,180,90,.15) inset,0 8px 22px rgba(0,0,0,.35),0 0 22px rgba(255,180,90,.10);
-      border-left:4px solid #d97706;
-      padding:14px 16px;
-    }
-    .btn-steam:hover{filter:brightness(1.06);border-color:#6b7280;}
-    .is-static{pointer-events:none;user-select:none;opacity:.98;}
-
-    /* ===== Hero / Cards just under header ===== */
+    /* ===== Hero directly under header (no overlap) ===== */
     .hero{max-width:var(--wrap);margin:12px auto 14px;padding:0 14px;}
     .hero-layout{display:grid;gap:14px;align-items:stretch;grid-template-columns:1fr;}
     @media (min-width:980px){.hero-layout{grid-template-columns:1fr 1fr;}}
 
+    /* CTA (left) */
     .trade-cta-card{
       display:flex;flex-direction:column;justify-content:flex-start;
       background:
@@ -121,49 +88,57 @@
     }
     .trade-cta-card h2{margin:0 0 8px;letter-spacing:.1px;}
     .trade-cta-card p{margin:0 0 14px;color:var(--muted);}
-    .button-grid{display:grid;grid-template-columns:1fr;gap:10px;max-width:560px;margin-top:auto;}
-    @media (min-width:680px){.button-grid{grid-template-columns:1fr 1fr;}}
 
-    /* Button accents in trade card */
+    /* Buttons (¼-inch even spacing) */
+    .button-grid{display:grid;grid-template-columns:1fr;gap:var(--gap-quarter);max-width:560px;margin-top:auto;}
+    @media (min-width:680px){.button-grid{grid-template-columns:1fr 1fr;}}
+    .btn{
+      appearance:none;border:1px solid var(--border);
+      background:linear-gradient(180deg,#0e1520,#0c131c);
+      color:var(--ink);padding:12px 16px;border-radius:12px;font-weight:700;
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;justify-content:center;
+      box-shadow:0 10px 26px rgba(0,0,0,.35); line-height:1.15;
+      transition:transform .06s ease,filter .2s ease,border-color .2s ease,box-shadow .2s ease;
+    }
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.05);border-color:#324355;}
+    .btn small{display:block;font-size:.88em;opacity:.9;line-height:1.1;}
     .btn-xaman{border-left:4px solid var(--xrbc-green);}
     .btn-solo-dex{border-left:4px solid var(--xrbc-red);}
     .btn-solo-pool{border-left:4px solid var(--xrbc-blue);}
     .btn-xpmarket{border-left:4px solid var(--xrbc-cyan);}
 
+    /* NFT card (right) */
     .card{
       background:linear-gradient(180deg,#0e1520,#0c131c);
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-      min-height:320px;
+      border:1px solid var(--border); border-radius:14px; padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35); min-height:320px;
       display:flex;flex-direction:column;justify-content:flex-start;
     }
-    .card.nft img{
-      width:100%;height:auto;border-radius:10px;max-height:200px;object-fit:cover;
-      box-shadow:0 0 20px rgba(16,185,129,.15);
-    }
+    .card.nft img{ width:100%;height:auto;border-radius:10px;max-height:200px;object-fit:cover; }
     .glow-green{box-shadow:0 0 24px rgba(16,185,129,.18),0 0 46px rgba(16,185,129,.10);}
 
-    /* ===== Dev row: Auditor | Recert-static | README ===== */
+    /* Dev row (¼-inch gaps; README flush-right like NFT edge) */
     .dev{max-width:var(--wrap);margin:10px auto 0;padding:0 14px;}
-    .dev-grid{display:grid;gap:10px;grid-template-columns:1fr;align-items:stretch;}
+    .dev-grid{display:grid;gap:var(--gap-quarter);grid-template-columns:1fr;align-items:stretch;}
     @media (min-width:700px){.dev-grid{grid-template-columns:1fr auto 1fr;}}
-    .recert-chip.btn-steam{display:inline-flex;align-items:center;gap:10px;font-weight:800;}
-    .recert-chip svg{opacity:.95;display:block}
-    /* Right-align README to line up with right edge of the NFT card */
+    .btn-steam{
+      border:1px solid #4b5563;
+      background:linear-gradient(180deg,#1a1f27,#10151b),
+                 radial-gradient(140% 100% at 50% 0%, rgba(255,180,90,.12), transparent 60%);
+      box-shadow:0 0 0 1px rgba(255,180,90,.15) inset,0 8px 22px rgba(0,0,0,.35),0 0 22px rgba(255,180,90,.10);
+      border-left:4px solid #d97706; padding:14px 16px;
+    }
+    .is-static{pointer-events:none;user-select:none;opacity:.98;}
     .align-right{justify-self:end;}
+    @media (max-width:420px){ .align-right{justify-self:stretch;} }
 
-    /* ===== Security section (centered title & centered badges) ===== */
+    /* Security section centered + ¼-inch chip gaps */
     .security{max-width:var(--wrap);margin:14px auto 0;padding:0 14px;}
     .sec-title{
       display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--ink);
       justify-content:center; text-align:center;
     }
-    .ai-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;}
-    /* Ensure the inner .wrap (injected by JS) also centers */
-    .ai-badges .wrap{justify-content:center;}
-
+    .ai-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--gap-quarter);}
     .ai-badges .summary,.ai-badges .chip{
       border-radius:999px;border:1px solid rgba(148,163,184,.32);
       background:linear-gradient(180deg,#2a2f37,#171b22);
@@ -173,15 +148,9 @@
     .ai-badges .chip.pass{border-color:rgba(46,204,113,.45);}
     .ai-badges .chip.fail{border-color:rgba(231,76,60,.45);}
     .ai-badges .chip small{opacity:.8;}
+    .ticker-xrbc{ color:#d1fae5;font-weight:800; text-shadow:0 0 8px rgba(16,185,129,.65),0 0 20px rgba(56,189,248,.45); }
 
-    /* XRBC ticker glow */
-    .ticker-xrbc{
-      color:#d1fae5;font-weight:800;
-      text-shadow:0 0 8px rgba(16,185,129,.65),0 0 20px rgba(56,189,248,.45);
-      filter:drop-shadow(0 0 12px rgba(16,185,129,.60)) drop-shadow(0 0 26px rgba(56,189,248,.40));
-    }
-
-    /* Footer spacing slightly tighter to the divider */
+    /* Footer (unchanged spacing) */
     .ecosystem-footer{border-top:1px solid rgba(255,255,255,.06);margin-top:12px;}
     .footer-container{max-width:var(--wrap);margin:0 auto;padding:14px;}
     .ecosystem-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;}
@@ -192,19 +161,49 @@
     }
     .eco-link img{width:22px;height:22px;border-radius:6px;object-fit:cover;}
 
+    /* ===== Light Mode =====
+       White page + black text; all cards/chips/buttons go outline-only for contrast.
+    */
+    body.light-mode{ background:#ffffff; color:#0b0f14; }
+    body.light-mode .site-header{
+      background:linear-gradient(180deg,#f8fafc,#ffffff);
+      border-bottom:1px solid rgba(0,0,0,.08);
+    }
+    body.light-mode .brand h1{ color:#0b0f14; }
+    body.light-mode #themeToggle{
+      background:#ffffff; color:#0b0f14; border-color:#94a3b8;
+    }
+
+    body.light-mode .card,
+    body.light-mode .trade-cta-card,
+    body.light-mode .btn,
+    body.light-mode .btn-steam,
+    body.light-mode .eco-link,
+    body.light-mode .ai-badges .summary,
+    body.light-mode .ai-badges .chip{
+      background:#ffffff !important;
+      color:#0b0f14 !important;
+      border-color:#cbd5e1 !important;
+      box-shadow:none !important;
+    }
+    /* remove colored left bars in light mode (outline-only look) */
+    body.light-mode .btn-xaman,
+    body.light-mode .btn-solo-dex,
+    body.light-mode .btn-solo-pool,
+    body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
+
     /* Mobile niceties */
     @media (max-width:420px){
       .btn{padding:10px 12px;}
       .btn-steam{padding:12px 14px;}
       .card,.trade-cta-card{min-height:unset;}
       .card.nft img{max-height:180px;}
-      .align-right{justify-self:stretch;}
     }
   </style>
 </head>
 
 <body>
-  <!-- ===== Full-width Header ===== -->
+  <!-- ===== Header ===== -->
   <header class="site-header">
     <div class="header-wrap">
       <div class="brand">
@@ -217,79 +216,57 @@
         <a class="btn btn-sm" href="/" title="Home">Home</a>
       </nav>
 
-      <!-- Right: theme toggle -->
+      <!-- Right: Light/Dark text toggle -->
       <div class="header-right">
-        <button class="btn btn-sm" id="themeToggle" type="button" aria-label="Toggle light/dark theme">☀️</button>
+        <button class="btn btn-sm" id="themeToggle" type="button" aria-label="Toggle theme">Light / Dark</button>
       </div>
 
-      <!-- Rotator (kept) spans under grid on small screens -->
+      <!-- Rotator line -->
       <div aria-live="polite" style="grid-column:1 / -1; margin-top:6px">
         <span data-holiday-rotator data-variant="chip"></span>
       </div>
     </div>
   </header>
 
-  <!-- ===== Hero / Cards (sit directly beneath header) ===== -->
+  <!-- ===== Hero / Cards (now safely below header) ===== -->
   <section class="hero">
     <div class="hero-layout">
       <!-- Left: trading/options card -->
       <div class="trade-cta-card">
         <h2>Trade XRBC on the XRP Ledger</h2>
-        <p>
-          Simple, non-custodial trading with clear fees and on-ledger settlement in seconds.
-          Choose your preferred venue below—each opens in a verified interface.
-        </p>
+        <p>Simple, non-custodial trading with clear fees and on-ledger settlement in seconds. Choose your preferred venue below—each opens in a verified interface.</p>
 
         <div class="button-grid" role="group" aria-label="Trade & liquidity actions">
-          <!-- Xaman DEX xApp (mobile deep link; desktop shows QR) -->
-          <a class="btn btn-xaman"
-             href="https://xumm.app/detect/xapp:xumm.dex"
-             rel="noopener noreferrer"
-             aria-label="Open Xaman DEX xApp (XRBC ↔ XRP)">
+          <a class="btn btn-xaman" href="https://xumm.app/detect/xapp:xumm.dex" rel="noopener noreferrer" aria-label="Open Xaman DEX xApp (XRBC ↔ XRP)">
             Open in Xaman — DEX
             <small>Mobile xApp (QR on desktop)</small>
           </a>
 
-          <!-- Sologenic DEX: XRBC/XRP -->
-          <a class="btn btn-solo-dex"
-             href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
-             target="_blank" rel="noopener"
-             aria-label="Open Sologenic DEX for XRBC/XRP (new tab)">
+          <a class="btn btn-solo-dex" href="https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP" target="_blank" rel="noopener" aria-label="Open Sologenic DEX for XRBC/XRP (new tab)">
             Sologenic — XRBC/XRP
             <small>DEX pair (new tab)</small>
           </a>
 
-          <!-- XPMarket: XRBC token page -->
-          <a class="btn btn-xpmarket"
-             href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-             target="_blank" rel="noopener"
-             aria-label="Open XPMarket XRBC page (new tab)">
+          <a class="btn btn-xpmarket" href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener" aria-label="Open XPMarket XRBC page (new tab)">
             XPMarket — XRBC
             <small>Analytics & AMM entry</small>
           </a>
 
-          <!-- Sologenic Liquidity Pool -->
-          <a class="btn btn-solo-pool"
-             href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-             target="_blank" rel="noopener"
-             aria-label="Open Sologenic XRBC/XRP AMM pool (new tab)">
+          <a class="btn btn-solo-pool" href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener" aria-label="Open Sologenic XRBC/XRP AMM pool (new tab)">
             Sologenic — Liquidity Pool
             <small>XRBC/XRP AMM</small>
           </a>
         </div>
       </div>
 
-      <!-- Right: NFT card with project text -->
+      <!-- Right: NFT card -->
       <aside class="card nft glow-green">
         <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT artwork" />
         <p class="muted small" style="margin-top:10px">
-          The XRBitcoinCash NFT collection preserves our earliest minting style on XRPL—
-          a <em>pre-XLS-20</em> era often associated with early XLS-14 proposals.
-          We keep this original line for nostalgia and historical context.
+          The XRBitcoinCash NFT collection preserves our earliest minting style on XRPL—a <em>pre-XLS-20</em> era often associated with early XLS-14 proposals. We keep this original line for nostalgia and historical context.
         </p>
         <p class="muted small" style="margin-top:8px">
-          Trading venues include AMMs like <strong>Sologenic AMM</strong> and <strong>XPMarket</strong>.
-          Ticker: <span class="ticker-xrbc">XRBC</span>.
+          Trading venues include AMMs like <strong>Sologenic AMM</strong> and <strong>XPMarket</strong>. Ticker: <span class="ticker-xrbc">XRBC</span>.
         </p>
         <p class="muted small" style="margin-top:8px">
           Artwork provenance:
@@ -299,34 +276,30 @@
     </div>
   </section>
 
-  <!-- ===== Dev row (Auditor | Recert-static | README aligned right) ===== -->
+  <!-- ===== Dev row (Auditor | Recert | README aligned right) ===== -->
   <section class="dev">
     <div class="dev-grid">
-      <a href="https://xrbitcoincash.github.io/ai/auditor-commands.html"
-         class="btn btn-steam" target="_blank" rel="noopener"
-         aria-label="Open Auditor Commands (copy & run)">
+      <a href="https://xrbitcoincash.github.io/ai/auditor-commands.html" class="btn btn-steam" target="_blank" rel="noopener" aria-label="Open Auditor Commands (copy & run)">
         🛠️ Auditor Commands
         <small>Self-check & validation</small>
       </a>
 
-      <span class="recert-chip btn-steam is-static" title="Security recertification interval">
+      <span class="recert-chip btn-steam is-static" title="Security recertification interval" style="display:inline-flex;align-items:center;gap:10px;font-weight:800;">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#2ecc71" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
           <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
         </svg>
-        Security Recert: <span id="updateCountdown">Loading…</span>
+        Security Recert: <span id="updateCountdown">82 days</span>
       </span>
 
-      <a href="https://xrbitcoincash.github.io/ai/README.md"
-         class="btn btn-steam align-right" target="_blank" rel="noopener"
-         aria-label="Open AI Surface README">
+      <a href="https://xrbitcoincash.github.io/ai/README.md" class="btn btn-steam align-right" target="_blank" rel="noopener" aria-label="Open AI Surface README">
         📘 AI Surface README
         <small>Architecture & usage</small>
       </a>
     </div>
   </section>
 
-  <!-- ===== Security badges (centered) ===== -->
+  <!-- ===== Security badges ===== -->
   <section class="security">
     <h3 class="sec-title">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -343,26 +316,21 @@
   <footer class="ecosystem-footer">
     <div class="footer-container">
       <h3>XRBitcoin Ecosystem</h3>
-      <p class="ecosystem-desc" style="color:var(--muted)">
-        Interlinked XRPL-based assets and tools for trading, liquidity, and exploration.
-      </p>
+      <p class="ecosystem-desc" style="color:var(--muted)">Interlinked XRPL-based assets and tools for trading, liquidity, and exploration.</p>
 
       <div class="ecosystem-links">
         <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
           <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
           <span>XRBitcoin</span>
         </a>
-
         <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
           <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
           <span>Jesus Christ Saves</span>
         </a>
-
         <a href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
           <img src="/xrbc-nft.png" alt="Explorer icon">
           <span>XRPSCAN issuer</span>
         </a>
-
         <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
           <img src="/xrbc-nft.png" alt="XPMarket">
           <span>XPMarket token</span>
@@ -373,20 +341,30 @@
     </div>
   </footer>
 
-  <!-- Theme toggle (lightens only page background; cards/buttons remain dark) -->
+  <!-- ===== Theme toggle script (Light/Dark; cards outline-only in light) ===== -->
   <script>
     (function(){
-      const toggle = document.getElementById('themeToggle');
-      if(toggle){
-        toggle.addEventListener('click', ()=>{
-          document.body.classList.toggle('light-mode');
-          toggle.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
-        });
+      const btn = document.getElementById('themeToggle');
+      if(!btn) return;
+
+      function apply(mode){
+        const isLight = mode === 'light';
+        document.body.classList.toggle('light-mode', isLight);
+        try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
       }
+      try{
+        const saved = localStorage.getItem('xrbc-theme');
+        if (saved) apply(saved);
+      }catch(_){}
+
+      btn.addEventListener('click', () => {
+        const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+        apply(next);
+      });
     })();
   </script>
 
-  <!-- Security badge JS (kept logic; renders badges + updates #updateCountdown) -->
+  <!-- ===== Security badge JS (unchanged, centers via CSS) ===== -->
   <script>
   (() => {
     const targets = [
@@ -426,7 +404,7 @@
 
       root.innerHTML = `
         <style>
-          .ai-badges .wrap { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+          .ai-badges .wrap { display:flex; align-items:center; gap:var(--gap-quarter); flex-wrap:wrap; justify-content:center; }
           .ai-badges .summary { display:inline-flex; align-items:center; gap:8px; }
           .ai-badges .chip { display:inline-flex; align-items:center; gap:6px; }
           .ai-badges .chip:hover { filter:brightness(1.08); }
@@ -467,6 +445,5 @@
     });
   })();
   </script>
-
 </body>
 </html>
