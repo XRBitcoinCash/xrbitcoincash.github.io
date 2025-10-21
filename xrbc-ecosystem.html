@@ -225,6 +225,19 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .card,.trade-cta-card{min-height:unset;}
   .card.nft img{max-height:180px;}
 }
+/* QUICK FIX: shrink theme toggle on small screens */
+@media (max-width:560px){
+  #themeToggle{
+    padding:6px 8px !important;
+    font-size:.85rem !important;
+    font-weight:700; /* slightly lighter to reduce width */
+    letter-spacing:0;
+  }
+}
+@media (max-width:560px){
+  .header-right{ gap:6px; }       /* was 8px */
+  .header-wrap{ padding:12px 10px; } /* trims side padding a touch */
+}
 
   </style>
 </head>
