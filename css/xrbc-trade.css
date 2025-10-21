@@ -2,8 +2,8 @@
 
 /* ---------- Tokens ---------- */
 :root{
-  --wrap: 900px;                 /* unified page width */
-  --wrap-wide: 1000px;           /* footer may use on desktop */
+  --wrap: 900px;
+  --wrap-wide: 1000px;
   --bg:#0b0f14;
   --panel:#121821;
   --panel-2:#141b25;
@@ -60,10 +60,28 @@ body::after{
 @media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
 
 /* ---------- Layout ---------- */
-.container{max-width:var(--wrap);margin:0 auto;padding:20px 16px;position:relative;z-index:1}
+.container{
+  max-width:var(--wrap);
+  margin:0 auto;
+  padding:20px 16px;
+  padding-bottom:clamp(40px, 5vh, 72px); /* breathing room above footer */
+  position:relative; z-index:1;
+}
 .site-header{position:relative;z-index:1;border-bottom:1px solid rgba(255,255,255,.04)}
 .brand{display:flex;align-items:center;justify-content:center;gap:12px;text-align:center;width:100%}
-.brand img{max-height:40px}
+/* NOTE: removed .brand img max-height cap to allow larger brand logo */
+
+/* ---------- Brand masthead logo (3× size + green ember glow) ---------- */
+#brand-logo{
+  width:192px; height:auto; display:block; margin-inline:auto;
+  /* fire-like glow: layered drop-shadows; animation below */
+  filter:
+    drop-shadow(0 0 10px rgba(16,185,129,.28))
+    drop-shadow(0 0 18px rgba(34,211,238,.14))
+    drop-shadow(0 0 28px rgba(16,185,129,.10));
+  animation:emberFlicker 3.2s ease-in-out infinite;
+}
+@media (max-width:480px){ #brand-logo{ width:160px } }
 
 /* ---------- Cards ---------- */
 .card{
@@ -95,7 +113,7 @@ body::after{
 .btn[disabled]{opacity:.6;cursor:not-allowed}
 
 /* Map HTML class names to skins used on the site */
-.btn.primary{ /* same idea as .btn-primary */
+.btn.primary{
   background:linear-gradient(180deg, rgba(37,99,235,.28), rgba(37,99,235,.16));
   border-color:rgba(37,99,235,.48);
 }
@@ -113,8 +131,8 @@ body::after{
 
 /* ---------- PRIMARY CTA: Trade (psychology-forward) ---------- */
 #tradeNowBtn{
-  grid-column:1 / -1;               /* spans full row for visual priority */
-  padding:16px 18px;                /* larger tap target */
+  grid-column:1 / -1;
+  padding:16px 18px;
   border-radius:14px;
   background:
     linear-gradient(180deg, rgba(34,197,94,.22), rgba(37,99,235,.18)),
@@ -125,6 +143,7 @@ body::after{
     0 10px 30px rgba(0,0,0,.35),
     0 0 40px rgba(34,197,94,.12);
   position:relative;
+  animation:breathe 2.6s ease-in-out infinite;
 }
 #tradeNowBtn:hover{
   transform:translateY(-1px);
@@ -138,12 +157,10 @@ body::after{
   outline:3px solid rgba(56,189,248,.7);
   outline-offset:3px;
 }
-/* subtle heartbeat glow to attract attention without being spammy */
 @keyframes breathe {
   0%,100% { box-shadow:0 0 0 1px rgba(34,197,94,.25) inset, 0 10px 30px rgba(0,0,0,.35), 0 0 26px rgba(34,197,94,.12) }
   50%     { box-shadow:0 0 0 1px rgba(34,197,94,.35) inset, 0 12px 34px rgba(0,0,0,.4), 0 0 36px rgba(56,189,248,.18) }
 }
-#tradeNowBtn{ animation:breathe 2.6s ease-in-out infinite }
 
 /* ---------- Status / pre / table ---------- */
 .status-text{font-size:13px;color:var(--muted)}
@@ -159,7 +176,7 @@ pre{
 .table{width:100%;border-collapse:collapse;font-size:14px}
 .table th,.table td{padding:8px 10px;border-bottom:1px solid #1a2433}
 .table thead th{background:#0f1722;color:#cfe2ff;position:sticky;top:0}
-@media (max-width:600px){ .table thead th{position:static} } /* no sticky on small */
+@media (max-width:600px){ .table thead th{position:static} }
 
 /* ---------- Trade UI (make it stand out) ---------- */
 .trade-card{
@@ -216,7 +233,18 @@ pre{
 .clock::after{content:"";position:absolute;top:2px;left:9px;width:2px;height:8px;background:#60a5fa;transform-origin:bottom center}
 @keyframes spinHand{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
-/* ---------- Modal (unchanged, just polished) ---------- */
+/* ---------- Modal (migrated from inline) ---------- */
+.modal{display:none;position:fixed;inset:0;z-index:1000}
+.modal.open{display:block}
+.modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+.modal .dialog{position:relative;max-width:560px;margin:8vh auto;background:#0b0f14;border-radius:16px;padding:20px;border:1px solid #1f2a37}
+.modal h3{margin:0 0 10px}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.fine{font-size:.95rem;opacity:.9}
+.modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+code.url{user-select:all;word-break:break-word;display:block;margin-top:6px}
+
+/* Modal: specific tweaks */
 #mobileModal .dialog{padding:24px}
 #mobileModal h3{margin-bottom:12px}
 #mobileModal .fine{line-height:1.45;max-width:52ch;margin:0 auto}
@@ -233,14 +261,13 @@ pre{
 /* Hide wallet status on desktop-ish environments */
 @media (hover:hover) and (pointer:fine){#walletStatus{display:none !important}}
 
-/* ---------- Footer (truly compact, mobile-first) ---------- */
+/* ---------- Footer (compact) ---------- */
 .site-footer{
   margin-top:24px; background:#0b0f14; color:#9fb0c5;
   border-top:1px solid #1f2a37; position:relative; z-index:1;
 }
 .site-footer .wrap{
-  max-width:var(--wrap);   /* match body width exactly */
-  margin:0 auto; padding:14px 16px; display:grid; gap:12px;
+  max-width:var(--wrap); margin:0 auto; padding:14px 16px; display:grid; gap:12px;
 }
 .site-footer h3{margin:0 0 4px;font-size:.98rem;color:#e4f0fb;line-height:1.25}
 .site-footer .cols{display:grid; gap:12px}
@@ -261,7 +288,7 @@ pre{
 .cta-chatgpt:hover{border-color:#2b3b4f}
 .cta-chatgpt img{width:16px;height:16px;display:block}
 
-/* Footer: desktop widens to a tidy 3-col grid without getting taller */
+/* Footer: desktop widens to a tidy 3-col grid */
 @media (min-width:860px){
   .site-footer .wrap{ max-width:var(--wrap-wide); padding:16px 18px; gap:14px; }
   .site-footer .cols{ grid-template-columns:1.2fr 1fr 1fr; align-items:start; }
@@ -272,33 +299,45 @@ pre{
   .legal{ font-size:.88rem; padding-top:10px; }
 }
 
-/* Super small phones: trim further */
+/* Super small phones */
 @media (max-width:380px){
   .site-footer .wrap{ padding:10px 12px; gap:10px; }
   .small{ font-size:.86rem; }
 }
 
-/* ---------- Misc spacing balance ---------- */
-.container{ padding-bottom: clamp(40px, 5vh, 72px); } /* breathing room above footer */
-/* Drop-in: 3× logo size with mobile-safe max width */
-#brand-logo {
-  width: 192px;      /* 3× if the old size was ~64px */
-  height: auto;
-  display: block;
-  margin-inline: auto; /* stays centered under the brand per your UI rule */
+/* ---------- Xaman trade button logos (no distortion + ember glow) ---------- */
+.xaman-trade .token-logo{
+  height:28px; width:28px; object-fit:contain; display:inline-block; vertical-align:middle;
+  /* animated fire-like glow just around the logo */
+  filter:
+    drop-shadow(0 0 8px rgba(16,185,129,.28))
+    drop-shadow(0 0 14px rgba(34,211,238,.14));
+  animation:emberFlicker 2.8s ease-in-out infinite;
+}
+.xaman-trade .token-logo.xrbc{ border-radius:4px } /* XRBC PNG rounding */
+
+@keyframes emberFlicker{
+  0%{
+    filter:
+      drop-shadow(0 0 6px rgba(16,185,129,.22))
+      drop-shadow(0 0 12px rgba(34,211,238,.10));
+    transform:translateY(0)
+  }
+  45%{
+    filter:
+      drop-shadow(0 0 12px rgba(16,185,129,.38))
+      drop-shadow(0 0 22px rgba(56,189,248,.18));
+    transform:translateY(-0.5px)
+  }
+  100%{
+    filter:
+      drop-shadow(0 0 8px rgba(16,185,129,.28))
+      drop-shadow(0 0 16px rgba(34,211,238,.14));
+    transform:translateY(0)
+  }
 }
 
-@media (max-width: 480px) {
-  #brand-logo { width: 160px; } /* gentle cap on very small screens */
-}
-/* Drop-in: 3× logo size with mobile-safe max width */
-#brand-logo {
-  width: 192px;      /* 3× if the old size was ~64px */
-  height: auto;
-  display: block;
-  margin-inline: auto; /* stays centered under the brand per your UI rule */
-}
-
-@media (max-width: 480px) {
-  #brand-logo { width: 160px; } /* gentle cap on very small screens */
+/* Respect motion preferences */
+@media (prefers-reduced-motion:reduce){
+  #brand-logo, .xaman-trade .token-logo, #tradeNowBtn{ animation:none }
 }
