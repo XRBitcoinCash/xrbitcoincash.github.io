@@ -134,21 +134,31 @@
     <pre id="ledgerOutput" style="text-align:left;">—</pre>
   </div>
 
-  <div class="card" style="margin-bottom:24px;">
-    <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
-<!-- AMM fee explainer (drop-in, mobile-friendly) -->
-<div role="note" aria-label="AMM fee and slippage"
-     style="margin:8px 0 14px; padding:10px 12px; border:1px solid #1f2a37;
-            border-radius:10px; background:linear-gradient(180deg,#0e1520,#0c131c);
-            color:#9fb0c5; font-size:13px; text-align:left">
-  <strong style="color:#e7edf5">Heads up:</strong>
-  XRBC↔XRP trades include a <strong>small AMM pool fee</strong> that is
-  <em>set by liquidity providers, not this site</em>. It compensates LPs and
-  helps reduce short-lived arbitrage. The fee is governed by LP voting and typically
-  falls in the <span style="white-space:nowrap">~0.025%–0.30%</span> range
-  <span style="opacity:.85">(current: <span id="amm-fee-now">auto</span>)</span>.
-  Our <em>Best Price</em> helper and the totals already include this fee and
-  estimated slippage. Some apps/wallets may also show their own service fee separately.
+<!-- AMM fee & routing (XRPL-standard, mobile-friendly) -->
+<div role="note" aria-label="XRPL AMM fee and routing"
+     style="margin:10px 0 16px;padding:12px 14px;border:1px solid #1f2a37;border-left:4px solid #3b82f6;border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:#c9d6ea;font-size:13px;line-height:1.45">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    <!-- shield/info icon -->
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11c-3.2-1.3-7-6-7-11V5l7-3zm0 5a1.25 1.25 0 100 2.5A1.25 1.25 0 0012 7zm-1.25 4.25h2.5v7.5h-2.5v-7.5z"/>
+    </svg>
+    <strong style="font-size:14px;color:#e7edf5">XRPL AMM fee & fallback routing</strong>
+  </div>
+
+  <ul style="margin:8px 0 0 18px;padding:0">
+    <li>XRBC↔XRP trades here use the <em>native XRP Ledger AMM</em>. The pool’s <strong>trading fee</strong> is set on-ledger by liquidity providers (LP-token-weighted voting), not by this site.
+      <span style="opacity:.85">Current: <span id="amm-fee-now">live</span></span></li>
+
+    <li>As of today, the protocol allows a fee range of <strong>0.00%–1.00%</strong> per pool; most pools commonly operate in the <strong>~0.03%–0.30%</strong> band. The fee accrues to LPs and helps manage arbitrage incentives within the AMM.</li>
+
+    <li>The totals shown here already include the AMM fee and estimated slippage. Some apps/wallets may display their own separate service fee.</li>
+
+    <li><strong>Routing policy:</strong> We default to the Xaman (Xumm) DEX experience. If the Xaman DEX is temporarily unreachable, this on-site AMM panel provides a <strong>direct fallback</strong> so you can continue trading XRBC↔XRP within the XRBC web ecosystem.</li>
+  </ul>
+
+  <div style="margin-top:8px;opacity:.75;font-size:12px">
+    Reference: XRPL XLS-30 AMM (AMMVote & Auction Slot).
+  </div>
 </div>
 
     <div class="trade-card" id="tradeCard">
