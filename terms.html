@@ -44,7 +44,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="/styles/main.css">
   <style>
-  body {
+ body {
   background: #ffffff;
   color: #1b3b5f;
   font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -62,6 +62,7 @@ header {
   grid-template-columns: repeat(4, auto);   /* desktop: 4 buttons in a row */
   justify-content: center;
   align-items: center;
+  max-width: 100%;
 }
 
 /* Make each link look/behave like a button */
@@ -80,6 +81,8 @@ header a {
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.35) inset,
     0 6px 16px rgba(0,0,0,0.18);
+  min-width: 0;     /* allow grid to shrink without overflow */
+  max-width: 100%;
 }
 
 /* Hover / focus states */
@@ -100,15 +103,26 @@ header a:focus-visible {
   }
 }
 
-/* Small phones: single column, slight font-size reduction to guarantee no wrap */
+/* Phones: keep 2 columns (2×2 grid), tighten sizing so labels never wrap/overflow */
 @media (max-width: 600px) {
   header {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns, stacked rows */
+    gap: 10px;
   }
   header a {
     width: 100%;
-    font-size: 0.95rem;
-    padding: 10px 12px;
+    font-size: 0.90rem;
+    padding: 8px 10px;
+    letter-spacing: 0;
+  }
+}
+
+/* Very narrow phones: micro-tune to keep “Terms of Service” on one line */
+@media (max-width: 360px) {
+  header a {
+    font-size: 0.85rem;
+    padding: 8px 8px;
+    letter-spacing: -0.1px;
   }
 }
 
@@ -146,6 +160,7 @@ footer {
   color: #888;
   font-size: 0.85rem;
 }
+
 
   </style>
 </head>
