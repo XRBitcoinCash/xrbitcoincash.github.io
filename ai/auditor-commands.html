@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XRBitcoinCash — Auditor Commands & Diagnostics</title>
+  <meta name="description" content="Copy‑paste terminal commands and guardrails for auditing XRBitcoinCash (XRBC): proxy health, AI surfaces, immutability checks, and savepoints." />
+  <link rel="icon" href="/xrbc-nft.png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+  <meta property="og:title" content="XRBitcoinCash — Auditor Commands & Diagnostics" />
+  <meta property="og:description" content="PowerShell/Bash curls, guardrails, and sanity checks for XRBC auditors." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/xrbc-nft.png" />
+  <style>
+    :root{
+      --bg:#0b0f14;--card:#121821;--muted:#93a3b8;--text:#f2f6fb;--accent:#44c6ff;--ok:#2ecc71;--warn:#f39c12;--bad:#e74c3c;--mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;line-height:1.5}
+    header{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:2rem 1rem}
+    header img{width:72px;height:72px;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+    h1{margin:.25rem 0 0;font-size:1.6rem}
+    .home{margin-top:.25rem}
+    .home a{display:inline-block;padding:.5rem 1rem;border-radius:999px;background:var(--card);color:var(--text);text-decoration:none;border:1px solid #223044}
+    main{max-width:1000px;margin:0 auto;padding:1rem}
+    .card{background:var(--card);border:1px solid #1a2230;border-radius:16px;padding:1rem;margin:1rem 0}
+    .muted{color:var(--muted)}
+    h2{margin:.2rem 0 0.6rem;font-size:1.2rem}
+    h3{margin:1rem 0 .5rem;font-size:1rem}
+    code,kbd,pre{font-family:var(--mono);font-size:.95rem}
+    pre{background:#0a0f15;border:1px solid #152033;border-radius:12px;padding:1rem;overflow:auto;position:relative}
+    .btns{display:flex;gap:.5rem;margin:.5rem 0 0}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem .7rem;border-radius:10px;border:1px solid #2b3a50;background:#0e1420;color:var(--text);cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+    .kv{display:grid;grid-template-columns:180px 1fr;gap:.5rem .75rem}
+    .kv div{padding:.25rem 0;border-bottom:1px dashed #223044}
+    .tag{display:inline-block;font-family:var(--mono);font-size:.8rem;padding:.15rem .45rem;border-radius:8px;background:#0d1420;border:1px solid #23324a;color:#bcd1ea}
+    details{border:1px dashed #273347;border-radius:12px;padding:.75rem;margin-top:.5rem}
+    details[open]{background:#0b111a}
+    .callout{border-left:4px solid var(--accent);padding:.5rem .75rem;background:#0b121b;border-radius:8px}
+    footer{padding:2rem 1rem;color:#97a8c1;text-align:center}
+  </style>
+</head>
+<body>
+  <header>
+    <img src="/xrbc-nft.png" alt="XRBC" />
+    <h1>XRBitcoinCash — Auditor Commands & Diagnostics</h1>
+    <div class="home"><a href="https://xrbitcoincash.com/">Home</a></div>
+    <div class="muted">Read‑only utility page under the AI section. No wallet actions. Safe to share.</div>
+  </header>
+
+  <!-- Canonical constants MUST remain accurate; config tag stays before scripts -->
+  <script id="app-config" type="application/json">
+  {
+    "brand": "XRBitcoinCash (XRBC)",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currency_hex": "5852626974636F696E6361736800000000000000",
+    "proxy_base": "https://xrbitcoincash-github-io.onrender.com",
+    "health_page": "https://xrbitcoincash.com/ai/ai/health.html",
+    "price_page": "https://xrbitcoincash.com/ai/ai/ai/price.html",
+    "desktop_qr_only": true
+  }
+  </script>
+
+  <main>
+    <section class="card">
+      <h2>0) Canonical Constants</h2>
+      <div class="kv" id="kv"></div>
+      <div class="callout muted">Guardrail: do not change proxy URL or connectivity logic without explicit instruction.</div>
+    </section>
+
+    <section class="card">
+      <h2>1) Quickstart — 60‑Second Health Sweep</h2>
+      <p class="muted">Expect <span class="tag">200</span> on all three. If the proxy/pages are cold, run twice.</p>
+      <h3>PowerShell (Windows)</h3>
+      <pre><code class="lang-pwsh" id="ps-quick"># 1) Proxy health
+Invoke-WebRequest -UseBasicParsing https://xrbitcoincash-github-io.onrender.com/healthz | Select-Object -ExpandProperty StatusCode
+
+# 2) AI Health page (HTML)
+Invoke-WebRequest -UseBasicParsing https://xrbitcoincash.com/ai/ai/health.html | Select-Object -ExpandProperty StatusCode
+
+# 3) AI Price page (HTML)
+Invoke-WebRequest -UseBasicParsing https://xrbitcoincash.com/ai/ai/ai/price.html | Select-Object -ExpandProperty StatusCode</code></pre>
+      <div class="btns"><button class="btn" data-copy="#ps-quick">Copy PowerShell</button></div>
+
+      <h3>Bash / macOS / Linux</h3>
+      <pre><code class="lang-bash" id="bash-quick"># 1) Proxy health
+curl -s -o /dev/null -w "%{http_code}\n" https://xrbitcoincash-github-io.onrender.com/healthz
+
+# 2) AI Health page (HTML)
+curl -s -o /dev/null -w "%{http_code}\n" https://xrbitcoincash.com/ai/ai/health.html
+
+# 3) AI Price page (HTML)
+curl -s -o /dev/null -w "%{http_code}\n" https://xrbitcoincash.com/ai/ai/ai/price.html</code></pre>
+      <div class="btns"><button class="btn" data-copy="#bash-quick">Copy Bash</button></div>
+    </section>
+
+    <section class="card">
+      <h2>2) Pre‑Commit Checklist</h2>
+      <ul>
+        <li><strong>Proxy reachable:</strong> <code>GET /healthz</code> returns <code>200</code>.</li>
+        <li><strong>AI pages load:</strong> <code>health.html</code> and <code>ai/ai/ai/price.html</code> return <code>200</code>.</li>
+        <li><strong>Config tag order:</strong> <code>&lt;script id="app-config"&gt;</code> appears <em>before</em> main script includes.</li>
+        <li><strong>Filename casing preserved:</strong> no case drift (e.g., <code>Trade.html</code> where used).</li>
+        <li><strong>JSON parse of #app-config:</strong> no trailing commas; shapes match expectations.</li>
+        <li><strong>Desktop QR‑only safety:</strong> never attempt desktop wallet signing.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3) AI / Agent Surfaces</h2>
+      <p class="muted">These URLs are intentionally human + agent readable. Hash them if you need provenance/immutability.</p>
+      <ul>
+        <li>Health surface: <code id="url-health"></code></li>
+        <li>Price surface: <code id="url-price"></code></li>
+      </ul>
+      <h3>Hash for Immutability — PowerShell</h3>
+      <pre><code class="lang-pwsh" id="ps-hash">$ts = Get-Date -Format "yyyyMMdd-HHmmss"
+$dir = "$env:TEMP/xrbc-ai-$ts"; New-Item -ItemType Directory -Path $dir | Out-Null
+$files = @(
+  "https://xrbitcoincash.com/ai/ai/health.html",
+  "https://xrbitcoincash.com/ai/ai/ai/price.html"
+)
+$hashes = @()
+foreach ($u in $files) {
+  $name = (Split-Path $u -Leaf)
+  $dst = Join-Path $dir $name
+  Invoke-WebRequest -UseBasicParsing $u -OutFile $dst
+  $h = Get-FileHash -Path $dst -Algorithm SHA256
+  $hashes += [PSCustomObject]@{ file=$name; sha256=$h.Hash }
+}
+$hashes | Format-Table -AutoSize
+$hashes | ConvertTo-Json | Out-File (Join-Path $dir "checksums.json") -Encoding utf8
+Write-Host "Checksums saved to: $dir\checksums.json"</code></pre>
+      <div class="btns"><button class="btn" data-copy="#ps-hash">Copy PowerShell</button></div>
+
+      <h3>Hash for Immutability — Bash</h3>
+      <pre><code class="lang-bash" id="bash-hash">TS=$(date +%Y%m%d-%H%M%S)
+DIR="/tmp/xrbc-ai-$TS"; mkdir -p "$DIR"
+FILES=(
+  "https://xrbitcoincash.com/ai/ai/health.html"
+  "https://xrbitcoincash.com/ai/ai/ai/price.html"
+)
+for U in "${FILES[@]}"; do
+  NAME="$(basename "$U")";
+  curl -sL "$U" -o "$DIR/$NAME"
+  printf "%s  %s\n" "$(sha256sum "$DIR/$NAME" | cut -d' ' -f1)" "$NAME"
+done | tee "$DIR/checksums.txt"
+echo "Checksums saved to: $DIR/checksums.txt"</code></pre>
+      <div class="btns"><button class="btn" data-copy="#bash-hash">Copy Bash</button></div>
+    </section>
+
+    <section class="card">
+      <h2>4) Proxy Endpoint Checks</h2>
+      <p class="muted">We only include endpoints previously used. If you have a GPT‑5 memory dump, merge it and republish.</p>
+
+      <h3>/healthz</h3>
+      <pre><code class="lang-bash" id="curl-health">curl -s https://xrbitcoincash-github-io.onrender.com/healthz</code></pre>
+      <div class="btns"><button class="btn" data-copy="#curl-health">Copy curl</button></div>
+
+      <details>
+        <summary>Additional XRPL endpoints (fill from memory dump)</summary>
+        <p class="muted">Paste the exact curls you previously authored for <code>/api/xrpl/server_state</code>, <code>/api/xrpl/book_offers</code>, and <code>/api/xrpl/amm_info</code>. Avoid placeholders.</p>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>5) Local One‑Shot Audit Helpers</h2>
+      <h3>PowerShell Function</h3>
+      <pre><code class="lang-pwsh" id="ps-fn">function Test-XRBC {
+  $base = "https://xrbitcoincash-github-io.onrender.com"
+  $siteHealth = "https://xrbitcoincash.com/ai/ai/health.html"
+  $sitePrice  = "https://xrbitcoincash.com/ai/ai/ai/price.html"
+  $r1 = Invoke-WebRequest -UseBasicParsing "$base/healthz" -TimeoutSec 15
+  $r2 = Invoke-WebRequest -UseBasicParsing $siteHealth -TimeoutSec 15
+  $r3 = Invoke-WebRequest -UseBasicParsing $sitePrice -TimeoutSec 15
+  [PSCustomObject]@{ proxy_health=$r1.StatusCode; ai_health=$r2.StatusCode; ai_price=$r3.StatusCode }
+}
+# Usage
+Test-XRBC | Format-List</code></pre>
+      <div class="btns"><button class="btn" data-copy="#ps-fn">Copy PowerShell</button></div>
+
+      <h3>Bash One‑Liner</h3>
+      <pre><code class="lang-bash" id="bash-one">BASE="https://xrbitcoincash-github-io.onrender.com"; \
+H1=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/healthz"); \
+H2=$(curl -s -o /dev/null -w "%{http_code}" https://xrbitcoincash.com/ai/ai/health.html); \
+H3=$(curl -s -o /dev/null -w "%{http_code}" https://xrbitcoincash.com/ai/ai/ai/price.html); \
+printf "proxy_health=%s\nai_health=%s\nai_price=%s\n" "$H1" "$H2" "$H3"</code></pre>
+      <div class="btns"><button class="btn" data-copy="#bash-one">Copy Bash</button></div>
+    </section>
+
+    <section class="card">
+      <h2>6) Savepoints & Guardrails</h2>
+      <ul>
+        <li>Keep <code>&lt;script id="app-config"&gt;</code> immediately before the main script include.</li>
+        <li>Proxy URL: <code>https://xrbitcoincash-github-io.onrender.com</code> (do not alter).</li>
+        <li>Preserve exact filename casing (e.g., <code>Trade.html</code> where applicable).</li>
+        <li>No placeholders/dummy addresses or endpoints.</li>
+        <li>Desktop ➜ Mobile safety: QR‑only on desktop; never trigger wallet signing here.</li>
+        <li>Pre‑commit: <code>/healthz</code> green; AI pages return 200; <code>#app-config</code> JSON parses.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7) Known Pitfalls</h2>
+      <ul>
+        <li>Truncated JS lines during manual edits.</li>
+        <li>Moving the config tag below scripts.</li>
+        <li>Changing proxy connectivity or response shapes.</li>
+        <li>Mixing file/folder name case.</li>
+        <li>Static “best price” instead of live <code>book_offers</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8) Handoff Bundle — Paste‑Ready</h2>
+      <pre><code id="handoff"># Canonical
+Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw
+CurrencyHex: 5852626974636F696E6361736800000000000000
+Proxy: https://xrbitcoincash-github-io.onrender.com
+Health: https://xrbitcoincash.com/ai/ai/health.html
+Price: https://xrbitcoincash.com/ai/ai/ai/price.html
+
+# Health
+curl -s https://xrbitcoincash-github-io.onrender.com/healthz
+
+# AI immutability (bash)
+curl -sL https://xrbitcoincash.com/ai/ai/health.html | sha256sum
+curl -sL https://xrbitcoincash.com/ai/ai/ai/price.html | sha256sum
+
+# XRPL checks (fill from memory dump)
+# book_offers:
+# amm_info:
+# server_state:
+
+# PowerShell sweep
+Function Test-XRBC { <see section 5> }
+Test-XRBC | Format-List
+
+CHECKSUM_HEX=5852626974636F696E6361736800000000000000</code></pre>
+      <div class="btns"><button class="btn" data-copy="#handoff">Copy Bundle</button></div>
+    </section>
+
+    <section class="card">
+      <h2>9) License & Safety</h2>
+      <p class="muted">This is a read‑only auditor utility page. It does not request keys, connect wallets, or perform transactions. All commands are local‑execution only. Review before running.</p>
+    </section>
+  </main>
+
+  <footer>
+    XRBitcoinCash — Auditor Utilities • Updated <span id="dt"></span>
+  </footer>
+
+  <script>
+  (function(){
+    const cfgEl = document.getElementById('app-config');
+    const cfg = JSON.parse(cfgEl.textContent.trim());
+    const kv = document.getElementById('kv');
+    const rows = [
+      ['Brand', cfg.brand],
+      ['XRBC issuer', cfg.issuer],
+      ['Currency hex', cfg.currency_hex],
+      ['Proxy base', cfg.proxy_base],
+      ['Health page', cfg.health_page],
+      ['Price page', cfg.price_page],
+      ['Desktop QR‑only', String(cfg.desktop_qr_only)]
+    ];
+    rows.forEach(([k,v])=>{
+      const kdiv=document.createElement('div');kdiv.textContent=k;kv.appendChild(kdiv);
+      const vdiv=document.createElement('div');vdiv.innerHTML='<code>'+v+'</code>';kv.appendChild(vdiv);
+    });
+    document.getElementById('url-health').textContent = cfg.health_page;
+    document.getElementById('url-price').textContent = cfg.price_page;
+
+    document.querySelectorAll('[data-copy]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const sel = btn.getAttribute('data-copy');
+        const el = document.querySelector(sel);
+        if(!el) return;
+        const text = el.innerText;
+        try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied!'; setTimeout(()=>btn.textContent='Copy', 1500); }
+        catch { btn.textContent='Copy failed'; setTimeout(()=>btn.textContent='Copy', 1500); }
+      });
+    });
+    const dt = new Date();
+    document.getElementById('dt').textContent = dt.toISOString().slice(0,10);
+  })();
+  </script>
+</body>
+</html>
