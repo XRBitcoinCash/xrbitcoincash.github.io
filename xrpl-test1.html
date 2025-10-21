@@ -134,34 +134,43 @@
     <pre id="ledgerOutput" style="text-align:left;">—</pre>
   </div>
 
-<!-- XRPL AMM fee • local trading (XRBC) • Xaman signing -->
-<div role="note" aria-label="XRPL AMM fee and local trading"
+<!-- XRPL AMM fee • local (XRBC) trading • mobile signing in Xaman -->
+<div role="note" aria-label="XRPL AMM fee, local trading, and mobile signing security"
      style="margin:10px 0 16px;padding:12px 14px;border:1px solid #1f2a37;border-left:4px solid #3b82f6;border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:#c9d6ea;font-size:13px;line-height:1.45">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
     <!-- shield/info icon -->
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="currentColor" d="M12 2l7 3v6c0 5-3.8 9.7-7 11c-3.2-1.3-7-6-7-11V5l7-3zm0 5a1.25 1.25 0 100 2.5A1.25 1.25 0 0012 7zm-1.25 4.25h2.5v7.5h-2.5v-7.5z"/>
     </svg>
-    <strong style="font-size:14px;color:#e7edf5">XRPL AMM fee · Local trading (XRBC) · Xaman signing</strong>
+    <strong style="font-size:14px;color:#e7edf5">XRPL AMM fee · Local trading (XRBC) · Mobile signing in Xaman</strong>
   </div>
 
   <ul style="margin:8px 0 0 18px;padding:0">
-    <li>XRBC↔XRP trades here use the <em>native XRP Ledger AMM</em>. The pool’s <strong>trading fee</strong> is set on-ledger by liquidity providers via LP-token-weighted voting (not by this site).
-      <span style="opacity:.85">Current: <span id="amm-fee-now">live</span></span></li>
+    <li><strong>Local XRBC trading UI:</strong> This panel is a non-custodial, on-site interface to the XRPL DEX/AMM. Quotes, best-price checks, and slippage estimates come directly from the <code>amm_info</code> API and order books on the <strong>XRP Ledger</strong>. Totals already include the AMM fee and estimated slippage. Some apps/wallets may show a separate service fee.</li>
 
-    <li>The protocol permits a per-pool fee range of <strong>0.00%–1.00%</strong>. Fees accrue to LPs and help manage arbitrage incentives within the AMM.</li>
+    <li><strong>AMM fee (XRPL standard):</strong> The pool’s trading fee is set on-ledger by liquidity providers (LP-token-weighted voting), not by this site. Allowed range is <strong>0.00%–1.00%</strong> per pool; we typically operate in the <strong>~0.03%–0.30%</strong> band. <span style="opacity:.85">Current: <span id="amm-fee-now">live</span></span></li>
 
-    <li>Quotes, best-price checks, and slippage estimates are sourced directly from the <strong>XRP Ledger</strong> (e.g., <code>amm_info</code> / order books). Totals shown here already include the AMM fee and estimated slippage. Some apps/wallets may show an additional service fee separately.</li>
+    <li><strong>Security model — mobile signing only:</strong> After you review and accept locally on this page, the unsigned transaction is handed off to your <strong>Xaman (Xumm) wallet</strong> to be reviewed and signed on your mobile device (deeplink/QR). Your keys never leave your phone; only the signature returns.</li>
 
-    <li><strong>Execution flow:</strong> You review and accept the trade locally on this XRBC page; the finalized transaction is then <strong>signed in your Xaman (Xumm) wallet</strong> (deeplink/QR). We don’t custody funds or autosubmit on your behalf.</li>
+    <li><strong>Attach wallet locally:</strong> Open this XRBC trade page on your phone (or scan the desktop QR). Ensure your Xaman wallet is installed and unlocked. Once attached locally and you accept a trade, the hand-off to Xaman will open automatically to complete signing.</li>
 
-    <li><strong>Availability:</strong> This on-site panel exists so XRBC trading continues even if the Xaman DEX UI is temporarily unreachable; when available, you can also open the trade in Xaman directly.</li>
+    <li><strong>Verify the domain:</strong> For security auditing, always confirm you are on <strong>https://xrbitcoincash.com/</strong> (padlock icon, HTTPS). Never sign from look-alike domains.</li>
   </ul>
+
+  <div style="margin-top:10px">
+    <!-- Open Xaman DEX (mobile opens app, desktop shows QR) -->
+    <a href="https://xumm.app/detect/xapp:xumm.dex" rel="noopener"
+       style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #1f2a37;border-radius:10px;background:#0e1520;color:#e7edf5;text-decoration:none;font-size:14px">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 7H6a2 2 0 0 0-2 2v7a3 3 0 0 0 3 3h13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zm-1 7h-3a1 1 0 1 1 0-2h3a1 1 0 1 1 0 2zM5 9a1 1 0 0 1 1-1h11V6H6a3 3 0 0 0-1 .18V9z"/></svg>
+      <span>Open in Xaman — DEX Trade</span>
+    </a>
+  </div>
 
   <div style="margin-top:8px;opacity:.75;font-size:12px">
     XRPL XLS-30 AMM (AMMVote, Auction Slot). Fee is LP-voted per pool; capped at 1%.
   </div>
 </div>
+
 
 
     <div class="trade-card" id="tradeCard">
