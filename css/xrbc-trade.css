@@ -291,3 +291,14 @@ pre{
 @media (max-width: 480px) {
   #brand-logo { width: 160px; } /* gentle cap on very small screens */
 }
+/* Drop-in: 3× logo size with mobile-safe max width */
+#brand-logo {
+  width: 192px;      /* 3× if the old size was ~64px */
+  height: auto;
+  display: block;
+  margin-inline: auto; /* stays centered under the brand per your UI rule */
+}
+
+@media (max-width: 480px) {
+  #brand-logo { width: 160px; } /* gentle cap on very small screens */
+}
