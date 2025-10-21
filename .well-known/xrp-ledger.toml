@@ -1,30 +1,130 @@
-[account]
+# ============================================================================
+# XRBitcoinCash — xrp-ledger.toml
+# Location: /.well-known/xrp-ledger.toml
+# Spec reference: https://xrpl.org/docs/references/xrp-ledger-toml
+# All sections/fields optional; custom fields are allowed and ignored safely.
+# ============================================================================
+
+[METADATA]
+modified = 2025-10-21T00:00:00.000Z
+expires  = 2026-10-21T00:00:00.000Z
+org_name = "XRBitcoinCash"
+homepage = "https://xrbitcoincash.com/"
+docs     = "https://xrbitcoincash.github.io/"
+# Custom discoverability fields (handy for AI/bots/wallets)
+security_txt = "https://xrbitcoincash.com/.well-known/security.txt"
+ai_index     = "https://xrbitcoincash.com/.well-known/ai.json"
+provenance   = "https://xrbitcoincash.com/ai/provenance.json"
+repository   = "https://github.com/xrbitcoincash/xrbitcoincash.github.io"
+
+# --- ACCOUNTS (issuer & related) -------------------------------------------
+
+[[ACCOUNTS]]
 address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-desc = "XRBitcoinCash Issuer (blackholed)"
+network = "main"
+desc    = "XRBitcoinCash (XRBC) issuer (blackholed/immutable)"
 
-[meta]
-domain = "xrbitcoincash.com"
-website = "https://www.xrbitcoincash.com/"
-logo = "https://xrbitcoincash.github.io/xrbc-nft.png"
-description = "XRBitcoinCash (XRBC) launched on January 5, 2022, committed to innovation, transparency, and stewardship on the XRPL."
+# TODO: Replace with the XRBitcoin issuer account
+[[ACCOUNTS]]
+address = "TODO_XRB_ISSUER_ADDRESS"
+network = "main"
+desc    = "XRBitcoin issuer"
 
-[social]
-twitter = "@XRBitcoinCash"
+# TODO: Replace with the JCS issuer account
+[[ACCOUNTS]]
+address = "TODO_JCS_ISSUER_ADDRESS"
+network = "main"
+desc    = "Jesus Christ Saves (JCS) issuer"
+
+# --- PRINCIPALS (contact) ---------------------------------------------------
+
+[[PRINCIPALS]]
+name  = "XRBitcoinCash Team"
 email = "xrbitcoincash@gmail.com"
+x     = "@XRBitcoinCash"   # custom social handle
+
+# --- SOCIAL (custom, widely used by indexers) -------------------------------
+
+[SOCIAL]
+x       = "https://twitter.com/XRBitcoinCash"
+website = "https://xrbitcoincash.com/"
+email   = "mailto:xrbitcoincash@gmail.com"
+github  = "https://github.com/xrbitcoincash"
+
+# --- DID (custom) -----------------------------------------------------------
 
 [DID]
-id = "did:xrpl:rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-url = "https://www.xrbitcoincash.com/"
+id  = "did:xrpl:rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+url = "https://xrbitcoincash.com/"
 
-[[currencies]]
-currency = "5852626974636F696E6361736800000000000000"
-issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-name = "XRBitcoinCash"
-desc = "XRBitcoinCash (XRBC) is a community-focused asset on XRPL built for transparency and utility."
-icon = "https://xrbitcoincash.github.io/xrbc-nft.png"
+# --- CURRENCIES -------------------------------------------------------------
+# Notes:
+# - 'code' can be 3–6 chars or 40-char hex (as used below for XRBC).
+# - 'display_decimals' is advisory for UI display.
+# - All custom fields below (name, desc, icon, links, etc.) are safe.
 
-[[currencies.links]]
-url = "https://www.xrbitcoincash.com/"
-title = "Official Website"
-type = "website"
+[[CURRENCIES]]
+code             = "5852626974636F696E6361736800000000000000"  # XRBC hex
+issuer           = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+network          = "main"
+display_decimals = 6
+name             = "XRBitcoinCash"
+desc             = "XRBitcoinCash (XRBC) launched Jan 5, 2022 — innovation, transparency, stewardship on XRPL."
+icon             = "https://xrbitcoincash.github.io/xrbc-nft.png"
+website          = "https://xrbitcoincash.com/"
+explorer         = "https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 
+# Useful deep links (DEX, AMM, analytics, mobile xApp)
+[[CURRENCIES.links]]
+url   = "https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+title = "XPMarket — XRBC"
+type  = "analytics"
+
+[[CURRENCIES.links]]
+url   = "https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
+title = "Sologenic DEX — XRBC/XRP"
+type  = "dex"
+
+[[CURRENCIES.links]]
+url   = "https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+title = "Sologenic AMM — XRBC/XRP"
+type  = "amm"
+
+[[CURRENCIES.links]]
+url   = "https://xumm.app/detect/xapp:xumm.dex"
+title = "Xaman (XUMM) — DEX xApp"
+type  = "mobile"
+
+# --- XRBitcoin (placeholder; replace code/issuer/icon if different) --------
+[[CURRENCIES]]
+code             = "TODO_XRB_CODE_OR_HEX"
+issuer           = "TODO_XRB_ISSUER_ADDRESS"
+network          = "main"
+display_decimals = 6
+name             = "XRBitcoin"
+desc             = "XRBitcoin on XRPL."
+icon             = "https://xrbitcoincash.com/XRBitcoin/xrbitcoin-logo.png"
+website          = "https://xrbitcoincash.com/XRBitcoin/"
+
+# Example links (replace with actual)
+[[CURRENCIES.links]]
+url   = "https://xpmarket.com/"
+title = "XPMarket"
+type  = "analytics"
+
+# --- JCS (placeholder; replace code/issuer/icon) ----------------------------
+[[CURRENCIES]]
+code             = "TODO_JCS_CODE_OR_HEX"
+issuer           = "TODO_JCS_ISSUER_ADDRESS"
+network          = "main"
+display_decimals = 6
+name             = "Jesus Christ Saves"
+desc             = "JCS token on XRPL."
+icon             = "https://xrbitcoincash.com/JCS-token-on-the-XRPL/jcs-logo.png"
+website          = "https://jesuschristsavestoken.com/"
+
+# Example links (replace with actual)
+[[CURRENCIES.links]]
+url   = "https://xpmarket.com/"
+title = "XPMarket"
+type  = "analytics"
