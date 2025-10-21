@@ -44,7 +44,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="/styles/main.css">
   <style>
- body {
+body {
   background: #ffffff;
   color: #1b3b5f;
   font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -58,8 +58,8 @@ header {
   background: #1b3b5f;
   padding: 0.75rem 1rem;
   display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(4, auto);   /* desktop: 4 buttons in a row */
+  gap: 12px;                               /* even lateral + vertical spacing */
+  grid-template-columns: repeat(4, auto);  /* desktop: 4 buttons in a row */
   justify-content: center;
   align-items: center;
   max-width: 100%;
@@ -83,6 +83,7 @@ header a {
     0 6px 16px rgba(0,0,0,0.18);
   min-width: 0;     /* allow grid to shrink without overflow */
   max-width: 100%;
+  margin: 0;        /* prevent stray margins from pushing layout */
 }
 
 /* Hover / focus states */
@@ -92,7 +93,7 @@ header a:focus-visible {
   outline-offset: 2px;
 }
 
-/* Tablet: 2 columns, buttons fill columns */
+/* Tablet: 2 columns */
 @media (max-width: 900px) {
   header {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -103,25 +104,32 @@ header a:focus-visible {
   }
 }
 
-/* Phones: keep 2 columns (2×2 grid), tighten sizing so labels never wrap/overflow */
+/* Phones: tighter padding + font, keep 2×2 grid, add side breathing room */
 @media (max-width: 600px) {
   header {
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns, stacked rows */
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns */
+    gap: 12px;                     /* even spacing between buttons both ways */
+    padding: 10px 12px;            /* even spacing from screen edges */
   }
   header a {
     width: 100%;
-    font-size: 0.90rem;
-    padding: 8px 10px;
+    font-size: 0.88rem;            /* shrink text so “Terms of Service” fits */
+    line-height: 1.15;
+    padding: 8px 9px;              /* slightly narrower to avoid side press */
     letter-spacing: 0;
+    border-radius: 10px;
   }
 }
 
-/* Very narrow phones: micro-tune to keep “Terms of Service” on one line */
+/* Very narrow phones: micro-trim to guarantee no overlap or edge press */
 @media (max-width: 360px) {
+  header {
+    gap: 10px;
+    padding: 10px 10px;            /* maintain equal edge spacing */
+  }
   header a {
-    font-size: 0.85rem;
-    padding: 8px 8px;
+    font-size: 0.84rem;
+    padding: 7px 8px;
     letter-spacing: -0.1px;
   }
 }
