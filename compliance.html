@@ -23,51 +23,216 @@
   <meta name="twitter:description" content="Live .well-known scan, Render health check, TOML probe, SEC readiness (derived), and global compliance overview." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-  <style>
-    :root {
-      --bg:#000; --text:#CFFFE9; --muted:#86F8C3; --accent:#39ff14;
-      --warn:#f7b500; --danger:#ff5555; --panel:rgba(0,15,8,0.88);
-      --radius:12px; --line:rgba(57,255,20,.25);
-      --shadow:0 0 30px rgba(0,255,149,0.2);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--bg);color:var(--text);overflow-x:hidden}
-    body::before{content:"";position:fixed;inset:0;background:url('https://i.ibb.co/N9M5rkg/matrix-rain.gif') center/cover no-repeat;opacity:.10;z-index:-1}
-    header{padding:14px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(0,20,10,.92),rgba(0,0,0,.6))}
-    .hdr{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px}
-    .hdr img{width:40px;height:40px;border-radius:10px;box-shadow:0 0 14px rgba(57,255,20,.35)}
-    .brand{font-weight:900;font-size:1.05rem;letter-spacing:.25px;color:var(--accent)}
-    .muted{color:var(--muted);font-size:.9rem}
-    .nav{margin-left:auto;display:flex;gap:10px}
-    .nav a{color:#A8FFD9;text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:8px}
-    .nav a:hover{background:rgba(57,255,20,.10)}
+  <style><!-- === STYLE (keeps your palette; moves bg to -2 so canvas can sit at -1) === -->
+<style>
+  :root{
+    --bg:#000; --text:#CFFFE9; --muted:#86F8C3; --accent:#39ff14;
+    --warn:#f7b500; --danger:#ff5555; --panel:rgba(0,15,8,0.88);
+    --radius:12px; --line:rgba(57,255,20,.25);
+    --shadow:0 0 30px rgba(0,255,149,0.2);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--bg);color:var(--text);overflow-x:hidden}
+  /* push gif bg to -2 so our canvas can sit above it (still behind content) */
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:url('https://i.ibb.co/N9M5rkg/matrix-rain.gif') center/cover no-repeat;
+    opacity:.10; z-index:-2;
+  }
+  /* our animated code wall (stays *behind* everything) */
+  #scanWall{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    opacity:.16; filter:blur(2px) contrast(108%);
+    background:
+      radial-gradient(1200px 800px at 20% -10%, rgba(57,255,20,.08), transparent 60%),
+      radial-gradient(900px 600px at 120% 110%, rgba(0,255,149,.06), transparent 60%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    #scanWall{ opacity:.10; filter:blur(3px) contrast(100%); }
+  }
 
-    main{padding:20px;max-width:1200px;margin:auto}
-    .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin:20px 0;padding:14px;box-shadow:var(--shadow)}
-    .head{font-weight:900;margin-bottom:10px;color:var(--accent);letter-spacing:.25px}
-    .note{color:var(--muted);font-size:.92rem}
-    .grid{display:grid;gap:10px}
-    .grid.cols-2{grid-template-columns:1fr 1fr}
-    .grid.cols-3{grid-template-columns:1fr 1fr 1fr}
-    @media(max-width:1000px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
-    .chip{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid var(--line);margin:2px 6px 2px 0}
-    .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
-    .ok{color:#39ff14}.warn{color:var(--warn)}.danger{color:var(--danger)}
-    .btn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:800}
-    .btn:hover{background:rgba(57,255,20,.10)}
-    input,textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px;font-family:inherit}
-    pre,code{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px}
-    pre{padding:.75rem;overflow:auto;max-height:360px}
-    table{width:100%;border-collapse:collapse;font-size:.95rem}
-    th,td{text-align:left;padding:10px;border-bottom:1px dashed var(--line);vertical-align:top}
-    th{color:#bdfcd5;font-weight:900}
-    tr:last-child td{border-bottom:0}
-    .kbd{border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:rgba(0,0,0,.4)}
-    footer{margin:30px 0 60px;padding:14px 20px;border-top:1px solid var(--line);text-align:center;font-size:.85rem;color:var(--muted)}
-    a{color:#7bffc6;text-decoration:none} a:hover{text-decoration:underline}
-    details summary{cursor:pointer}
-    .tag{display:inline-block;padding:2px 6px;border-radius:6px;border:1px solid var(--line);margin-right:6px}
-  </style>
+  header{padding:14px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(0,20,10,.92),rgba(0,0,0,.6))}
+  .hdr{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .hdr img{width:40px;height:40px;border-radius:10px;box-shadow:0 0 14px rgba(57,255,20,.35)}
+  .brand{font-weight:900;font-size:1.05rem;letter-spacing:.25px;color:var(--accent)}
+  .muted{color:var(--muted);font-size:.9rem}
+  .nav{margin-left:auto;display:flex;gap:10px}
+  .nav a{color:#A8FFD9;text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:8px}
+  .nav a:hover{background:rgba(57,255,20,.10)}
+
+  main{padding:20px;max-width:1200px;margin:auto}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin:20px 0;padding:14px;box-shadow:var(--shadow)}
+  .head{font-weight:900;margin-bottom:10px;color:var(--accent);letter-spacing:.25px}
+  .note{color:var(--muted);font-size:.92rem}
+  .grid{display:grid;gap:10px}
+  .grid.cols-2{grid-template-columns:1fr 1fr}
+  .grid.cols-3{grid-template-columns:1fr 1fr 1fr}
+  @media(max-width:1000px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
+  .chip{display:inline-flex;gap:6px;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid var(--line);margin:2px 6px 2px 0}
+  .chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .ok{color:#39ff14}.warn{color:var(--warn)}.danger{color:var(--danger)}
+  .btn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:800}
+  .btn:hover{background:rgba(57,255,20,.10)}
+  input,textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px;font-family:inherit}
+  pre,code{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:8px}
+  pre{padding:.75rem;overflow:auto;max-height:360px}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th,td{text-align:left;padding:10px;border-bottom:1px dashed var(--line);vertical-align:top}
+  th{color:#bdfcd5;font-weight:900}
+  tr:last-child td{border-bottom:0}
+  .kbd{border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:rgba(0,0,0,.4)}
+  footer{margin:30px 0 60px;padding:14px 20px;border-top:1px solid var(--line);text-align:center;font-size:.85rem;color:var(--muted)}
+  a{color:#7bffc6;text-decoration:none} a:hover{text-decoration:underline}
+  details summary{cursor:pointer}
+  .tag{display:inline-block;padding:2px 6px;border-radius:6px;border:1px solid var(--line);margin-right:6px}
+</style>
+
+<!-- === CANVAS (background code scan) === -->
+<canvas id="scanWall" aria-hidden="true"></canvas>
+
+<!-- === SCRIPT (live, color-cycling, fading code scan) === -->
+<script>
+(() => {
+  // ---- Config (edit if you move repos) ----
+  const GH = { owner: "XRBitcoinCash", repo: "xrbitcoincash.github.io", branch: "main" };
+  const SCAN_EXT = [".js",".ts",".jsx",".tsx",".html",".css",".json",".md",".toml",".yml",".yaml",".py",".sh"];
+  const MAX_LINES = 800;
+  const MAX_FETCH_BYTES = 64_000;
+  const TREE_URL = (o,r,b)=>`https://api.github.com/repos/${o}/${r}/git/trees/${b}?recursive=1`;
+  const RAW_URL  = (o,r,b,p)=>`https://raw.githubusercontent.com/${o}/${r}/${b}/${p}`;
+
+  const cvs = document.getElementById("scanWall");
+  const ctx = cvs.getContext("2d");
+  let DPR=1, W=0, H=0;
+
+  let lines=[];          // text corpus
+  let t=0;               // global time
+  let cols=[];           // columns
+
+  function resize(){
+    DPR = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    W = innerWidth; H = innerHeight;
+    cvs.width = Math.floor(W*DPR);
+    cvs.height= Math.floor(H*DPR);
+    cvs.style.width = W+"px"; cvs.style.height = H+"px";
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    ctx.textBaseline = "top";
+    buildColumns();
+  }
+
+  function buildColumns(){
+    const colW = 320;
+    const pad = 24;
+    const n = Math.max(2, Math.floor(W/colW));
+    cols = Array.from({length:n}, (_,i)=>({
+      x: Math.floor(i*(W/n) + pad*(Math.random()*0.6)),
+      v: 0.4 + Math.random()*0.9,         // vertical speed
+      size: 11 + Math.floor(Math.random()*2),
+      alphaBase: 0.16 + Math.random()*0.06,
+      hueBase: 120 + Math.random()*30,    // around green
+      hueSwing: 25 + Math.random()*35,    // range of hue swing
+      phase: Math.random()*Math.PI*2,     // fade phase
+      offset: Math.floor(Math.random()*2000)
+    }));
+  }
+
+  // color that cycles in a greenish band; s/l tuned for neon-y look
+  function colorFor(colIdx, row){
+    const c = cols[colIdx];
+    const hue = c.hueBase + Math.sin((t*0.015) + (row*0.07) + c.phase)*c.hueSwing;
+    return `hsl(${Math.floor(hue)}, 95%, 70%)`;
+  }
+
+  function draw(){
+    t++;
+    // soft clear for trails
+    ctx.fillStyle = "rgba(0,0,0,0.07)";
+    ctx.fillRect(0,0,W,H);
+
+    if (!lines.length){
+      // idle shimmer while loading
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = "#7bffc6";
+      ctx.font = "12px ui-monospace, Menlo, Consolas, monospace";
+      for (let i=0;i<100;i++){
+        ctx.fillText("•", Math.random()*W, Math.random()*H);
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw); return;
+    }
+
+    cols.forEach((c, ci)=>{
+      const lh = c.size + 4;
+      const rows = Math.ceil(H/lh) + 2;
+      // fade pulse around base alpha (never too bright)
+      const fade = 0.55 + 0.45 * (0.5 + 0.5*Math.sin((t*0.03) + c.phase));
+      ctx.font = `${c.size}px ui-monospace, Menlo, Consolas, monospace`;
+
+      for (let r=0; r<rows; r++){
+        const idx = (c.offset + r + Math.floor((t*0.02 + ci*7)) ) % lines.length;
+        let text = (lines[idx] || "").slice(0, 100);
+        if (!text.trim()) continue;
+
+        // obfuscate ~25% of alphanumerics
+        text = text.replace(/[A-Za-z0-9]/g, ch => (Math.random()<0.25 ? "▒" : ch));
+
+        const y = (r*lh + ((t*c.v*1.2) % (rows*lh)) - lh);
+        ctx.globalAlpha = Math.min(0.95, c.alphaBase * fade);
+        ctx.fillStyle = colorFor(ci, r);
+        ctx.fillText(text, c.x, y);
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  async function fetchRepo(){
+    try{
+      const tr = await fetch(TREE_URL(GH.owner, GH.repo, GH.branch), {cache:"no-store"});
+      if(!tr.ok) throw new Error("tree "+tr.status);
+      const tree = await tr.json();
+      const files = (tree.tree||[])
+        .filter(n=>n.type==="blob" && SCAN_EXT.some(ext=>n.path.toLowerCase().endsWith(ext)))
+        .map(n=>n.path);
+      files.sort(()=>Math.random()-0.5);
+      const pick = files.slice(0, 20);
+      const bag = [];
+      for (const p of pick){
+        try{
+          const r = await fetch(RAW_URL(GH.owner, GH.repo, GH.branch, p), {cache:"no-store"});
+          if(!r.ok) continue;
+          let t = await r.text();
+          if (t.length > MAX_FETCH_BYTES) t = t.slice(0, MAX_FETCH_BYTES);
+          t = t.replace(/\t/g,"  ").replace(/\r/g,"");
+          bag.push(...t.split("\n").filter(l => l.length && l.length < 240));
+        }catch{}
+        await new Promise(res=>setTimeout(res, 70)); // be gentle
+        if (bag.length > MAX_LINES) break;
+      }
+      if (!bag.length) throw 0;
+      bag.sort(()=>Math.random()-0.5);
+      lines = bag.slice(0, MAX_LINES);
+    }catch{
+      // fallback synthetic lines
+      lines = `
+        [[CURRENCIES]] code="XRBitcoinCash" issuer="rEjwniYhYR5QDZ..."
+        { "provenance": "/ai/provenance.json", "recert_days": 90 }
+        # non-custodial · blackholed · on-ledger DEX/AMM
+        function quote(bids,asks){ return (bids[0].p+asks[0].p)/2 }
+        domain="xrbitcoincash.com"  # TOML assert
+        curl /healthz → 200
+      `.trim().split("\n");
+    }
+  }
+
+  // boot
+  resize();
+  fetchRepo().finally(()=> requestAnimationFrame(draw));
+  addEventListener("resize", resize, {passive:true});
+})();
+</script>
+
 </head>
 <body>
   <header>
