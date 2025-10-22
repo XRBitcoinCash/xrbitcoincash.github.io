@@ -1,1 +1,112 @@
-Add MIT License for open-source compliance and project transparency
+XRBitcoinCash — Licensing & Notices
+===================================
+
+SPDX-License-Identifier: MIT
+Copyright (c) 2025 XRBitcoinCash
+
+This repository includes multiple materials with different licensing scopes:
+
+1) Software (code) — MIT License
+--------------------------------
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice (including the next
+two sections “2) Content/Docs” and “3) Trademarks/Branding”) shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+2) Content / Docs / Schemas — Mixed License (machine-friendly + attribution)
+----------------------------------------------------------------------------
+
+2.a  JSON Manifests & Schemas intended for machine consumption
+     (e.g., `/.well-known/ai.json`, `/universal-ai.json`, `/ai/*.json`,
+     `/.well-known/csaf/**/*.json`, and similar machine-readable artifacts):
+     License: CC0-1.0 (Public Domain)
+     You may copy, modify, distribute, and use these files, including for
+     commercial purposes, without asking permission. This is to reduce
+     friction for bots, crawlers, auditors, and agents.
+
+2.b  Human-readable documentation, website copy, and inline examples
+     (e.g., whitepaper text, README content, non-code HTML prose):
+     License: CC BY 4.0
+     You must provide appropriate credit and link to https://xrbitcoincash.com.
+     If you remix/transform/build upon the material, you must indicate changes.
+
+Note: source code blocks embedded inside documentation remain MIT as “Software.”
+
+
+3) Trademarks & Branding — All Rights Reserved
+----------------------------------------------
+“XRBitcoinCash”, “XRBC”, the XRBitcoinCash logos, wordmarks, and brand
+assets are trademarks of their respective owners and are NOT licensed under
+MIT, CC0, or CC BY. You may not use the marks in a way that suggests
+sponsorship or endorsement without prior written permission. Fair use and
+nominative use are permitted where legally applicable.
+
+
+4) Security, Risk, and Regulatory Disclaimers
+---------------------------------------------
+- No Custody: This project does not take custody of user funds or private keys.
+- Read-Only Posture: Public endpoints and example proxies are intended for
+  read-only access to XRPL; do not rely on them for trading or custody.
+- Not Investment Advice: Nothing here constitutes investment, legal, tax, or
+  regulatory advice. Use at your own risk.
+- No Warranties on Data: Live prices, order books, and status snapshots may be
+  stale, incomplete, or wrong. Always verify on-ledger independently.
+- Jurisdiction & Compliance: You are responsible for complying with applicable
+  laws (including sanctions/export controls, AML/KYC obligations, and digital
+  assets regulations) in your jurisdiction.
+- No Securities Offering: XRBC is presented as a community token on XRPL.
+  Classification may vary by jurisdiction; consult qualified counsel.
+
+
+5) Third-Party Components
+-------------------------
+This project may include or reference third-party libraries, tools, or content.
+Those components are the property of their respective authors and licensed
+under their own terms. Review each dependency’s license before use.
+
+
+6) Attribution Guidance
+-----------------------
+When crediting, use: “XRBitcoinCash (XRBC) — https://xrbitcoincash.com”
+and retain links to canonical manifests where feasible:
+  - https://xrbitcoincash.com/.well-known/ai.json
+  - https://xrbitcoincash.com/universal-ai.json
+  - https://xrbitcoincash.com/ai/provenance.json
+
+
+7) Security Contact & Vulnerability Disclosure
+----------------------------------------------
+Please report security concerns via:
+  - https://xrbitcoincash.com/.well-known/security.txt
+  - https://github.com/XRBitcoinCash/xrbitcoincash.github.io/security/advisories/new
+
+We prefer English; TLP:WHITE unless otherwise agreed.
+
+
+8) Acknowledgment of AI Assistance
+----------------------------------
+Documentation and some manifest structures were co-authored and continuously
+audited with ChatGPT (advisory only; no keys, no custody, no signing).
+AI outputs are reviewed by maintainers prior to publication.
+
+
+9) Applicable Law
+-----------------
+These terms do not limit any rights you have under applicable open-source
+licenses above. To the extent any conflict exists, the specific license
+(MIT / CC0 / CC BY) governing the relevant file(s) controls.
