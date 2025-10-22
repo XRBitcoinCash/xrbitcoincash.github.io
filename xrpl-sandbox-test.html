@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Core -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Security Roles · XRBitcoinCash</title>
+  <meta name="description" content="Open security-related roles, research collaborations, and bug-reporting channels at XRBitcoinCash (XRBC). Non-custodial, XRPL-native project." />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="canonical" href="https://xrbitcoincash.com/security-jobs.html" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link rel="shortcut icon" href="/favicon.png" type="image/png" />
+  <meta name="msapplication-TileImage" content="/favicon.png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Open Graph / X -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:title" content="Security Roles · XRBitcoinCash" />
+  <meta property="og:description" content="Contribute to XRBitcoinCash security research, code review, and incident response. See open calls and reporting channels." />
+  <meta property="og:url" content="https://xrbitcoincash.com/security-jobs.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash emblem" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@XRbitcoincash" />
+  <meta name="twitter:creator" content="@XRbitcoincash" />
+  <meta name="twitter:title" content="Security Roles · XRBitcoinCash" />
+  <meta name="twitter:description" content="Join XRBC’s security efforts: research, audits, incident response. Submit interest or responsible disclosures." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Machine beacons / AI hints -->
+  <meta name="xrpl:asset:ticker" content="XRBC" />
+  <meta name="xrpl:asset:issuer" content="rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" />
+  <meta name="xrpl:asset:currency_hex" content="5852626974636F696E6361736800000000000000" />
+  <meta name="xrpl:network" content="XRPL Mainnet" />
+  <meta name="ai:endpoint:security_policy" content="https://xrbitcoincash.com/security-policy.html" />
+  <meta name="ai:endpoint:security_txt" content="https://xrbitcoincash.com/.well-known/security.txt" />
+  <meta name="ai:endpoint:manifest" content="https://xrbitcoincash.com/universal-ai.json" />
+  <meta name="ai:endpoint:index" content="https://xrbitcoincash.com/.well-known/ai.json" />
+  <meta name="ai:endpoint:provenance" content="https://xrbitcoincash.com/ai/provenance.json" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"WebSite",
+        "@id":"https://xrbitcoincash.com/#website",
+        "url":"https://xrbitcoincash.com/",
+        "name":"XRBitcoinCash",
+        "inLanguage":"en"
+      },
+      {
+        "@type":"Organization",
+        "@id":"https://xrbitcoincash.com/#org",
+        "name":"XRBitcoinCash",
+        "url":"https://xrbitcoincash.com/",
+        "logo":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png"},
+        "sameAs":[
+          "https://x.com/XRbitcoincash",
+          "https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+          "https://sologenic.org/profile/xrbitcoincash.com?network=mainnet"
+        ],
+        "contactPoint":[
+          {"@type":"ContactPoint","contactType":"security","email":"security@xrbitcoincash.com","url":"https://xrbitcoincash.com/.well-known/security.txt"}
+        ]
+      },
+      {
+        "@type":"WebPage",
+        "@id":"https://xrbitcoincash.com/security-jobs.html#webpage",
+        "url":"https://xrbitcoincash.com/security-jobs.html",
+        "isPartOf":{"@id":"https://xrbitcoincash.com/#website"},
+        "name":"Security Roles",
+        "description":"Open security roles, research collaborations, and reporting channels at XRBitcoinCash.",
+        "about":{"@id":"https://xrbitcoincash.com/#org"},
+        "primaryImageOfPage":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png"},
+        "inLanguage":"en"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Base site CSS -->
+  <link rel="stylesheet" href="/xrbc.css" />
+  <link rel="stylesheet" href="/assets/xrbc-holiday.css" />
+
+  <!-- Page-local styles (minimal, matches site look) -->
+  <style>
+    :root{
+      --wrap: 980px;
+      --ink: #e7edf5;
+      --muted:#9fb0c5;
+      --border:#2b3a4b;
+      --bg:#0b0f14;
+      --card-bg: linear-gradient(180deg,#0e1520,#0c131c);
+      --chip-bg: linear-gradient(180deg,#2a2f37,#171b22);
+      --ring: rgba(124,58,237,.28);
+      --accent:#10b981;
+    }
+    body{margin:0;background:var(--bg);color:var(--ink);}
+
+    /* Header (sticky + non-overlapping + hide-on-scroll-down) */
+    .site-header{position:sticky; top:0; z-index:100; background:linear-gradient(180deg,#0b0f14,#0b1017); border-bottom:1px solid rgba(255,255,255,.06);}
+    .header-wrap{max-width:var(--wrap); margin:0 auto; padding:12px 14px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;}
+    .brand{display:flex; align-items:center; gap:10px;}
+    .brand img{width:44px;height:44px;border-radius:50%;box-shadow:0 0 24px rgba(16,185,129,.24),0 0 42px rgba(56,189,248,.18);}
+    .brand h1{margin:0; font-size:1.25rem; line-height:1.1;}
+    .header-center{justify-self:center;}
+    .header-right{justify-self:end;}
+    .btn{appearance:none;border:1px solid var(--border);background:linear-gradient(180deg,#0e1520,#0c131c);color:#fff;padding:8px 12px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .btn:hover{filter:brightness(1.06)}
+    .btn-sm{font-size:.92rem;line-height:1}
+
+    /* Collapse-on-scroll animation */
+    .site-header.hide { transform: translateY(-110%); transition: transform .22s ease; }
+
+    /* Main layout — center two cards */
+    .shell{max-width:var(--wrap); margin:14px auto 24px; padding:0 14px;}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px; align-items:stretch;}
+    @media (min-width:960px){ .grid{ grid-template-columns:1.1fr .9fr; } }
+
+    .card{ background: var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+    .card h2{ margin:0 0 8px; }
+    .lead{ color: var(--muted); margin:0 0 10px; line-height:1.6; }
+    .list{ margin:0; padding-left:18px; }
+    .list li{ margin:6px 0; }
+
+    .cta-row{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+    .btn-accent{ border-color:#1f2937; background:linear-gradient(180deg,#0e1520,#0c131c); color:var(--ink); padding:10px 14px; border-radius:12px; font-weight:800; text-decoration:none; box-shadow:0 0 0 1px var(--ring) inset; }
+    .btn-accent:hover{ filter:brightness(1.06); }
+
+    .chips{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .chip{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(148,163,184,.3); background:var(--chip-bg); color:var(--ink); font-weight:700; font-size:.9rem; }
+    .chip svg{ flex:0 0 auto; }
+
+    /* Footer (reuse ecosystem style) */
+    .ecosystem-footer{border-top:1px solid rgba(255,255,255,.06); margin-top:24px;}
+    .footer-container{max-width:var(--wrap); margin:0 auto; padding:14px;}
+    .eco-link{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--ink);background:linear-gradient(180deg,#0e1520,#0c131c);}
+    .eco-link img{width:22px;height:22px;border-radius:6px;object-fit:cover;}
+    footer p.note{margin:8px 0 0;color:#9fb0c5;font-size:.9rem;line-height:1.6}
+
+    /* Light mode */
+    body.light-mode{background:#fff;color:#0b0f14;}
+    body.light-mode .site-header{background:linear-gradient(180deg,#f8fafc,#ffffff);border-bottom:1px solid rgba(0,0,0,.08);}
+    body.light-mode .brand h1{color:#0b0f14;}
+    body.light-mode .btn{background:#ffffff;color:#0b0f14;border-color:#cbd5e1}
+    body.light-mode .card{background:#ffffff;border-color:#cbd5e1;box-shadow:none}
+    body.light-mode .lead{color:#475569}
+    body.light-mode .chip{background:#ffffff;border-color:#cbd5e1;color:#0b0f14}
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-wrap">
+      <div class="brand">
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" />
+        <h1>XRBitcoinCash</h1>
+      </div>
+      <nav class="header-center">
+        <a class="btn btn-sm" href="/" title="Home">Home</a>
+      </nav>
+      <div class="header-right">
+        <button class="btn btn-sm" id="themeToggle" type="button" aria-label="Toggle theme">Light / Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="shell" aria-labelledby="page-title">
+    <h1 id="page-title" class="visually-hidden" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Security Roles</h1>
+
+    <section class="grid">
+      <!-- Open roles / how to apply -->
+      <article class="card" aria-labelledby="roles-title">
+        <h2 id="roles-title">Open roles & collaborations</h2>
+        <p class="lead">We’re currently not hiring for a permanent security headcount, but we regularly engage with external researchers and short-term contractors for audits, threat-modeling, and incident-readiness exercises.</p>
+        <ul class="list">
+          <li><strong>AppSec & code review:</strong> XRPL tx-flow, UI threat modeling, API boundary hardening.</li>
+          <li><strong>Security engineering:</strong> proxy hardening, rate limits, telemetry, secrets hygiene.</li>
+          <li><strong>Blue/Red teaming:</strong> tabletop, runbooks, detection engineering.</li>
+        </ul>
+        <div class="cta-row" role="group" aria-label="Apply and read more">
+          <a class="btn-accent" href="mailto:security@xrbitcoincash.com?subject=Security%20Collaboration%20Interest">Email security@xrbitcoincash.com</a>
+          <a class="btn-accent" href="/security-policy.html">Security policy</a>
+          <a class="btn-accent" href="/.well-known/security.txt">security.txt (report vulns)</a>
+        </div>
+        <div class="chips">
+          <span class="chip">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#10b981" d="M9 12l2 2 4-5 2 2-6 7-4-4z"/></svg>
+            Non-custodial XRPL
+          </span>
+          <span class="chip">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#60a5fa" d="M12 2l9 4v6c0 6-4 9-9 10C7 21 3 18 3 12V6l9-4z"/></svg>
+            Responsible disclosure
+          </span>
+          <span class="chip">
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#f59e0b" d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/></svg>
+            Coordinated fix & credit
+          </span>
+        </div>
+      </article>
+
+      <!-- Program details / contacts -->
+      <aside class="card" aria-labelledby="program-title">
+        <h2 id="program-title">Program & contact</h2>
+        <p class="lead">Send POCs privately to our security address. We acknowledge within 3 business days and will coordinate remediation timelines.</p>
+        <ul class="list">
+          <li><strong>Report:</strong> <a href="mailto:security@xrbitcoincash.com">security@xrbitcoincash.com</a></li>
+          <li><strong>Scope:</strong> xrbitcoincash.com, xrbitcoincash.github.io, <code>/xrpl-proxy</code>, public mobile/xApp integrations.</li>
+          <li><strong>Out of scope:</strong> third-party exchanges, individual wallets, losses from phishing or user-side key exposure.</li>
+          <li><strong>PGP:</strong> (optional) See <a href="/.well-known/security.txt">security.txt</a> for any current keys.</li>
+        </ul>
+        <div class="chips" aria-label="Signals">
+          <span class="chip">CWE / CWEs welcomed</span>
+          <span class="chip">SBOM on request</span>
+          <span class="chip">Private fixes first</span>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Footer (matches ecosystem footer with X link) -->
+  <footer class="ecosystem-footer">
+    <div class="footer-container">
+      <div class="ecosystem-links">
+        <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+          <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
+          <span>XRBitcoin</span>
+        </a>
+        <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+          <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
+          <span>Jesus Christ Saves</span>
+        </a>
+        <a href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
+          <img src="/xrbc-nft.png" alt="Explorer icon">
+          <span>XRPSCAN issuer</span>
+        </a>
+        <a href="https://x.com/XRbitcoincash" class="eco-link" target="_blank" rel="noopener" style="margin-left:auto">
+          <svg width="22" height="22" viewBox="0 0 120 120" aria-hidden="true">
+            <rect width="120" height="120" rx="12" fill="#0e1520"></rect>
+            <path fill="#e7edf5" d="M86.6 23L63.7 53l30.7 44H83.5L61.5 66.4 36.8 97H20l24.3-30.8L15.9 23h10.8l20.6 30.1L70.5 23h16.1Zm-47.5 9.8h-6.8l48.6 71.2h6.8L39.1 32.8Z"/>
+          </svg>
+          <span>Follow @XRbitcoincash</span>
+        </a>
+      </div>
+
+      <p class="note">
+        © 2025 <strong>XRBitcoinCash</strong>. This site surfaces non-custodial XRPL endpoints for research and community contribution.
+        For urgent security matters, email <a href="mailto:security@xrbitcoincash.com">security@xrbitcoincash.com</a> and reference the
+        <a href="/.well-known/security.txt">security.txt</a>. Trademarks belong to their respective owners. UI code under MIT license.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Inline machine index for agents (non-rendered) -->
+  <script type="application/json" id="security-index">
+  {
+    "project": "XRBitcoinCash",
+    "page": "security-jobs",
+    "contact": {
+      "security_email": "security@xrbitcoincash.com",
+      "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
+      "policy_url": "https://xrbitcoincash.com/security-policy.html"
+    },
+    "xrpl": {
+      "ticker": "XRBC",
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+      "currency_hex": "5852626974636F696E6361736800000000000000",
+      "network": "XRPL Mainnet"
+    },
+    "endpoints": {
+      "ai_manifest": "https://xrbitcoincash.com/universal-ai.json",
+      "ai_index": "https://xrbitcoincash.com/.well-known/ai.json",
+      "provenance": "https://xrbitcoincash.com/ai/provenance.json"
+    },
+    "status": {
+      "open_roles": false,
+      "accepting_speculative": true,
+      "sla_ack_hours_max": 72
+    },
+    "updated_at": "2025-10-15T00:00:00Z"
+  }
+  </script>
+
+  <!-- Theme toggle + header hide-on-scroll -->
+  <script>
+    (function(){
+      const header = document.getElementById('siteHeader');
+      const btn = document.getElementById('themeToggle');
+
+      function applyTheme(mode){
+        const light = mode === 'light';
+        document.body.classList.toggle('light-mode', light);
+        try{ localStorage.setItem('xrbc-theme', light ? 'light' : 'dark'); } catch(e){}
+      }
+      try {
+        const saved = localStorage.getItem('xrbc-theme');
+        if (saved) applyTheme(saved);
+      } catch(_) {}
+
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+          applyTheme(next);
+        });
+      }
+
+      let lastY = window.pageYOffset || 0;
+      let ticking = false;
+      function onScroll() {
+        const y = window.pageYOffset || 0;
+        if (y > lastY + 10) {
+          header.classList.add('hide');         // scroll down -> hide header
+        } else if (y < lastY - 10) {
+          header.classList.remove('hide');      // scroll up -> show header
+        }
+        lastY = y;
+        ticking = false;
+      }
+      window.addEventListener('scroll', function(){
+        if (!ticking) {
+          window.requestAnimationFrame(onScroll);
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
