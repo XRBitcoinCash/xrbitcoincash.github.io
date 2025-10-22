@@ -1,24 +1,107 @@
 {
   "project": "XRBitcoinCash / XRBitcoin",
+  "updated": "2025-10-22T06:00:00Z",
+  "recert_after_days": 90,
+  "next_recert_due": "2026-01-20T00:00:00Z",
+
+  "source": "xrbitcoincash.github.io",
+  "immutable_hash": null,
+  "signature": null,
+
   "provenance": {
     "built_with": [
-      { "assistant": "GPT-5 Thinking", "role": "code generation, manifests, documentation, UX polish" }
+      {
+        "assistant": "GPT-5 Thinking",
+        "roles": [
+          "co-author (docs/UX/copy)",
+          "security & compliance phrasing",
+          "AI-surface schema guidance",
+          "code scaffolding & manifests"
+        ]
+      }
     ],
     "principles": [
       "No secrets committed to the repo.",
       "Read-only XRPL access from public endpoints.",
       "Live on-ledger data only; no hardcoded prices.",
-      "Exact file casing and config placement (baseline safety)."
+      "Exact file casing and canonical paths (baseline safety).",
+      "One proxy authority for agents: xrbitcoincash-github-io.onrender.com"
     ],
     "audit_ready": true,
     "audit_notes": [
-      "Agents should validate manifests against the published JSON Schema.",
+      "Validate manifests against published schemas or minimal shape checks.",
       "Use /healthz and diag.html for diagnostics.",
-      "Price/quotes must come from XRPL book_offers and/or amm_info."
+      "Prices/quotes must come from XRPL book_offers and/or amm_info only.",
+      "Prefer lite JSON for bots; respect rate-limit hints."
     ]
   },
-  "contacts": {
-    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt"
+
+  "entities": [
+    {
+      "name": "XRBitcoinCash",
+      "ticker": "XRBC",
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+      "currency_hex": "5852626974636F696E6361736800000000000000",
+      "universal_manifest": "https://xrbitcoincash.com/universal-ai.json",
+      "blackholed": true,
+      "supply_fixed": true
+    },
+    {
+      "name": "XRBitcoin",
+      "ticker": "XRBitcoin",
+      "issuer": "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT",
+      "currency_hex": "5852626974636F696E0000000000000000000000",
+      "universal_manifest": "https://xrbitcoincash.com/XRBitcoin/universal-ai.json",
+      "blackholed": true,
+      "supply_fixed": true
+    }
+  ],
+
+  "endpoints": {
+    "ai_index": "https://xrbitcoincash.com/.well-known/ai.json",
+    "universal_xrbc": "https://xrbitcoincash.com/universal-ai.json",
+    "universal_xrbitcoin": "https://xrbitcoincash.com/XRBitcoin/universal-ai.json",
+    "provenance_json": "https://xrbitcoincash.com/ai/provenance.json",
+
+    "health_html": "https://xrbitcoincash.com/ai/ai/health.html",
+    "price_lite_json": "https://xrbitcoincash.github.io/ai/ai/price-lite.html",
+
+    "xrpl_toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+    "security_txt_primary": "https://xrbitcoincash.com/.well-known/security.txt",
+    "security_txt_mirror": "https://xrbitcoincash.github.io/.well-known/security.txt",
+
+    "csaf_provider_metadata": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+    "csaf_latest": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json",
+
+    "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
+    "diag_html": "https://xrbitcoincash.com/XRBitcoin/diag.html"
   },
-  "updated": "2025-10-13"
+
+  "xrpl_access": {
+    "mode": "read-only",
+    "allowed_methods": [
+      "server_state",
+      "ledger",
+      "account_info",
+      "book_offers",
+      "amm_info"
+    ],
+    "rate_limit_hint_rps": 2
+  },
+
+  "ai_usage": {
+    "advisory_only": true,
+    "no_custody": true,
+    "no_signing": true,
+    "notes": [
+      "ChatGPT contributions are text-only and non-binding.",
+      "Wallet flows are QR-based; no private keys stored or handled by site."
+    ]
+  },
+
+  "compliance": {
+    "securities_claim": "Not an offer of securities; jurisdictional treatment may vary.",
+    "custody": "Non-custodial; users control keys and accept trading risk.",
+    "ai_disclaimer": "AI outputs may be incomplete or wrong; treat as informational only."
+  }
 }
