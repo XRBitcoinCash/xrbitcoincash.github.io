@@ -1,13 +1,10 @@
-Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I removed fragile bits, killed placeholders, added throttled scans, expanded the jurisdiction matrix, and made the SEC Readiness node **derived from live endpoints only** (no toggles/localStorage).
-
-```html
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash · Compliance & Legal Matrix</title>
-  <meta name="description" content="Jurisdiction-by-jurisdiction compliance matrix for XRBitcoinCash (XRBC): AML/CTF baselines, financial promotions, Travel Rule notes, licensing triggers, and XRPL readiness. Includes live .well-known scan, Render/XRPL proxy checks, TOML probe, and derived SEC readiness." />
+  <meta name="description" content="Jurisdiction-by-jurisdiction compliance matrix for XRBitcoinCash (XRBC): AML/CTF baselines, financial promotions, Travel Rule notes, licensing triggers, and XRPL readiness. Includes live .well-known scan, Render health check, TOML probe, and derived SEC readiness." />
   <link rel="canonical" href="https://xrbitcoincash.com/compliance" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#000000" />
@@ -17,13 +14,13 @@ Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I remov
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBitcoinCash · Compliance & Legal Matrix" />
-  <meta property="og:description" content="Live .well-known scan, XRPL proxy checks, TOML probe, SEC readiness (derived), and global compliance overview." />
+  <meta property="og:description" content="Live .well-known scan, Render health check, TOML probe, SEC readiness (derived), and global compliance overview." />
   <meta property="og:url" content="https://xrbitcoincash.com/compliance" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="XRBitcoinCash · Compliance & Legal Matrix" />
-  <meta name="twitter:description" content="Live .well-known scan, XRPL proxy checks, TOML probe, SEC readiness (derived), and global compliance overview." />
+  <meta name="twitter:description" content="Live .well-known scan, Render health check, TOML probe, SEC readiness (derived), and global compliance overview." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <style>
@@ -83,7 +80,6 @@ Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I remov
       <nav class="nav">
         <a href="/" aria-label="Home">Home</a>
         <a href="/whitepaper.html" aria-label="Whitepaper">Whitepaper</a>
-        <a href="/ai/provenance.json" aria-label="Provenance">Provenance</a>
       </nav>
     </div>
   </header>
@@ -115,25 +111,23 @@ Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I remov
       <p class="note" style="margin-top:10px">This page is informational, not legal advice.</p>
     </section>
 
-    <!-- WELL-KNOWN + RENDER/XRPL SCAN -->
+    <!-- WELL-KNOWN + RENDER SCAN -->
     <section class="panel" id="wk">
-      <div class="head">[ Endpoints Scan — .well-known + Render/XRPL ]</div>
+      <div class="head">[ Endpoints Scan — .well-known + Render ]</div>
 
       <details open>
         <summary class="note">What this is</summary>
         <p class="note" style="margin:8px 0 10px">
-          This scanner checks canonical <code>/.well-known</code> files, your <strong>Render XRPL proxy</strong>, and a live
-          <strong>XRPL <code>server_info</code></strong> call (via the proxy). Green = reachable/parsable. Red = investigate.
+          This scanner checks canonical <code>/.well-known</code> files and the <strong>Render health endpoint</strong>.
+          Green = reachable/parsable. Red = investigate.
         </p>
       </details>
 
       <div class="grid cols-2">
         <div>
           <button class="btn" id="scanBtn">Scan endpoints</button>
-          <button class="btn" id="rpcBtn">Probe XRPL (server_info)</button>
           <p class="note" style="margin-top:8px">HTTP status & quick JSON notes appear below.</p>
           <ul id="scanList" class="note" style="padding-left:16px"></ul>
-          <div id="rpcBox" class="note" style="margin-top:10px"></div>
         </div>
         <div>
           <pre id="scanJson">{ "status": "idle" }</pre>
@@ -144,8 +138,7 @@ Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I remov
         <summary class="note">Show auditing code (for bots/analysts)</summary>
         <pre class="mono" style="white-space:pre-wrap">
 /* The page calls HEAD/GET on security.txt, TOML, CSAF, universal manifest, provenance,
-   and performs a POST JSON-RPC {'method':'server_info'} to the configured XRPL proxy.
-   Results are summarized and also emitted as a JSON blob for machine parsing. */
+   and Render's /healthz. Results are summarized and emitted as a JSON blob for machine parsing. */
         </pre>
       </details>
     </section>
@@ -260,7 +253,7 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
     document.getElementById('yr').textContent = new Date().getFullYear();
 
     /* ======================
-       ENDPOINTS / XRPL SCAN
+       ENDPOINTS / RENDER SCAN
        ====================== */
     const endpoints = {
       // Canonical
@@ -270,18 +263,13 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       provenance: "https://xrbitcoincash.com/ai/provenance.json",
       universal_manifest: "https://xrbitcoincash.com/universal-ai.json",
       toml: "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
-      // Render / Proxy
-      render_healthz: "https://xrbitcoincash-github-io.onrender.com/healthz",
-      render_root:    "https://xrbitcoincash-github-io.onrender.com/",
-      // RPC POST target
-      xrpl_proxy_rpc: "https://xrbitcoincash-github-io.onrender.com"
+      // Render health (kept)
+      render_healthz: "https://xrbitcoincash-github-io.onrender.com/healthz"
     };
 
     const scanBtn = document.getElementById('scanBtn');
-    const rpcBtn = document.getElementById('rpcBtn');
     const scanList = document.getElementById('scanList');
     const scanJson = document.getElementById('scanJson');
-    const rpcBox = document.getElementById('rpcBox');
 
     async function tryHeadThenGet(url) {
       try {
@@ -318,41 +306,6 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
     scanBtn.addEventListener('click', scanEndpoints);
     // Auto-run on load
     scanEndpoints();
-
-    async function probeServerInfo() {
-      rpcBox.textContent = 'Probing XRPL server_info via proxy…';
-      try {
-        const r = await fetch(endpoints.xrpl_proxy_rpc, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ method: "server_info", params: [{}] }),
-          cache: 'no-store'
-        });
-        if (!r.ok) {
-          rpcBox.innerHTML = '<span class="danger">❌ server_info HTTP '+r.status+'</span>';
-          return;
-        }
-        const j = await r.json();
-        const info = j?.result?.info;
-        if (!info) {
-          rpcBox.innerHTML = '<span class="warn">⚠️ server_info returned no info</span>';
-          return;
-        }
-        const vi = info?.validated_ledger?.seq ?? info?.validated_ledger?.seqNum ?? 'n/a';
-        const build = info?.build_version ?? 'n/a';
-        const pub = info?.pubkey_node ?? 'n/a';
-        rpcBox.innerHTML = `
-          <div class="ok">✅ server_info OK</div>
-          <div class="mono" style="margin-top:6px">
-            validated_ledger: <span class="tag">${vi}</span>
-            build_version: <span class="tag">${build}</span>
-            pubkey_node: <span class="tag">${pub}</span>
-          </div>`;
-      } catch (e) {
-        rpcBox.innerHTML = '<span class="danger">❌ server_info error: '+String(e)+'</span>';
-      }
-    }
-    rpcBtn.addEventListener('click', probeServerInfo);
 
     /* ================
        TOML PROBE/LINT
@@ -554,17 +507,9 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         securityTxt:  endpoints.security_txt,
         toml:         endpoints.toml,
         csafLatest:   endpoints.csaf_latest,
-        universal:    endpoints.universal_manifest,
         provenance:   endpoints.provenance,
         specPage:     "https://xrbitcoincash.com/whitepaper.html"
       };
-
-      const ISSUERS = new Set([
-        "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw", // XRBC
-        "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"  // XRBitcoin (aux)
-      ]);
-
-      const okIcon = (b) => b ? "✅" : "❌";
 
       async function head(url) {
         try {
@@ -603,15 +548,6 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
           const r = await head(ENDPOINTS.csafLatest);
           return { ok: r.ok, details: `${r.status} ${ENDPOINTS.csafLatest}` };
         },
-        universalManifest: async () => {
-          const r = await getJSON(ENDPOINTS.universal);
-          if (!r.ok || !r.json) return { ok:false, details: `${r.status} ${ENDPOINTS.universal}` };
-          const issuer = r.json.issuer || r.json.project?.issuer;
-          const hex    = r.json.currency_hex || r.json.project?.currency_hex;
-          const issuerOk = issuer ? ISSUERS.has(issuer) : false;
-          const hexOk    = typeof hex === "string" && hex.length >= 20;
-          return { ok: issuerOk && hexOk, details: `issuerOk:${issuerOk} hexOk:${hexOk}` };
-        },
         provenanceFresh: async () => {
           const r = await getJSON(ENDPOINTS.provenance);
           if (!r.ok || !r.json) return { ok:false, details: `${r.status} ${ENDPOINTS.provenance}` };
@@ -641,7 +577,6 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         { key:"securityTxt",        label:"security.txt present",           evidence: ENDPOINTS.securityTxt,   probe: PROBES.securityTxt },
         { key:"toml",               label:"XRPL TOML valid (basic)",        evidence: ENDPOINTS.toml,          probe: PROBES.toml },
         { key:"csafLatest",         label:"CSAF latest advisory reachable", evidence: ENDPOINTS.csafLatest,    probe: PROBES.csafLatest },
-        { key:"universalManifest",  label:"Universal manifest sane",        evidence: ENDPOINTS.universal,      probe: PROBES.universalManifest },
         { key:"provenanceFresh",    label:"Provenance fresh (≤ recert)",    evidence: ENDPOINTS.provenance,    probe: PROBES.provenanceFresh },
         { key:"nonCustodialSignals",label:"Non-custodial & blackholed cues",evidence: ENDPOINTS.specPage,      probe: PROBES.nonCustodialSignals }
       ];
@@ -707,6 +642,3 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
   </script>
 </body>
 </html>
-```
-
-If you want me to wire additional endpoints (e.g., a `/server_info` GET on the proxy) into the scan list, say the word and I’ll add them.
