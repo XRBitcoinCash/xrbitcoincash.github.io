@@ -8,7 +8,696 @@
   <title>XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL</title>
 
   <!-- Icons -->
+  <link rel="icon" href="/xrbc-nft<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash — Whitepaper Atlas (Languages & Plain-Speak)</title>
+
+  <!-- Canonical & discovery -->
+  <link rel="canonical" href="https://xrbitcoincash.github.io/lang/whitepaper/" />
+  <link rel="alternate" type="application/json" href="https://xrbitcoincash.com/universal-ai.json" title="AI Manifest" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="XRBitcoinCash — Whitepaper Atlas (Languages & Plain-Speak)" />
+  <meta property="og:description" content="Read the XRBC whitepaper in multiple languages and tones—standard, explain-like-I’m-5, or local slang. All content stays tied to on-ledger facts." />
+  <meta property="og:url" content="https://xrbitcoincash.github.io/lang/whitepaper/" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@XRbitcoincash" />
+  <meta name="twitter:title" content="XRBitcoinCash — Whitepaper Atlas (Languages & Plain-Speak)" />
+  <meta name="twitter:description" content="Pick a language & tone (standard, ELI5, slang). Verified links, issuer, TOML, Health & Price-lite included." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Human-readable AI disclosure -->
+  <meta name="ai:usage" content="This multilingual whitepaper is co-authored and continuously audited with ChatGPT (OpenAI). No secrets are shared; audits are advisory and require human review." />
+
+  <!-- JSON-LD: TechArticle -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"TechArticle",
+    "headline":"XRBitcoinCash — Whitepaper Atlas (Languages & Plain-Speak)",
+    "description":"A language- and tone-adaptive version of the XRBC whitepaper. All sections map to the canonical English whitepaper and on-ledger sources.",
+    "image":"https://xrbitcoincash.com/xrbc-nft.png",
+    "author":{"@type":"Organization","name":"XRBitcoinCash"},
+    "mainEntityOfPage":{"@type":"WebPage","@id":"https://xrbitcoincash.github.io/lang/whitepaper/"},
+    "dateModified":"2025-10-22"
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
+      --header-h: 148px;
+    }
+    @media (max-width: 980px){ :root{ --header-h: 168px; } }
+    @media (max-width: 700px){ :root{ --header-h: 196px; } }
+
+    *{ box-sizing:border-box }
+    html,body{ height:100% }
+    body{
+      margin:0; font-family: Inter, Segoe UI, Roboto, system-ui, Arial;
+      color:var(--ink); background:var(--bg); line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* Ambient background + frame */
+    .bg-blob{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+      radial-gradient(600px 300px at 8% 22%, rgba(0,230,255,.12), transparent),
+      radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,.08), transparent);
+      filter:blur(28px); animation:blob 22s linear infinite;
+    }
+    @keyframes blob{0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
+    .page-frame{position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,.10);pointer-events:none;z-index:5}
+    .progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);box-shadow:0 0 12px var(--accent);z-index:999;width:0%;transition:width .15s linear}
+
+    /* Overlay header */
+    header{
+      position:fixed; top:12px; left:0; right:0; z-index:20;
+      padding:10px 18px; max-width:1200px; margin:0 auto;
+      display:flex; flex-direction:column; gap:10px; align-items:center;
+      background:transparent; transform:translateY(0);
+      transition:transform .35s ease, box-shadow .25s ease;
+    }
+    header::before{
+      content:""; position:absolute; inset:0; z-index:-1;
+      background:rgba(11,16,32,.96); border:1px solid rgba(255,255,255,.06); border-radius:12px;
+      backdrop-filter:saturate(140%) blur(.5px);
+    }
+    header.header-hidden{transform:translateY(calc(-100% - 14px))}
+    header.header-solid{box-shadow:0 6px 18px rgba(0,0,0,.35)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .brand img{width:56px;height:56px;border-radius:10px;animation:glowPulse 2.5s infinite alternate}
+    @keyframes glowPulse{from{box-shadow:0 0 4px var(--accent)} to{box-shadow:0 0 14px var(--accent)}}
+    .brand h1{font-size:1.15rem;margin:0}
+    .muted{color:var(--muted)}
+
+    .controls{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));width:100%}
+    .control{
+      background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:10px;
+      display:flex; gap:8px; align-items:center; justify-content:space-between;
+    }
+    .control label{font-weight:700}
+    select,button,input{
+      background:#0b1426; color:var(--ink); border:1px solid rgba(255,255,255,.15); border-radius:8px; padding:8px 10px; width:100%;
+    }
+
+    main{position:relative;z-index:2;max-width:1000px;margin:20px auto 44px;padding:0 18px 24px}
+    main{padding-top:calc(var(--header-h) + 20px)}
+    h2,h3{scroll-margin-top:calc(var(--header-h) + 24px)}
+
+    .card{background:var(--card);padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,.06);max-width:100%;margin:0 auto 16px}
+    .fade-in{opacity:0;transform:translateY(18px);transition:opacity .8s ease-out, transform .7s ease-out}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    .highlight{color:var(--accent);font-weight:600}
+
+    .toc{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .toc a{text-decoration:none;color:var(--muted);border:1px solid rgba(255,255,255,.06);padding:8px 10px;border-radius:8px}
+    .toc a:hover{color:var(--ink);border-color:rgba(255,255,255,.18)}
+
+    .glossary{display:grid;gap:10px}
+    .glossary details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px}
+    .glossary summary{cursor:pointer;font-weight:700}
+
+    footer{max-width:1000px;margin:0 auto 60px;padding:0 18px;text-align:center;color:var(--muted)}
+    #backToTop{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#00121a;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;display:none;box-shadow:0 0 10px var(--accent)}
+    #backToTop:hover{background:#00b6d0}
+    @media (prefers-reduced-motion: reduce){.fade-in{transition:none !important}}
+  </style>
+</head>
+<body>
+  <div class="bg-blob"></div>
+  <div class="page-frame"></div>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <header>
+    <div class="brand">
+      <a href="https://xrbitcoincash.com/"><img src="/xrbc-nft.png" alt="XRBC logo"></a>
+      <h1>XRBitcoinCash <span class="muted">Whitepaper Atlas</span></h1>
+    </div>
+
+    <!-- Language + tone controls -->
+    <div class="controls" aria-label="Language and tone controls">
+      <div class="control">
+        <label for="langSel">Language / Locale</label>
+        <select id="langSel" aria-label="Choose language"></select>
+      </div>
+
+      <div class="control">
+        <label for="toneSel">Tone</label>
+        <select id="toneSel" aria-label="Choose tone">
+          <option value="neutral">Standard / Neutral</option>
+          <option value="eli5">Explain like I’m 5</option>
+          <option value="slang">Local slang / Colloquial</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="searchTerm">Glossary search</label>
+        <input id="searchTerm" placeholder="Search terms (Trustline, AMM, …)">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- TOC -->
+    <section class="card fade-in" id="toc">
+      <h2 id="h-toc">Contents</h2>
+      <div class="toc" id="tocLinks"></div>
+    </section>
+
+    <!-- Sections render here -->
+    <section class="card fade-in" id="intro"></section>
+    <section class="card fade-in" id="identity"></section>
+    <section class="card fade-in" id="security"></section>
+    <section class="card fade-in" id="infra"></section>
+    <section class="card fade-in" id="liquidity"></section>
+    <section class="card fade-in" id="escrow"></section>
+    <section class="card fade-in" id="compliance"></section>
+    <section class="card fade-in" id="links"></section>
+
+    <!-- Glossary -->
+    <section class="card fade-in" id="glossary">
+      <h2 id="h-glossary">Glossary</h2>
+      <div class="glossary" id="glossaryList"></div>
+    </section>
+  </main>
+
+  <footer>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL · Last updated 2025-10-22</small>
+  </footer>
+
+  <button id="backToTop" aria-label="Back to top">↑</button>
+
+  <!-- Machine-readable AI provenance + endpoints for agents -->
+  <script id="xrbc-ai-usage" type="application/json">
+  {
+    "project": "XRBitcoinCash (XRBC)",
+    "network": "XRPL Mainnet",
+    "identity": {
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+      "currency_hex": "5852626974636F696E6361736800000000000000"
+    },
+    "ai_assistance": {
+      "provider": "OpenAI ChatGPT (GPT-5 Thinking)",
+      "roles": ["documentation co-author", "advisory auditor", "UX copy review"],
+      "constraints": [
+        "No keys or secrets shared",
+        "Advisory only; human review required",
+        "Read-only on-ledger data via XRPL"
+      ]
+    },
+    "endpoints": {
+      "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
+      "ai_manifest": "https://xrbitcoincash.com/universal-ai.json",
+      "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
+      "csaf_provider": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+      "xrpl_toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+      "health": "https://xrbitcoincash.com/ai/ai/health.html",
+      "price_lite": "https://xrbitcoincash.github.io/ai/ai/price-lite.html",
+      "x_twitter": "https://x.com/XRbitcoincash"
+    }
+  }
+  </script>
+
+  <script>
+  /* ====== TRANSLATIONS (Phase 1 set; extendable) ============================
+     Each entry has:
+       - name: native language label
+       - dir: "ltr" | "rtl"
+       - toc: array of {id, label}
+       - sections: { intro, identity, security, infra, liquidity, escrow, compliance, links }
+         -> each is HTML string (safe, curated)
+       - glossary: [{term, def}]
+       - tones: { neutral, eli5, slang } (appended/adjusted snippets)
+  ========================================================================== */
+  const T = {
+    "en": {
+      name: "English",
+      dir: "ltr",
+      toc: [
+        {id:"intro",label:"1) Introduction"},
+        {id:"identity",label:"2) Token Identity"},
+        {id:"security",label:"3) Security & AI Auditor"},
+        {id:"infra",label:"4) Infrastructure"},
+        {id:"liquidity",label:"5) Trading & Liquidity"},
+        {id:"escrow",label:"6) Escrow Roadmap"},
+        {id:"compliance",label:"7) Compliance & Disclaimers"},
+        {id:"links",label:"8) Verified Links"},
+        {id:"glossary",label:"Glossary"}
+      ],
+      sections: {
+        intro: `<h2>1) Introduction</h2>
+          <p><span class="highlight">XRBitcoinCash (XRBC)</span> is a fixed-supply issued token on the <span class="highlight">XRP Ledger (XRPL)</span>, designed for fast, low-fee transfers. This multilingual page renders the whitepaper in multiple languages and tones while staying tied to the same on-ledger facts.</p>
+          <p>We favor <strong>AI-readable transparency</strong>: clear on-ledger identities, machine-parsable manifests, and live health/price endpoints.</p>`,
+        identity: `<h2>2) Token Identity (XRBC)</h2>
+          <ul>
+            <li><strong>Issuer:</strong> <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></li>
+            <li><strong>Currency (HEX):</strong> <code>5852626974636F696E6361736800000000000000</code></li>
+            <li><strong>Supply:</strong> ~21,000,000 (fixed; issuer blackholed)</li>
+            <li><strong>Network:</strong> XRPL Mainnet</li>
+            <li><strong>TOML:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+          </ul>`,
+        security: `<h2>3) Security & AI Auditor</h2>
+          <p>Docs and risk language are co-authored with ChatGPT (advisory only; no keys shared). Live endpoints:</p>
+          <ul>
+            <li><a href="https://xrbitcoincash.com/ai/ai/health.html">Security Health</a></li>
+            <li><a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">Live Price (lite)</a></li>
+            <li><a href="https://xrbitcoincash.com/universal-ai.json">AI Manifest</a></li>
+          </ul>`,
+        infra: `<h2>4) Infrastructure</h2>
+          <ul>
+            <li><strong>Hosting:</strong> GitHub Pages (static)</li>
+            <li><strong>Proxy:</strong> <code>https://xrbitcoincash-github-io.onrender.com</code></li>
+            <li><strong>XRPL:</strong> WSS clusters; no HTTP fallback</li>
+          </ul>`,
+        liquidity: `<h2>5) Trading & Liquidity</h2>
+          <p>Set a trustline in your wallet (e.g., Xaman/Xumm), then trade on the XRPL DEX/AMM.</p>
+          <ul>
+            <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a></li>
+            <li><a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic AMM</a></li>
+          </ul>`,
+        escrow: `<h2>6) Escrow Roadmap</h2>
+          <p>When XRPL supports <strong>escrow for issued tokens</strong>, XRBC will adopt time-locked schedules for predictable, on-ledger flows.</p>`,
+        compliance: `<h2>7) Compliance & Disclaimers</h2>
+          <ul>
+            <li>Community token; not equity or debt.</li>
+            <li>Jurisdictional treatment varies; not legal or investment advice.</li>
+            <li>AI assistance is advisory; human review required.</li>
+          </ul>`,
+        links: `<h2>8) Verified Links</h2>
+          <ul>
+            <li>Homepage: <a href="https://xrbitcoincash.com/">https://xrbitcoincash.com/</a></li>
+            <li>Whitepaper: <a href="https://xrbitcoincash.com/whitepaper.html">/whitepaper.html</a></li>
+            <li>TOML: <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+            <li>Security Health: <a href="https://xrbitcoincash.com/ai/ai/health.html">/ai/ai/health.html</a></li>
+            <li>Live Price (lite): <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">/ai/ai/price-lite.html</a></li>
+            <li>X / Twitter: <a href="https://x.com/XRbitcoincash">@XRbitcoincash</a></li>
+          </ul>`
+      },
+      glossary: [
+        {term:"Trustline",def:"Opt-in to hold a specific issued asset on XRPL."},
+        {term:"Issuer (blackholed)",def:"Account disabled to prevent future changes or new issuance."},
+        {term:"DEX",def:"Decentralized Exchange built into XRPL."},
+        {term:"AMM",def:"Automated Market Maker pools on XRPL."},
+        {term:"TOML",def:"Well-known file with verified project metadata."},
+        {term:"Escrow (issued)",def:"Time-locked releases for tokens (planned once supported)."}
+      ],
+      tones: {
+        neutral: "",
+        eli5: "<p><em>ELI5:</em> Think of XRBC like game tickets on a super fast scoreboard. You first say ‘yes’ to accept the tickets (trustline), then you can swap them with others. The scoreboard keeps everyone honest.</p>",
+        slang: "<p><em>Slang:</em> XRBC moves quick and cheap. Set the trustline, hit the DEX, don’t get wrecked—always check the book.</p>"
+      }
+    },
+
+    /* Spanish (Spain) */
+    "es-ES": {
+      name: "Español (España)",
+      dir: "ltr",
+      toc: [
+        {id:"intro",label:"1) Introducción"},
+        {id:"identity",label:"2) Identidad del Token"},
+        {id:"security",label:"3) Seguridad y Auditoría AI"},
+        {id:"infra",label:"4) Infraestructura"},
+        {id:"liquidity",label:"5) Trading y Liquidez"},
+        {id:"escrow",label:"6) Hoja de Ruta de ‘Escrow’"},
+        {id:"compliance",label:"7) Cumplimiento y Avisos"},
+        {id:"links",label:"8) Enlaces Verificados"},
+        {id:"glossary",label:"Glosario"}
+      ],
+      sections: {
+        intro:`<h2>1) Introducción</h2>
+          <p><span class="highlight">XRBitcoinCash (XRBC)</span> es un token con suministro fijo en el <span class="highlight">XRP Ledger (XRPL)</span>. Esta página ofrece el whitepaper en varios idiomas y tonos, siempre conectado a los mismos datos on-chain.</p>`,
+        identity:`<h2>2) Identidad del Token (XRBC)</h2>
+          <ul>
+            <li><strong>Emisor:</strong> <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></li>
+            <li><strong>Moneda (HEX):</strong> <code>5852626974636F696E6361736800000000000000</code></li>
+            <li><strong>Suministro:</strong> ~21.000.000 (fijo; emisor ‘blackholed’)</li>
+            <li><strong>Red:</strong> XRPL Mainnet</li>
+            <li><strong>TOML:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+          </ul>`,
+        security:`<h2>3) Seguridad y Auditoría AI</h2>
+          <p>Documentación y lenguaje de riesgos co-escritos con ChatGPT (solo asesoría; sin claves). Enlaces en vivo:</p>
+          <ul>
+            <li><a href="https://xrbitcoincash.com/ai/ai/health.html">Salud de Seguridad</a></li>
+            <li><a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">Precio (lite)</a></li>
+            <li><a href="https://xrbitcoincash.com/universal-ai.json">Manifiesto AI</a></li>
+          </ul>`,
+        infra:`<h2>4) Infraestructura</h2>
+          <ul><li><strong>Hosting:</strong> GitHub Pages</li><li><strong>Proxy:</strong> <code>https://xrbitcoincash-github-io.onrender.com</code></li></ul>`,
+        liquidity:`<h2>5) Trading y Liquidez</h2>
+          <p>Abre una trustline en tu wallet y opera en el DEX/AMM de XRPL.</p>
+          <ul>
+            <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a></li>
+            <li><a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic AMM</a></li>
+          </ul>`,
+        escrow:`<h2>6) ‘Escrow’</h2><p>Se adoptarán calendarios bloqueados en cuanto XRPL soporte ‘escrow’ para tokens emitidos.</p>`,
+        compliance:`<h2>7) Cumplimiento y Avisos</h2><ul><li>Token comunitario; no es acción ni deuda.</li><li>No es asesoría legal o de inversión.</li></ul>`,
+        links:`<h2>8) Enlaces Verificados</h2><ul>
+          <li>Web: <a href="https://xrbitcoincash.com/">xrbitcoincash.com</a></li>
+          <li>Whitepaper: <a href="https://xrbitcoincash.com/whitepaper.html">/whitepaper.html</a></li>
+          <li>TOML: <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+          <li>Precio: <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">price-lite</a></li>
+        </ul>`
+      },
+      glossary:[
+        {term:"Trustline",def:"Permiso para mantener un activo emitido en XRPL."},
+        {term:"Blackholed",def:"Emisor deshabilitado para impedir cambios futuros."},
+        {term:"DEX",def:"Intercambio descentralizado integrado en XRPL."},
+        {term:"AMM",def:"Pools de liquidez automatizados en XRPL."}
+      ],
+      tones:{
+        neutral:"",
+        eli5:"<p><em>ELI5:</em> Aceptas ‘guardar’ XRBC en tu cartera y luego lo cambias como cromos en un mercado rápido.</p>",
+        slang:"<p><em>Jerga:</em> Ponte la trustline, mira el libro y no te pilles los dedos.</p>"
+      }
+    },
+
+    /* Spanish (Latin America, generic) */
+    "es-419": {
+      name: "Español (LatAm)",
+      dir:"ltr",
+      toc: "copy:es-ES",
+      sections: "copy:es-ES",
+      glossary: "copy:es-ES",
+      tones: {
+        neutral:"",
+        eli5:"<p><em>ELI5:</em> Das permiso pa’ guardar XRBC en tu billetera y lo cambias rápido en el DEX.</p>",
+        slang:"<p><em>Coloquial:</em> Activa la trustline, lánzate al DEX y checa la liquidez pa’ no quemarte.</p>"
+      }
+    },
+
+    /* French */
+    "fr-FR": {
+      name:"Français",
+      dir:"ltr",
+      toc:[
+        {id:"intro",label:"1) Introduction"},
+        {id:"identity",label:"2) Identité du jeton"},
+        {id:"security",label:"3) Sécurité & Audit IA"},
+        {id:"infra",label:"4) Infrastructure"},
+        {id:"liquidity",label:"5) Trading & Liquidité"},
+        {id:"escrow",label:"6) Feuille de route Escrow"},
+        {id:"compliance",label:"7) Conformité & Mentions"},
+        {id:"links",label:"8) Liens vérifiés"},
+        {id:"glossary",label:"Glossaire"}
+      ],
+      sections:{
+        intro:`<h2>1) Introduction</h2><p><span class="highlight">XRBC</span> est un jeton à offre fixe sur <span class="highlight">XRPL</span>. Cette page l’explique en plusieurs langues/tons, reliée aux mêmes faits on-chain.</p>`,
+        identity:`<h2>2) Identité</h2><ul>
+          <li><strong émetteur>Émetteur:</strong> <code>rEjw…3Ypw</code></li>
+          <li><strong>Devise (HEX):</strong> <code>5852…0000</code></li>
+          <li><strong>Réseau:</strong> XRPL Mainnet</li>
+          <li><strong>TOML:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+        </ul>`,
+        security:`<h2>3) Sécurité & Audit IA</h2><p>Contenus co-rédigés avec ChatGPT (conseil; aucune clé partagée). Endpoints: Santé, Prix-lite, Manifeste IA.</p>`,
+        infra:`<h2>4) Infrastructure</h2><ul><li>GitHub Pages</li><li>Proxy Render</li></ul>`,
+        liquidity:`<h2>5) Trading</h2><p>Ouvrir une trustline, puis échanger sur DEX/AMM.</p>`,
+        escrow:`<h2>6) Escrow</h2><p>Adoption quand XRPL le permettra pour les jetons émis.</p>`,
+        compliance:`<h2>7) Mentions</h2><p>Jeton communautaire; pas un titre. Pas de conseil financier.</p>`,
+        links:`<h2>8) Liens vérifiés</h2><ul><li>Site: xrbitcoincash.com</li></ul>`
+      },
+      glossary:[
+        {term:"Trustline",def:"Autorisation de détenir un actif émis sur XRPL."},
+        {term:"AMM",def:"Pools de liquidité automatisés."}
+      ],
+      tones:{
+        neutral:"",
+        eli5:"<p><em>ELI5:</em> XRBC, c’est comme des jetons de fête foraine notés sur un grand tableau rapide.</p>",
+        slang:"<p><em>Argot:</em> Pose la trustline, check le carnet, évite de te faire plumer.</p>"
+      }
+    },
+
+    /* Russian */
+    "ru-RU": {
+      name:"Русский",
+      dir:"ltr",
+      toc:[
+        {id:"intro",label:"1) Введение"},
+        {id:"identity",label:"2) Идентичность токена"},
+        {id:"security",label:"3) Безопасность и ИИ-аудит"},
+        {id:"infra",label:"4) Инфраструктура"},
+        {id:"liquidity",label:"5) Торговля и ликвидность"},
+        {id:"escrow",label:"6) Эскроу-дорожная карта"},
+        {id:"compliance",label:"7) Дисклеймеры"},
+        {id:"links",label:"8) Проверенные ссылки"},
+        {id:"glossary",label:"Глоссарий"}
+      ],
+      sections:{
+        intro:`<h2>1) Введение</h2><p>XRBC — токен с фиксированным предложением на XRPL. Эта страница даёт объяснение на разных языках и стилях.</p>`,
+        identity:`<h2>2) Идентичность</h2><ul>
+          <li><strong>Эмитент:</strong> <code>rEjw…3Ypw</code></li>
+          <li><strong>Код (HEX):</strong> <code>5852…0000</code></li>
+          <li><strong>Сеть:</strong> XRPL Mainnet</li>
+        </ul>`,
+        security:`<h2>3) Безопасность и ИИ-аудит</h2><p>Тексты совместно с ChatGPT (рекомендации; без ключей). Ссылки: Здоровье, Цена-lite, Манифест ИИ.</p>`,
+        infra:`<h2>4) Инфраструктура</h2><ul><li>GitHub Pages</li><li>Proxy Render</li></ul>`,
+        liquidity:`<h2>5) Торговля</h2><p>Откройте trustline, затем торгуйте на DEX/AMM.</p>`,
+        escrow:`<h2>6) Эскроу</h2><p>Будет принят, когда XRPL добавит поддержку для выпущенных токенов.</p>`,
+        compliance:`<h2>7) Дисклеймеры</h2><p>Сообщественный токен; не ценная бумага. Не инвестиционный совет.</p>`,
+        links:`<h2>8) Проверенные ссылки</h2><ul><li>Сайт: xrbitcoincash.com</li></ul>`
+      },
+      glossary:[
+        {term:"Trustline",def:"Разрешение на хранение выпущенного актива в XRPL."},
+        {term:"Blackholed",def:"Эмитент навсегда отключён от изменений."}
+      ],
+      tones:{
+        neutral:"",
+        eli5:"<p><em>Просто:</em> Сначала говорите кошельку «можно держать XRBC», потом меняете его на бирже XRPL.</p>",
+        slang:"<p><em>Разговорный:</em> Открыл трестлайн — смотри стакан, не лезь без ликвиды.</p>"
+      }
+    },
+
+    /* Persian (Iran) — RTL */
+    "fa-IR": {
+      name:"فارسی (ایران)",
+      dir:"rtl",
+      toc:[
+        {id:"intro",label:"۱) مقدمه"},
+        {id:"identity",label:"۲) هویت توکن"},
+        {id:"security",label:"۳) امنیت و ارزیابی هوش‌مصنوعی"},
+        {id:"infra",label:"۴) زیرساخت"},
+        {id:"liquidity",label:"۵) معامله و نقدشوندگی"},
+        {id:"escrow",label:"۶) نقشه‌راه اکسکرو"},
+        {id:"compliance",label:"۷) ملاحظات حقوقی"},
+        {id:"links",label:"۸) پیوندهای تأیید‌شده"},
+        {id:"glossary",label:"واژه‌نامه"}
+      ],
+      sections:{
+        intro:`<h2>۱) مقدمه</h2><p>XRBC توکنی با عرضه ثابت روی XRPL است. این صفحه در چند زبان/لحن همان حقایق روی زنجیره را توضیح می‌دهد.</p>`,
+        identity:`<h2>۲) هویت توکن</h2><ul>
+          <li><strong>صادرکننده:</strong> <code>rEjw…3Ypw</code></li>
+          <li><strong>کُد (HEX):</strong> <code>5852…0000</code></li>
+          <li><strong>شبکه:</strong> XRPL Mainnet</li>
+          <li><strong>TOML:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+        </ul>`,
+        security:`<h2>۳) امنیت و ارزیابی هوش‌مصنوعی</h2><p>مستندات با کمک ChatGPT تدوین شده (صرفاً مشاوره‌ای؛ بدون اشتراک کلیدها). پیوندها: سلامت، قیمت-سبُک، مانیفست AI.</p>`,
+        infra:`<h2>۴) زیرساخت</h2><ul><li>GitHub Pages</li><li>Proxy Render</li></ul>`,
+        liquidity:`<h2>۵) معامله</h2><p>ابتدا Trustline را باز کنید، سپس در DEX/AMM معامله کنید.</p>`,
+        escrow:`<h2>۶) اکسکرو</h2><p>با پشتیبانی XRPL برای توکن‌های صادرشده فعال خواهد شد.</p>`,
+        compliance:`<h2>۷) ملاحظات حقوقی</h2><p>توکن کامیونیتی؛ مشاوره سرمایه‌گذاری نیست.</p>`,
+        links:`<h2>۸) پیوندهای تأیید‌شده</h2><ul><li>وب‌سایت: xrbitcoincash.com</li></ul>`
+      },
+      glossary:[
+        {term:"تراست‌لاین (Trustline)",def:"اجازهٔ نگهداری یک دارایی صادرشده در XRPL."},
+        {term:"حساب Blackholed",def:"غیرفعال دائمی صادرکننده برای جلوگیری از تغییرات."}
+      ],
+      tones:{
+        neutral:"",
+        eli5:"<p><em>ساده:</em> اول به کیف پول می‌گویید «می‌توانم XRBC نگه دارم»، بعد در صرافی غیرمتمرکز عوض می‌کنید.</p>",
+        slang:"<p><em>محاوره‌ای:</em> تراست‌لاین رو باز کن، بعد برو سراغ DEX، حواست به نقدینگی باشه.</p>"
+      }
+    },
+
+    /* Korean (KR standard) */
+    "ko-KR": {
+      name:"한국어",
+      dir:"ltr",
+      toc:[
+        {id:"intro",label:"1) 소개"},
+        {id:"identity",label:"2) 토큰 정체성"},
+        {id:"security",label:"3) 보안 & AI 감리"},
+        {id:"infra",label:"4) 인프라"},
+        {id:"liquidity",label:"5) 거래 & 유동성"},
+        {id:"escrow",label:"6) 에스크로 로드맵"},
+        {id:"compliance",label:"7) 유의사항"},
+        {id:"links",label:"8) 검증된 링크"},
+        {id:"glossary",label:"용어집"}
+      ],
+      sections:{
+        intro:`<h2>1) 소개</h2><p>XRBC는 XRPL 기반 고정 공급 토큰입니다. 이 페이지는 여러 언어/톤으로 동일한 온체인 사실을 설명합니다.</p>`,
+        identity:`<h2>2) 정체성</h2><ul><li><strong>발행자:</strong> <code>rEjw…3Ypw</code></li><li><strong>통화(HEX):</strong> <code>5852…0000</code></li><li><strong>네트워크:</strong> XRPL 메인넷</li></ul>`,
+        security:`<h2>3) 보안 & AI 감리</h2><p>ChatGPT와 공동 작성(자문용; 키 공유 없음). 헬스/가격/매니페스트 제공.</p>`,
+        infra:`<h2>4) 인프라</h2><ul><li>GitHub Pages</li><li>Render 프록시</li></ul>`,
+        liquidity:`<h2>5) 거래 & 유동성</h2><p>트러스트라인 설정 후 XRPL DEX/AMM에서 거래.</p>`,
+        escrow:`<h2>6) 에스크로</h2><p>XRPL에서 발행 자산 에스크로 지원 시 도입.</p>`,
+        compliance:`<h2>7) 유의사항</h2><p>커뮤니티 토큰; 투자 조언 아님.</p>`,
+        links:`<h2>8) 링크</h2><ul><li>웹: xrbitcoincash.com</li></ul>`
+      },
+      glossary:[
+        {term:"트러스트라인",def:"발행 자산을 보유하도록 허용하는 설정."},
+        {term:"AMM",def:"자동화된 유동성 풀."}
+      ],
+      tones:{
+        neutral:"",
+        eli5:"<p><em>쉽게:</em> 지갑에 ‘XRBC 보유 OK’ 누르고, DEX에서 바꿔요.</p>",
+        slang:"<p><em>속어:</em> 트러스트 박고, DEX 가서 호가창 보고 들어가요.</p>"
+      }
+    },
+
+    /* Italian (your sample language) */
+    "it-IT": {
+      name:"Italiano",
+      dir:"ltr",
+      toc:"copy:en",
+      sections:{
+        intro:`<h2>1) Introduzione</h2><p>XRBC è un token a fornitura fissa su XRPL. Questa pagina rende il whitepaper in più lingue e toni.</p>`,
+        identity:`<h2>2) Identità</h2><ul><li><strong>Emittente:</strong> <code>rEjw…3Ypw</code></li><li><strong>Valuta (HEX):</strong> <code>5852…0000</code></li></ul>`,
+        security:`<h2>3) Sicurezza & Audit AI</h2><p>Contenuti co-autori con ChatGPT (solo consulenza; nessuna chiave).</p>`,
+        infra:`<h2>4) Infrastruttura</h2><ul><li>GitHub Pages</li><li>Proxy Render</li></ul>`,
+        liquidity:`<h2>5) Trading & Liquidità</h2><p>Imposta la trustline e usa DEX/AMM.</p>`,
+        escrow:`<h2>6) Escrow</h2><p>In arrivo quando XRPL lo supporta per gli issued tokens.</p>`,
+        compliance:`<h2>7) Note legali</h2><p>Token comunitario; non è consulenza finanziaria.</p>`,
+        links:`<h2>8) Link verificati</h2><ul><li>xrbitcoincash.com</li></ul>`
+      },
+      glossary:[
+        {term:"Trustline",def:"Consenso a detenere un asset emesso su XRPL."}
+      ],
+      tones:{neutral:"",eli5:"<p><em>Semplice:</em> Dici al wallet ‘ok’ e poi scambi sul DEX.</p>",slang:"<p><em>Colloquiale:</em> Metti la trustline e non farti fregare dallo slippage.</p>"}
+    }
+  };
+
+  /* ====== RENDERER ======================================================= */
+  const langSel = document.getElementById('langSel');
+  const toneSel = document.getElementById('toneSel');
+  const tocLinks = document.getElementById('tocLinks');
+  const sections = ["intro","identity","security","infra","liquidity","escrow","compliance","links"];
+
+  function cloneFrom(ref){ return typeof ref==="string" && ref.startsWith("copy:") ? structuredClone(T[ref.split(":")[1]]) : ref; }
+
+  function populateLangs(){
+    const langs = Object.keys(T);
+    // Sort: detected language first if present
+    const detected = (navigator.language || "en").toLowerCase();
+    langs.sort((a,b)=> (a.toLowerCase()===detected?-1: b.toLowerCase()===detected?1: a.localeCompare(b)));
+    langs.forEach(k=>{
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = `${T[k].name} — ${k}`;
+      langSel.appendChild(opt);
+    });
+    // Default selection
+    langSel.value = langs[0];
+  }
+
+  function setDirLang(lang){
+    const meta = T[lang];
+    document.documentElement.lang = lang;
+    document.documentElement.dir = meta.dir || "ltr";
+  }
+
+  function render(lang, tone){
+    const M = T[lang];
+    // Resolve any "copy:xx" shortcuts
+    if (M.toc && typeof M.toc === "string") M.toc = cloneFrom(M.toc).toc;
+    if (M.sections && typeof M.sections === "string") M.sections = cloneFrom(M.sections).sections;
+    if (M.glossary && typeof M.glossary === "string") M.glossary = cloneFrom(M.glossary).glossary;
+
+    setDirLang(lang);
+
+    // TOC
+    tocLinks.innerHTML = "";
+    (M.toc || []).forEach(item=>{
+      const a = document.createElement('a'); a.href = `#${item.id}`; a.textContent = item.label; tocLinks.appendChild(a);
+    });
+
+    // Sections
+    sections.forEach(id=>{
+      const el = document.getElementById(id);
+      el.innerHTML = M.sections?.[id] || "";
+    });
+
+    // Tone snippets (append if provided)
+    const toneHTML = M.tones?.[tone] || "";
+    if (toneHTML){
+      const attachTo = document.getElementById("intro");
+      const div = document.createElement("div"); div.innerHTML = toneHTML; attachTo.appendChild(div);
+    }
+
+    // Glossary
+    const g = document.getElementById('glossaryList');
+    g.innerHTML = "";
+    (M.glossary||[]).forEach(({term,def})=>{
+      const det = document.createElement('details');
+      const sum = document.createElement('summary'); sum.textContent = term;
+      const p = document.createElement('p'); p.innerHTML = def;
+      det.appendChild(sum); det.appendChild(p);
+      g.appendChild(det);
+    });
+  }
+
+  function onSearchGlossary(q){
+    const items = document.querySelectorAll('#glossaryList details');
+    items.forEach(d=>{
+      const t = d.querySelector('summary')?.textContent || "";
+      const b = d.querySelector('p')?.textContent || d.querySelector('p')?.innerHTML || "";
+      const hit = t.toLowerCase().includes(q) || b.toLowerCase().includes(q);
+      d.style.display = hit ? "" : "none";
+    });
+  }
+
+  // Header effects + progress + back-to-top
+  (function(){
+    const header = document.querySelector('header'); const pb = document.getElementById('progressBar');
+    let lastY = 0, THRESH = 260;
+    function onScroll(){
+      const y = scrollY || 0;
+      if (y > 12) header.classList.add('header-solid'); else header.classList.remove('header-solid');
+      if (y > THRESH && y > lastY + 2) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
+      lastY = y;
+      const h = document.documentElement; const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+      pb.style.width = (Math.max(0, Math.min(1, scrolled)) * 100).toFixed(2) + '%';
+      document.getElementById('backToTop').style.display = y > 300 ? 'block' : 'none';
+    }
+    addEventListener('scroll', onScroll, {passive:true}); onScroll();
+    document.getElementById('backToTop').addEventListener('click', ()=>scrollTo({top:0,behavior:'smooth'}));
+  })();
+
+  // Init
+  populateLangs();
+  // Detect preferred language if available
+  const guess = (navigator.language || "en").split("-")[0];
+  const prefer = Object.keys(T).find(k=>k.toLowerCase().startsWith(guess)) || "en";
+  langSel.value = prefer;
+  setDirLang(prefer);
+  render(prefer, toneSel.value);
+
+  langSel.addEventListener('change', ()=> render(langSel.value, toneSel.value));
+  toneSel.addEventListener('change',  ()=> render(langSel.value, toneSel.value));
+  document.getElementById('searchTerm').addEventListener('input', (e)=> onSearchGlossary(e.target.value.toLowerCase()));
+  </script>
+
+  <!-- Minimal no-script fallback (English) -->
+  <noscript>
+    <main style="max-width:1000px;margin:120px auto 40px;padding:0 18px;color:#ECF3FF">
+      <h1>XRBitcoinCash — Whitepaper Atlas</h1>
+      <p>This page requires JavaScript for language switching. Read the canonical whitepaper at <a href="https://xrbitcoincash.com/whitepaper.html">xrbitcoincash.com/whitepaper.html</a>.</p>
+    </main>
+  </noscript>
+</body>
+</html>
+.png" type="image/png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- SEO primario -->
