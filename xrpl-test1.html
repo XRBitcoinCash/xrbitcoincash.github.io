@@ -241,7 +241,28 @@
   }
 
   @media (prefers-reduced-motion: reduce){ .fade-in{transition:none !important} }
-</style>
+
+ /* === HOTFIX: keep content beneath fixed header ========================== */
+:root{
+  /* Adjust these if needed after you eyeball it */
+  --header-height: 148px;                 /* desktop/tablet default */
+}
+@media (max-width: 1024px){ :root{ --header-height: 168px; } }
+@media (max-width: 768px){  :root{ --header-height: 196px; } }
+@media (max-width: 520px){  :root{ --header-height: 224px; } }
+
+/* Push main content down so it starts under the header + frame inset */
+main{
+  padding-top: calc(var(--header-height) + 20px);  /* +20 for the 12px frame/top gap */
+}
+
+/* Ensure in-page anchors/TOC jumps land below the header */
+h2, h3{
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
+ 
+ </style>
 
 </head>
 <body>
