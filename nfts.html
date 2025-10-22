@@ -89,7 +89,10 @@
     --red:#ef4444; --red-2:#f87171; --white:#ffffff; --green:#10b981;
   }
 
-  /* Header: sticky + auto-hide */
+  /* Page base */
+  body{ background:#0b0f14; color:#e7edf5; }
+
+  /* ================= Header (sticky, semi-transparent, auto-hide) ================= */
   .site-header{
     position:sticky; top:0; z-index:100;
     background:linear-gradient(180deg,#0b0f14,#0b1017);
@@ -106,27 +109,29 @@
     display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
   }
 
-  /* Logo green glow */
+  /* Logo glow + fit */
   .brand img{
     width:48px;height:48px;border-radius:50%;object-fit:cover;
     box-shadow:0 0 24px rgba(16,185,129,.32),0 0 48px rgba(16,185,129,.20);
   }
 
-  /* Home button: white w/ green glow */
+  /* Home button */
   .btn-home{
     appearance:none; border:1px solid #cbd5e1; background:#ffffff; color:#0b0f14;
     padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none;
     box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
+    max-width:100%;
   }
   .btn-home:hover{ filter:brightness(0.98); }
 
-  /* Layout: center two cards mid-screen */
+  /* ================= Layout / Cards ================= */
   main{ padding-inline:14px; }
   .stage{
     max-width:var(--wrap); margin:0 auto;
     min-height:calc(100dvh - 140px);
     display:grid; align-content:center; gap:var(--gap);
   }
+
   .nft-hero{
     display:grid; gap:var(--gap);
     grid-template-columns:1fr;
@@ -154,44 +159,33 @@
     margin-top:10px;
   }
   .cta-row a{ text-align:center; }
-  /* Center the Liquidity Pool button */
   .cta-row a:nth-child(3){
-    grid-column: 1 / -1;   /* span both columns */
-    justify-self: center;  /* centered horizontally */
-    max-width: 60ch;       /* adjust if you want wider/narrower */
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 60ch;
   }
-  /* Mobile: stack all three full-width */
   @media (max-width:640px){
     .cta-row{ grid-template-columns: 1fr; }
     .cta-row a:nth-child(3){
-      grid-column:auto;
-      justify-self:stretch;
-      max-width:none;
+      grid-column:auto; justify-self:stretch; max-width:none;
     }
   }
 
-  /* Three red glow CTA buttons (dark mode default) */
+  /* Red CTAs */
   .btn-red{
     appearance:none;
     background: radial-gradient(120% 140% at 50% -20%, var(--red-2) 0%, var(--red) 50%, #7f1d1d 100%);
-    border:2px solid var(--white);
-    color:var(--white);
+    border:2px solid var(--white); color:var(--white);
     padding:11px 16px; border-radius:14px; font-weight:900; letter-spacing:.2px;
     text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    box-shadow:
-      0 0 28px rgba(239,68,68,.35),
-      0 8px 24px rgba(239,68,68,.25),
-      inset 0 0 0 1px rgba(255,255,255,.08);
+    box-shadow:0 0 28px rgba(239,68,68,.35), 0 8px 24px rgba(239,68,68,.25), inset 0 0 0 1px rgba(255,255,255,.08);
     transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
+    max-width:100%;
   }
   .btn-red small{ opacity:.9; font-weight:700; line-height:1; display:block; }
   .btn-red:hover{
-    transform:translateY(-1px);
-    filter:brightness(1.05);
-    box-shadow:
-      0 0 36px rgba(239,68,68,.45),
-      0 8px 28px rgba(239,68,68,.35),
-      inset 0 0 0 1px rgba(255,255,255,.14);
+    transform:translateY(-1px); filter:brightness(1.05);
+    box-shadow:0 0 36px rgba(239,68,68,.45), 0 8px 28px rgba(239,68,68,.35), inset 0 0 0 1px rgba(255,255,255,.14);
   }
 
   /* Facts */
@@ -204,36 +198,54 @@
   .gallery-frame{ width:100%; height:980px; border:0; display:block; background:#0b1524; }
   @media (max-width:640px){ .gallery-frame{ height:820px; } }
 
-  /* Light mode polish for cards/facts */
+  /* ================= Footer (centered; X button in the middle) ================= */
+  .ecosystem-footer{ border-top:1px solid rgba(255,255,255,.06); margin-top:12px; }
+  .footer-container{ max-width:var(--wrap); margin:0 auto; padding:14px; }
+  .ecosystem-links,
+  .footer-links{
+    display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;
+    justify-content:center; align-items:flex-start;
+  }
+  .ecosystem-links a,
+  .footer-links a{
+    text-decoration:none; text-align:center;
+    padding:8px 10px; border:1px solid var(--border); border-radius:12px;
+    background:linear-gradient(180deg,#0e1520,#0c131c); color:#e7edf5;
+    flex:0 1 220px;
+  }
+
+  /* Order so the X (Follow) sits in the middle row and centered on mobile */
+  .ecosystem-links a[href*="xrpscan"], .footer-links a[href*="xrpscan"]{ order:1; }
+  .ecosystem-links a[href*="x.com"], .ecosystem-links a[href*="twitter.com"],
+  .footer-links a[href*="x.com"],   .footer-links a[href*="twitter.com"]{
+    order:2; flex-basis:100%; max-width:520px; /* full-row, centered */
+  }
+  .ecosystem-links a:not([href*="xrpscan"]):not([href*="x.com"]):not([href*="twitter.com"]),
+  .footer-links a:not([href*="xrpscan"]):not([href*="x.com"]):not([href*="twitter.com"]){ order:3; }
+
+  /* ================= Light Mode ================= */
+  body.light-mode{ color:#0b0f14; }
   body.light-mode .nft-card{ background:#fff; border-color:#cbd5e1; box-shadow:none; }
   body.light-mode .lead{ color:#3b4a5f; }
   body.light-mode .fact{ background:#f6f8fb; border-color:#e5eaf0; }
-
-  /* --- Light mode: ALL text black with soft green glow --- */
-  body.light-mode{ color:#0b0f14; }
   body.light-mode :where(h1,h2,h3,h4,h5,h6,p,li,small,strong,em,span,div,code,button,a){
     color:#0b0f14 !important;
-    text-shadow:
-      0 0 10px rgba(16,185,129,.22),
-      0 0 2px rgba(16,185,129,.18);
+    text-shadow:0 0 10px rgba(16,185,129,.22), 0 0 2px rgba(16,185,129,.18);
   }
-
-  /* Light mode: button flip = white bg + red outline + black text (keeps red vibe) */
   body.light-mode .btn-red{
-    background:#ffffff;
-    border-color:var(--red);
-    color:#0b0f14 !important;
-    box-shadow:
-      0 0 14px rgba(16,185,129,.18),  /* subtle green aura to match page */
-      0 8px 22px rgba(239,68,68,.16),
-      inset 0 0 0 1px rgba(239,68,68,.10);
+    background:#ffffff; border-color:var(--red); color:#0b0f14 !important;
+    box-shadow:0 0 14px rgba(16,185,129,.18), 0 8px 22px rgba(239,68,68,.16), inset 0 0 0 1px rgba(239,68,68,.10);
   }
   body.light-mode .btn-red:hover{ filter:brightness(0.98); }
 
-  /* Optional motion-safe */
+  /* ================= Mobile polish ================= */
+  @media (max-width:640px){
+    .stage{ min-height:unset; padding-top:6px; }
+    .fact-grid{ grid-template-columns:1fr; }
+    .nft-card img{ max-height:140px; object-fit:contain; } /* smaller on phones */
+  }
   @media (prefers-reduced-motion: reduce){
-    .site-header{ transition:none; }
-    .btn-red{ transition:none; }
+    .site-header, .btn-red{ transition:none; }
   }
 </style>
 
