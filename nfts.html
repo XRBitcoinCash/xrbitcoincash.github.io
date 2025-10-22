@@ -114,15 +114,37 @@
     box-shadow:0 0 24px rgba(16,185,129,.32),0 0 48px rgba(16,185,129,.20);
   }
 
-  /* Home button */
+  /* Home button (reference size) */
   .btn-home{
     appearance:none; border:1px solid #cbd5e1; background:#ffffff; color:#0b0f14;
     padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none;
     box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
     max-width:100%;
-    display:inline-flex; align-items:center; justify-content:center; line-height:1; /* center label */
+    display:inline-flex; align-items:center; justify-content:center; line-height:1;
   }
   .btn-home:hover{ filter:brightness(0.98); }
+
+  /* Theme button — EXACTLY matches Home size; label flips via ::after */
+  #themeToggle{
+    position:relative; appearance:none;
+    padding:8px 12px; border-radius:12px; font-weight:800; line-height:1;
+    display:inline-flex; align-items:center; justify-content:center;
+    border:1px solid #cbd5e1; background:#ffffff; color:transparent; /* hide inner text */
+    box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
+    max-width:100%;
+  }
+  #themeToggle::after{
+    content:"Light"; color:#0b0f14; letter-spacing:.2px;
+  }
+  /* Light mode: dark button w/ white text + “Dark” label */
+  body.light-mode #themeToggle{
+    background:linear-gradient(180deg,#0e1520,#0b111a);
+    border-color:#94a3b8; color:transparent; box-shadow:none;
+  }
+  body.light-mode #themeToggle::after{
+    content:"Dark"; color:#ffffff;
+  }
+  #themeToggle:hover{ filter:brightness(0.98); }
 
   /* ================= Layout / Cards ================= */
   main{ padding-inline:14px; }
@@ -178,7 +200,7 @@
     text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;
     box-shadow:0 0 28px rgba(239,68,68,.35), 0 8px 24px rgba(239,68,68,.25), inset 0 0 0 1px rgba(255,255,255,.08);
     transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
-    max-width:100%; line-height:1; /* center label vertically */
+    max-width:100%; line-height:1;
   }
   .btn-red small{ opacity:.9; font-weight:700; line-height:1; display:block; }
   .btn-red:hover{
@@ -194,7 +216,7 @@
   /* Gallery */
   .gallery-card{ padding:0; overflow:hidden; }
   .gallery-frame{ width:100%; height:980px; border:0; display:block; background:#0b1524; }
-  @media (max-width:640px){ .gallery-frame{ height:560px; } } /* tighter on phones */
+  @media (max-width:640px){ .gallery-frame{ height:520px; } } /* tighter on phones */
 
   /* ================= Footer (centered; X button prominent; matches light-mode card) ================= */
   .ecosystem-footer{ border-top:1px solid rgba(255,255,255,.06); margin-top:12px; }
@@ -227,15 +249,16 @@
   body.light-mode .lead{ color:#3b4a5f; }
   body.light-mode .fact{ background:#f6f8fb; border-color:#e5eaf0; }
 
-  /* Make footer look like the card in light mode */
-  body.light-mode .ecosystem-footer{ border-top:1px solid #e5eaf0; background:#ffffff; }
+  /* Footer text & tiles match card in light mode */
+  body.light-mode .ecosystem-footer{ border-top:1px solid #e5eaf0; background:#ffffff; color:#0b0f14; }
+  body.light-mode .footer-container{ color:#0b0f14; }
   body.light-mode .ecosystem-links a,
   body.light-mode .footer-links a{
     background:#ffffff !important; color:#0b0f14 !important;
     border-color:#cbd5e1 !important; box-shadow:none !important;
   }
 
-  /* Buttons in light mode keep readable colors */
+  /* Red buttons in light mode keep readable colors */
   body.light-mode .btn-red{
     background:#ffffff; border-color:var(--red); color:#0b0f14 !important;
     box-shadow:0 0 14px rgba(16,185,129,.18), 0 8px 22px rgba(239,68,68,.16), inset 0 0 0 1px rgba(239,68,68,.10);
@@ -243,32 +266,42 @@
   body.light-mode .btn-red:hover{ filter:brightness(0.98); }
 
   /* ================= Mobile polish (shrink & center everything) ================= */
-  @media (max-width:640px){
-    html{ font-size:15px; } /* global downscale */
-    .header-wrap{ padding:8px 10px; }
-    .brand img{ width:36px; height:36px; }
-    .btn-home{ padding:7px 9px; font-size:.9rem; border-radius:10px; }
+  @media (max-width:560px){
+    /* Put Home + Theme side-by-side and shrink further */
+    .header-wrap{
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      grid-auto-rows:minmax(0,auto);
+      padding:8px 10px; column-gap:8px;
+    }
+    .brand{ grid-column:1 / -1; grid-row:1; justify-self:center; }
+    .header-center{ grid-column:1; grid-row:2; justify-self:stretch; }
+    .header-right{ grid-column:2; grid-row:2; justify-self:stretch; display:flex; }
+
+    .brand img{ width:34px; height:34px; }
+    .btn-home,
+    #themeToggle{ padding:7px 9px; font-size:.88rem; border-radius:10px; }
 
     .stage{ min-height:unset; padding-top:6px; }
-    .nft-card{ padding:14px; align-items:center; text-align:center; }
-    .lead{ font-size:.95rem; }
-    .nft-card img{ max-height:140px; object-fit:contain; margin-inline:auto; display:block; }
+    .nft-card{ padding:12px; align-items:center; text-align:center; }
+    .nft-card h2{ font-size:1rem; }
+    .lead{ font-size:.92rem; }
+    .nft-card img{ max-height:120px; object-fit:contain; margin-inline:auto; display:block; }
 
     .cta-row{ gap:10px; }
-    .btn-red{ padding:9px 12px; font-size:.95rem; border-radius:12px; }
+    .btn-red{ padding:8px 10px; font-size:.92rem; border-radius:10px; }
 
     .fact-grid{ grid-template-columns:1fr; }
 
     .ecosystem-links a,
-    .footer-links a{ flex:1 1 260px; } /* neat centered rows */
+    .footer-links a{ flex:1 1 240px; } /* neat centered rows */
   }
 
   /* Even smaller phones */
   @media (max-width:400px){
-    html{ font-size:14px; }
-    .btn-red{ padding:8px 10px; font-size:.9rem; }
-    .nft-card img{ max-height:120px; }
-    .gallery-frame{ height:480px; }
+    html{ font-size:13.5px; }
+    .btn-red{ padding:7px 9px; font-size:.88rem; }
+    .nft-card img{ max-height:100px; }
+    .gallery-frame{ height:460px; }
   }
 
   @media (prefers-reduced-motion: reduce){
