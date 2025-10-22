@@ -1,24 +1,242 @@
-<!DOCTYPE html><meta charset="utf-8"><title>XRBC status</title>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>XRBC status</title>
 <pre id="out">{"status":"initializing"}</pre>
 <script>
-(async function(){
-  const out=document.getElementById("out");const now=()=>new Date().toISOString();
-  const urls={
-    health:"/ai/ai/health.html",
-    price:"/ai/ai/ai/price.html",
-    orderbook:"/ai/ai/orderbook.html",
-    price_lite:"/ai/ai/price-lite.html",
-    account:"/ai/ai/account.html",
-    supply:"/ai/ai/supply.html",
-    ping:"/ai/ai/ping.html"
+/* XRBitcoinCash — AI/agent status snapshot (machine-first)
+   - Probes primary + mirror endpoints (first OK wins)
+   - Validates JSON where expected (shape-lite)
+   - Emits one stable JSON object in <pre>#out
+   - No styling, cache busting via {cache:"no-store"}
+*/
+(async () => {
+  const out = document.getElementById("out");
+  const now = () => new Date().toISOString();
+
+  // Ordered candidates: primary first, then mirrors/alternates
+  const targets = {
+    // Manifests & provenance
+    ai_index: [
+      "https://xrbitcoincash.com/.well-known/ai.json"
+    ],
+    universal_xrbc: [
+      "https://xrbitcoincash.com/universal-ai.json"
+    ],
+    universal_xrbitcoin: [
+      "https://xrbitcoincash.com/XRBitcoin/universal-ai.json"
+    ],
+    provenance_json: [
+      "https://xrbitcoincash.com/ai/provenance.json"
+    ],
+
+    // Security & CSAF
+    security_txt_primary: [
+      "https://xrbitcoincash.com/.well-known/security.txt"
+    ],
+    security_txt_mirror: [
+      "https://xrbitcoincash.github.io/.well-known/security.txt"
+    ],
+    csaf_provider_metadata: [
+      "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json"
+    ],
+    csaf_latest_canonical: [
+      "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json"
+    ],
+    csaf_latest_mirror_optional: [
+      "https://xrbitcoincash.com/.well-known/csaf/advisories/2025-0001.json"
+    ],
+
+    // Live surfaces
+    health_html: [
+      "https://xrbitcoincash.com/ai/ai/health.html"
+    ],
+    price_lite_json: [
+      "https://xrbitcoincash.github.io/ai/ai/price-lite.html"
+    ],
+    // Optional rich pages (if present)
+    orderbook_html_opt: [
+      "https://xrbitcoincash.com/ai/ai/orderbook.html"
+    ],
+    account_html_opt: [
+      "https://xrbitcoincash.com/ai/ai/account.html"
+    ],
+    supply_html_opt: [
+      "https://xrbitcoincash.com/ai/ai/supply.html"
+    ],
+
+    // TOML & diagnostics
+    xrpl_toml: [
+      "https://xrbitcoincash.com/.well-known/xrp-ledger.toml"
+    ],
+    diag_html_opt: [
+      "https://xrbitcoincash.com/XRBitcoin/diag.html"
+    ],
+
+    // Proxy health (authority)
+    proxy_healthz: [
+      "https://xrbitcoincash-github-io.onrender.com/healthz"
+    ]
   };
-  const write=o=>out.textContent=JSON.stringify(o,null,2);
-  try{
-    const entries=await Promise.all(Object.entries(urls).map(async([k,u])=>{
-      try{const r=await fetch(u,{cache:"no-store"});return [k,{ok:r.ok,status:r.status,url:u}];}
-      catch(e){return [k,{ok:false,error:String(e),url:u}];}
-    }));
-    write(Object.fromEntries(entries.concat([["updated_at",new Date().toISOString()]])));
-  }catch(e){write({error:String(e.message||e),updated_at:now()});}
+
+  const expectJson = new Set([
+    "ai_index",
+    "universal_xrbc",
+    "universal_xrbitcoin",
+    "provenance_json",
+    "csaf_provider_metadata",
+    "csaf_latest_canonical",
+    "csaf_latest_mirror_optional",
+    "price_lite_json"
+  ]);
+
+  // Very light shape hints (best-effort; do NOT fail hard on shape)
+  function liteValidate(name, data) {
+    try {
+      if (name === "universal_xrbc" || name === "universal_xrbitcoin") {
+        return typeof data.project === "string"
+          && typeof data.ticker === "string"
+          && typeof data.issuer === "string"
+          && typeof data.currency_hex === "string";
+      }
+      if (name === "ai_index") {
+        return (Array.isArray(data.ai_manifests) && data.ai_manifests.length > 0)
+          || (data.manifests && typeof data.manifests.universal === "string");
+      }
+      if (name === "provenance_json") {
+        return typeof data.project === "string" && typeof data.updated === "string";
+      }
+      if (name.startsWith("csaf_")) {
+        return typeof data === "object";
+      }
+      if (name === "price_lite_json") {
+        // Accepts any object; bonus: detect ledger_index/price fields if present
+        return typeof data === "object";
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function timeout(ms) {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), ms);
+    return { signal: c.signal, cancel: () => clearTimeout(t) };
+  }
+
+  async function tryFetch(url, isJson) {
+    const t = timeout(9000);
+    const started = Date.now();
+    try {
+      const r = await fetch(url, { cache: "no-store", mode: "cors", signal: t.signal });
+      const ct = r.headers.get("content-type") || "";
+      let json = null, json_ok = false, shape_ok = true, keys = undefined, ledger_index = undefined, price = undefined;
+
+      if (isJson && r.ok && ct.includes("application/json")) {
+        json = await r.json().catch(() => null);
+        json_ok = !!json;
+        if (json_ok) {
+          shape_ok = liteValidateName ? true : true;
+        }
+      } else if (isJson && r.ok && !ct.includes("application/json")) {
+        // Some JSON files on Pages may serve as text/plain; still attempt parse
+        try {
+          const text = await r.text();
+          json = JSON.parse(text);
+          json_ok = true;
+        } catch { json_ok = false; }
+        if (json_ok) shape_ok = true;
+      }
+
+      const elapsed_ms = Date.now() - started;
+
+      // Extract a few useful hints if we have JSON
+      if (json && typeof json === "object") {
+        keys = Object.keys(json).slice(0, 12);
+        if (json.ledger_index) ledger_index = json.ledger_index;
+        if (json.price) price = json.price;
+        if (json.last_price) price = json.last_price;
+      }
+
+      return {
+        ok: r.ok,
+        status: r.status,
+        url,
+        content_type: ct || null,
+        elapsed_ms,
+        json_ok: isJson ? json_ok : null,
+        shape_ok: isJson ? shape_ok : null,
+        keys,
+        ledger_index,
+        price
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        status: null,
+        url,
+        error: String(e && e.name === "AbortError" ? "timeout" : e),
+        elapsed_ms: Date.now() - started,
+        json_ok: null,
+        shape_ok: null
+      };
+    } finally {
+      t.cancel();
+    }
+  }
+
+  // For each logical name, probe in order until one succeeds (200..299)
+  async function probe(name, list) {
+    const wantJson = expectJson.has(name);
+    const attempts = [];
+    for (const url of list) {
+      const res = await tryFetch(url, wantJson);
+      attempts.push(res);
+      if (res.ok) return { name, best: res, attempts };
+    }
+    // none succeeded; return the last attempt for convenience
+    return { name, best: attempts[attempts.length - 1] || null, attempts };
+  }
+
+  try {
+    const entries = await Promise.all(
+      Object.entries(targets).map(([k, arr]) => probe(k, arr))
+    );
+
+    const checks = {};
+    let okCount = 0;
+    let failNames = [];
+
+    for (const { name, best, attempts } of entries) {
+      checks[name] = {
+        ...(best || { ok: false, status: null, url: arr?.[0] || null }),
+        attempts: attempts?.length || 0
+      };
+      if (best && best.ok) okCount++;
+      else failNames.push(name);
+    }
+
+    const total = entries.length;
+    const score = Math.round((okCount / total) * 100);
+
+    const outJson = {
+      status: score === 100 ? "ok" : (okCount > 0 ? "degraded" : "down"),
+      score,
+      ok: okCount,
+      total,
+      failures: failNames,
+      checks,
+      updated_at: now(),
+      version: "2025.10.22",
+      caution: failNames.length
+    };
+
+    out.textContent = JSON.stringify(outJson, null, 2);
+  } catch (e) {
+    out.textContent = JSON.stringify(
+      { status: "error", error: String(e.message || e), updated_at: now() },
+      null, 2
+    );
+  }
 })();
 </script>
