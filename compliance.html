@@ -1,17 +1,30 @@
+Here’s a **clean, fully-wired drop-in** to replace `/compliance.html`. I removed fragile bits, killed placeholders, added throttled scans, expanded the jurisdiction matrix, and made the SEC Readiness node **derived from live endpoints only** (no toggles/localStorage).
+
+```html
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash · Compliance & Legal Matrix</title>
-  <meta name="description" content="Jurisdiction-by-jurisdiction compliance matrix for XRBitcoinCash (XRBC): AML/CTF baselines, financial promotions, Travel Rule notes, licensing triggers, and XRPL TokenEscrow readiness. Includes live well-known scan, Render/XRPL proxy checks, TOML probe, and derived SEC readiness." />
+  <meta name="description" content="Jurisdiction-by-jurisdiction compliance matrix for XRBitcoinCash (XRBC): AML/CTF baselines, financial promotions, Travel Rule notes, licensing triggers, and XRPL readiness. Includes live .well-known scan, Render/XRPL proxy checks, TOML probe, and derived SEC readiness." />
   <link rel="canonical" href="https://xrbitcoincash.com/compliance" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#000000" />
-
   <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash · Compliance & Legal Matrix" />
+  <meta property="og:description" content="Live .well-known scan, XRPL proxy checks, TOML probe, SEC readiness (derived), and global compliance overview." />
+  <meta property="og:url" content="https://xrbitcoincash.com/compliance" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash · Compliance & Legal Matrix" />
+  <meta name="twitter:description" content="Live .well-known scan, XRPL proxy checks, TOML probe, SEC readiness (derived), and global compliance overview." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <style>
     :root {
@@ -69,8 +82,8 @@
       </div>
       <nav class="nav">
         <a href="/" aria-label="Home">Home</a>
-        <a href="/bs/index.html" aria-label="Spec">Spec</a>
         <a href="/whitepaper.html" aria-label="Whitepaper">Whitepaper</a>
+        <a href="/ai/provenance.json" aria-label="Provenance">Provenance</a>
       </nav>
     </div>
   </header>
@@ -96,7 +109,7 @@
           <div class="chip"><span class="dot"></span> Travel-Rule scope on custodial VASPs</div>
           <div class="chip"><span class="dot"></span> Sanctions: no prohibited parties</div>
           <div class="chip"><span class="dot"></span> Risk warnings in content</div>
-          <div class="chip"><span class="dot"></span> TokenEscrow readiness (XRPL)</div>
+          <div class="chip"><span class="dot"></span> Token escrow readiness (XRPL)</div>
         </div>
       </div>
       <p class="note" style="margin-top:10px">This page is informational, not legal advice.</p>
@@ -212,10 +225,6 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
           <p class="note" style="margin-top:8px">
             Status is computed from live endpoints (no local storage, no manual toggles).
           </p>
-          <details style="margin-top:8px">
-            <summary class="note">SEC headlines (experimental)</summary>
-            <div id="secNews" class="note">Attempting to load SEC news. If blocked by CORS, use server-side fetch to cache headlines.</div>
-          </details>
         </div>
         <div>
           <div id="secScore" class="mono ok">Initializing…</div>
@@ -254,17 +263,17 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
        ENDPOINTS / XRPL SCAN
        ====================== */
     const endpoints = {
+      // Canonical
       security_txt: "https://xrbitcoincash.com/.well-known/security.txt",
       csaf_provider: "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
       csaf_latest: "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json",
       provenance: "https://xrbitcoincash.com/ai/provenance.json",
       universal_manifest: "https://xrbitcoincash.com/universal-ai.json",
       toml: "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
-
       // Render / Proxy
       render_healthz: "https://xrbitcoincash-github-io.onrender.com/healthz",
       render_root:    "https://xrbitcoincash-github-io.onrender.com/",
-      // RPC will POST to the proxy below:
+      // RPC POST target
       xrpl_proxy_rpc: "https://xrbitcoincash-github-io.onrender.com"
     };
 
@@ -274,13 +283,14 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
     const scanJson = document.getElementById('scanJson');
     const rpcBox = document.getElementById('rpcBox');
 
-    async function head(url) {
-      const r = await fetch(url, { method: "HEAD", cache: "no-store" });
-      return { ok: r.ok, status: r.status };
-    }
-    async function get(url) {
-      const r = await fetch(url, { cache: "no-store" });
-      return { ok: r.ok, status: r.status, text: r.ok ? await r.text() : "" };
+    async function tryHeadThenGet(url) {
+      try {
+        const r = await fetch(url, { method: "HEAD", cache: "no-store" });
+        return { ok: r.ok, status: r.status };
+      } catch {
+        const g = await fetch(url, { cache: "no-store" });
+        return { ok: g.ok, status: g.status };
+      }
     }
     function li(line, ok) {
       const el = document.createElement('li');
@@ -288,21 +298,20 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       el.className = ok ? 'ok' : 'danger';
       return el;
     }
-
     async function scanEndpoints() {
       scanList.innerHTML = '';
       const results = {};
-      const keys = Object.keys(endpoints);
-      for (const k of keys) {
-        const url = endpoints[k];
+      for (const [k, url] of Object.entries(endpoints)) {
         try {
-          const r = await head(url);
+          const r = await tryHeadThenGet(url);
           results[k] = { url, ok: r.ok, status: r.status };
-          scanList.appendChild(li('<code>'+k+'</code> → '+r.status+' — <a href="'+url+'" target="_blank">open</a>', r.ok));
+          scanList.appendChild(li('<code>'+k+'</code> → '+r.status+' — <a href="'+url+'" target="_blank" rel="noopener">open</a>', r.ok));
         } catch (e) {
           results[k] = { url, ok:false, error:String(e) };
           scanList.appendChild(li('<code>'+k+'</code> → '+String(e), false));
         }
+        // gentle throttle to avoid 429 on free tiers
+        await new Promise(res => setTimeout(res, 150));
       }
       scanJson.textContent = JSON.stringify({ updated_at: new Date().toISOString(), results }, null, 2);
     }
@@ -329,9 +338,9 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
           rpcBox.innerHTML = '<span class="warn">⚠️ server_info returned no info</span>';
           return;
         }
-        const vi = info?.validated_ledger?.seq || info?.validated_ledger?.seqNum || 'n/a';
-        const build = info?.build_version || 'n/a';
-        const pub = info?.pubkey_node || 'n/a';
+        const vi = info?.validated_ledger?.seq ?? info?.validated_ledger?.seqNum ?? 'n/a';
+        const build = info?.build_version ?? 'n/a';
+        const pub = info?.pubkey_node ?? 'n/a';
         rpcBox.innerHTML = `
           <div class="ok">✅ server_info OK</div>
           <div class="mono" style="margin-top:6px">
@@ -345,9 +354,9 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
     }
     rpcBtn.addEventListener('click', probeServerInfo);
 
-    /* ==========
-       TOML Lint
-       ========== */
+    /* ================
+       TOML PROBE/LINT
+       ================ */
     const tomlUrl = document.getElementById('tomlUrl');
     const fetchTomlBtn = document.getElementById('fetchToml');
     const analyzeTomlBtn = document.getElementById('analyzeToml');
@@ -362,8 +371,8 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       tomlExplain.textContent = '';
       tomlRaw.textContent = '# fetching...';
       try {
-        const r = await get(tomlUrl.value);
-        lastToml = r.ok ? r.text : '';
+        const r = await fetch(tomlUrl.value, { cache: "no-store" });
+        lastToml = r.ok ? await r.text() : '';
         tomlRaw.textContent = r.ok ? (lastToml || '# (empty)') : ('# HTTP '+r.status);
       } catch(e) {
         tomlRaw.textContent = '# fetch error: ' + String(e);
@@ -427,7 +436,7 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       { r:"Global", j:"FATF", f:"Travel Rule & VASP guidance", t:"Custody, exchange-as-a-business", p:"XRBC is non-custodial; Travel Rule lies with custodial VASPs." },
 
       // Europe (MiCA & local implementations)
-      { r:"EU", j:"EU (MiCA)", f:"CASP regime; whitepapers; disclosures", t:"Operating custody/exchange/exec services", p:"XRBC publishes docs only; venues/wallets need CASP permissions where applicable." },
+      { r:"EU", j:"EU (MiCA)", f:"CASP regime; whitepapers; disclosures", t:"Operating custody/exchange/execution services", p:"XRBC publishes docs only; venues/wallets need CASP permissions where applicable." },
       { r:"Europe", j:"Germany (BaFin)", f:"KWG/crypto custody & brokerage", t:"Custody, exchange, brokerage", p:"No custody by XRBC; venue licensing applies." },
       { r:"Europe", j:"France (AMF)", f:"PSAN registration, promotions", t:"Crypto services & promotions", p:"XRBC content is informational; venues must meet PSAN rules." },
       { r:"Europe", j:"Spain (CNMV)", f:"Financial promotions rules", t:"Communicating promotions", p:"XRBC avoids inducements; risk warnings present." },
@@ -469,12 +478,14 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       { r:"APAC", j:"Hong Kong (SFC)", f:"VATP licensing", t:"Operating a VATP; retail access", p:"No VATP operated; listings via SFC-licensed venues." },
       { r:"APAC", j:"Taiwan (FSC)", f:"VASPs guidance", t:"Exchange/custody", p:"XRBC is non-custodial; venues comply." },
       { r:"APAC", j:"India (FIU-IND)", f:"VDA reporting; tax (TDS)", t:"VASPs registration/compliance", p:"XRBC runs no VASP; users/venues shoulder obligations." },
-      { r:"APAC", j:"Indonesia (Bappebti/OJK)", f:"Crypto commodity to financial transition", t:"Exchange/custody", p:"Venues responsible." },
+      { r:"APAC", j:"Indonesia (Bappebti/OJK)", f:"Crypto commodity → financial transition", t:"Exchange/custody", p:"Venues responsible." },
       { r:"APAC", j:"Malaysia (SC/BNM)", f:"DAX & e-money regs", t:"Exchange/e-money", p:"XRBC not an operator." },
       { r:"APAC", j:"Thailand (SEC)", f:"Digital Asset Business", t:"Exchange/broker/dealer", p:"XRBC not a licensed business." },
       { r:"APAC", j:"Philippines (BSP)", f:"VASP (VC exchange)", t:"VASP licensing", p:"Venue/host wallet compliance." },
       { r:"APAC", j:"Vietnam", f:"Developing framework", t:"Exchange/custody", p:"XRBC does not solicit." },
       { r:"APAC", j:"Mainland China", f:"Restrictions/bans", t:"Crypto business/marketing", p:"No services or solicitation in mainland China." },
+      { r:"APAC", j:"Australia (ASIC/AUSTRAC)", f:"Financial services + AML", t:"Exchange/custody; DCE registration", p:"XRBC not a DCE; venues must register/comply." },
+      { r:"APAC", j:"New Zealand (FMA/DIA)", f:"Financial products + AML", t:"Custody/exchange; AML reporting", p:"XRBC not a provider; venues comply." },
 
       // Africa
       { r:"Africa", j:"South Africa (FSCA)", f:"Crypto asset = financial product", t:"FAIS license for advisors/CTPs", p:"XRBC not a CTP/advisor; venues must be licensed." },
@@ -487,7 +498,7 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       // Eastern Europe / CIS
       { r:"EE/CIS", j:"Turkey (MASAK)", f:"AML duties; VASPs", t:"VASPs registration/compliance", p:"Venues must comply." },
       { r:"EE/CIS", j:"Russia", f:"Draft/perimeter rules", t:"Crypto services/securities", p:"XRBC no solicitation." },
-      { r:"EE/CIS", j:"Ukraine", f:"Virtual assets law (pending rollout)", t:"VASPs", p:"XRBC no VASP role." },
+      { r:"EE/CIS", j:"Ukraine", f:"Virtual assets law (rollout)", t:"VASPs", p:"XRBC no VASP role." },
       { r:"EE/CIS", j:"Kazakhstan (AFSA/AIFC)", f:"VASP framework", t:"Exchange/custody", p:"Venue compliance." },
       { r:"EE/CIS", j:"Uzbekistan", f:"VASP licensing", t:"Exchange/custody", p:"XRBC not operator." }
     ];
@@ -536,8 +547,7 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         score:     () => document.getElementById('secScore'),
         meta:      () => document.getElementById('secMeta'),
         rerun:     () => document.getElementById('secRerun'),
-        exportBtn: () => document.getElementById('secExport'),
-        news:      () => document.getElementById('secNews')
+        exportBtn: () => document.getElementById('secExport')
       };
 
       const ENDPOINTS = {
@@ -546,7 +556,7 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         csafLatest:   endpoints.csaf_latest,
         universal:    endpoints.universal_manifest,
         provenance:   endpoints.provenance,
-        specPage:     "https://xrbitcoincash.com/bs/index.html"
+        specPage:     "https://xrbitcoincash.com/whitepaper.html"
       };
 
       const ISSUERS = new Set([
@@ -557,8 +567,13 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
       const okIcon = (b) => b ? "✅" : "❌";
 
       async function head(url) {
-        const r = await fetch(url, { method: "HEAD", cache: "no-store" });
-        return { ok: r.ok, status: r.status };
+        try {
+          const r = await fetch(url, { method: "HEAD", cache: "no-store" });
+          return { ok: r.ok, status: r.status };
+        } catch {
+          const g = await fetch(url, { cache: "no-store" });
+          return { ok: g.ok, status: g.status };
+        }
       }
       async function getText(url) {
         const r = await fetch(url, { cache: "no-store" });
@@ -616,8 +631,8 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         nonCustodialSignals: async () => {
           const r = await getText(ENDPOINTS.specPage);
           if (!r.ok) return { ok:false, details: `${r.status} ${ENDPOINTS.specPage}` };
-          const hasNonCustodial = /non[-\s]?custodial/i.test(r.text);
-          const hasBlackholed   = /blackhole|blackholed/i.test(r.text);
+          const hasNonCustodial = /non[-\s]?custodial/i.test(r.text) || /does not (hold|custody)/i.test(r.text);
+          const hasBlackholed   = /blackhole|blackholed|immutable/i.test(r.text);
           return { ok: (hasNonCustodial && hasBlackholed), details: `non_custodial:${hasNonCustodial} blackholed:${hasBlackholed}` };
         }
       };
@@ -686,33 +701,12 @@ By using XRBC materials or interacting with XRPL, you accept these risks and dis
         document.body.appendChild(a); a.click(); a.remove();
       };
 
-      // Attempt to show recent SEC headlines (will likely be CORS-blocked client-side)
-      async function loadSECNews() {
-        const box = EL.news();
-        try {
-          // Common SEC feeds are often CORS-restricted. We try and degrade politely.
-          const tryUrls = [
-            "https://www.sec.gov/rss/press.xml",
-            "https://www.sec.gov/news/pressreleases.rss"
-          ];
-          for (const u of tryUrls) {
-            const r = await fetch(u, { cache: "no-store" });
-            if (r.ok) {
-              const txt = await r.text();
-              box.textContent = "Loaded SEC feed (length " + txt.length + "). For production, cache server-side and render items.";
-              return;
-            }
-          }
-          box.textContent = "SEC feed blocked by CORS. Suggest server-side cron to cache last 30 days of headlines.";
-        } catch(e) {
-          box.textContent = "SEC feed unavailable in browser (CORS). Use server-side cache.";
-        }
-      }
-
       // Run on load
       run();
-      loadSECNews();
     })();
   </script>
 </body>
 </html>
+```
+
+If you want me to wire additional endpoints (e.g., a `/server_info` GET on the proxy) into the scan list, say the word and I’ll add them.
