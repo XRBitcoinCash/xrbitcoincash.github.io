@@ -5,28 +5,114 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <title>XRBC Ecosystem & Information · XRBitcoinCash</title>
+  <meta name="description" content="XRBitcoinCash (XRBC): official XRPL hub for trading on DEX/AMMs, verified pools, issuer & docs, and project resources." />
 
   <!-- Canonical -->
-  <link rel="canonical" href="https://xrbitcoincash.com/">
+  <link rel="canonical" href="https://xrbitcoincash.com/xrbc-ecosystem.html" />
 
-  <!-- Basic icons -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/favicon.png">
+  <!-- Robots (general + Google) -->
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="googlebot" content="index,follow" />
 
-  <!-- Open Graph / X -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="XRBC Ecosystem & Information · XRBitcoinCash">
-  <meta property="og:description" content="Official XRBC hub: trade on XRPL DEX/AMMs, open verified pools, and access project resources.">
-  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
-  <meta property="og:url" content="https://xrbitcoincash.com/">
-  <meta name="twitter:card" content="summary_large_image">
+  <!-- Performance hints for third-party venues you link to -->
+  <link rel="preconnect" href="https://sologenic.org" crossorigin />
+  <link rel="dns-prefetch" href="//sologenic.org" />
+  <link rel="preconnect" href="https://xpmarket.com" crossorigin />
+  <link rel="dns-prefetch" href="//xpmarket.com" />
+  <link rel="preconnect" href="https://xumm.app" crossorigin />
+  <link rel="dns-prefetch" href="//xumm.app" />
+  <link rel="preconnect" href="https://xrpscan.com" crossorigin />
+  <link rel="dns-prefetch" href="//xrpscan.com" />
 
-  <!-- Base CSS already on site (optional) -->
+  <!-- Preload hero/logo so social/above-the-fold is instant -->
+  <link rel="preload" as="image" href="/xrbc-nft.png" imagesrcset="/xrbc-nft.png 1x" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/xrbc-nft.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#10b981" />
+  <meta name="msapplication-TileColor" content="#0b0f14" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f14" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Open Graph (covers Slack/Discord/LinkedIn/Telegram/WhatsApp) -->
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
+  <meta property="og:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, and access project resources." />
+  <meta property="og:url" content="https://xrbitcoincash.com/xrbc-ecosystem.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:image:alt" content="XRBitcoinCash (XRBC) artwork" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter/X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@XRbitcoincash" />
+  <meta name="twitter:creator" content="@XRbitcoincash" />
+  <meta name="twitter:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
+  <meta name="twitter:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, and access project resources." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Optional alternate (only add if you later localize) -->
+  <!-- <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/xrbc-ecosystem.html" /> -->
+
+  <!-- Base CSS already on site -->
   <link rel="stylesheet" href="/xrbc.css">
   <link rel="stylesheet" href="/assets/xrbc-holiday.css">
 
-  <!-- Page-local CSS (visual + layout overrides) -->
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"WebSite",
+        "@id":"https://xrbitcoincash.com/#website",
+        "url":"https://xrbitcoincash.com/",
+        "name":"XRBitcoinCash",
+        "inLanguage":"en"
+      },
+      {
+        "@type":"Organization",
+        "@id":"https://xrbitcoincash.com/#org",
+        "name":"XRBitcoinCash",
+        "url":"https://xrbitcoincash.com/",
+        "logo":{
+          "@type":"ImageObject",
+          "url":"https://xrbitcoincash.com/xrbc-nft.png"
+        },
+        "sameAs":[
+          "https://x.com/XRbitcoincash",
+          "https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+          "https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+          "https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
+        ],
+        "contactPoint":[{
+          "@type":"ContactPoint",
+          "contactType":"security",
+          "url":"https://xrbitcoincash.com/.well-known/security.txt",
+          "availableLanguage":["en"]
+        }]
+      },
+      {
+        "@type":"WebPage",
+        "@id":"https://xrbitcoincash.com/xrbc-ecosystem.html#webpage",
+        "url":"https://xrbitcoincash.com/xrbc-ecosystem.html",
+        "isPartOf":{"@id":"https://xrbitcoincash.com/#website"},
+        "name":"XRBC Ecosystem & Information",
+        "description":"XRBC on XRPL: DEX/AMM venues, liquidity, issuer information, and project resources.",
+        "primaryImageOfPage":{
+          "@type":"ImageObject",
+          "url":"https://xrbitcoincash.com/xrbc-nft.png"
+        },
+        "inLanguage":"en"
+      }
+    ]
+  }
+  </script>
+
   <style>
 /* ---------- Tokens ---------- */
 :root{
@@ -317,10 +403,11 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   <!-- ===== Dev row (Auditor | Recert | README aligned right) ===== -->
   <section class="dev">
     <div class="dev-grid">
-      <a href="https://xrbitcoincash.github.io/ai/auditor-commands.html" class="btn btn-steam" target="_blank" rel="noopener" aria-label="Open Auditor Commands (copy & run)">
-        🛠️ Auditor Commands
-        <small>Self-check & validation</small>
-      </a>
+     <a href="https://xrbitcoincash.com/compliance.html" class="btn btn-steam" rel="noopener" aria-label="Open Compliance & Readiness Dashboard">
+  ✅ Compliance & Readiness Dashboard
+  <small>Live scans & disclosures</small>
+</a>
+
 
       <span class="recert-chip btn-steam is-static" title="Security recertification interval" style="display:inline-flex;align-items:center;gap:10px;font-weight:800;">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -352,28 +439,35 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 
   <!-- ===== Footer ===== -->
   <footer class="ecosystem-footer">
-    <div class="footer-container">
-      <h3>XRBitcoin Ecosystem</h3>
-      <p class="ecosystem-desc" style="color:var(--muted)">Interlinked XRPL-based assets and tools for trading, liquidity, and exploration.</p>
+  <div class="footer-container">
+    <div class="ecosystem-links">
+      <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
+        <span>XRBitcoin</span>
+      </a>
 
-      <div class="ecosystem-links">
-        <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
-          <span>XRBitcoin</span>
-        </a>
-        <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-          <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
-          <span>Jesus Christ Saves</span>
-        </a>
-        <a href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
-          <img src="/xrbc-nft.png" alt="Explorer icon">
-          <span>XRPSCAN issuer</span>
-        </a>
-      
+      <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
+        <span>Jesus Christ Saves</span>
+      </a>
 
-      <p class="ecosystem-tagline" style="margin-top:10px"><strong>Built on the XRP Ledger.</strong></p>
+      <a href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
+        <img src="/xrbc-nft.png" alt="Explorer icon">
+        <span>XRPSCAN issuer</span>
+      </a>
+
+      <!-- Right-aligned X (Twitter) link -->
+      <a href="https://x.com/XRbitcoincash" class="eco-link" target="_blank" rel="noopener" style="margin-left:auto">
+        <svg width="22" height="22" viewBox="0 0 120 120" aria-hidden="true">
+          <rect width="120" height="120" rx="12" fill="#0e1520"></rect>
+          <path fill="#e7edf5" d="M86.6 23L63.7 53l30.7 44H83.5L61.5 66.4 36.8 97H20l24.3-30.8L15.9 23h10.8l20.6 30.1L70.5 23h16.1Zm-47.5 9.8h-6.8l48.6 71.2h6.8L39.1 32.8Z"/>
+        </svg>
+        <span>Follow @XRbitcoincash</span>
+      </a>
     </div>
-  </footer>
+  </div>
+</footer>
+
 
   <!-- ===== Theme toggle script (Light/Dark; cards outline-only in light) ===== -->
   <script>
