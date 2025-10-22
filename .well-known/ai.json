@@ -1,8 +1,73 @@
 {
+  "$schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
+  "schema_version": "1.0",
+  "site": "https://xrbitcoincash.com",
+  "updated": "2025-10-22T06:15:00Z",
+
+  "canonical": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currency_hex": "5852626974636F696E6361736800000000000000",
+    "blackholed": true,
+    "supply_fixed": true
+  },
+
+  "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
+
   "ai_manifests": [
     { "name": "XRBitcoinCash", "path": "https://xrbitcoincash.com/universal-ai.json" },
     { "name": "XRBitcoin",     "path": "https://xrbitcoincash.com/XRBitcoin/universal-ai.json" }
   ],
-  "schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
-  "updated": "2025-10-13"
+
+  "provenance": {
+    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
+    "toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+    "csaf_provider": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+    "csaf_latest": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json",
+    "recert": "https://xrbitcoincash.com/ai/provenance.json"
+  },
+
+  "endpoints": {
+    "health_html": "https://xrbitcoincash.com/ai/ai/health.html",
+    "price_lite": "https://xrbitcoincash.github.io/ai/ai/price-lite.html"
+  },
+
+  "links": {
+    "home": "https://xrbitcoincash.com/",
+    "about": "https://xrbitcoincash.com/about.html",
+    "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
+    "trade": "https://xrbitcoincash.com/trade.html",
+    "repo": "https://github.com/xrbitcoincash/xrbitcoincash.github.io",
+    "x_twitter": "https://x.com/XRbitcoincash"
+  },
+
+  "i18n": {
+    "default": "en",
+    "alternates": [
+      { "lang": "it", "url": "https://xrbitcoincash.com/it/" }
+    ]
+  },
+
+  "xrpl_access": {
+    "mode": "read-only",
+    "allowed_methods": ["server_state", "ledger", "account_info", "book_offers", "amm_info"],
+    "notes": [
+      "Quotes must be computed live from XRPL order books and/or AMM.",
+      "POST JSON-RPC to xrpl_proxy with {method, params}."
+    ]
+  },
+
+  "security": {
+    "rate_limit_hint_rps": 2,
+    "guardrails": [
+      "Exact file casing; case mismatch returns 404.",
+      "No placeholders; JSON must be valid and minimal.",
+      "Live on-ledger data only; no hardcoded prices."
+    ]
+  },
+
+  "ai_provenance": {
+    "assistant": "GPT-5 Thinking",
+    "roles": ["documentation", "security-center advisor", "UX copy", "audit checklist drafting"],
+    "constraints": ["no secrets", "advisory only; verify on-ledger"]
+  }
 }
