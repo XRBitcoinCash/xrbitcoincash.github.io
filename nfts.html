@@ -124,20 +124,23 @@
     padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none;
     box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
     max-width:100%; min-width:0;
-    display:inline-flex; align-items:center; justify-content:center; line-height:1;
+    display:grid; place-items:center; line-height:1;
   }
   .btn-home:hover{ filter:brightness(0.98); }
 
-  /* Theme button — EXACTLY matches Home size; label flips via ::after */
+  /* Theme button — EXACTLY matches Home size; label centered via grid + block pseudo */
   #themeToggle{
     position:relative; appearance:none;
     padding:8px 12px; border-radius:12px; font-weight:800; line-height:1;
-    display:inline-flex; align-items:center; justify-content:center;
-    border:1px solid #cbd5e1; background:#ffffff; color:transparent; /* hide inner text */
+    border:1px solid #cbd5e1; background:#ffffff; color:transparent;
     box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
     max-width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    display:grid; place-items:center;           /* <<< hard center */
   }
-  #themeToggle::after{ content:"Light"; color:#0b0f14; letter-spacing:.2px; }
+  #themeToggle::after{
+    content:"Light"; color:#0b0f14; letter-spacing:.2px;
+    display:block; width:100%; text-align:center; /* <<< center the label itself */
+  }
   /* Light mode: dark button w/ white text + “Dark” label */
   body.light-mode #themeToggle{
     background:linear-gradient(180deg,#0e1520,#0b111a);
@@ -153,12 +156,7 @@
     min-height:calc(100dvh - 140px);
     display:grid; align-content:center; gap:var(--gap);
   }
-
-  .nft-hero{
-    display:grid; gap:var(--gap);
-    grid-template-columns:1fr;
-    align-items:stretch;
-  }
+  .nft-hero{ display:grid; gap:var(--gap); grid-template-columns:1fr; align-items:stretch; }
   @media (min-width:980px){ .nft-hero{ grid-template-columns:1fr 1fr; } }
 
   .nft-card{
@@ -174,18 +172,14 @@
   /* --- Sologenic buttons: 2 across; 3rd centered below --- */
   .cta-row{
     display:grid;
-    grid-template-columns: repeat(2, minmax(160px, 1fr)); /* slightly smaller */
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
     gap:12px;
     align-items:stretch;
     justify-items:stretch;
     margin-top:10px;
   }
   .cta-row a{ text-align:center; }
-  .cta-row a:nth-child(3){
-    grid-column: 1 / -1;
-    justify-self: center;
-    max-width: 60ch;
-  }
+  .cta-row a:nth-child(3){ grid-column: 1 / -1; justify-self: center; max-width: 60ch; }
   @media (max-width:640px){
     .cta-row{ grid-template-columns: 1fr; }
     .cta-row a:nth-child(3){ grid-column:auto; justify-self:stretch; max-width:none; }
@@ -216,15 +210,21 @@
   /* Gallery */
   .gallery-card{ padding:0; overflow:hidden; }
   .gallery-frame{ width:100%; height:980px; border:0; display:block; background:#0b1524; }
-  @media (max-width:640px){ .gallery-frame{ height:480px; } } /* tighter on phones */
+  @media (max-width:640px){ .gallery-frame{ height:480px; } }
 
-  /* ================= Footer (centered; X button on its own centered row) ================= */
-  .ecosystem-footer{ border-top:1px solid rgba(255,255,255,.06); margin-top:12px; }
-  .footer-container{ max-width:var(--wrap); margin:0 auto; padding:14px; }
+  /* ================= Footer (centered; X button own centered row; text centered) ================= */
+  .ecosystem-footer{
+    border-top:1px solid rgba(255,255,255,.06); margin-top:12px;
+    text-align:center;                                /* <<< center text */
+  }
+  .footer-container{
+    max-width:var(--wrap); margin:0 auto; padding:14px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; /* <<< center block */
+  }
   .ecosystem-links,
   .footer-links{
     display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;
-    justify-content:center; align-items:flex-start; text-align:center;
+    justify-content:center; align-items:center; text-align:center;
   }
   .ecosystem-links a,
   .footer-links a{
@@ -241,10 +241,9 @@
   .footer-links a[href*="twitter.com"]{
     order: 2;
     flex-basis:100%;
-    max-width:18rem;          /* more compact */
-    margin-inline:auto;       /* centered */
+    max-width:18rem;
+    margin-inline:auto;
   }
-  /* Keep other links before/after as needed */
   .ecosystem-links a[href*="xrpscan"], .footer-links a[href*="xrpscan"]{ order:1; }
   .ecosystem-links a:not([href*="xrpscan"]):not([href*="x.com"]):not([href*="twitter.com"]),
   .footer-links a:not([href*="xrpscan"]):not([href*="x.com"]):not([href*="twitter.com"]){ order:3; }
@@ -274,7 +273,7 @@
 
   /* ================= Mobile polish (shrink ~20% & center) ================= */
   @media (max-width:560px){
-    html{ font-size:13px; } /* ~-20% vs typical 16px */
+    html{ font-size:13px; }
     .header-wrap{
       grid-template-columns:minmax(0,1fr) minmax(0,1fr);
       grid-auto-rows:minmax(0,auto);
