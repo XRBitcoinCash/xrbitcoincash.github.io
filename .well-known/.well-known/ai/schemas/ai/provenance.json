@@ -6,7 +6,123 @@
     ],
     "principles": [
       "No secrets committed to the repo.",
-      "Read-only XRPL access from public endpoints.",
+      "Read-o{
+  "manifest": "XRBitcoinCash AI Manifest",
+  "version": "2025.10",
+  "updated": "2025-10-22",
+
+  "project": {
+    "name": "XRBitcoinCash",
+    "ticker": "XRBC",
+    "network": "XRPL Mainnet",
+    "identity": {
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+      "currency_code_string": "XRbitcoincash",
+      "currency_code_hex": "5852626974636F696E6361736800000000000000"
+    },
+    "related_projects": [
+      {
+        "name": "XRBitcoin",
+        "note": "Separate token with a different issuer/page; branding kept distinct."
+      }
+    ]
+  },
+
+  "endpoints": {
+    "site": "https://xrbitcoincash.com/",
+    "about": "https://xrbitcoincash.com/about.html",
+    "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
+    "trade": "https://xrbitcoincash.com/trade.html",
+    "nfts": "https://xrbitcoincash.com/nfts.html",
+
+    "ai_health": "https://xrbitcoincash.com/ai/ai/health.html",
+    "ai_price_lite": "https://xrbitcoincash.github.io/ai/ai/price-lite.html",
+
+    "xrpl_toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
+
+    "ai_manifest_self": "https://xrbitcoincash.com/universal-ai.json",
+
+    "proxy_base": "https://xrbitcoincash-github-io.onrender.com",
+    "proxy_hint": {
+      "book_offers": "XRPL order book for XRBC/XRP",
+      "amm_info": "XRPL AMM pool state"
+    },
+
+    "diagnostics": {
+      "healthz": "/healthz",
+      "diag_html": "/diag.html",
+      "notes": "If served by the proxy, these are relative to `proxy_base`."
+    }
+  },
+
+  "ecosystem": {
+    "dex_primary": "XRPL DEX/AMM (on-ledger)",
+    "cex_listings": {
+      "status": "none-claimed",
+      "links": [],
+      "policy": "If/when CEX listings go live, exact URLs will be published here."
+    }
+  },
+
+  "socials": {
+    "x_twitter": "https://x.com/XRbitcoincash"
+  },
+
+  "provenance": {
+    "built_with": [
+      {
+        "assistant": "GPT-5 Thinking",
+        "roles": [
+          "code generation",
+          "manifests",
+          "documentation",
+          "UX polish",
+          "advisory audit language"
+        ]
+      }
+    ],
+    "human_review_required": true,
+    "principles": [
+      "No secrets committed to the repo.",
+      "Read-only XRPL access via public endpoints.",
+      "Live on-ledger data only; no hardcoded prices.",
+      "Exact file casing and config placement (baseline safety).",
+      "Desktop QR-only signing; no in-page secret storage.",
+      "No API keys in the repository; keys rotated regularly."
+    ],
+    "audit_ready": true,
+    "audit_notes": [
+      "Validate manifests and TOML against their JSON/schema definitions if available.",
+      "Use /ai/ai/health.html and proxy /healthz for diagnostics.",
+      "Prices/quotes must derive from XRPL `book_offers` top-of-book and/or `amm_info` for AMM.",
+      "Prefer expressing price as 'XRBC per 1 XRP' (and only derive USD via a transparent oracle if required)."
+    ]
+  },
+
+  "data_sources_of_truth": [
+    "XRPL order books (XRBC/XRP) via `book_offers`",
+    "XRPL AMM pool state via `amm_info`",
+    "XRPL ledger objects and transactions"
+  ],
+
+  "price_contract": {
+    "units": "XRBC per 1 XRP",
+    "method": ["book_offers", "amm_info"],
+    "endpoint": "https://xrbitcoincash.github.io/ai/ai/price-lite.html",
+    "notes": "Do not cache stale prices; always recompute from ledger or proxy."
+  },
+
+  "compliance": {
+    "license": "MIT",
+    "disclaimer": [
+      "XRBC is a community token on XRPL; not an equity or debt claim.",
+      "Jurisdictional treatment varies; this is not legal or investment advice.",
+      "ChatGPT assistance is advisory; it does not hold keys or sign transactions."
+    ]
+  }
+}
+nly XRPL access from public endpoints.",
       "Live on-ledger data only; no hardcoded prices.",
       "Exact file casing and config placement (baseline safety)."
     ],
