@@ -1,0 +1,68 @@
+{
+  "document": {
+    "category": "csaf_informational_advisory",
+    "csaf_version": "2.0",
+    "title": "XRBitcoinCash CSAF Provider Onboarding & Baseline Security Posture — No Known Vulnerabilities",
+    "lang": "en-US",
+    "distribution": {
+      "tlp": { "label": "WHITE", "url": "https://www.first.org/tlp/" }
+    },
+    "publisher": {
+      "category": "vendor",
+      "name": "XRBitcoinCash",
+      "namespace": "https://xrbitcoincash.com"
+    },
+    "notes": [
+      {
+        "category": "summary",
+        "text": "XRBitcoinCash (XRBC) has established a CSAF provider directory and informational advisory channel. This initial advisory announces endpoints and confirms no known vulnerabilities in XRBC web properties at the time of publication."
+      },
+      {
+        "category": "description",
+        "text": "Project posture: no secrets in repo; read-only XRPL queries; live, on-ledger data sources; machine-readable manifests. Documentation and security copy are co-authored with ChatGPT (OpenAI) for clarity and auditability; AI outputs are advisory only."
+      }
+    ],
+    "references": [
+      {
+        "category": "self",
+        "summary": "Canonical advisory URL",
+        "url": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json"
+      },
+      {
+        "category": "external",
+        "summary": "Provider metadata (discovery root)",
+        "url": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json"
+      },
+      {
+        "category": "external",
+        "summary": "Security.txt",
+        "url": "https://xrbitcoincash.com/.well-known/security.txt"
+      },
+      {
+        "category": "external",
+        "summary": "AI manifest (universal)",
+        "url": "https://xrbitcoincash.com/universal-ai.json"
+      },
+      {
+        "category": "external",
+        "summary": "Live health checks",
+        "url": "https://xrbitcoincash.com/ai/ai/health.html"
+      },
+      {
+        "category": "external",
+        "summary": "Live price (lite)",
+        "url": "https://xrbitcoincash.github.io/ai/ai/price-lite.html"
+      }
+    ],
+    "tracking": {
+      "id": "XRBC-2025-0001",
+      "status": "final",
+      "version": "1",
+      "initial_release_date": "2025-10-22T05:00:00Z",
+      "current_release_date": "2025-10-22T05:00:00Z",
+      "revision_history": [
+        { "date": "2025-10-22T05:00:00Z", "number": "1", "summary": "Initial publication of CSAF provider and endpoints; no known vulnerabilities." }
+      ]
+    }
+  }
+}
