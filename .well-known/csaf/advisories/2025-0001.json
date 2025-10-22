@@ -1,0 +1,53 @@
+{
+  "document": {
+    "category": "csaf_informational_advisory",
+    "csaf_version": "2.0",
+    "title": "XRBitcoinCash CSAF Provider Onboarding — Mirror Advisory (points to canonical)",
+    "lang": "en-US",
+    "distribution": {
+      "tlp": { "label": "WHITE", "url": "https://www.first.org/tlp/" }
+    },
+    "publisher": {
+      "category": "vendor",
+      "name": "XRBitcoinCash",
+      "namespace": "https://xrbitcoincash.com"
+    },
+    "notes": [
+      {
+        "category": "summary",
+        "text": "This advisory exists to satisfy CI path checks. The canonical advisory is xrbc-2025-0001.json under /.well-known/csaf/2025/."
+      },
+      {
+        "category": "description",
+        "text": "For full references, provenance, and status, consult the canonical advisory linked below."
+      }
+    ],
+    "references": [
+      {
+        "category": "self",
+        "summary": "Canonical advisory (XRBC-2025-0001)",
+        "url": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json"
+      },
+      {
+        "category": "external",
+        "summary": "CSAF provider metadata",
+        "url": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json"
+      }
+    ],
+    "tracking": {
+      "id": "XRBC-2025-0001",
+      "status": "final",
+      "version": "1",
+      "initial_release_date": "2025-10-22T06:45:00Z",
+      "current_release_date": "2025-10-22T06:45:00Z",
+      "revision_history": [
+        {
+          "date": "2025-10-22T06:45:00Z",
+          "number": "1",
+          "summary": "Mirror advisory created to satisfy CI path check; points to canonical CSAF."
+        }
+      ]
+    }
+  },
+  "vulnerabilities": []
+}
