@@ -32,18 +32,18 @@
   <meta name="twitter:description" content="Live Sologenic gallery, verified issuer links, and machine-readable metadata." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-  <!-- Site CSS (attach to existing styles) -->
+  <!-- Site CSS -->
   <link rel="stylesheet" href="/xrbc.css">
   <link rel="stylesheet" href="/assets/xrbc-holiday.css">
 
-  <!-- Performance hints for the embedded widget + explorers -->
+  <!-- Performance hints -->
   <link rel="preconnect" href="https://sologenic.org" crossorigin />
   <link rel="dns-prefetch" href="//sologenic.org" />
   <link rel="preconnect" href="https://xrpscan.com" crossorigin />
   <link rel="dns-prefetch" href="//xrpscan.com" />
   <link rel="preload" as="image" href="/xrbc-nft.png" />
 
-  <!-- ===== Machine Beacons (simple <meta> facts agents love) ===== -->
+  <!-- Machine Beacons -->
   <meta name="xrpl:asset:ticker" content="XRBC" />
   <meta name="xrpl:asset:issuer" content="rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" />
   <meta name="xrpl:asset:currency_hex" content="5852626974636F696E6361736800000000000000" />
@@ -53,7 +53,7 @@
   <meta name="ai:endpoint:index" content="https://xrbitcoincash.com/.well-known/ai.json" />
   <meta name="ai:endpoint:provenance" content="https://xrbitcoincash.com/ai/provenance.json" />
 
-  <!-- ===== JSON-LD: rich, multi-entity @graph ===== -->
+  <!-- JSON-LD -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -81,75 +81,82 @@
         "primaryImageOfPage":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png"},
         "about":{"@id":"https://xrbitcoincash.com/#org"},
         "inLanguage":"en"
-      },
-      {
-        "@type":"DefinedTermSet",
-        "@id":"https://xrbitcoincash.com/#xrpl-terms",
-        "name":"XRPL Asset Definitions",
-        "hasDefinedTerm":[
-          {
-            "@type":"DefinedTerm",
-            "name":"XRBitcoinCash",
-            "termCode":"XRBC",
-            "inDefinedTermSet":"https://xrbitcoincash.com/#xrpl-terms",
-            "additionalProperty":[
-              {"@type":"PropertyValue","name":"issuer","value":"rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"},
-              {"@type":"PropertyValue","name":"currency_hex","value":"5852626974636F696E6361736800000000000000"},
-              {"@type":"PropertyValue","name":"network","value":"XRPL Mainnet"}
-            ]
-          }
-        ]
-      },
-      {
-        "@type":"ItemList",
-        "@id":"https://xrbitcoincash.com/nfts.html#endpoints",
-        "name":"XRBC Machine Endpoints",
-        "itemListElement":[
-          {"@type":"ListItem","position":1,"url":"https://xrbitcoincash.com/.well-known/xrp-ledger.toml"},
-          {"@type":"ListItem","position":2,"url":"https://xrbitcoincash.com/universal-ai.json"},
-          {"@type":"ListItem","position":3,"url":"https://xrbitcoincash.com/.well-known/ai.json"},
-          {"@type":"ListItem","position":4,"url":"https://xrbitcoincash.com/ai/provenance.json"}
-        ]
       }
     ]
   }
   </script>
 
-  <!-- Page-local styles (thin layer on top of your base CSS) -->
+  <!-- Page-local CSS: centered grid + auto-hiding header -->
   <style>
-    /* Keep the existing site header look/feel */
-    .nft-hero{max-width:980px;margin:14px auto 20px;padding:0 14px;display:grid;gap:14px;grid-template-columns:1fr}
-    @media (min-width:960px){.nft-hero{grid-template-columns:1.4fr .8fr}}
+    :root{ --wrap:980px; --gap:14px; --border:#2b3a4b; }
+    /* ----- Header: sticky + auto-hide “explode” effect ----- */
+    .site-header{
+      position:sticky; top:0; z-index:100;
+      background:linear-gradient(180deg,#0b0f14,#0b1017);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      transition:transform .35s cubic-bezier(.2,.7,.3,1), opacity .35s ease, filter .35s ease;
+      will-change:transform,opacity,filter;
+    }
+    .site-header.is-hidden{
+      transform:translateY(-120%) scale(.98) perspective(600px) rotateX(6deg);
+      opacity:.35; filter:blur(.4px) saturate(.9);
+    }
+    .header-wrap{ max-width:var(--wrap); margin:0 auto; padding:12px 14px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; }
+
+    /* ----- Layout: center the two cards mid-screen, evenly ----- */
+    main{ padding-inline:14px; }
+    .stage{
+      max-width:var(--wrap);
+      margin:0 auto;
+      min-height:calc(100dvh - 140px); /* keep content clearly below header */
+      display:grid;
+      align-content:center;             /* vertical centering of the row */
+      gap:var(--gap);
+    }
+    .nft-hero{
+      display:grid; gap:var(--gap);
+      grid-template-columns:1fr;        /* mobile */
+      align-items:stretch;               /* equal heights */
+    }
+    @media (min-width:980px){
+      .nft-hero{ grid-template-columns:1fr 1fr; } /* EVEN split */
+    }
+
     .nft-card{
       background:linear-gradient(180deg,#0e1520,#0c131c);
-      border:1px solid var(--border,#2b3a4b);
-      border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.35)
+      border:1px solid var(--border);
+      border-radius:14px; padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      display:flex; flex-direction:column;
     }
-    .nft-card h2{margin:0 0 8px}
-    .lead{color:var(--muted,#9fb0c5);margin:0 0 12px;line-height:1.6}
-    .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
-    .btn-ghost{
-      appearance:none;border:1px solid var(--border,#2b3a4b);background:transparent;color:#e7edf5;
-      padding:10px 14px;border-radius:12px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px
-    }
-    .btn-ghost:hover{filter:brightness(1.06)}
+    .nft-card h2{ margin:0 0 8px; }
+    .lead{ color:#9fb0c5; margin:0 0 12px; line-height:1.6; }
+    .cta-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top:10px; }
+    .fact-grid{ display:grid; gap:10px; grid-template-columns:1fr 1fr; }
+    .fact{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); border-radius:10px; padding:10px; }
+    .fact code{ font-family:ui-monospace,Consolas,Menlo,monospace; }
+
+    /* Gallery frame sits below the hero, full width of wrap */
+    .gallery-card{ padding:0; overflow:hidden; }
     .gallery-frame{
-      width:100%;height:980px;border:1px solid var(--border,#2b3a4b);border-radius:12px;background:#0b1524
+      width:100%; height:980px; border:0; display:block; background:#0b1524;
     }
-    @media (max-width:640px){.gallery-frame{height:820px}}
-    .fact-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-    .fact{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:10px}
-    .fact code{font-family:ui-monospace,Consolas,Menlo,monospace}
+    @media (max-width:640px){ .gallery-frame{ height:820px; } }
+
+    /* Light mode polish */
+    body.light-mode .nft-card{ background:#fff; border-color:#cbd5e1; box-shadow:none; }
+    body.light-mode .lead{ color:#3b4a5f; }
+    body.light-mode .fact{ background:#f6f8fb; border-color:#e5eaf0; }
   </style>
 </head>
 
 <body>
-  <!-- ===== Site Header (re-using your classes) ===== -->
-  <header class="site-header">
+  <!-- ===== Header (brand + Home + theme) ===== -->
+  <header class="site-header" id="siteHeader">
     <div class="header-wrap">
       <div class="brand">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" />
-        <h1>XRBitcoinCash</h1>
+        <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" style="border-radius:50%;object-fit:cover" />
+        <h1 style="margin:0;font-size:1.25rem;line-height:1.1">XRBitcoinCash</h1>
       </div>
 
       <!-- Centered Home -->
@@ -157,56 +164,58 @@
         <a class="btn btn-sm" href="/" title="Home">Home</a>
       </nav>
 
-      <!-- Right: Light/Dark text toggle -->
+      <!-- Right: Light/Dark -->
       <div class="header-right">
         <button class="btn btn-sm" id="themeToggle" type="button" aria-label="Toggle theme">Light / Dark</button>
       </div>
     </div>
   </header>
 
-  <!-- ===== Hero + Facts ===== -->
-  <section class="nft-hero">
-    <div class="nft-card">
-      <h2>XRBC NFT Collections on XRPL</h2>
-      <p class="lead">
-        Curated drops, on-ledger provenance, and a live gallery surfaced via Sologenic. Non-custodial and verifiable.
-      </p>
-      <div class="cta-row" role="group" aria-label="Primary NFT links">
-        <a class="btn btn-xpmarket" href="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" target="_blank" rel="noopener">Sologenic Profile</a>
-        <a class="btn btn-solo-dex" href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XRPSCAN Issuer</a>
-        <a class="btn btn-xaman" href="/.well-known/xrp-ledger.toml">XRPL TOML</a>
-      </div>
-      <div class="fact-grid" style="margin-top:14px">
-        <div class="fact">Ticker: <strong>XRBC</strong></div>
-        <div class="fact">Network: <strong>XRPL Mainnet</strong></div>
-        <div class="fact">Issuer: <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></div>
-        <div class="fact">HEX: <code>5852626974636F696E6361736800000000000000</code></div>
-      </div>
+  <main>
+    <div class="stage">
+      <!-- ===== Two centered, evenly split cards ===== -->
+      <section class="nft-hero" aria-label="XRBC NFT highlights">
+        <div class="nft-card">
+          <h2>XRBC NFT Collections on XRPL</h2>
+          <p class="lead">
+            Curated drops, on-ledger provenance, and a live gallery surfaced via Sologenic. Non-custodial and verifiable.
+          </p>
+          <div class="cta-row" role="group" aria-label="Primary NFT links">
+            <a class="btn btn-xpmarket" href="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" target="_blank" rel="noopener">Sologenic Profile</a>
+            <a class="btn btn-solo-dex" href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XRPSCAN Issuer</a>
+            <a class="btn btn-xaman" href="/.well-known/xrp-ledger.toml">XRPL TOML</a>
+          </div>
+          <div class="fact-grid" style="margin-top:14px">
+            <div class="fact">Ticker: <strong>XRBC</strong></div>
+            <div class="fact">Network: <strong>XRPL Mainnet</strong></div>
+            <div class="fact">Issuer: <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></div>
+            <div class="fact">HEX: <code>5852626974636F696E6361736800000000000000</code></div>
+          </div>
+        </div>
+
+        <aside class="nft-card glow-green">
+          <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT artwork" style="width:100%;height:auto;border-radius:10px" />
+          <p class="lead" style="margin-top:10px">
+            Our earliest collection preserves pre-XLS-20 minting style (early XLS-14 proposals) for provenance and history.
+          </p>
+        </aside>
+      </section>
+
+      <!-- ===== Live Gallery Embed (Sologenic) ===== -->
+      <section class="nft-card gallery-card" aria-label="Live NFT gallery">
+        <iframe
+          class="gallery-frame"
+          title="XRBitcoinCash NFT Viewer (Sologenic)"
+          src="https://sologenic.org/profile/xrbitcoincash.com?embed=1&network=mainnet"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          sandbox="allow-same-origin allow-scripts allow-popups">
+        </iframe>
+      </section>
     </div>
+  </main>
 
-    <aside class="nft-card glow-green">
-      <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT artwork" style="width:100%;height:auto;border-radius:10px" />
-      <p class="lead" style="margin-top:10px">
-        Our earliest collection preserves pre-XLS-20 minting style often aligned with early XLS-14 proposals—kept for provenance and history.
-      </p>
-    </aside>
-  </section>
-
-  <!-- ===== Live Gallery Embed (Sologenic) ===== -->
-  <section class="hero" aria-label="Live NFT gallery">
-    <div class="nft-card" style="padding:0">
-      <iframe
-        class="gallery-frame"
-        title="XRBitcoinCash NFT Viewer (Sologenic)"
-        src="https://sologenic.org/profile/xrbitcoincash.com?embed=1&network=mainnet"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        sandbox="allow-same-origin allow-scripts allow-popups">
-      </iframe>
-    </div>
-  </section>
-
-  <!-- ===== Machine Indexes (inline JSON for agents/backends) ===== -->
+  <!-- Machine indexes for agents/backends -->
   <script type="application/json" id="xrbc-nft-index">
   {
     "project": "XRBitcoinCash",
@@ -242,21 +251,42 @@
   ]
   </script>
 
-  <!-- ===== Theme toggle (same behavior as your other pages) ===== -->
+  <!-- Theme toggle + Header auto-hide -->
   <script>
     (function(){
+      // Light/Dark
       const btn = document.getElementById('themeToggle');
-      if(!btn) return;
       function apply(mode){
         const isLight = mode === 'light';
         document.body.classList.toggle('light-mode', isLight);
         try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
       }
       try{ const saved = localStorage.getItem('xrbc-theme'); if (saved) apply(saved); }catch(_){}
-      btn.addEventListener('click', () => {
+      if (btn) btn.addEventListener('click', () => {
         const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
         apply(next);
       });
+
+      // Header auto-hide on scroll down, show on scroll up
+      const header = document.getElementById('siteHeader');
+      let lastY = window.scrollY, ticking = false;
+      function onScroll(){
+        const y = window.scrollY;
+        const dy = y - lastY;
+        const threshold = 10; // debounce tiny jitters
+        if (Math.abs(dy) > threshold){
+          if (dy > 0 && y > 64){ // scrolling down
+            header.classList.add('is-hidden');
+          } else {              // scrolling up
+            header.classList.remove('is-hidden');
+          }
+          lastY = y;
+        }
+        ticking = false;
+      }
+      window.addEventListener('scroll', () => {
+        if (!ticking){ requestAnimationFrame(onScroll); ticking = true; }
+      }, { passive:true });
     })();
   </script>
 </body>
