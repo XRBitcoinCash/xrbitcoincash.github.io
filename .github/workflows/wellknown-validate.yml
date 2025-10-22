@@ -1,0 +1,53 @@
+name: Validate .well-known & JSON
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1) Ensure .nojekyll exists
+      - name: Check .nojekyll
+        run: |
+          test -f .nojekyll || (echo ".nojekyll missing at repo root" && exit 1)
+
+      # 2) Ensure key files exist
+      - name: Check required files exist
+        run: |
+          set -e
+          for f in \
+            ".well-known/security.txt" \
+            ".well-known/csaf/provider-metadata.json" \
+            ".well-known/csaf/advisories/2025-0001.json" \
+            ".well-known/csaf/2025/xrbc-2025-0001.json" \
+            "universal-ai.json"
+          do
+            [ -f "$f" ] || (echo "Missing: $f" && exit 1)
+          done
+
+      # 3) Basic JSON validity with jq
+      - name: Validate JSON syntax
+        run: |
+          jq . .well-known/csaf/provider-metadata.json >/dev/null
+          jq . .well-known/csaf/advisories/2025-0001.json >/dev/null
+          jq . .well-known/csaf/2025/xrbc-2025-0001.json >/dev/null
+          jq . universal-ai.json >/dev/null
+
+      # 4) Sanity checks: required keys present
+      - name: Sanity keys
+        run: |
+          jq -e '.publisher.name and .publisher.namespace' .well-known/csaf/provider-metadata.json >/dev/null
+          jq -e '.document.csaf_version and .document.tracking.id' .well-known/csaf/2025/xrbc-2025-0001.json >/dev/null
+          jq -e '.project and .ai_assistance.provider' universal-ai.json >/dev/null
+
+      # 5) security.txt has Contact + Canonical
+      - name: Validate security.txt basics
+        run: |
+          grep -E '^Contact:' .well-known/security.txt >/dev/null || (echo "security.txt missing Contact" && exit 1)
+          grep -E '^Canonical:' .well-known/security.txt >/dev/null || (echo "security.txt missing Canonical" && exit 1)
