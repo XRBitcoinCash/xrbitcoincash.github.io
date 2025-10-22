@@ -11,10 +11,10 @@
   <link rel="icon" href="/xrbc-nft.png" />
 
   <style>
-    :root {
+    :root{
       --bg:#000; --text:#00ff95; --muted:#00c27d; --accent:#39ff14;
       --warn:#f7b500; --danger:#ff5555; --panel:rgba(0,15,8,0.88);
-      --radius:12px; --shadow:0 0 30px rgba(0,255,149,0.2); --line:rgba(57,255,20,.25);
+      --radius:12px; --shadow:0 0 30px rgba(0,255,149,0.2); --line:rgba(57,255,20,.25)
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:ui-monospace,Consolas,Menlo,monospace;background:var(--bg);color:var(--text);overflow-x:hidden}
@@ -154,10 +154,19 @@
     <!-- SEC READINESS -->
     <section class="panel" id="sec">
       <div class="head">[ SEC Readiness Node — US-focused checklist ]</div>
-      <details id="secDetails">
+      <details id="secDetails" open>
         <summary>Open checklist</summary>
+
+        <!-- Status + actions (wired by JS) -->
+        <div id="secMeta" class="mono" style="margin:8px 0;"></div>
+        <div id="secScore" class="mono ok" style="margin:4px 0;"></div>
+        <div id="secActions" style="display:flex;gap:8px;margin:8px 0;">
+          <button class="btn" id="secExport">Export JSON</button>
+          <button class="btn" id="secMarkAll">Mark all as reviewed</button>
+        </div>
+
+        <!-- Dynamic checklist -->
         <ul id="secList" class="note" style="padding-left:16px;margin-top:10px"></ul>
-        <div style="margin-top:8px"><button class="btn" id="secMarkAll">Mark all as reviewed</button></div>
       </details>
       <p class="note" style="margin-top:8px">This is an internal readiness aid; it does not determine legal status.</p>
     </section>
@@ -170,13 +179,16 @@
   <script>
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    /* ==== WELL-KNOWN SCAN ==== */
+    /* =========================
+       WELL-KNOWN SCAN
+       ========================= */
     const endpoints = {
       security_txt: "https://xrbitcoincash.com/.well-known/security.txt",
       csaf_provider: "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
       csaf_latest: "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json",
-      provenance: "https://xrbitcoincash.com/ai/provenance.json",
-      universal_manifest: "https://xrbitcoincash.com/universal-ai.json"
+      ai_index: "https://xrbitcoincash.com/.well-known/ai.json",
+      universal_manifest: "https://xrbitcoincash.com/universal-ai.json",
+      provenance: "https://xrbitcoincash.com/ai/provenance.json"
     };
     const scanBtn = document.getElementById('scanBtn');
     const scanList = document.getElementById('scanList');
@@ -190,7 +202,7 @@
           const r = await fetch(url, { cache:"no-store" });
           results[k] = { url, ok: r.ok, status: r.status };
           const li = document.createElement('li');
-          li.innerHTML = (r.ok ? '✅' : '❌') + ' <code>' + k + '</code> → ' + r.status + ' — <a href="' + url + '" target="_blank">open</a>';
+          li.innerHTML = (r.ok ? '✅' : '❌') + ' <code>' + k + '</code> → ' + r.status + ' — <a href="' + url + '" target="_blank" rel="noopener">open</a>';
           li.className = r.ok ? 'ok' : 'danger';
           scanList.appendChild(li);
         } catch (e) {
@@ -204,8 +216,12 @@
       scanJson.textContent = JSON.stringify({ updated_at: new Date().toISOString(), results }, null, 2);
     }
     scanBtn.addEventListener('click', scanEndpoints);
+    // quick passive scan on load
+    scanEndpoints();
 
-    /* ==== TOML PROBE ==== */
+    /* =========================
+       TOML PROBE (string checks)
+       ========================= */
     const tomlUrl = document.getElementById('tomlUrl');
     const fetchTomlBtn = document.getElementById('fetchToml');
     const analyzeTomlBtn = document.getElementById('analyzeToml');
@@ -241,8 +257,6 @@
         li.className = ok ? 'ok' : 'warn';
         tomlChecks.appendChild(li);
       };
-
-      // super-light checks (string-based)
       const hasCurrencies = /\[\[CURRENCIES\]\]/i.test(lastToml);
       const hasIssuer = /issuer\s*=\s*"(r[1-9A-HJ-NP-Za-km-z]{25,35})"/i.test(lastToml);
       const hasCode = /(code|currency|symbol)\s*=\s*"[A-Za-z0-9]{1,}/i.test(lastToml);
@@ -258,91 +272,175 @@
       add(domainOk, 'Served from expected domain (xrbitcoincash.com)');
     });
 
-    /* ==== JURISDICTION MATRIX (static dataset) ==== */
+    /* =========================
+       JURISDICTION MATRIX (static)
+       ========================= */
     const MATRIX = [
-      { j: "Global (FATF)", f: "Travel Rule & VASP guidance", t: "Custody, exchange-as-a-business", p: "XRBC is non-custodial; Travel Rule lies with custodial VASPs." },
-      { j: "EU (MiCA)", f: "CASP regime; disclosures", t: "Operating CASP (custody, exchange, order exec.)", p: "XRBC runs docs only; exchanges/wallets must hold CASP permissions if required." },
-      { j: "UK (FCA)", f: "Financial promotions; MLR registration", t: "Communicating/approving promotions; crypto business", p: "Informational content with risk warnings; no inducements; no custody." },
-      { j: "USA (FinCEN/OFAC)", f: "MSB, sanctions", t: "Money transmission/custody for others", p: "No custody or transfer service; sanctions policy applied." },
-      { j: "Singapore (MAS)", f: "PSA (DPT services)", t: "DPT service provider activities", p: "XRBC provides no DPT services; venues must comply." },
-      { j: "Japan (FSA)", f: "Payment Services Act", t: "Operating exchange/custody", p: "No exchange/custody; token only." },
-      { j: "Korea (FSC)", f: "Virtual Asset User Protection Act", t: "VASP ops", p: "Not a VASP; platform duties apply to local venues." },
-      { j: "Hong Kong (SFC)", f: "VATP licensing", t: "Operating a VATP; retail access", p: "No VATP operated; listings via SFC-licensed venues." },
-      { j: "UAE (VARA/ADGM)", f: "VASP rulebooks", t: "Exchange, brokerage, custody", p: "No VASP ops by XRBC; venue licensing applies." },
-      { j: "Canada (CSA/FINTRAC)", f: "CTP undertakings; Travel Rule", t: "CTP/MSB activities", p: "No CTP/MSB role; platforms comply." },
-      { j: "Mainland China", f: "Restrictions/bans", t: "Crypto business/marketing", p: "No services or solicitation in mainland China." }
+      { j:"Global (FATF)",       f:"Travel Rule & VASP guidance",         t:"Custody, exchange-as-a-business",                    p:"XRBC is non-custodial; Travel Rule lies with custodial VASPs." },
+      { j:"EU (MiCA)",           f:"CASP regime; disclosures",            t:"Operating CASP (custody, exchange, order exec.)",    p:"XRBC runs docs only; exchanges/wallets must hold CASP permissions if required." },
+      { j:"UK (FCA)",            f:"Financial promotions; MLR reg.",      t:"Communicating/approving promotions; crypto business",p:"Informational content with risk warnings; no inducements; no custody." },
+      { j:"USA (FinCEN/OFAC)",   f:"MSB, sanctions",                      t:"Money transmission/custody for others",              p:"No custody or transfer service; sanctions policy applied." },
+      { j:"Japan (FSA)",         f:"Payment Services Act",                t:"Operating exchange/custody",                         p:"No exchange/custody; token only." },
+      { j:"Korea (FSC)",         f:"Virtual Asset User Protection Act",   t:"VASP ops",                                          p:"Not a VASP; venue obligations apply locally." },
+      { j:"Hong Kong (SFC)",     f:"VATP licensing",                      t:"Operating VATP; retail access",                      p:"No VATP operated; listings via SFC-licensed venues." },
+      { j:"Singapore (MAS)",     f:"PSA (DPT services)",                  t:"DPT service provider activities",                    p:"XRBC provides no DPT services; venues must comply." },
+      { j:"UAE (VARA/ADGM)",     f:"VASP rulebooks",                      t:"Exchange, brokerage, custody",                       p:"No VASP ops by XRBC; venue licensing applies." },
+      { j:"Canada (CSA/FINTRAC)",f:"CTP undertakings; Travel Rule",       t:"CTP/MSB activities",                                 p:"No CTP/MSB role; platforms comply." },
+      { j:"Mainland China",      f:"Restrictions/bans",                   t:"Crypto business/marketing",                          p:"No services or solicitation in mainland China." },
+      { j:"Switzerland (FINMA)", f:"DLT/Token classification",            t:"Custody/exchange activities",                        p:"No custody; third-party venue licensing applies." },
+      { j:"Germany (BaFin)",     f:"Crypto custody/exchange licensing",   t:"Crypto custody/exchange for others",                 p:"XRBC is not a custodian/exchange; venues comply." },
+      { j:"France (AMF)",        f:"PSAN registration",                   t:"Digital asset services",                             p:"XRBC provides no services; PSAN obligations lie with providers." },
+      { j:"Australia (ASIC/AUSTRAC)", f:"Design & Distribution; AML/CTF", t:"Crypto business & AML reporting",                    p:"Informational site only; venues observe AML/CTF." },
+      { j:"Brazil (BCB/CVM)",    f:"Virtual asset regime (VASP)",         t:"Service provision/custody",                          p:"No custody; listings via compliant platforms." },
+      { j:"South Africa (FSCA)", f:"Crypto asset service provider",       t:"CASP licensing",                                     p:"XRBC not a CASP; venues must be licensed." }
     ];
-
     const matrixTBody = document.querySelector('#matrixTable tbody');
-    function renderMatrix(rows) {
-      matrixTBody.innerHTML = '';
-      rows.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.j}</td><td>${r.f}</td><td>${r.t}</td><td>${r.p}</td>`;
+    function renderMatrix(rows){
+      matrixTBody.innerHTML='';
+      rows.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${r.j}</td><td>${r.f}</td><td>${r.t}</td><td>${r.p}</td>`;
         matrixTBody.appendChild(tr);
       });
     }
     renderMatrix(MATRIX);
-
-    const matrixSearch = document.getElementById('matrixSearch');
-    const resetMatrix = document.getElementById('resetMatrix');
-    matrixSearch.addEventListener('input', () => {
-      const q = matrixSearch.value.trim().toLowerCase();
-      if (!q) return renderMatrix(MATRIX);
-      const filtered = MATRIX.filter(r =>
-        (r.j+r.f+r.t+r.p).toLowerCase().includes(q)
-      );
-      renderMatrix(filtered);
+    const matrixSearch=document.getElementById('matrixSearch');
+    const resetMatrix=document.getElementById('resetMatrix');
+    matrixSearch.addEventListener('input',()=>{
+      const q=matrixSearch.value.trim().toLowerCase();
+      if(!q) return renderMatrix(MATRIX);
+      renderMatrix(MATRIX.filter(r=>(r.j+r.f+r.t+r.p).toLowerCase().includes(q)));
     });
-    resetMatrix.addEventListener('click', () => { matrixSearch.value=''; renderMatrix(MATRIX); });
+    resetMatrix.addEventListener('click',()=>{matrixSearch.value='';renderMatrix(MATRIX)});
 
-    /* ==== RISK DISCLOSURES ==== */
-    const riskText = document.getElementById('riskText');
-    const copyRisk = document.getElementById('copyRisk');
-    const copyMsg = document.getElementById('copyMsg');
-    copyRisk.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(riskText.value); copyMsg.textContent = 'Copied.'; }
-      catch(e){ copyMsg.textContent = 'Copy failed.'; }
-      setTimeout(()=> copyMsg.textContent='', 1500);
+    /* =========================
+       RISK DISCLOSURES
+       ========================= */
+    const riskText=document.getElementById('riskText');
+    const copyRisk=document.getElementById('copyRisk');
+    const copyMsg=document.getElementById('copyMsg');
+    copyRisk.addEventListener('click',async()=>{
+      try{await navigator.clipboard.writeText(riskText.value);copyMsg.textContent='Copied.';}
+      catch(e){copyMsg.textContent='Copy failed.';}
+      setTimeout(()=>copyMsg.textContent='',1500);
     });
 
-    /* ==== SEC READINESS CHECKLIST (US) ==== */
-    const SEC_ITEMS = [
-      { k:"no_offers", text:"No public offering of securities; informational site only", done:true },
-      { k:"no_common_enterprise", text:"No ‘common enterprise’ or expectation of profit from efforts of others", done:true },
-      { k:"no_custody", text:"No custody or client funds held; non-custodial on-ledger trading only", done:true },
-      { k:"risk_disclosures", text:"Clear consumer risk language present on site", done:true },
-      { k:"no_promotions", text:"No investment ‘inducement’ language; no performance claims", done:true },
-      { k:"sanctions", text:"Sanctions policy: do not serve prohibited parties/regions", done:true },
-      { k:"records", text:"Keep minimal logs; no PII; content updates tracked in repo", done:true },
-      { k:"exchanges_independent", text:"Any exchange listing is third-party; they hold required licenses", done:true }
-    ];
-    const secList = document.getElementById('secList');
-    function drawSEC() {
-      secList.innerHTML = '';
-      SEC_ITEMS.forEach((it, i) => {
-        const li = document.createElement('li');
-        li.innerHTML = (it.done ? '✅ ' : '⬜ ') + it.text + ' ' +
-          `<button class="btn" data-i="${i}" style="margin-left:6px">toggle</button>`;
-        li.className = it.done ? 'ok' : 'warn';
-        secList.appendChild(li);
-      });
-      secList.querySelectorAll('button').forEach(b => {
-        b.addEventListener('click', (e) => {
-          const idx = Number(e.target.getAttribute('data-i'));
-          SEC_ITEMS[idx].done = !SEC_ITEMS[idx].done;
-          drawSEC();
+    /* =========================
+       SEC READINESS NODE
+       ========================= */
+    (() => {
+      const STORAGE_KEY = "xrbc_sec_readiness_v1";
+      const RECERT_DAYS = 90;
+
+      // default checklist with evidence hints
+      const DEFAULT_ITEMS = [
+        { k:"no_offers",            text:"No public offering of securities; informational site only",                    done:true,  evidence:"/terms.html" },
+        { k:"no_common_enterprise", text:"No ‘common enterprise’ or expectation of profit from efforts of others",      done:true,  evidence:"/whitepaper.html" },
+        { k:"no_custody",           text:"No custody or client funds; non-custodial on-ledger trading only",            done:true,  evidence:"/bs/index.html" },
+        { k:"risk_disclosures",     text:"Clear consumer risk language present on site",                                 done:true,  evidence:"/compliance.html#risk" },
+        { k:"sanctions",            text:"Sanctions/blocked regions respected",                                         done:true,  evidence:"/terms.html#sanctions" },
+        { k:"records",              text:"No PII; minimal logs; repo history tracks content changes",                   done:true,  evidence:"https://github.com/XRBitcoinCash/xrbitcoincash.github.io/commits/main" },
+        { k:"exchanges_independent",text:"Any exchange listing is third-party; they hold required licenses",            done:true,  evidence:"/trade.html" },
+        { k:"toml_verified",        text:"XRPL TOML present & verified",                                                 done:true,  evidence:"/.well-known/xrp-ledger.toml" }
+      ];
+
+      // load state
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || {};
+      const items = (saved.items && Array.isArray(saved.items)) ? saved.items : DEFAULT_ITEMS;
+      let lastReviewedAt = saved.lastReviewedAt || null;
+      let reviewer = saved.reviewer || "local-operator";
+
+      // dom
+      const $list   = document.getElementById("secList");
+      const $score  = document.getElementById("secScore");
+      const $meta   = document.getElementById("secMeta");
+      const $export = document.getElementById("secExport");
+      const $markAll= document.getElementById("secMarkAll");
+
+      function save(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, lastReviewedAt, reviewer }));
+      }
+      function score(){
+        const total = items.length;
+        const done  = items.filter(i=>i.done).length;
+        return { done, total, pct: Math.round((done/total)*100) };
+      }
+      function nextRecertISO(){
+        if(!lastReviewedAt) return null;
+        const d = new Date(lastReviewedAt);
+        d.setDate(d.getDate()+RECERT_DAYS);
+        return d.toISOString();
+      }
+      function draw(){
+        // checklist
+        $list.innerHTML='';
+        items.forEach((it,idx)=>{
+          const li=document.createElement('li');
+          li.className=it.done?'ok':'warn';
+          li.style.margin='6px 0';
+          li.innerHTML = `
+            ${it.done?'✅':'⬜'} ${it.text}
+            <div style="display:flex;gap:6px;margin-top:4px;align-items:center;">
+              <button class="btn" data-toggle="${idx}">toggle</button>
+              <input data-evidence="${idx}" placeholder="evidence URL or note" value="${it.evidence||''}">
+            </div>`;
+          $list.appendChild(li);
         });
-      });
-    }
-    drawSEC();
-    document.getElementById('secMarkAll').addEventListener('click', () => {
-      SEC_ITEMS.forEach(i => i.done = true);
-      drawSEC();
-    });
-
-    // auto-run quick scan on load (non-blocking)
-    scanEndpoints();
+        // handlers
+        $list.querySelectorAll('button[data-toggle]').forEach(b=>{
+          b.onclick=()=>{
+            const i=Number(b.getAttribute('data-toggle'));
+            const ev = $list.querySelector(`input[data-evidence="${i}"]`).value.trim();
+            if(!items[i].done && !ev){
+              alert('Add evidence (URL or note) before marking reviewed.');
+              return;
+            }
+            items[i].done = !items[i].done;
+            if(items[i].done && ev) items[i].evidence = ev;
+            lastReviewedAt = new Date().toISOString();
+            save(); draw();
+          };
+        });
+        $list.querySelectorAll('input[data-evidence]').forEach(inp=>{
+          inp.onchange=()=>{
+            const i=Number(inp.getAttribute('data-evidence'));
+            items[i].evidence = inp.value.trim();
+            save();
+          };
+        });
+        // meta
+        const s=score(); const next=nextRecertISO();
+        $score.textContent = `SEC readiness: ${s.done}/${s.total} (${s.pct}%)`;
+        $meta.textContent  = lastReviewedAt
+          ? `Last reviewed: ${lastReviewedAt}` + (next ? ` · Next recert due: ${next}` : '')
+          : `Not yet reviewed (recert interval ${RECERT_DAYS} days)`;
+      }
+      // export artifact for commit
+      $export.onclick=()=>{
+        const payload={
+          document:"xrbc-sec-readiness",
+          version:"1.0",
+          reviewed_at:lastReviewedAt || new Date().toISOString(),
+          reviewer,
+          recert_days:RECERT_DAYS,
+          items:items.map(i=>({k:i.k,text:i.text,done:i.done,evidence:i.evidence||null}))
+        };
+        const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(blob);
+        a.download=`sec-readiness-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      // safer mark-all
+      $markAll.onclick=()=>{
+        if(!confirm('Mark ALL items reviewed and timestamp now?')) return;
+        for(const it of items){ if(!it.evidence){ alert(`Missing evidence for: ${it.text}`); return; } }
+        items.forEach(i=>i.done=true);
+        lastReviewedAt = new Date().toISOString();
+        save(); draw();
+      };
+      draw();
+    })();
   </script>
 </body>
 </html>
