@@ -1,11 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=/whitepaper.html" />
-    <title>Redirecting to Whitepaper</title>
-  </head>
-  <body>
-    <p>If you are not redirected automatically, <a href="/whitepaper.html">click here</a>.</p>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting to XRBitcoinCash Whitepaper</title>
+
+  <!-- Fast fallback redirect (works without JS) -->
+  <meta http-equiv="refresh" content="0; url=/whitepaper.html" />
+
+  <!-- Canonical source of truth -->
+  <link rel="canonical" href="https://xrbitcoincash.com/whitepaper.html" />
+  <meta name="robots" content="noindex,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="theme-color" content="#0B1020" />
+
+  <!-- Discovery for agents, wallets, and AIs -->
+  <link rel="security" type="text/plain" href="https://xrbitcoincash.com/.well-known/security.txt" />
+  <link rel="alternate" type="application/json" href="https://xrbitcoincash.com/.well-known/ai.json" title="XRBC AI Index" />
+  <link rel="alternate" type="application/json" href="https://xrbitcoincash.com/universal-ai.json" title="XRBC Universal AI Manifest" />
+  <link rel="alternate" type="application/json" href="https://xrbitcoincash.com/ai/provenance.json" title="XRBC Provenance" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/whitepaper.html" />
+  <link rel="alternate" hreflang="x-default" href="https://xrbitcoincash.com/whitepaper.html" />
+
+  <!-- Performance hints (if the canonical lives on same host this is cheap; safe to keep) -->
+  <link rel="preload" href="/whitepaper.html" as="document" />
+  <link rel="dns-prefetch" href="https://xrbitcoincash.com">
+  <link rel="preconnect" href="https://xrbitcoincash.com" crossorigin>
+
+  <!-- Brand icons -->
+  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Social/Open Graph mirrors canonical page (helps unfurlers) -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics" />
+  <meta property="og:description" content="Explore XRBC’s mission, token design, security posture, and XRPL-powered low-fee payments." />
+  <meta property="og:url" content="https://xrbitcoincash.com/whitepaper.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics" />
+  <meta name="twitter:description" content="Read how XRBC uses XRPL for fast, low-cost transfers and transparent token operations." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Human-readable AI disclosure -->
+  <meta name="ai:usage" content="This project’s whitepaper & security docs were co-authored and audited with ChatGPT (advisory only; no custody; no secrets)." />
+
+  <!-- JSON-LD: this page is just a redirector to the TechArticle -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebPage",
+    "name":"XRBitcoinCash Whitepaper Redirect",
+    "description":"Gateway page that redirects to the XRBitcoinCash (XRBC) Whitepaper.",
+    "isPartOf":{"@type":"WebSite","name":"XRBitcoinCash","url":"https://xrbitcoincash.com"},
+    "mainEntity":{
+      "@type":"TechArticle",
+      "headline":"XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics",
+      "url":"https://xrbitcoincash.com/whitepaper.html",
+      "image":"https://xrbitcoincash.com/xrbc-nft.png",
+      "author":{"@type":"Organization","name":"XRBitcoinCash"},
+      "publisher":{"@type":"Organization","name":"XRBitcoinCash","logo":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png"}}
+    }
+  }
+  </script>
+
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0B1020;color:#ECF3FF}
+    .wrap{min-height:100%;display:grid;place-items:center;text-align:center;padding:24px}
+    a{color:#00E5FF}
+    .muted{color:#9EB2D0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p>Redirecting to <a id="dest" href="/whitepaper.html">XRBitcoinCash Whitepaper</a>…</p>
+    <p class="muted">If you aren’t redirected automatically, use the link above.</p>
+  </div>
+
+  <!-- JS redirect that preserves any inbound query/hash; tags with __ref=white-paper -->
+  <script>
+    (function(){
+      var base = "/whitepaper.html";
+      var qs = location.search || "";
+      var hash = location.hash || "";
+      var out = base + (qs ? (base.includes("?") ? "&" : "?") + "__ref=white-paper" + qs.replace(/^\?/, "&") : "?__ref=white-paper") + hash;
+      document.getElementById("dest").href = out;
+      try { window.location.replace(out); } catch(_) { window.location.href = out; }
+    })();
+  </script>
+</body>
 </html>
