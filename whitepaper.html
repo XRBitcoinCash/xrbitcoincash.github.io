@@ -99,6 +99,7 @@
  <style>
   :root {
     --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
+    --radius:12px;
   }
   * { box-sizing:border-box }
   html,body { height:100%; margin:0; font-family: Inter, Segoe UI, Roboto, system-ui, Arial; color:var(--ink); background:var(--bg); -webkit-font-smoothing:antialiased; line-height:1.6; }
@@ -129,7 +130,7 @@
     content: ""; position: absolute; inset: 0; z-index: -1;
     background: rgba(11,16,32,.96);
     border: 1px solid rgba(255,255,255,.06);
-    border-radius: 12px;
+    border-radius: var(--radius);
     backdrop-filter: saturate(140%) blur(.5px);
   }
   header.header-hidden { transform: translateY(calc(-100% - 14px)); }
@@ -138,19 +139,21 @@
   .brand { display:flex; gap:12px; align-items:center; }
   .brand img { width:56px; height:56px; border-radius:10px; animation:glowPulse 2.5s infinite alternate; }
   @keyframes glowPulse { from { box-shadow:0 0 4px var(--accent);} to { box-shadow:0 0 14px var(--accent);} }
-  .brand h1 { font-size:1.15rem; margin:0; }
+  .brand h1 { font-size:1.15rem; margin:0; text-align:center; }
 
   nav.main { width:100%; }
-  .nav-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); align-items:center; justify-items:center; }
+  .nav-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); align-items:center; justify-items:center; }
   .nav-grid a, .nav-grid button.menu {
     text-decoration:none; font-weight:600; color:#00121a;
     background:linear-gradient(180deg,var(--accent),#00b6d0);
-    padding:8px 10px; border-radius:10px; border:none; cursor:pointer; width:100%; text-align:center; font-size:.95rem;
+    padding:10px 12px; border-radius:10px; border:none; cursor:pointer; width:100%; text-align:center; font-size:.95rem;
   }
   .nav-grid a.muted { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.08); }
+  /* Ensure Home is centered below brand on its own row */
+  .nav-grid a.home { grid-column: 1 / -1; max-width: 220px; }
 
   .dropdown { position:relative; width:100%; }
-  .dropdown summary { list-style:none; cursor:pointer; background:linear-gradient(180deg,var(--accent),#00b6d0); color:#00121a; padding:8px 12px; border-radius:10px; font-weight:700; }
+  .dropdown summary { list-style:none; cursor:pointer; background:linear-gradient(180deg,var(--accent),#00b6d0); color:#00121a; padding:10px 12px; border-radius:10px; font-weight:700; text-align:center; }
   .dropdown[open] summary { border-bottom-left-radius:0; border-bottom-right-radius:0; }
   .dropdown .menu { position:absolute; left:0; right:0; background:var(--card); border:1px solid rgba(255,255,255,0.06); border-top:none; border-bottom-left-radius:10px; border-bottom-right-radius:10px; padding:8px; display:grid; gap:8px; z-index:20; }
   .dropdown .menu a { display:block; text-decoration:none; font-weight:600; color:var(--muted); background:transparent; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); }
@@ -158,12 +161,13 @@
 
   /* Content */
   main { position:relative; z-index:2; max-width:1000px; margin:20px auto 40px; padding:0 18px 24px; }
-  .card { background:var(--card); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); max-width:100%; margin:0 auto 16px; }
+  .card { background:var(--card); padding:20px; border-radius:var(--radius); border:1px solid rgba(255,255,255,0.06); max-width:100%; margin:0 auto 16px; }
 
   .fade-in { opacity:0; transform:translateY(20px); transition:opacity .8s ease-out, transform .8s ease-out; }
   .fade-in.visible { opacity:1; transform:translateY(0); }
   .highlight { color:var(--accent); font-weight:600; }
   .muted { color:var(--muted); }
+  .small { font-size:0.9rem; }
 
   /* Section headings + anchor spacing (for overlay header) */
   h2, h3 { scroll-margin-top: 90px; }
@@ -173,19 +177,24 @@
   .toc a { text-decoration:none; color:var(--muted); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:8px; }
   .toc a:hover { color:var(--ink); border-color:rgba(255,255,255,0.18); }
 
-  footer { max-width:1000px; margin:0 auto 60px; padding:0 18px; text-align:center; color:var(--muted) }
   #backToTop { position:fixed; bottom:20px; right:20px; background:var(--accent); color:#00121a; border:none; border-radius:50%; width:44px; height:44px; font-size:18px; cursor:pointer; display:none; box-shadow:0 0 10px var(--accent); }
   #backToTop:hover { background:#00b6d0 }
 
   /* Mobile tightening */
-  @media (max-width: 480px){ .nav-grid { gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } .brand img { width:48px; height:48px; } }
+  @media (max-width: 640px){
+    .brand img { width:48px; height:48px; }
+    .brand h1 { font-size:1.05rem; }
+    .nav-grid { gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+    .nav-grid a, .dropdown summary { font-size:0.92rem; padding:9px 10px; }
+    .dropdown .menu { position:static; border-top:1px solid rgba(255,255,255,0.06); border-radius:10px; }
+  }
   @media (prefers-reduced-motion: reduce){ .fade-in{transition:none !important} }
 
   /* === HOTFIX: keep content beneath fixed header ====================== */
   :root{ --header-height: 148px; }
   @media (max-width: 1024px){ :root{ --header-height: 168px; } }
   @media (max-width: 768px){  :root{ --header-height: 196px; } }
-  @media (max-width: 520px){  :root{ --header-height: 224px; } }
+  @media (max-width: 520px){  :root{ --header-height: 228px; } }
   main{ padding-top: calc(var(--header-height) + 20px); }
   h2, h3{ scroll-margin-top: calc(var(--header-height) + 24px); }
  </style>
@@ -205,13 +214,10 @@
     <!-- Centered, responsive nav with dropdown (no overlap) -->
     <nav class="main" aria-label="Primary">
       <div class="nav-grid">
-        <a href="https://xrbitcoincash.com/" aria-label="Home">Home</a>
+        <a class="home" href="https://xrbitcoincash.com/" aria-label="Home">Home</a>
         <a href="https://xrbitcoincash.com/trade.html" aria-label="Trade XRBC">Trade</a>
         <a href="https://xrbitcoincash.com/nfts.html" aria-label="NFTs">NFTs</a>
         <a href="https://xrbitcoincash.com/about.html" aria-label="About">About</a>
-
-
-        
         <details class="dropdown">
           <summary aria-haspopup="listbox" aria-expanded="false">Security</summary>
           <div class="menu" role="listbox">
@@ -230,14 +236,12 @@
       <h2>Contents</h2>
       <div class="toc">
         <a href="#intro">1) Introduction</a>
-        <a href="#identity">2) Token Identity</a>
-        <a href="#security">3) Security & Auditing</a>
-                <a href="#ai">3a) AI Collaboration & Auditor</a>
-        <a href="#infra">4) Infrastructure</a>
-        <a href="#liquidity">5) Trading & Liquidity</a>
-        <a href="#escrow">6) Escrow Roadmap</a>
-        <a href="#compliance">7) Compliance & Disclaimers</a>
-        <a href="#links">8) Verified Links</a>
+        <a href="#security">2) Security & Auditing</a>
+        <a href="#ai">2a) AI Collaboration & Auditor</a>
+        <a href="#infra">3) Infrastructure</a>
+        <a href="#liquidity">4) Trading & Liquidity</a>
+        <a href="#escrow">5) Escrow Roadmap</a>
+        <a href="#compliance">6) Compliance & Disclaimers</a>
       </div>
     </section>
 
@@ -251,21 +255,8 @@
       </p>
     </section>
 
-    <section class="card fade-in" id="identity">
-      <h2>2) Token Identity (XRBC)</h2>
-      <ul>
-        <li><strong>Issuer:</strong> <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></li>
-        <li><strong>Currency (HEX):</strong> <code>5852626974636F696E6361736800000000000000</code></li>
-        <li><strong>Supply:</strong> ~21,000,000 (fixed; issuer blackholed)</li>
-        <li><strong>Network:</strong> XRPL Mainnet</li>
-        <li><strong>Proxy (source of truth):</strong> <code>https://xrbitcoincash-github-io.onrender.com</code></li>
-        <li><strong>Wallet UX:</strong> Trustline + XRPL DEX/AMM trading</li>
-      </ul>
-      <p class="muted small">Note: XRBitcoin (separate token) lives under a different issuer and page; XRBC branding is kept distinct by design.</p>
-    </section>
-
     <section class="card fade-in" id="security">
-      <h2>3) Security & AI‑Audited Transparency</h2>
+      <h2>2) Security & AI‑Audited Transparency</h2>
       <p>
         XRBC maintains a <strong>Security Center</strong> with health checks, order‑book visibility, and AI‑readable metadata. ChatGPT contributes to <em>documentation, risk language, and review checklists</em>. All reviews are <strong>advisory</strong> and do not replace independent audits.
       </p>
@@ -283,7 +274,7 @@
     </section>
 
     <section class="card fade-in" id="ai">
-      <h2>3a) AI Collaboration & Auditor (ChatGPT)</h2>
+      <h2>2a) AI Collaboration & Auditor (ChatGPT)</h2>
       <p>
         XRBC uses <strong>ChatGPT</strong> as a documentation co‑author and <strong>advisory auditor</strong>. Scope includes: copywriting, risk and compliance wording, UI guidance, and checklists used by the Security Center. ChatGPT does not hold keys, cannot sign transactions, and only consumes public data and our proxy endpoints. All outputs are <strong>informational</strong> and require human review.
       </p>
@@ -296,7 +287,7 @@
     </section>
 
     <section class="card fade-in" id="infra">
-      <h2>4) Infrastructure</h2>
+      <h2>3) Infrastructure</h2>
       <ul>
         <li><strong>Hosting:</strong> GitHub Pages (static site)</li>
         <li><strong>Proxy:</strong> Node/Express on Render — <code>https://xrbitcoincash-github-io.onrender.com</code></li>
@@ -307,7 +298,7 @@
     </section>
 
     <section class="card fade-in" id="liquidity">
-      <h2>5) Trading & Liquidity</h2>
+      <h2>4) Trading & Liquidity</h2>
       <p>
         XRBC trades on the XRPL built‑in DEX. Liquidity is provided and maintained on XRPL AMM pools (Sologenic UI), with a low target fee to reduce arbitrage impact. Users should understand trustlines, order books, slippage, and custody responsibilities before trading.
       </p>
@@ -319,7 +310,7 @@
     </section>
 
     <section class="card fade-in" id="escrow">
-      <h2>6) Escrow Roadmap (Issued Tokens)</h2>
+      <h2>5) Escrow Roadmap (Issued Tokens)</h2>
       <p>
         As XRPL evolves, the project plans to leverage <strong>escrow for issued tokens</strong> to provide time‑locked, on‑ledger schedules that improve predictability for market participants. The objective is to mirror the transparency ethos of Bitcoin’s issuance while retaining XRPL’s speed and low fees.
       </p>
@@ -332,7 +323,7 @@
     </section>
 
     <section class="card fade-in" id="compliance">
-      <h2>7) Compliance, Risk & Disclaimers</h2>
+      <h2>6) Compliance, Risk & Disclaimers</h2>
       <ul>
         <li><strong>Not an offer of securities.</strong> XRBC is a utility token on XRPL. Jurisdictional treatment may vary; consult your counsel.</li>
         <li><strong>Self‑custody risk.</strong> You are responsible for key management, slippage, and transaction review.</li>
@@ -340,22 +331,10 @@
         <li><strong>Open‑source license.</strong> MIT; attribution required where applicable.</li>
         <li>See <a href="/privacy.html">Privacy Policy</a> and <a href="/terms.html">Terms of Service</a>.</li>
       </ul>
-    </section>
-
-    <section class="card fade-in" id="links">
-      <h2>8) Verified Links</h2>
-      <ul>
-        <li>Homepage: <a href="https://xrbitcoincash.com/">https://xrbitcoincash.com/</a></li>
-        <li>Security Health: <a href="https://xrbitcoincash.com/ai/ai/health.html">/ai/ai/health.html</a></li>
-        <li>Live Price: <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">https://xrbitcoincash.github.io/ai/ai/price-lite.html</a></li>
-        <li>XRPL TOML: <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
-      </ul>
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,0.08); margin:12px 0 6px;" />
+      <p class="muted small">© 2025 XRBitcoinCash™ — Built on XRPL · Last updated 2025‑10‑22</p>
     </section>
   </main>
-
-  <footer>
-    <small>© 2025 XRBitcoinCash™ — Built on XRPL · Last updated 2025‑10‑22</small>
-  </footer>
 
   <button id="backToTop" aria-label="Back to top">↑</button>
 
