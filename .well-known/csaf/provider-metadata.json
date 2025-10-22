@@ -1,0 +1,19 @@
+{
+  "canonical_url": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+  "metadata_version": "2.0",
+  "last_updated": "2025-10-22T05:00:00Z",
+  "publisher": {
+    "category": "vendor",
+    "name": "XRBitcoinCash",
+    "namespace": "https://xrbitcoincash.com",
+    "contact_details": "security contact via security.txt: https://xrbitcoincash.com/.well-known/security.txt; email: xrbitcoincash@gmail.com"
+  },
+  "role": "csaf_publisher",
+  "distributions": [
+    { "directory_url": "https://xrbitcoincash.com/.well-known/csaf/2025/" },
+    { "directory_url": "https://xrbitcoincash.github.io/.well-known/csaf/2025/" }
+  ],
+  "list_on_CSAF_aggregators": true,
+  "mirror_on_CSAF_aggregators": true
+}
+
