@@ -1,8 +1,10 @@
+Contact: mailto:xrbitcoincash@gmail.com
 Contact: https://github.com/xrbitcoincash/xrbitcoincash.github.io/security/advisories/new
 Contact: https://x.com/XRbitcoincash
 Preferred-Languages: en
 Policy: https://xrbitcoincash.com/terms.html
+CSAF: https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json
+CSAF: https://xrbitcoincash.github.io/.well-known/csaf/provider-metadata.json
 Canonical: https://xrbitcoincash.github.io/.well-known/security.txt
 Canonical: https://xrbitcoincash.com/.well-known/security.txt
 Expires: 2026-10-22T23:59:59Z
-
