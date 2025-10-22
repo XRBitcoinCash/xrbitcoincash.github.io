@@ -10,7 +10,11 @@
     "publisher": {
       "category": "vendor",
       "name": "XRBitcoinCash",
-      "namespace": "https://xrbitcoincash.com"
+      "namespace": "https://xrbitcoincash.com",
+      "contact_details": "security contact via security.txt: https://xrbitcoincash.com/.well-known/security.txt; email: xrbitcoincash@gmail.com"
+    },
+    "generator": {
+      "engine": { "name": "GPT-5 Thinking", "version": "2025.10" }
     },
     "notes": [
       {
@@ -26,11 +30,21 @@
       {
         "category": "self",
         "summary": "Canonical advisory URL",
+        "url": "https://xrbitcoincash.github.io/.well-known/csaf/2025/xrbc-2025-0001.json"
+      },
+      {
+        "category": "external",
+        "summary": "Mirror advisory URL",
         "url": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json"
       },
       {
         "category": "external",
-        "summary": "Provider metadata (discovery root)",
+        "summary": "Provider metadata (GitHub Pages)",
+        "url": "https://xrbitcoincash.github.io/.well-known/csaf/provider-metadata.json"
+      },
+      {
+        "category": "external",
+        "summary": "Provider metadata (primary domain)",
         "url": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json"
       },
       {
@@ -61,8 +75,13 @@
       "initial_release_date": "2025-10-22T05:00:00Z",
       "current_release_date": "2025-10-22T05:00:00Z",
       "revision_history": [
-        { "date": "2025-10-22T05:00:00Z", "number": "1", "summary": "Initial publication of CSAF provider and endpoints; no known vulnerabilities." }
+        {
+          "date": "2025-10-22T05:00:00Z",
+          "number": "1",
+          "summary": "Initial publication of CSAF provider and endpoints; no known vulnerabilities."
+        }
       ]
     }
-  }
+  },
+  "vulnerabilities": []
 }
