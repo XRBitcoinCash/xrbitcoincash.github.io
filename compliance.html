@@ -5,7 +5,344 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash · Compliance & Legal Matrix</title>
   <meta name="description" content="Compliance matrix · TOML validator · .well-known probes · SEC readiness. A system built inside the system." />
+  <link rel="canonica<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash · Compliance & Legal Matrix</title>
+  <meta name="description" content="Jurisdiction-by-jurisdiction compliance matrix for XRBitcoinCash (XRBC): AML/CTF baselines, promotions rules, Travel Rule notes, exchange licensing triggers, and XRPL TokenEscrow readiness. Machine-readable snapshots included." />
   <link rel="canonical" href="https://xrbitcoincash.com/compliance" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#000" />
+  <link rel="icon" href="/xrbc-nft.png" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash · Compliance & Legal Matrix" />
+  <meta property="og:description" content="Global compliance at a glance (FATF, MiCA, FCA, FinCEN/OFAC, MAS, FSA, FSC, SFC, VARA, CSA). What XRBC already does and what's next (e.g., XRPL TokenEscrow readiness)." />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:url" content="https://xrbitcoincash.com/compliance" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- JSON-LD (WebPage + dataset pointer) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "XRBitcoinCash · Compliance & Legal Matrix",
+    "url": "https://xrbitcoincash.com/compliance",
+    "description": "Jurisdiction compliance matrix and machine-readable attestations for XRBitcoinCash (XRBC).",
+    "isPartOf": {"@type":"WebSite","name":"XRBitcoinCash","url":"https://xrbitcoincash.com"},
+    "about": {"@type":"Thing","name":"XRBitcoinCash (XRBC) on XRPL"},
+    "dateModified": "2025-10-22",
+    "publisher": {"@type":"Organization","name":"XRBitcoinCash"}
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg:#000;
+      --text:#00ff95;
+      --muted:#00c27d;
+      --accent:#39ff14;
+      --warn:#f7b500;
+      --danger:#ff5555;
+      --panel:rgba(0,15,8,0.88);
+      --radius:12px;
+      --shadow:0 0 30px rgba(0,255,149,0.2);
+      --line: rgba(57,255,20,0.25);
+    }
+    *{box-sizing:border-box}
+    body {
+      margin:0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    /* Matrix rain bg */
+    body::before {
+      content:"";
+      position:fixed; inset:0;
+      background:url('https://i.ibb.co/N9M5rkg/matrix-rain.gif') center/cover no-repeat;
+      opacity:0.15; z-index:-1;
+    }
+    header {
+      padding:14px 20px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(0,20,10,.92),rgba(0,0,0,.6));
+    }
+    .brand { font-weight:800; font-size:1rem; letter-spacing:1px; color:var(--accent);}
+    .muted { color:var(--muted); font-size:0.9rem; opacity:.95 }
+    main { padding:20px; max-width:1200px; margin:auto }
+    .panel {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      margin:20px 0;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .panel .head { font-weight:800; margin-bottom:10px; color:var(--accent); letter-spacing:.25px }
+    .note { color:var(--muted); font-size:.92rem }
+    .ok{color:#39ff14}.warn{color:var(--warn)}.danger{color:var(--danger)}
+    .grid { display:grid; gap:10px }
+    .grid.cols-2 { grid-template-columns:1fr 1fr }
+    .grid.cols-3 { grid-template-columns:1fr 1fr 1fr }
+    @media (max-width:900px){ .grid.cols-2,.grid.cols-3 { grid-template-columns:1fr } }
+
+    /* Table */
+    table { width:100%; border-collapse:collapse; font-size:.95rem }
+    th, td { text-align:left; padding:10px; border-bottom:1px dashed var(--line) }
+    th { color:#bdfcd5; font-weight:800 }
+    tr:last-child td { border-bottom:0 }
+    code, pre { background:rgba(0,0,0,.35); border:1px solid var(--line); padding:.2rem .35rem; border-radius:6px }
+    pre { padding:.75rem; overflow:auto }
+    .chip { display:inline-flex; gap:6px; align-items:center; padding:4px 8px; border-radius:999px; border:1px solid var(--line); margin:2px 6px 2px 0 }
+    .chip .dot { width:8px; height:8px; border-radius:50%; background:var(--accent) }
+    .kbd { border:1px solid var(--line); border-radius:6px; padding:2px 6px; background:rgba(0,0,0,.4) }
+
+    footer {
+      margin:30px 0 60px;
+      padding:14px 20px;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:0.85rem;
+      color:var(--muted);
+    }
+    a { color:#7bffc6; text-decoration:none }
+    a:hover { text-decoration:underline }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">XRBitcoinCash // Compliance & Legal Matrix</div>
+    <div class="muted">decode · validate · disclose · prepare</div>
+  </header>
+
+  <main>
+    <!-- At-a-glance -->
+    <section class="panel">
+      <div class="head">[ Summary — What XRBC already does ]</div>
+      <div class="grid cols-3">
+        <div>
+          <div class="chip"><span class="dot"></span> Non-custodial / on-ledger DEX/AMM</div>
+          <div class="chip"><span class="dot"></span> Issuer blackholed (immutability)</div>
+          <div class="chip"><span class="dot"></span> TOML verified + <code>security.txt</code></div>
+          <div class="chip"><span class="dot"></span> CSAF provider online</div>
+        </div>
+        <div>
+          <div class="chip"><span class="dot"></span> No keys in repo / read-only node access</div>
+          <div class="chip"><span class="dot"></span> Live orderbook pricing (no hardcoded quotes)</div>
+          <div class="chip"><span class="dot"></span> AI-audited docs (advisory only)</div>
+          <div class="chip"><span class="dot"></span> Rate-limit etiquette for agents</div>
+        </div>
+        <div>
+          <div class="chip"><span class="dot"></span> Travel-Rule scope: not a VASP (no custody)</div>
+          <div class="chip"><span class="dot"></span> Marketing: risk disclosures, no guarantees</div>
+          <div class="chip"><span class="dot"></span> Sanctions: do not serve prohibited parties</div>
+          <div class="chip"><span class="dot"></span> Logs: minimal, no PII</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:10px">
+        This page is informational and non-binding. It does not constitute legal advice. Participants must comply with the laws in their jurisdiction and the rules of any exchange/wallet they use.
+      </p>
+    </section>
+
+    <!-- What’s next / TokenEscrow -->
+    <section class="panel">
+      <div class="head">[ Roadmap — Issued-Token Escrow (XRPL TokenEscrow) ]</div>
+      <p>XRBC plans to adopt XRPL’s <strong>TokenEscrow</strong> (issued-asset escrow) to time-lock treasury flows and improve predictability once broadly available in mainnet infrastructure. This mirrors our transparency ethos (Bitcoin-like schedule; XRPL settlement speed).</p>
+      <ul class="note">
+        <li>Target: public, on-ledger schedules for treasury movements.</li>
+        <li>Docs: final parameters + addresses disclosed prior to activation.</li>
+        <li>Compatibility: follows XRPL mainline support & ecosystem tooling.</li>
+      </ul>
+      <p class="note">Status: tracking rippled v2.5.x features and ecosystem rollout for <em>TokenEscrow</em>.</p>
+    </section>
+
+    <!-- Global matrix -->
+    <section class="panel">
+      <div class="head">[ Global Compliance Matrix (high-level) ]</div>
+      <table aria-label="Compliance overview by jurisdiction">
+        <thead>
+          <tr>
+            <th>Jurisdiction</th>
+            <th>Framework / Focus</th>
+            <th>What typically triggers licensing</th>
+            <th>XRBC posture (non-custodial issuer)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Global (FATF)</strong></td>
+            <td>Travel Rule (Rec.16) & VASP guidance</td>
+            <td>Intermediating transfers (custody, exchange as a business)</td>
+            <td>XRBC operates without custody or client funds. Pricing is on-ledger; no KYC role. Travel Rule obligations fall on custodial VASPs used by participants.</td>
+          </tr>
+          <tr>
+            <td><strong>EU (MiCA)</strong></td>
+            <td>CASP licensing; whitepapers; market abuse; stablecoins first</td>
+            <td>Operating as a CASP (custody, exchange, order execution, etc.)</td>
+            <td>XRBC runs public docs + manifests; no customer custody, no order execution service. Exchanges/wallets listing XRBC must comply as CASPs where applicable.</td>
+          </tr>
+          <tr>
+            <td><strong>UK (FCA)</strong></td>
+            <td>Financial promotions regime; MLR registration for firms</td>
+            <td>Communicating/approving crypto promotions; operating a business</td>
+            <td>XRBC uses factual, non-promotional language and risk warnings; no UK consumer call-to-action to invest; no UK regulated services provided.</td>
+          </tr>
+          <tr>
+            <td><strong>USA (FinCEN / OFAC)</strong></td>
+            <td>MSB if money transmission; sanctions compliance</td>
+            <td>Exchanging/custody as a business; moving value for others</td>
+            <td>No custody, no exchange business, no customer funds. We avoid serving sanctioned persons or regions; DEX usage depends on user wallets/platforms.</td>
+          </tr>
+          <tr>
+            <td><strong>Singapore (MAS)</strong></td>
+            <td>Payment Services Act (DPT services)</td>
+            <td>DPT service provider activities (e.g., exchange, transfer for others)</td>
+            <td>XRBC is an issued token on XRPL; no DPT services are offered by the project. Exchanges/wallets must hold MAS approvals where required.</td>
+          </tr>
+          <tr>
+            <td><strong>Japan (FSA)</strong></td>
+            <td>Payment Services Act; Crypto-asset Exchange registration</td>
+            <td>Operating a crypto-asset exchange / custody</td>
+            <td>No exchange operated; no custody; on-ledger token only. Listings handled by JFSA-regulated exchanges where applicable.</td>
+          </tr>
+          <tr>
+            <td><strong>Korea (FSC)</strong></td>
+            <td>Virtual Asset User Protection Act</td>
+            <td>Operating virtual-asset services (custody/exchange)</td>
+            <td>XRBC does not provide VASP services. Local exchanges/wallets bear compliance duties (listing, user protection, disclosures).</td>
+          </tr>
+          <tr>
+            <td><strong>Hong Kong (SFC)</strong></td>
+            <td>VATP licensing; retail access guardrails</td>
+            <td>Operating a VATP; marketing to HK public</td>
+            <td>No VATP operated. Public docs include risk warnings; any HK access is via SFC-licensed VATPs that choose to list XRBC.</td>
+          </tr>
+          <tr>
+            <td><strong>UAE (VARA / ADGM)</strong></td>
+            <td>VASPs licensing rulebooks</td>
+            <td>Operating exchange, brokerage, custody</td>
+            <td>No VASP operations by XRBC. If a UAE VASP lists XRBC, their licensing applies. Project publishes machine-readable facts only.</td>
+          </tr>
+          <tr>
+            <td><strong>Canada (CSA / FINTRAC)</strong></td>
+            <td>CTP undertakings; MSB / Travel Rule</td>
+            <td>Operating a CTP or MSB activities</td>
+            <td>No CTP/MSB role. Canadian platforms listing XRBC must comply with CSA/FINTRAC requirements.</td>
+          </tr>
+          <tr>
+            <td><strong>Mainland China</strong></td>
+            <td>Restrictions/bans on crypto trading</td>
+            <td>Operating crypto business / marketing domestically</td>
+            <td>XRBC does not operate services or solicit users in mainland China.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:10px">This matrix is high-level (not exhaustive). Always seek jurisdiction-specific legal advice.</p>
+    </section>
+
+    <!-- Probes & machine snapshot -->
+    <section class="panel">
+      <div class="head">[ Machine Snapshot — Compliance Attestation (JSON) ]</div>
+      <pre id="attestation">{"status":"initializing"}</pre>
+      <p class="note">
+        Sources & endpoints: <a href="/.well-known/security.txt">security.txt</a> ·
+        <a href="/.well-known/csaf/provider-metadata.json">CSAF</a> ·
+        <a href="/ai/provenance.json">provenance.json</a> ·
+        <a href="/universal-ai.json">universal-ai.json</a>
+      </p>
+    </section>
+
+    <!-- Marketing & risk language -->
+    <section class="panel">
+      <div class="head">[ Marketing & Risk Disclosures ]</div>
+      <ul class="note">
+        <li>XRBC content is **informational**: no investment advice, no performance claims, no guaranteed returns.</li>
+        <li>Users are responsible for self-custody, slippage, trustlines, and verifying destination addresses.</li>
+        <li>Where local “financial promotion” rules apply (e.g., UK), XRBC content avoids invitation/inducement and includes risks.</li>
+        <li>Sanctions: do not transact with sanctioned persons/regions. You must comply with your venue’s KYC/AML rules.</li>
+      </ul>
+    </section>
+
+    <!-- AI usage -->
+    <section class="panel">
+      <div class="head">[ AI Usage Disclosure ]</div>
+      <p class="note">Documentation, manifest design, and security copy are co-authored and continuously audited with ChatGPT (GPT-5 Thinking). Audits are **advisory**; no private keys are shared; no signing/custody occurs. The repository never stores secrets.</p>
+    </section>
+
+    <!-- References (human) -->
+    <section class="panel">
+      <div class="head">[ Primary References ]</div>
+      <ul class="note">
+        <li>FATF — Travel Rule (Rec.16) & VA/VASP guidance.</li>
+        <li>EU — MiCA (Reg. (EU) 2023/1114) crypto-asset framework.</li>
+        <li>UK — FCA cryptoasset financial promotions / MLRs.</li>
+        <li>US — FinCEN MSB/2019 CVC guidance; OFAC virtual currency compliance.</li>
+        <li>SG — MAS Payment Services Act (DPT services) & guidelines.</li>
+        <li>JP — FSA / Payment Services Act (crypto-asset exchanges).</li>
+        <li>KR — FSC Virtual Asset User Protection Act.</li>
+        <li>HK — SFC VATP regime (licensing & retail access).</li>
+        <li>UAE — VARA rulebooks (VASPs); ADGM FSRA framework.</li>
+        <li>CA — CSA notices for CTPs; FINTRAC Travel Rule.</li>
+        <li>XRPL — rippled 2.5.x TokenEscrow (issued-asset escrow) readiness.</li>
+      </ul>
+      <p class="note">See inline machine snapshot above for the canonical endpoints that agents should parse.</p>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="yr"></span> XRBitcoinCash — Informational only. No legal advice. Verify with licensed counsel in your jurisdiction.
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('yr').textContent = new Date().getFullYear();
+
+    // Machine attestation (kept tiny & explicit)
+    (function(){
+      const out = document.getElementById('attestation');
+      const now = () => new Date().toISOString();
+      // hard links preferred for bots
+      const payload = {
+        project: "XRBitcoinCash (XRBC)",
+        issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+        currency_hex: "5852626974636F696E6361736800000000000000",
+        posture: {
+          custody: "none",
+          issuer_blackholed: true,
+          promotions: "informational-only",
+          sanctions: "no-prohibited-parties",
+          secrets_in_repo: false
+        },
+        ai_usage: {
+          provider: "OpenAI ChatGPT (GPT-5 Thinking)",
+          roles: ["documentation co-author","security copy","audit checklists"],
+          advisory_only: true,
+          keys_shared: false
+        },
+        endpoints: {
+          security_txt: "https://xrbitcoincash.com/.well-known/security.txt",
+          csaf: "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+          provenance: "https://xrbitcoincash.com/ai/provenance.json",
+          universal: "https://xrbitcoincash.com/universal-ai.json"
+        },
+        escrow_readiness: {
+          token_escrow: "planned",
+          status_note: "Adopt XRPL TokenEscrow when broadly available in mainnet tooling"
+        },
+        updated_at: now()
+      };
+      out.textContent = JSON.stringify(payload, null, 2);
+    })();
+  </script>
+</body>
+</html>
+l" href="https://xrbitcoincash.com/compliance" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#000" />
   <link rel="icon" href="/xrbc-nft.png" />
