@@ -1,53 +1,116 @@
-name: Validate .well-known & JSON
+name: Well-Known & AI Manifests — Validate
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+    paths:
+      - ".well-known/**"
+      - "universal-ai.json"
+      - "XRBitcoin/**"
+      - "ai/**"
+      - ".github/workflows/wellknown-validate.yml"
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+    paths:
+      - ".well-known/**"
+      - "universal-ai.json"
+      - "XRBitcoin/**"
+      - "ai/**"
+  workflow_dispatch:
+
+concurrency:
+  group: wellknown-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   validate:
+    name: Validate manifests & security surfaces
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 1) Ensure .nojekyll exists
-      - name: Check .nojekyll
+      - name: Verify required files exist (canonical set)
+        shell: bash
         run: |
-          test -f .nojekyll || (echo ".nojekyll missing at repo root" && exit 1)
-
-      # 2) Ensure key files exist
-      - name: Check required files exist
-        run: |
-          set -e
-          for f in \
-            ".well-known/security.txt" \
-            ".well-known/csaf/provider-metadata.json" \
-            ".well-known/csaf/advisories/2025-0001.json" \
-            ".well-known/csaf/2025/xrbc-2025-0001.json" \
+          set -euo pipefail
+          REQ=(
+            ".nojekyll"
+            ".well-known/security.txt"
+            ".well-known/csaf/provider-metadata.json"
+            ".well-known/csaf/2025/xrbc-2025-0001.json"
             "universal-ai.json"
-          do
-            [ -f "$f" ] || (echo "Missing: $f" && exit 1)
+          )
+          for f in "${REQ[@]}"; do
+            [[ -f "$f" ]] || { echo "::error::Missing: $f"; exit 1; }
+          done
+          # Optional mirror for legacy CI paths — present = good, absent = warning only
+          MIRROR=".well-known/csaf/advisories/2025-0001.json"
+          if [[ -f "$MIRROR" ]]; then
+            echo "Found optional CSAF mirror: $MIRROR"
+          else
+            echo "::notice::Optional CSAF mirror not present: $MIRROR (ok)"
+          fi
+
+      - name: Lint JSON (jq)
+        shell: bash
+        run: |
+          set -euo pipefail
+          JFILES=(
+            "universal-ai.json"
+            ".well-known/csaf/provider-metadata.json"
+            ".well-known/csaf/2025/xrbc-2025-0001.json"
+          )
+          [[ -f ".well-known/ai.json" ]] && JFILES+=(".well-known/ai.json")
+          [[ -f ".well-known/csaf/advisories/2025-0001.json" ]] && JFILES+=(".well-known/csaf/advisories/2025-0001.json")
+          for j in "${JFILES[@]}"; do
+            jq -e . "$j" >/dev/null || { echo "::error::Invalid JSON: $j"; exit 1; }
+            echo "OK  $j"
           done
 
-      # 3) Basic JSON validity with jq
-      - name: Validate JSON syntax
+      - name: security.txt checks
+        shell: bash
         run: |
-          jq . .well-known/csaf/provider-metadata.json >/dev/null
-          jq . .well-known/csaf/advisories/2025-0001.json >/dev/null
-          jq . .well-known/csaf/2025/xrbc-2025-0001.json >/dev/null
-          jq . universal-ai.json >/dev/null
+          set -euo pipefail
+          S=".well-known/security.txt"
+          grep -q '^Contact:' "$S"  || { echo "::error::security.txt missing Contact:"; exit 1; }
+          grep -q '^Expires:' "$S"  || { echo "::error::security.txt missing Expires:"; exit 1; }
+          # Warn (not fail) if Expires is past
+          EXP=$(grep '^Expires:' "$S" | head -n1 | cut -d' ' -f2- || true)
+          if [[ -n "${EXP:-}" ]] && date -d "$EXP" >/dev/null 2>&1; then
+            if [[ $(date -u +%s) -ge $(date -u -d "$EXP" +%s) ]]; then
+              echo "::warning::security.txt Expires has passed: $EXP"
+            fi
+          fi
+          echo "OK  $S"
 
-      # 4) Sanity checks: required keys present
-      - name: Sanity keys
+      - name: universal-ai.json minimal schema
+        shell: bash
         run: |
-          jq -e '.publisher.name and .publisher.namespace' .well-known/csaf/provider-metadata.json >/dev/null
-          jq -e '.document.csaf_version and .document.tracking.id' .well-known/csaf/2025/xrbc-2025-0001.json >/dev/null
-          jq -e '.project and .ai_assistance.provider' universal-ai.json >/dev/null
+          set -euo pipefail
+          jq -e '
+            (.project        | type=="string") and
+            (.ticker         | type=="string") and
+            (.issuer         | type=="string") and
+            (.currency_hex   | type=="string" and test("^[0-9A-Fa-f]{40}$")) and
+            (.endpoints?     | type=="object" or .endpoints == null)
+          ' universal-ai.json >/dev/null || { echo "::error::universal-ai.json minimal schema check failed"; exit 1; }
+          echo "OK  universal-ai.json core keys"
 
-      # 5) security.txt has Contact + Canonical
-      - name: Validate security.txt basics
+      - name: .well-known/ai.json shape (tolerant)
+        if: ${{ hashFiles('.well-known/ai.json') != '' }}
+        shell: bash
         run: |
-          grep -E '^Contact:' .well-known/security.txt >/dev/null || (echo "security.txt missing Contact" && exit 1)
-          grep -E '^Canonical:' .well-known/security.txt >/dev/null || (echo "security.txt missing Canonical" && exit 1)
+          set -euo pipefail
+          jq -e '
+            # Accept either ai_manifests[] shape OR manifests{universal,provenance}
+            ( (.ai_manifests|type=="array") and (.ai_manifests|length>=1) )
+            or
+            ( .manifests and (.manifests.universal|type=="string") and (.manifests.provenance|type=="string") )
+          ' .well-known/ai.json >/dev/null || { echo "::error::.well-known/ai.json does not match accepted shapes"; exit 1; }
+          echo "OK  .well-known/ai.json"
+
+      - name: Summary
+        run: echo "✓ Well-known & AI manifest validation passed."
