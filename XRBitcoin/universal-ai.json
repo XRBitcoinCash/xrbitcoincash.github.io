@@ -1,41 +1,166 @@
 {
   "$schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
+
+  "discovery": {
+    "canonical": [
+      "https://xrbitcoincash.github.io/XRBitcoin/universal-ai.json",
+      "https://xrbitcoincash.com/XRBitcoin/universal-ai.json"
+    ],
+    "mirrors": [],
+    "robots": "index,follow",
+    "cache_ttl_seconds": 300
+  },
+
   "project": {
     "name": "XRBitcoin",
     "ticker": "XRBitcoin",
+    "aliases": ["XRBitcoin on XRPL", "XRBitcoin (issued currency)"],
     "type": "issued-currency",
     "network": "XRPL Mainnet",
     "issuer": "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT",
     "currency_hex": "5852626974636F696E0000000000000000000000",
-    "supply": { "total": "999967.5925449688", "fixed": true, "issuer_blackholed": true }
+    "supply": {
+      "total": "999967.5925449688",
+      "fixed": true,
+      "issuer_blackholed": true
+    },
+    "domains": ["xrbitcoincash.com", "xrbitcoincash.github.io"],
+    "toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+    "licensing": { "content": "MIT", "code": "MIT" }
   },
+
   "branding": {
     "home": "https://xrbitcoincash.com/XRBitcoin/",
-    "logo": "https://xrbitcoincash.com/xrbitcoin-nft.png"
+    "logo": "https://xrbitcoincash.com/xrbitcoin-nft.png",
+    "keywords": [
+      "XRBitcoin", "XRPL", "issued currency", "decentralized exchange",
+      "AMM", "trustline", "blackholed issuer", "XRBC ecosystem"
+    ]
   },
+
+  "documents": {
+    "about": "https://xrbitcoincash.com/about.html",
+    "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
+    "privacy": "https://xrbitcoincash.com/privacy.html",
+    "terms": "https://xrbitcoincash.com/terms.html",
+    "spec": "https://xrbitcoincash.com/bs",
+    "ai_manifest_overview": "https://xrbitcoincash.com/universal-ai.json"
+  },
+
   "endpoints": {
     "health": "https://xrbitcoincash-github-io.onrender.com/healthz",
     "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
-    "diag_html": "https://xrbitcoincash.com/XRBitcoin/diag.html"
+    "diag_html": "https://xrbitcoincash.com/XRBitcoin/diag.html",
+
+    "price_lite": "https://xrbitcoincash.github.io/ai/ai/price-lite.html?asset=XRBitcoin",
+    "status_hints": {
+      "rate_limit_hint_rps": 3,
+      "content_types": ["application/json", "text/html"],
+      "cors": "public-readonly"
+    }
   },
+
   "xrpl_access": {
     "mode": "read-only",
-    "allowed_methods": ["server_state", "ledger", "account_info", "book_offers", "amm_info"],
-    "notes": [
-      "Use POST JSON-RPC to xrpl_proxy with {method, params}.",
-      "Quotes must be computed live from order books and/or AMM."
-    ]
+    "cluster": "Public Clio/Mainnet",
+    "allowed_methods": [
+      "server_state",
+      "ledger",
+      "account_info",
+      "book_offers",
+      "amm_info"
+    ],
+    "data_contracts": {
+      "quotes": {
+        "sources": ["book_offers", "amm_info"],
+        "notes": [
+          "Quotes must be computed live from XRPL order books and/or AMM pools.",
+          "No hardcoded or cached prices beyond cache_ttl_seconds."
+        ]
+      }
+    }
   },
+
   "security": {
     "auth": "none",
-    "rate_limit_hint_rps": 3,
     "privacy": "No user data collected by this manifest.",
-    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt"
+    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
+    "csaf": {
+      "provider_metadata": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
+      "advisories_index": "https://xrbitcoincash.com/.well-known/csaf/advisories/",
+      "latest": [
+        "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json"
+      ]
+    },
+    "controls": {
+      "no_secrets_in_repo": true,
+      "read_only_proxy": true,
+      "live_on_ledger_data_only": true,
+      "exact_file_casing_required": true
+    }
   },
+
+  "ai_assistance": {
+    "provider": "OpenAI ChatGPT",
+    "model": "GPT-5 Thinking",
+    "roles": [
+      "documentation co-author",
+      "manifest creation & upkeep",
+      "UX wording & accessibility review",
+      "advisory security/audit notes"
+    ],
+    "constraints": [
+      "No private keys or secrets are ever shared with the assistant.",
+      "AI outputs are advisory only and do not replace independent audits.",
+      "All price/health claims must be verifiable via endpoints and XRPL RPC."
+    ],
+    "disclosure": "This project’s docs and security copy are co-authored and continuously audited with ChatGPT. The assistant has no signing authority or custody."
+  },
+
+  "i18n": {
+    "default_lang": "en",
+    "available": [
+      { "lang": "en", "path": "/whitepaper.html" },
+      { "lang": "it", "path": "/it/" },
+      { "lang": "fa", "path": "/fa/white-paper/" }
+    ],
+    "notes": "Language pages are human-edited; technical terms retain XRPL nomenclature."
+  },
+
+  "contacts": {
+    "email": "xrbitcoincash@gmail.com",
+    "x_twitter": "https://x.com/XRbitcoincash",
+    "bugs": "https://github.com/xrbitcoincash/xrbitcoincash.github.io/issues",
+    "security_reports": "https://github.com/xrbitcoincash/xrbitcoincash.github.io/security/advisories/new"
+  },
+
   "provenance": {
+    "built_with": [
+      { "assistant": "GPT-5 Thinking", "role": "code generation, manifests, documentation, UX polish" }
+    ],
+    "principles": [
+      "No secrets committed to the repo.",
+      "Read-only XRPL access from public endpoints.",
+      "Live on-ledger data only; no hardcoded prices.",
+      "Exact file casing and config placement (baseline safety)."
+    ],
+    "audit_ready": true,
+    "audit_notes": [
+      "Validate manifests against the published JSON Schema.",
+      "Use /healthz and diag.html for diagnostics.",
+      "Price/quotes must come from XRPL book_offers and/or amm_info."
+    ],
     "on_ledger_source": "XRPL Clio/Mainnet",
     "off_ledger_source": "Static site (GitHub Pages) + Render proxy"
   },
-  "updated": "2025-10-13"
+
+  "compliance": {
+    "securities_disclaimer": "XRPL issued currencies are utility tokens; treatment varies by jurisdiction. Not investment advice.",
+    "custody_disclaimer": "Non-custodial; users retain key control. Review transactions and slippage before submitting.",
+    "ai_disclaimer": "AI assistance is advisory; verify claims via the referenced endpoints and XRPL."
+  },
+
+  "updated": "2025-10-22T00:00:00Z",
+  "version": "2025.10"
 }
