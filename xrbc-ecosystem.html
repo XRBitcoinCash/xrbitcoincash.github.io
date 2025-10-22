@@ -113,7 +113,7 @@
   }
   </script>
 
-  <style>
+ <style>
 /* ---------- Tokens ---------- */
 :root{
   --wrap:980px;
@@ -126,27 +126,31 @@
 
 body{ background:#0b0f14; color:var(--ink); }
 
-/* ===== Header (full-width, STICKY so it never hides content) ===== */
+/* ===== Header (sticky, slimmer, semi-transparent) ===== */
 .site-header{
-  position:sticky; top:0; z-index:100;
-  width:100%;
-  background:linear-gradient(180deg,#0b0f14,#0b1017);
+  position:sticky; top:0; z-index:100; width:100%;
+  background:rgba(11,16,32,.72);
+  backdrop-filter:saturate(140%) blur(6px);
   border-bottom:1px solid rgba(255,255,255,.06);
 }
 .header-wrap{
-  max-width:var(--wrap); margin:0 auto; padding:12px 14px;
-  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; /* was 1fr auto 1fr */
+  max-width:var(--wrap); margin:0 auto; padding:10px 12px; /* slimmer */
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
 }
+
+/* Brand / logo stays inside the box neatly */
 .brand{display:flex;align-items:center;gap:10px;}
 .brand img{
-  width:48px;height:48px;border-radius:50%;object-fit:cover;
+  width:46px;height:46px;border-radius:10px;object-fit:contain; /* contain, not crop */
+  background:#0e1520; border:1px solid var(--border);
   box-shadow:0 0 24px rgba(16,185,129,.24),0 0 48px rgba(56,189,248,.18);
 }
-.brand h1{font-size:1.25rem;line-height:1.1;margin:0;}
+.brand h1{font-size:1.15rem;line-height:1.1;margin:0;}
+
 .header-center{justify-self:center;}
 .header-right{justify-self:end;display:flex;gap:8px;align-items:center;}
 
-/* Theme button (text label) */
+/* Theme button */
 #themeToggle{
   appearance:none;border:1px solid var(--border);
   background:linear-gradient(180deg,#0e1520,#0c131c);
@@ -155,7 +159,7 @@ body{ background:#0b0f14; color:var(--ink); }
 }
 #themeToggle:hover{filter:brightness(1.05);}
 
-/* ===== Hero directly under header (no overlap) ===== */
+/* ===== Hero / layout ===== */
 .hero{max-width:var(--wrap);margin:12px auto 14px;padding:0 14px;}
 .hero-layout{display:grid;gap:14px;align-items:stretch;grid-template-columns:1fr;}
 @media (min-width:980px){.hero-layout{grid-template-columns:1fr 1fr;}}
@@ -186,7 +190,7 @@ body{ background:#0b0f14; color:var(--ink); }
   box-shadow:0 10px 26px rgba(0,0,0,.35); line-height:1.15;
   transition:transform .06s ease,filter .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
-.btn-sm{ padding:8px 10px; font-size:.92rem; line-height:1; } /* for compact header buttons */
+.btn-sm{ padding:8px 10px; font-size:.92rem; line-height:1; } /* compact header buttons */
 .btn:hover{transform:translateY(-1px);filter:brightness(1.05);border-color:#324355;}
 .btn small{display:block;font-size:.88em;opacity:.9;line-height:1.1;}
 .btn-xaman{border-left:4px solid var(--xrbc-green);}
@@ -194,17 +198,20 @@ body{ background:#0b0f14; color:var(--ink); }
 .btn-solo-pool{border-left:4px solid var(--xrbc-blue);}
 .btn-xpmarket{border-left:4px solid var(--xrbc-cyan);}
 
-/* NFT card (right) */
+/* NFT card (right) — show full image, not cropped */
 .card{
   background:linear-gradient(180deg,#0e1520,#0c131c);
   border:1px solid var(--border); border-radius:14px; padding:16px;
   box-shadow:0 10px 30px rgba(0,0,0,.35); min-height:320px;
   display:flex;flex-direction:column;justify-content:flex-start;
 }
-.card.nft img{ width:100%;height:auto;border-radius:10px;max-height:200px;object-fit:cover; }
+.card.nft img{
+  width:100%; height:auto; border-radius:10px;
+  max-height:200px; object-fit:contain; /* show full image */
+}
 .glow-green{box-shadow:0 0 24px rgba(16,185,129,.18),0 0 46px rgba(16,185,129,.10);}
 
-/* Dev row (¼-inch gaps; README flush-right like NFT edge) */
+/* Dev row */
 .dev{max-width:var(--wrap);margin:10px auto 0;padding:0 14px;}
 .dev-grid{display:grid;gap:var(--gap-quarter);grid-template-columns:1fr;align-items:stretch;}
 @media (min-width:700px){.dev-grid{grid-template-columns:1fr auto 1fr;}}
@@ -219,14 +226,14 @@ body{ background:#0b0f14; color:var(--ink); }
 .align-right{justify-self:end;}
 @media (max-width:420px){ .align-right{justify-self:stretch;} }
 
-/* Center the two dev buttons on mobile */
+/* Center dev buttons on mobile */
 @media (max-width:700px){
   .dev-grid{ justify-items:center; }
   .dev-grid .btn-steam{ width:100%; max-width:520px; }
   .dev-grid .align-right{ justify-self:center; }
 }
 
-/* Security section centered + ¼-inch chip gaps */
+/* Security section */
 .security{max-width:var(--wrap);margin:14px auto 0;padding:0 14px;}
 .sec-title{
   display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--ink);
@@ -244,23 +251,26 @@ body{ background:#0b0f14; color:var(--ink); }
 .ai-badges .chip small{opacity:.8;}
 .ticker-xrbc{ color:#d1fae5;font-weight:800; text-shadow:0 0 8px rgba(16,185,129,.65),0 0 20px rgba(56,189,248,.45); }
 
-/* Footer (unchanged spacing) */
+/* ===== Footer (better mobile alignment) ===== */
 .ecosystem-footer{border-top:1px solid rgba(255,255,255,.06);margin-top:12px;}
 .footer-container{max-width:var(--wrap);margin:0 auto;padding:14px;}
-.ecosystem-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;}
+.ecosystem-links{
+  display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;
+  justify-content:center; /* center on all screens */
+}
 .eco-link{
   display:inline-flex;align-items:center;gap:8px;padding:8px 10px;
   border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--ink);
   background:linear-gradient(180deg,#0e1520,#0c131c);
+  flex:0 1 220px; /* consistent button size */
 }
 .eco-link img{width:22px;height:22px;border-radius:6px;object-fit:cover;}
 
-/* ===== Light Mode =====
-   White page + black text; all cards/chips/buttons go outline-only for contrast.
-*/
+/* ===== Light Mode ===== */
 body.light-mode{ background:#ffffff; color:#0b0f14; }
 body.light-mode .site-header{
-  background:linear-gradient(180deg,#f8fafc,#ffffff);
+  background:rgba(255,255,255,.9);
+  backdrop-filter:saturate(120%) blur(6px);
   border-bottom:1px solid rgba(0,0,0,.08);
 }
 body.light-mode .brand h1{ color:#0b0f14; }
@@ -286,44 +296,42 @@ body.light-mode .btn-solo-dex,
 body.light-mode .btn-solo-pool,
 body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 
-/* Header stack on small screens:
-   Row1: brand (centered)
-   Row2: Home button (centered)
-   Row3: Light/Dark button (centered, same size) */
+/* ===== Mobile header layout =====
+   Row 1: brand (centered)
+   Row 2: Home + Light/Dark side-by-side
+*/
 @media (max-width:560px){
   .header-wrap{
-    grid-template-columns:1fr;       /* single column */
+    grid-template-columns:1fr 1fr;        /* two columns */
     grid-auto-rows:minmax(0,auto);
+    padding:8px 10px;                     /* smaller */
   }
   .brand{
-    grid-column:1; grid-row:1; justify-self:center;
+    grid-column:1 / -1; grid-row:1; justify-self:center;
   }
   .header-center{
-    grid-column:1; grid-row:2; justify-self:center;
+    grid-column:1; grid-row:2; justify-self:end;
   }
   .header-right{
-    grid-column:1; grid-row:3; justify-self:center;
+    grid-column:2; grid-row:2; justify-self:start; display:flex; gap:8px;
   }
-  /* keep default sizes (no shrink); ensure no forced full-width */
-  .header-center .btn{ width:auto; text-align:center; }
-  #themeToggle{ width:auto; }
+  .header-center .btn{ width:auto; padding:8px 10px; }
+  #themeToggle{ width:auto; padding:8px 10px; }
   .brand img{ width:40px; height:40px; }
   .brand h1{
-    font-size:1rem;
-    max-width:70vw;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:1rem; max-width:70vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
 }
 
-/* Mobile niceties */
+/* Additional mobile niceties */
 @media (max-width:420px){
   .btn{padding:10px 12px;}
   .btn-steam{padding:12px 14px;}
   .card,.trade-cta-card{min-height:unset;}
-  .card.nft img{max-height:180px;}
+  .card.nft img{max-height:100px;} /* ~half height on small screens */
 }
+</style>
 
-  </style>
 </head>
 
 <body>
