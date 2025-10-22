@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- favicon… -->
-  <link rel="icon" href="/favicon.png" type="image/png">
-  <link rel="shortcut icon" href="/favicon.png" type="image/png">
-  <meta name="msapplication-TileImage" content="/favicon.png">
-</head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics</title>
 
-  <!-- Icons -->
+  <!-- Canonical + discovery -->
+  <link rel="canonical" href="https://xrbitcoincash.com/whitepaper.html" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0B1020" />
+  <link rel="alternate" type="application/json" href="/universal-ai.json" title="AI Manifest" />
+
+  <!-- Icons (single source of truth) -->
   <link rel="icon" href="/xrbc-nft.png" type="image/png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
   <!-- Primary SEO -->
-  <meta name="description" content="Read the XRBitcoinCash (XRBC) whitepaper: our vision, token design, and how XRPL enables fast, low-cost transactions for everyone." />
-  <meta name="keywords" content="XRBitcoinCash whitepaper, XRBC, XRPL, token design, cryptocurrency, payments, low fees, blockchain, DeFi" />
-  <link rel="canonical" href="https://xrbitcoincash.com/whitepaper.html" />
-  <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#0B1020" />
+  <meta name="description" content="Read the XRBitcoinCash (XRBC) whitepaper: our vision, token design, security model, and how XRPL enables fast, low-cost transactions for everyone." />
+  <meta name="keywords" content="XRBitcoinCash whitepaper, XRBC, XRPL, token design, cryptocurrency, payments, low fees, blockchain, DeFi, AI auditor, ChatGPT" />
 
-  <!-- Open Graph (Facebook, LinkedIn) -->
+  <!-- Open Graph -->
   <meta property="og:type" content="article" />
   <meta property="og:title" content="XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics" />
-  <meta property="og:description" content="Explore the XRBC whitepaper: vision, technology, and tokenomics for a scalable future on XRPL." />
+  <meta property="og:description" content="Explore the XRBC whitepaper: vision, technology, tokenomics, security posture, and AI-audited transparency on XRPL." />
   <meta property="og:url" content="https://xrbitcoincash.com/whitepaper.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:image:alt" content="XRBitcoinCash whitepaper cover" />
@@ -33,35 +31,454 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics" />
-  <meta name="twitter:description" content="Read the XRBC whitepaper to learn about our mission and the XRPL-powered technology behind it." />
+  <meta name="twitter:description" content="Read the XRBC whitepaper to learn about our mission, the XRPL-powered tech, and our AI-audited security model." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-  <!-- JSON-LD Structured Data -->
+  <!-- AI usage (human-readable disclosure) -->
+  <meta name="ai:usage" content="This site’s Security Center and documentation were co-authored and continuously audited with ChatGPT (OpenAI). No private keys or secrets are ever shared; audits are advisory and non-binding." />
+
+  <!-- JSON‑LD: Whitepaper as TechArticle -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": "XRBitcoinCash Whitepaper — Vision, Token Design, XRPL Mechanics",
-    "description": "Read the XRBitcoinCash (XRBC) whitepaper: our vision, token design, and how XRPL enables fast, low-cost transactions for everyone.",
+    "description": "Read the XRBitcoinCash (XRBC) whitepaper: our vision, token design, security posture, and how XRPL enables fast, low-cost transactions for everyone.",
     "image": "https://xrbitcoincash.com/xrbc-nft.png",
-    "author": {
-      "@type": "Organization",
-      "name": "XRBitcoinCash"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "XRBitcoinCash",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://xrbitcoincash.com/xrbc-nft.png"
-      }
-    },
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": "https://xrbitcoincash.com/whitepaper.html"
-    }
+    "author": {"@type": "Organization","name": "XRBitcoinCash"},
+    "publisher": {"@type": "Organization","name": "XRBitcoinCash","logo": {"@type": "ImageObject","url": "https://xrbitcoincash.com/xrbc-nft.png"}},
+    "dateModified": "2025-10-22",
+    "mainEntityOfPage": {"@type": "WebPage","@id": "https://xrbitcoincash.com/whitepaper.html"}
   }
   </script>
+
+  <!-- JSON‑LD: Security Center (AI Auditor) as WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "XRBC Security Center (AI Auditor)",
+    "url": "https://xrbitcoincash.com/ai/ai/health.html",
+    "applicationCategory": "Security",
+    "operatingSystem": "Web",
+    "creator": {"@type": "Organization","name": "XRBitcoinCash"},
+    "softwareVersion": "2025.10",
+    "featureList": [
+      "XRPL node health checks",
+      "Order book & AMM visibility",
+      "AI-readable manifests",
+      "Advisory audit notes (ChatGPT)"
+    ]
+  }
+  </script>
+
+  <!-- Machine‑readable AI usage block (custom) -->
+  <script id="xrbc-ai-usage" type="application/json">
+  {
+    "project": "XRBitcoinCash (XRBC)",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currency_hex": "5852626974636F696E6361736800000000000000",
+    "proxy_url": "https://xrbitcoincash-github-io.onrender.com",
+    "ai_assistance": {
+      "provider": "OpenAI ChatGPT",
+      "roles": ["documentation co-author", "security center advisor", "UI copy review", "risk disclaimer drafting"],
+      "constraints": [
+        "No secrets shared or stored",
+        "Advisory only; not a substitute for independent audits",
+        "Keys rotated regularly; repos contain no API keys"
+      ]
+    },
+    "links": {
+      "health": "https://xrbitcoincash.com/ai/ai/health.html",
+      "price": "https://xrbitcoincash.github.io/ai/ai/price.html"
+    },
+    "last_updated": "2025-10-22"
+  }
+  </script>
+
+ <style>
+  :root {
+    --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
+  }
+  * { box-sizing:border-box }
+  html,body { height:100%; margin:0; font-family: Inter, Segoe UI, Roboto, system-ui, Arial; color:var(--ink); background:var(--bg); -webkit-font-smoothing:antialiased; line-height:1.6; }
+
+  /* Glow background */
+  .bg-blob { position:fixed; inset:0; z-index:0; pointer-events:none; background:
+    radial-gradient(600px 300px at 8% 20%, rgba(0,230,255,0.12), transparent),
+    radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
+    filter:blur(28px); animation:blob 22s linear infinite;
+  }
+  @keyframes blob { 0%{transform:translate(0,0)} 50%{transform:translate(-5%,4%)} 100%{transform:translate(0,0)} }
+  .page-frame { position:fixed; inset:12px; border-radius:16px; border:2px solid rgba(0,229,255,0.10); pointer-events:none; z-index:5; }
+  .progress-bar { position:fixed; top:0; left:0; height:4px; background:var(--accent); box-shadow:0 0 12px var(--accent); z-index:999; width:0%; transition:width 0.15s linear; }
+
+  /* === DROP-IN: Overlay header with opaque veil + auto-hide (works with your JS) === */
+  header {
+    position: fixed;
+    top: 12px;              /* sits inside the page-frame inset */
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: transparent; /* veil lives on ::before */
+    padding: 10px 18px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    transform: translateY(0);
+    transition: transform .35s ease, box-shadow .25s ease;
+  }
+
+  /* Opaque background that sits BEHIND logo/buttons */
+  header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(11,16,32,.96);               /* opaque veil */
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+    backdrop-filter: saturate(140%) blur(.5px);    /* graceful if unsupported */
+  }
+
+  /* JS toggles these */
+  header.header-hidden { transform: translateY(calc(-100% - 14px)); }
+  header.header-solid  { box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+
+  .brand { display:flex; gap:12px; align-items:center; }
+  .brand img { width:56px; height:56px; border-radius:10px; animation:glowPulse 2.5s infinite alternate; }
+  @keyframes glowPulse { from { box-shadow:0 0 4px var(--accent);} to { box-shadow:0 0 14px var(--accent);} }
+  .brand h1 { font-size:1.15rem; margin:0; }
+
+  nav.main { width:100%; }
+
+  /* Responsive, evenly spaced grid that won’t overflow */
+  .nav-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); /* tighter min for small screens */
+    align-items: center;
+    justify-items: center;
+  }
+  .nav-grid a, .nav-grid button.menu {
+    text-decoration: none;
+    font-weight: 600;
+    color: #00121a;
+    background: linear-gradient(180deg, var(--accent), #00b6d0);
+    padding: 8px 10px;     /* slightly reduced for mobile fit */
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    font-size: .95rem;
+  }
+  .nav-grid a.muted {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .dropdown { position:relative; width:100%; }
+  .dropdown summary {
+    list-style:none;
+    cursor:pointer;
+    background: linear-gradient(180deg, var(--accent), #00b6d0);
+    color:#00121a;
+    padding:8px 12px;
+    border-radius:10px;
+    font-weight:700;
+  }
+  .dropdown[open] summary { border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .dropdown .menu {
+    position:absolute; left:0; right:0;
+    background:var(--card);
+    border:1px solid rgba(255,255,255,0.06);
+    border-top:none;
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+    padding:8px;
+    display:grid; gap:8px;
+    z-index:20;
+  }
+  .dropdown .menu a {
+    display:block; text-decoration:none; font-weight:600;
+    color:var(--muted); background:transparent;
+    padding:8px 10px; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .dropdown .menu a:hover { color:var(--ink); border-color:rgba(255,255,255,0.18); }
+
+  /* Content */
+  main { position:relative; z-index:2; max-width:1000px; margin:20px auto 40px; padding:0 18px 24px; }
+  .card { background:var(--card); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); max-width:100%; margin:0 auto 16px; }
+
+  .fade-in { opacity:0; transform:translateY(20px); transition:opacity .8s ease-out, transform .8s ease-out; }
+  .fade-in.visible { opacity:1; transform:translateY(0); }
+  .highlight { color:var(--accent); font-weight:600; }
+  .muted { color:var(--muted); }
+
+  /* Section headings + anchor spacing (for overlay header) */
+  h2, h3 { scroll-margin-top: 90px; }
+
+  /* Table of contents */
+  .toc { display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .toc a { text-decoration:none; color:var(--muted); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:8px; }
+  .toc a:hover { color:var(--ink); border-color:rgba(255,255,255,0.18); }
+
+  footer { max-width:1000px; margin:0 auto 60px; padding:0 18px; text-align:center; color:var(--muted) }
+  #backToTop { position:fixed; bottom:20px; right:20px; background:var(--accent); color:#00121a; border:none; border-radius:50%; width:44px; height:44px; font-size:18px; cursor:pointer; display:none; box-shadow:0 0 10px var(--accent); }
+  #backToTop:hover { background:#00b6d0 }
+
+  /* Mobile tightening */
+  @media (max-width: 480px){
+    .nav-grid { gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+    .brand img { width:48px; height:48px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){ .fade-in{transition:none !important} }
+
+ /* === HOTFIX: keep content beneath fixed header ========================== */
+:root{
+  /* Adjust these if needed after you eyeball it */
+  --header-height: 148px;                 /* desktop/tablet default */
+}
+@media (max-width: 1024px){ :root{ --header-height: 168px; } }
+@media (max-width: 768px){  :root{ --header-height: 196px; } }
+@media (max-width: 520px){  :root{ --header-height: 224px; } }
+
+/* Push main content down so it starts under the header + frame inset */
+main{
+  padding-top: calc(var(--header-height) + 20px);  /* +20 for the 12px frame/top gap */
+}
+
+/* Ensure in-page anchors/TOC jumps land below the header */
+h2, h3{
+  scroll-margin-top: calc(var(--header-height) + 24px);
+}
+
+ 
+ </style>
+
+</head>
+<body>
+  <div class="bg-blob"></div>
+  <div class="page-frame"></div>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <header>
+    <div class="brand">
+      <a href="/"><img src="/xrbc-nft.png" alt="XRBC logo" /></a>
+      <h1>XRBitcoinCash <span class="muted">Whitepaper</span></h1>
+    </div>
+
+    <!-- Centered, responsive nav with dropdown (no overlap) -->
+    <nav class="main" aria-label="Primary">
+      <div class="nav-grid">
+        <a href="https://xrbitcoincash.com/" aria-label="Home">Home</a>
+        <a href="https://xrbitcoincash.com/trade.html" aria-label="Trade XRBC">Trade</a>
+        <a href="https://xrbitcoincash.com/nfts.html" aria-label="NFTs">NFTs</a>
+        <a href="https://xrbitcoincash.com/about.html" aria-label="About">About</a>
+        <a class="muted" href="https://xrbitcoincash.com/whitepaper.html" aria-current="page">Whitepaper</a>
+        <details class="dropdown">
+          <summary aria-haspopup="listbox" aria-expanded="false">Security</summary>
+          <div class="menu" role="listbox">
+            <a href="https://xrbitcoincash.com/ai/ai/health.html">Health Checks</a>
+            <a href="https://xrbitcoincash.github.io/ai/ai/price.html">Price</a>
+            <a aria-disabled="true" style="opacity:.6; cursor:not-allowed">AI Auditor (coming soon)</a>
+          </div>
+        </details>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Table of contents / quick jump -->
+    <section class="card fade-in" id="toc">
+      <h2>Contents</h2>
+      <div class="toc">
+        <a href="#intro">1) Introduction</a>
+        <a href="#identity">2) Token Identity</a>
+        <a href="#security">3) Security & Auditing</a>
+        <a href="#infra">4) Infrastructure</a>
+        <a href="#liquidity">5) Trading & Liquidity</a>
+        <a href="#escrow">6) Escrow Roadmap</a>
+        <a href="#compliance">7) Compliance & Disclaimers</a>
+        <a href="#links">8) Verified Links</a>
+      </div>
+    </section>
+
+    <section class="card fade-in" id="intro">
+      <h2>1) Introduction</h2>
+      <p>
+        <span class="highlight">XRBitcoinCash (XRBC)</span> is a fixed‑supply issued token on the <span class="highlight">XRP Ledger (XRPL)</span> designed to make fast, low‑fee transfers accessible to everyone. The project is an ongoing build: the token was minted prior to the public launch of ChatGPT, but the <em>documentation, security posture, UI copy, and audit guidance</em> have been co‑developed and continuously improved with ChatGPT assistance.
+      </p>
+      <p>
+        Our north star is <strong>transparent, AI‑readable safety</strong>: clear on‑ledger identities, machine‑parsable manifests, and live health/price endpoints that third‑party agents (including AI) can verify independently.
+      </p>
+    </section>
+
+    <section class="card fade-in" id="identity">
+      <h2>2) Token Identity (XRBC)</h2>
+      <ul>
+        <li><strong>Issuer:</strong> <code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></li>
+        <li><strong>Currency (HEX):</strong> <code>5852626974636F696E6361736800000000000000</code></li>
+        <li><strong>Supply:</strong> ~21,000,000 (fixed; issuer blackholed)</li>
+        <li><strong>Network:</strong> XRPL Mainnet</li>
+        <li><strong>Proxy (source of truth):</strong> <code>https://xrbitcoincash-github-io.onrender.com</code></li>
+        <li><strong>Wallet UX:</strong> Trustline + XRPL DEX/AMM trading</li>
+      </ul>
+      <p class="muted small">Note: XRBitcoin (separate token) lives under a different issuer and page; XRBC branding is kept distinct by design.</p>
+    </section>
+
+    <section class="card fade-in" id="security">
+      <h2>3) Security & AI‑Audited Transparency</h2>
+      <p>
+        XRBC maintains a <strong>Security Center</strong> with health checks, order‑book visibility, and AI‑readable metadata. ChatGPT contributes to <em>documentation, risk language, and review checklists</em>. All reviews are <strong>advisory</strong> and do not replace independent audits.
+      </p>
+      <ul>
+        <li>No API keys / wallet secrets in the repository; keys are rotated regularly.</li>
+        <li>Desktop safety: wallet actions use a QR‑only flow; no direct signing in browser.</li>
+        <li>Health & price pages expose machine‑readable JSON for automated checks.</li>
+      </ul>
+      <p>
+        Live endpoints: <a href="https://xrbitcoincash.com/ai/ai/health.html">Health</a> · <a href="https://xrbitcoincash.github.io/ai/ai/price.html">Price</a>
+      </p>
+      <details class="fade-in"><summary><strong>AI Usage Disclosure (expand)</strong></summary>
+        <p>ChatGPT (OpenAI) has been used to co‑author this whitepaper, strengthen compliance/disclaimer language, propose UI improvements, and suggest audit checklists. ChatGPT does not hold keys, transact, or control wallets; it only provides text‑based assistance.</p>
+      </details>
+    </section>
+
+    <section class="card fade-in" id="infra">
+      <h2>4) Infrastructure</h2>
+      <ul>
+        <li><strong>Hosting:</strong> GitHub Pages (static site)</li>
+        <li><strong>Proxy:</strong> Node/Express on Render — <code>https://xrbitcoincash-github-io.onrender.com</code></li>
+        <li><strong>XRPL Nodes:</strong> WSS via trusted clusters; no HTTP fallback</li>
+        <li><strong>Manifests:</strong> <code>/.well-known/xrp-ledger.toml</code> and <code>/universal-ai.json</code> for AI discoverability</li>
+        <li><strong>Design:</strong> Minimal, responsive, with accessible, non‑overlapping nav</li>
+      </ul>
+    </section>
+
+    <section class="card fade-in" id="liquidity">
+      <h2>5) Trading & Liquidity</h2>
+      <p>
+        XRBC trades on the XRPL built‑in DEX. Liquidity is provided and maintained on XRPL AMM pools (Sologenic UI), with a low target fee to reduce arbitrage impact. Users should understand trustlines, order books, slippage, and custody responsibilities before trading.
+      </p>
+      <ul>
+        <li>Set trustline in Xaman (Xumm), then trade via XRPL DEX UI.</li>
+        <li>Order‑book prices are fetched live (no static prices).</li>
+        <li>Liquidity pools are funded by the ecosystem founder and maintained on Sologenic AMM.</li>
+      </ul>
+    </section>
+
+    <section class="card fade-in" id="escrow">
+      <h2>6) Escrow Roadmap (Issued Tokens)</h2>
+      <p>
+        As XRPL evolves, the project plans to leverage <strong>escrow for issued tokens</strong> to provide time‑locked, on‑ledger schedules that improve predictability for market participants. The objective is to mirror the transparency ethos of Bitcoin’s issuance while retaining XRPL’s speed and low fees.
+      </p>
+      <ul>
+        <li>Time‑locked escrows for treasury allocations.</li>
+        <li>Public schedules with on‑ledger verification.</li>
+        <li>Governance‑aware fee settings for AMM pools.</li>
+      </ul>
+      <p class="muted small">Implementation details will track XRPL amendments and best practices. All schedules will be disclosed on‑site once finalized.</p>
+    </section>
+
+    <section class="card fade-in" id="compliance">
+      <h2>7) Compliance, Risk & Disclaimers</h2>
+      <ul>
+        <li><strong>Not an offer of securities.</strong> XRBC is a utility token on XRPL. Jurisdictional treatment may vary; consult your counsel.</li>
+        <li><strong>Self‑custody risk.</strong> You are responsible for key management, slippage, and transaction review.</li>
+        <li><strong>AI disclaimers.</strong> ChatGPT outputs can be incomplete or wrong. Treat audits as informational only.</li>
+        <li><strong>Open‑source license.</strong> MIT; attribution required where applicable.</li>
+        <li>See <a href="/privacy.html">Privacy Policy</a> and <a href="/terms.html">Terms of Service</a>.</li>
+      </ul>
+    </section>
+
+    <section class="card fade-in" id="links">
+      <h2>8) Verified Links</h2>
+      <ul>
+        <li>Homepage: <a href="https://xrbitcoincash.com/">https://xrbitcoincash.com/</a></li>
+       
+        <li>Security Health: <a href="https://xrbitcoincash.com/ai/ai/health.html">/ai/ai/health.html</a></li>
+        <li>Live Price: <a href="https://xrbitcoincash.github.io/ai/ai/price.html">https://xrbitcoincash.github.io/ai/ai/price.html</a></li>
+        <li>XRPL TOML: <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <small>© 2025 XRBitcoinCash™ — Built on XRPL · Last updated 2025‑10‑22</small>
+  </footer>
+
+  <button id="backToTop" aria-label="Back to top">↑</button>
+
+  <script>
+  // Fade-in on scroll
+  const faders = document.querySelectorAll('.fade-in');
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  faders.forEach(el => io.observe(el));
+
+  // Progress + back-to-top
+  addEventListener('scroll', () => {
+    const top = scrollY; const doc = document.body.scrollHeight - innerHeight;
+    const pct = Math.max(0, Math.min(100, (top / doc) * 100));
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('backToTop').style.display = top > 300 ? 'block' : 'none';
+  });
+  document.getElementById('backToTop').addEventListener('click', () => scrollTo({top:0, behavior:'smooth'}));
+
+  // Accessible dropdown state
+  const dropdown = document.querySelector('details.dropdown');
+  if (dropdown) dropdown.addEventListener('toggle', () => {
+    const s = dropdown.querySelector('summary');
+    if (s) s.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+  });
+  </script>
+  <script>
+  (function() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    let lastY = window.scrollY || 0;
+    const THRESH = 260; // change this if you want the hide point earlier/later
+
+    function onScroll() {
+      const y = window.scrollY || 0;
+
+      // Give the header a subtle shadow once we leave the very top
+      if (y > 12) header.classList.add('header-solid');
+      else        header.classList.remove('header-solid');
+
+      // Hide on downward scroll past threshold; show otherwise
+      if (y > THRESH && y > lastY + 2) header.classList.add('header-hidden');
+      else                             header.classList.remove('header-hidden');
+
+      lastY = y;
+
+      // Optional: drive the progress bar if it's in the DOM
+      const pb = document.querySelector('.progress-bar');
+      if (pb) {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+        pb.style.width = (Math.max(0, Math.min(1, scrolled)) * 100).toFixed(2) + '%';
+      }
+    }
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+  </script>
+
+</body>
+</html>  </script>
 
   <!-- Existing CSS from your current whitepaper page -->
   <style>
