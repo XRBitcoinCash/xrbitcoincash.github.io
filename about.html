@@ -14,8 +14,8 @@
   <title>About — XRBitcoinCash</title>
 
   <!-- Primary SEO -->
-  <meta name="description" content="Learn the mission, values, ecosystem, and history behind XRBitcoinCash (XRBC) on the XRP Ledger." />
-  <meta name="keywords" content="XRBitcoinCash, XRBC, XRPL, XRPL token, cryptocurrency, NFT, tokenomics, transparency" />
+  <meta name="description" content="Learn the mission, current work, ecosystem links, and safety posture behind XRBitcoinCash (XRBC) on the XRP Ledger." />
+  <meta name="keywords" content="XRBitcoinCash, XRBC, XRPL, XRPL token, cryptocurrency, NFT, tokenomics, transparency, AI auditor" />
   <link rel="canonical" href="https://xrbitcoincash.com/about.html" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#0B1020" />
@@ -23,8 +23,8 @@
   <!-- Open Graph / Facebook / LinkedIn -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://xrbitcoincash.com/about.html" />
-  <meta property "og:title" content="About — XRBitcoinCash" />
-  <meta property="og:description" content="XRBC is a transparent, non-custodial XRPL asset, with fast settlement, low fees, and clear on-chain flows." />
+  <meta property="og:title" content="About — XRBitcoinCash" />
+  <meta property="og:description" content="XRBC is a transparent, non-custodial XRPL asset with fast settlement, low fees, and AI-audited docs." />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:image:alt" content="XRBitcoinCash logo" />
   <meta property="og:site_name" content="XRBitcoinCash" />
@@ -32,7 +32,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="About — XRBitcoinCash" />
-  <meta name="twitter:description" content="XRBC is a transparent, non-custodial XRPL asset, with fast settlement, low fees, and clear on-chain flows." />
+  <meta name="twitter:description" content="XRBC is a transparent, non-custodial XRPL asset with fast settlement, low fees, and AI-audited docs." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <!-- JSON-LD Structured Data -->
@@ -43,11 +43,10 @@
     "name": "XRBitcoinCash",
     "url": "https://xrbitcoincash.com",
     "logo": "https://xrbitcoincash.com/xrbc-nft.png",
-    "description": "Learn the mission, values, and fundamentals behind XRBitcoinCash (XRBC) on the XRP Ledger.",
+    "description": "Mission, ecosystem, and safety posture behind XRBitcoinCash (XRBC) on XRPL.",
     "sameAs": [
-      "https://twitter.com/XRbitcoincash",
-      "https://xrbitcoincash.com",
-      "https://xrbitcoincash.info"
+      "https://x.com/XRbitcoincash",
+      "https://xrbitcoincash.com"
     ]
   }
   </script>
@@ -59,6 +58,7 @@
       --muted: #9EB2D0;
       --card-bg: rgba(255,255,255,0.05);
       --chip-stroke: rgba(255,255,255,0.12);
+      --accent: #00E5FF;
     }
     html, body { height: 100%; }
     body {
@@ -87,85 +87,30 @@
       text-align: center;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .branding {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 6px;
-    }
-    .branding img {
-      height: 48px;
-      width: 48px;
-      border-radius: 8px;
-    }
-    .branding .site-name {
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }
-    main {
-      flex: 1;
-    }
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
-    }
-    h1 {
-      text-align: center;
-      margin: 8px 0 18px;
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-    .content {
-      background: var(--card-bg);
-      border: 1px solid var(--chip-stroke);
-      border-radius: 14px;
-      padding: 20px;
-    }
-    .content h2 {
-      margin: 1.5rem 0 0.75rem;
-    }
-    .content ul {
-      margin-left: 1.25em;
-    }
-    footer {
-      background: #111827;
-      padding: 20px;
-      text-align: center;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    footer small {
-      color: var(--muted);
-    }
-    .facts {
-      background: var(--card-bg);
-      border: 1px solid var(--chip-stroke);
-      border-radius: 14px;
-      padding: 16px;
-      margin: 1.5rem 0;
-    }
-    .facts ul {
-      list-style: none;
-      padding: 0;
-    }
-    .facts li {
-      margin: 0.6rem 0;
-    }
-    .facts .mono {
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-    }
-    .disclaimer {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-top: 2rem;
-    }
-    a {
-      color: var(--ink);
-      text-decoration: underline;
-    }
+    .branding { display: inline-flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 6px; }
+    .branding img { height: 48px; width: 48px; border-radius: 8px; }
+    .branding .site-name { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.01em; }
+    nav a { color: var(--ink); text-decoration: none; font-weight: 600; }
+
+    main { flex: 1; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 40px; }
+    h1 { text-align: center; margin: 8px 0 18px; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .content { background: var(--card-bg); border: 1px solid var(--chip-stroke); border-radius: 14px; padding: 20px; }
+    .content h2 { margin: 1.5rem 0 0.75rem; }
+    .content ul { margin-left: 1.25em; }
+
+    .facts { background: var(--card-bg); border: 1px solid var(--chip-stroke); border-radius: 14px; padding: 16px; margin: 1.5rem 0; }
+    .facts ul { list-style: none; padding: 0; }
+    .facts li { margin: 0.6rem 0; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .disclaimer { color: var(--muted); font-size: 0.9rem; margin-top: 2rem; }
+
+    .link-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 16px 0; }
+    .link-grid a { display: inline-block; text-decoration: none; color: #00121a; background: linear-gradient(180deg, var(--accent), #00b6d0); padding: 10px 12px; border-radius: 10px; font-weight: 800; text-align: center; }
+    .link-grid a.muted { background: transparent; color: var(--muted); border:1px solid rgba(255,255,255,0.12); }
+
+    footer { background: #111827; padding: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); }
+    footer small { color: var(--muted); }
   </style>
 </head>
 
@@ -175,8 +120,8 @@
       <img src="/xrbc-nft.png" alt="XRBitcoinCash logo" width="48" height="48" />
       <span class="site-name">XRBitcoinCash</span>
     </div>
-    <nav>
-      <a href="https://xrbitcoincash.com/" style="color: var(--ink); text-decoration: none; font-weight:600;">Home</a>
+    <nav aria-label="Primary">
+      <a href="https://xrbitcoincash.com/">Home</a>
     </nav>
   </header>
 
@@ -186,78 +131,53 @@
       <div class="content">
         <h2>Origin & Purpose</h2>
         <p>
-          XRBitcoinCash (XRBC) was launched in <strong>2022</strong>, in the midst of the SEC vs. Ripple proceedings, as 
-          both a gesture of solidarity with the XRPL ecosystem and a living demonstration that tokens on XRPL can be 
-          built for clarity, low fees, and provable accountability. The timing underscores the project’s belief that 
-          decentralized tokens on XRPL are not securities, but tools for value exchange aligned with open standards.
+          <strong>XRBitcoinCash (XRBC)</strong> launched in <strong>2022</strong> to demonstrate a simple, low‑fee, transparent asset on the <strong>XRP Ledger (XRPL)</strong>. The project favors clear on‑ledger identity, machine‑readable docs, and safety‑first UX.
         </p>
 
-        <h2>Mission</h2>
-        <p>
-          Deliver a simple, transparent asset on XRPL with low fees, fast settlement, and clear, auditable flows.
-          Every design decision and integration — from frontend UI to ledger interactions — is governed by that mission.
-        </p>
-
-        <h2>Principles</h2>
+        <h2>What We’re Building Now</h2>
         <ul>
-          <li><strong>Clarity over complexity</strong> — public token details, readable docs, minimal hidden behavior.</li>
-          <li><strong>Non-custodial by default</strong> — users always retain control of their private keys; trades happen on-ledger.</li>
-          <li><strong>Consistent branding & metadata</strong> — predictable identifiers and standards across wallets, explorers, and tooling.</li>
+          <li><strong>Security Center:</strong> Health checks and verifiable, AI‑readable endpoints (<a href="https://xrbitcoincash.com/ai/ai/health.html">health</a> · <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">price‑lite</a>).</li>
+          <li><strong>XRPL AMM & DEX:</strong> Live on‑ledger trading with trustline UX and a safety‑oriented trade page.</li>
+          <li><strong>AI Collaboration (ChatGPT):</strong> Co‑authored docs and advisory audit language; no keys held, no signing.</li>
+          <li><strong>Escrow Roadmap:</strong> Adopt time‑locked escrows for issued tokens when XRPL standardization allows.</li>
         </ul>
 
-        <h2>Key Facts & Token Details</h2>
+        <h2>How to Get XRBC</h2>
+        <ol>
+          <li>Open a trustline in your Xaman (Xumm) wallet for XRBC.</li>
+          <li>Use the on‑ledger DEX/AMM via our Trade page.</li>
+        </ol>
+        <div class="link-grid" aria-label="Primary actions">
+          <a href="https://xrbitcoincash.com/trade.html">Trade XRBC</a>
+          <a href="https://xrbitcoincash.com/nfts.html">NFTs</a>
+          <a href="https://xrbitcoincash.com/whitepaper.html">Whitepaper</a>
+          <a href="https://xrbitcoincash.com/ai/ai/health.html">Security Health</a>
+          <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">Live Price (lite)</a>
+          <a href="https://x.com/XRbitcoincash" rel="me">Follow on X (Twitter)</a>
+        </div>
+
+        <h2>Exchanges & Listings</h2>
+        <p><strong>On‑ledger DEX (primary):</strong> XRBC trades natively on the XRPL DEX/AMM. Use the Trade page above to interact with the order book and pools from a wallet you control.</p>
+        <p><strong>Centralized exchanges (CEX):</strong> No centralized listings are claimed here. When/if CEX listings occur, we’ll publish the exact links on this page. Until then, rely on the XRPL DEX/AMM and our verified links below.</p>
+
+        <h2>Ecosystem & Verified Links</h2>
         <div class="facts">
           <ul>
             <li><strong>Issuer:</strong> <span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></li>
-            <li><strong>Currency code (string):</strong> <span class="mono">XRbitcoincash</span></li>
-            <li><strong>Currency code (hex):</strong> <span class="mono">5852626974636F696E6361736800000000000000</span></li>
-            <li><strong>Trustline cap (indicative):</strong> <span class="mono">20,999,999.999999996</span></li>
-            <li><strong>Network:</strong> XRP Ledger (XRPL)</li>
+            <li><strong>Currency (hex):</strong> <span class="mono">5852626974636F696E6361736800000000000000</span></li>
+            <li><strong>Proxy:</strong> <span class="mono">https://xrbitcoincash-github-io.onrender.com</span></li>
+            <li><strong>XRPL TOML:</strong> <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
+            <li><strong>AI Manifest:</strong> <a href="https://xrbitcoincash.com/universal-ai.json">/universal-ai.json</a></li>
+            <li><strong>Security Health:</strong> <a href="https://xrbitcoincash.com/ai/ai/health.html">/ai/ai/health.html</a></li>
+            <li><strong>Live Price (lite):</strong> <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">/ai/ai/price-lite.html</a></li>
+            <li><strong>Whitepaper:</strong> <a href="https://xrbitcoincash.com/whitepaper.html">/whitepaper.html</a></li>
+            <li><strong>X (Twitter):</strong> <a href="https://x.com/XRbitcoincash">@XRbitcoincash</a></li>
           </ul>
         </div>
 
-        <h2>How XRBC Works</h2>
-        <p>
-          XRBC uses XRPL’s built-in trustlines and decentralized exchange (DEX) logic. Users first open a trustline to XRBC, 
-          then place orders or interact with AMM pools. Trades settle on-ledger, with no centralized custody or middleman. 
-          The DEX page and wallet UI in your browser / wallet connect flows simply submit signed transactions to the XRPL network.
-        </p>
-
-        <h2>Listing, Ecosystem & External Mentions</h2>
-        <p>
-          XRBC is listed in external token tracking and analytics sites such as LiveCoinWatch, showing market data, order-book 
-          and price movement for XRBC/XRP pairs. :contentReference[oaicite:0]{index=0}  
-        </p>
-        <p>
-          The official site features an NFT section (“XRBitcoinCash NFTs”) that allows artist drops, an interactive gallery, 
-          and metadata provenance, all on XRPL. :contentReference[oaicite:1]{index=1}  
-        </p>
-        <p>
-          XRBitcoinCash has a community NFT gallery (Community NFT Gallery) showcasing XRBC-related and partner projects, minted 
-          non-custodially on XRPL. :contentReference[oaicite:2]{index=2}  
-        </p>
-        <p>
-          The white paper outlines token mechanics and marketplace integration (e.g. listing on XPMarket). :contentReference[oaicite:3]{index=3}  
-        </p>
-
-        <h2>Roadmap & Ongoing Development</h2>
-        <ul>
-          <li><strong>Transparency-first operations:</strong> consistent metadata, public docs, predictable behavior.</li>
-          <li><strong>Escrow for issued tokens (future):</strong> once XRPL supports time-locked escrow for issued tokens, XRBC plans to adopt it to bring Bitcoin-like schedule transparency to token flows.</li>
-        </ul>
-
-        <h2>Community & Presence</h2>
-        <p>
-          XRBitcoinCash maintains a public presence on Twitter/X where it communicates updates and interacts with the community. :contentReference[oaicite:4]{index=4}  
-          Posts emphasize safety, research, and XRBC/XRP trading links. :contentReference[oaicite:5]{index=5}
-        </p>
-        <p>
-          The project also hosts blog posts and trend analysis on its site (e.g. “Comprehensive Insights into Crypto Market Analysis”). :contentReference[oaicite:6]{index=6}  
-        </p>
-
         <h2>Compliance & Disclaimer</h2>
         <p class="disclaimer">
-          XRBC is a community token on XRPL: not an equity share, debt instrument, or corporate claim. The project’s view is that XRPL tokens are not securities, though this depends on jurisdiction and context. The content here is for informational purposes and not legal or investment advice.
+          XRBC is a community token on XRPL: not an equity share, debt instrument, or corporate claim. Jurisdictional treatment varies; this is not legal or investment advice. ChatGPT assists with documentation and advisory audit language only; it cannot hold keys or sign transactions.
         </p>
       </div>
     </div>
