@@ -1,257 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
+
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL</title>
+
   <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" type="image/png" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>XRBitcoinCash (XRBC) — Blockchain Specification</title>
-  <meta name="description" content="XRBitcoinCash (XRBC) blockchain specification on XRPL: issuer, currency hex, TOML, trustline, DEX/AMM links, and security posture with AI-audited endpoints." />
-  <link rel="canonical" href="https://xrbitcoincash.github.io/bs/" />
+  <!-- SEO primario -->
+  <meta name="description" content="Leggi il whitepaper di XRBitcoinCash (XRBC): la nostra visione, il design del token e come XRPL consente transazioni rapide e a basso costo per tutti." />
+  <meta name="keywords" content="XRBitcoinCash whitepaper, XRBC, XRPL, design token, criptovaluta, pagamenti, basse commissioni, blockchain, DeFi" />
+  <link rel="canonical" href="https://xrbitcoincash.com/it/" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/whitepaper.html" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#0B1020" />
 
   <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://xrbitcoincash.github.io/bs/" />
-  <meta property="og:title" content="XRBitcoinCash (XRBC) — Blockchain Specification" />
-  <meta property="og:description" content="Issuer, currency hex, TOML, trustline, DEX/AMM, and security posture (Health & Price-lite) for XRBC on XRPL." />
-  <meta property="og:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
-  <meta property="og:image:alt" content="XRBitcoinCash logo" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL" />
+  <meta property="og:description" content="Scopri il whitepaper XRBC: visione, tecnologia e tokenomics per un futuro scalabile su XRPL." />
+  <meta property="og:url" content="https://xrbitcoincash.com/it/" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:image:alt" content="Copertina whitepaper XRBitcoinCash" />
   <meta property="og:site_name" content="XRBitcoinCash" />
 
-  <!-- Twitter -->
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@XRbitcoincash" />
-  <meta name="twitter:title" content="XRBitcoinCash (XRBC) — Blockchain Specification" />
-  <meta name="twitter:description" content="XRBC specs on XRPL with verified links: TOML, Health, Price-lite, and DEX/AMM." />
-  <meta name="twitter:image" content="https://xrbitcoincash.github.io/xrbc-nft.png" />
-
-  <!-- JSON-LD: TechArticle -->
-  <script type="application/ld+json">
+  <meta name="twitter:title" content="XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL" />
+  <meta name="twitter:description" content="Leggi il whitepaper XRBC e scopri la nostra missione e la tecnologia basata su XRPL." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <!-- Renewal Security Protocol -->
+<script src="/js/renewal-security-protocol.js" defer></script>
+  <!-- JSON-LD -->
+ <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    "headline": "XRBitcoinCash (XRBC) — Blockchain Specification",
-    "description": "XRBC specs on XRPL including issuer, currency hex, TOML, trustline, DEX/AMM links, and security posture with AI-audited endpoints.",
-    "image": "https://xrbitcoincash.github.io/xrbc-nft.png",
-    "author": {"@type":"Organization","name":"XRBitcoinCash"},
-    "mainEntityOfPage": {"@type":"WebPage","@id":"https://xrbitcoincash.github.io/bs/"},
-    "dateModified": "2025-10-22"
+    "headline": "XRBitcoinCash Whitepaper — Visione, Design del Token, Meccaniche XRPL",
+    "description": "Leggi il whitepaper di XRBitcoinCash (XRBC): la nostra visione, il design del token e come XRPL consente transazioni rapide e a basso costo per tutti.",
+    "image": "https://xrbitcoincash.com/xrbc-nft.png",
+    "author": {"@type": "Organization","name": "XRBitcoinCash"},
+    "publisher": {
+      "@type": "Organization",
+      "name": "XRBitcoinCash",
+      "logo": {"@type": "ImageObject","url": "https://xrbitcoincash.com/xrbc-nft.png"}
+    },
+    "mainEntityOfPage": {"@type": "WebPage","@id": "https://xrbitcoincash.com/it/"}
   }
   </script>
 
+  <!-- Existing CSS from your English version -->
   <style>
-    :root{
-      --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
-      --header-height: 128px;
-    }
-    @media (max-width: 980px){ :root{ --header-height: 156px; } }
-    @media (max-width: 700px){ :root{ --header-height: 186px; } }
+  :root {
+  --bg: #0B1020;          /* XRBC dark background */
+  --card: #0F1724;
+  --ink: #ECF3FF;
+  --muted: #9EB2D0;
+  --accent: #F7931A;      /* Bitcoin orange for highlights */
+  --accent-glow: rgba(247,147,26,0.4);
+}
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: Inter, Segoe UI, Roboto, system-ui, Arial;
-      color:var(--ink); background:var(--bg); line-height:1.6;
-      -webkit-font-smoothing:antialiased;
-    }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', Roboto, system-ui, Arial;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
 
-    /* Glow background + frame */
-    .bg-blob{position:fixed;inset:0;z-index:0;pointer-events:none;
-      background:
-        radial-gradient(600px 300px at 8% 22%, rgba(0,230,255,0.12), transparent),
-        radial-gradient(500px 260px at 88% 78%, rgba(0,150,255,0.08), transparent);
-      filter:blur(28px); animation:blob 22s linear infinite;
-    }
-    @keyframes blob{0%{transform:translate(0,0)}50%{transform:translate(-5%,4%)}100%{transform:translate(0,0)}}
-    .page-frame{position:fixed;inset:12px;border-radius:16px;border:2px solid rgba(0,229,255,0.10);pointer-events:none;z-index:5}
-    .progress-bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);box-shadow:0 0 12px var(--accent);z-index:999;width:0%;transition:width .15s linear}
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  border-bottom: 1px solid var(--card);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+header img {
+  height: 48px;
+  margin-right: 1rem;
+}
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+header .muted {
+  font-weight: 400;
+  color: var(--muted);
+}
 
-    /* Overlay header (matches site style) */
-    header{
-      position:fixed; top:12px; left:0; right:0; z-index:20;
-      padding:10px 18px; background:transparent;
-      max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:10px; align-items:center;
-      transform:translateY(0); transition:transform .35s ease, box-shadow .25s ease;
-    }
-    header::before{
-      content:""; position:absolute; inset:0; z-index:-1;
-      background:rgba(11,16,32,.96); border:1px solid rgba(255,255,255,.06); border-radius:12px;
-      backdrop-filter:saturate(140%) blur(.5px);
-    }
-    header.header-hidden{transform:translateY(calc(-100% - 14px))}
-    header.header-solid{box-shadow:0 6px 18px rgba(0,0,0,.35)}
+/* Card sections */
+.card {
+  max-width: 900px;
+  background: var(--card);
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 25px var(--accent-glow);
+}
+.card h2 {
+  color: var(--accent);
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+.card p {
+  font-size: 1rem;
+  margin: 0.75rem 0;
+}
+.card .highlight {
+  color: var(--accent);
+  font-weight: 600;
+}
 
-    .brand{display:flex;gap:12px;align-items:center}
-    .brand img{width:56px;height:56px;border-radius:10px;animation:glowPulse 2.5s infinite alternate}
-    @keyframes glowPulse{from{box-shadow:0 0 4px var(--accent)} to{box-shadow:0 0 14px var(--accent)}}
-    .brand h1{font-size:1.15rem;margin:0}
-    nav.main{width:100%}
-    .nav-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-items:center;justify-items:center}
-    .nav-grid a{
-      text-decoration:none;font-weight:700;color:#00121a;background:linear-gradient(180deg,var(--accent),#00b6d0);
-      padding:8px 12px;border-radius:10px;width:100%;text-align:center
-    }
-    .nav-grid a.muted{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.10)}
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--card);
+}
 
-    main{position:relative;z-index:2;max-width:1040px;margin:20px auto 44px;padding:0 18px 24px}
-    main{padding-top:calc(var(--header-height) + 20px)}
-    h2,h3{scroll-margin-top:calc(var(--header-height) + 24px)}
+/* Home button (replaces back-to-top arrow) */
+#homeButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  box-shadow: 0 0 12px var(--accent-glow);
+  font-size: 0.95rem;
+  transition: background 0.3s ease;
+}
+#homeButton:hover {
+  background: #ff9e3d;
+}
+/* Logo click area */
+.logo-link {
+  display: inline-block;
+  position: relative;
+}
 
-    .card{background:var(--card);padding:22px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);max-width:100%;margin:0 auto 16px}
-    .fade-in{opacity:0;transform:translateY(18px);transition:opacity .8s ease-out, transform .7s ease-out}
-    .fade-in.visible{opacity:1;transform:translateY(0)}
-    .highlight{color:var(--accent);font-weight:600}
-    .muted{color:var(--muted)}
-    .badges{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
-    .badge{display:inline-flex;align-items:center;gap:8px;background:#092031;border:1px solid rgba(0,229,255,.35);border-radius:10px;padding:6px 10px}
-    .badge .i{width:18px;height:18px;display:inline-grid;place-items:center;background:var(--accent);color:#072130;border-radius:6px;font-weight:900}
+/* Enlarge & center logo */
+.logo-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%);
+  box-shadow: 0 0 20px rgba(255,255,255,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-    .spec{width:100%;border-collapse:collapse;background:rgba(255,255,255,.02);margin-top:6px}
-    .spec th,.spec td{border-bottom:1px solid rgba(255,255,255,.06);padding:8px 10px;text-align:left}
-    .spec th{color:var(--muted);font-weight:600}
-    .spec .value{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
-    .small{font-size:.9rem}
+.logo-wrapper img {
+  height: 72px; /* larger emblem for visibility */
+  width: auto;
+  display: block;
+}
 
-    footer{max-width:1040px;margin:0 auto 60px;padding:0 18px;text-align:center;color:var(--muted)}
-    #backToTop{position:fixed;bottom:20px;right:20px;background:var(--accent);color:#00121a;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;display:none;box-shadow:0 0 10px var(--accent)}
-    #backToTop:hover{background:#00b6d0}
-    @media (max-width:540px){.nav-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))} .brand img{width:48px;height:48px}}
-    @media (prefers-reduced-motion: reduce){.fade-in{transition:none !important}}
+/* Glow hover/tap effect */
+.logo-link:hover .logo-wrapper,
+.logo-link:focus .logo-wrapper {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255,255,255,0.6);
+}
+
+/* Orbs orbiting around logo */
+.orb-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  margin-left: -55px;
+  margin-top: -55px;
+  animation: rotateOrbit 8s linear infinite;
+}
+
+.orb {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255,255,255,0.8);
+}
+
+.orb:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+.orb:nth-child(2) { right: 0; top: 50%; transform: translateY(-50%); }
+.orb:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); }
+.orb:nth-child(4) { left: 0; top: 50%; transform: translateY(-50%); }
+
+@keyframes rotateOrbit {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+  .logo-wrapper img {
+    height: 56px; /* slightly smaller for small screens */
+  }
+  .orb-container {
+    width: 90px;
+    height: 90px;
+    margin-left: -45px;
+    margin-top: -45px;
+  }
+}
+
+/* Accent link styles */
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+
   </style>
 </head>
 <body>
-  <div class="bg-blob"></div>
-  <div class="page-frame"></div>
-  <div class="progress-bar" id="progressBar"></div>
 
-  <header>
-    <div class="brand">
-      <a href="https://xrbitcoincash.com/"><img src="/xrbc-nft.png" alt="XRBitcoinCash logo" /></a>
-      <h1>XRBitcoinCash <span class="muted">Blockchain Specification</span></h1>
+<div class="bg-blob"></div>
+<div class="page-frame"></div>
+<div class="progress-bar" id="progressBar"></div>
+
+<header>
+  <div class="brand">
+   <a href="/" class="logo-link">
+  <div class="logo-wrapper">
+    <img src="/xrbc-nft.png" alt="XRBC logo" />
+    <div class="orb-container">
+      <span class="orb"></span>
+      <span class="orb"></span>
+      <span class="orb"></span>
+      <span class="orb"></span>
     </div>
-    <nav class="main" aria-label="Primary">
-      <div class="nav-grid">
-        <a href="https://xrbitcoincash.com/">Home</a>
-        <a href="https://xrbitcoincash.com/whitepaper.html">Whitepaper</a>
-        <a href="https://xrbitcoincash.com/trade.html">Trade</a>
-        <a href="https://xrbitcoincash.com/ai/ai/health.html">Health</a>
-        <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">Price (lite)</a>
-        <a class="muted" href="https://x.com/XRbitcoincash" rel="me">Follow on X</a>
-      </div>
-    </nav>
-  </header>
+  </div>
+</a>
 
-  <main>
-    <section class="card fade-in">
-      <h2>XRBC — On-ledger Specs (XRPL)</h2>
-      <div class="badges">
-        <span class="badge"><span class="i">🔒</span> Blackholed issuer</span>
-        <span class="badge"><span class="i">🌐</span> Domain &amp; TOML verified</span>
-        <span class="badge"><span class="i">🪪</span> Xaman KYC (attested)</span>
-        <span class="badge"><span class="i">✅</span> Recertified 2025-07-08</span>
-      </div>
-      <p>
-        <strong>XRBitcoinCash (XRBC)</strong> is a fixed-supply issued asset on the <strong>XRP Ledger</strong>. Identity, links, and endpoints below are the current source of truth for wallets, bots, and auditors.
-      </p>
+    <h1>XRBitcoinCash <span class="small muted">Whitepaper</span></h1>
+  </div>
+</header>
 
-      <table class="spec" aria-label="XRBC specification">
-        <tr><th scope="row">Token name</th><td class="value">XRBitcoinCash</td></tr>
-        <tr><th scope="row">Ticker / Code</th><td class="value">XRBC</td></tr>
-        <tr><th scope="row">Currency (HEX)</th><td class="value">5852626974636F696E6361736800000000000000</td></tr>
-        <tr><th scope="row">Issuer</th><td class="value"><code>rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</code></td></tr>
-        <tr><th scope="row">Network</th><td class="value">XRPL Mainnet</td></tr>
-        <tr><th scope="row">Issuer blackholed</th><td class="value"><span class="highlight">Yes (irreversible)</span></td></tr>
-        <tr><th scope="row">Domain &amp; TOML</th><td class="value"><a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml" target="_blank" rel="noopener">xrbitcoincash.com/.well-known/xrp-ledger.toml</a></td></tr>
-        <tr><th scope="row">Issuer fee</th><td class="value">0%</td></tr>
-        <tr><th scope="row">DEX / AMM</th><td class="value">
-          <a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket</a>,
-          <a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic AMM</a>
-        </td></tr>
-        <tr><th scope="row">Creation date</th><td class="value">2022-01-05</td></tr>
-        <tr><th scope="row">Last recertified</th><td class="value">2025-07-08</td></tr>
-      </table>
+<main>
+  <section class="card">
+    <h2 class="fade-in">Whitepaper XRBC</h2>
+    <p class="fade-in">Questo documento illustra la missione, la visione e il quadro operativo del token <span class="highlight">XRBitcoinCash</span>, costruito sul <span class="highlight">XRP Ledger</span>. È progettato per garantire trasparenza e accessibilità.</p>
 
-      <details class="small">
-        <summary><strong>What is a “blackholed issuer”?</strong></summary>
-        The issuer account is cryptographically disabled, preventing any future changes (no new issuance, no freezing).
-        Tokens live fully on-ledger with immutable settings.
-      </details>
-    </section>
+    <p class="fade-in"><strong>1. Introduzione</strong> — Il token <span class="highlight">XRBC</span> è un asset digitale unico che sfrutta la velocità, l’efficienza e i bassi costi di transazione dello <span class="highlight">XRPL</span>. Il nostro team si impegna a coinvolgere la community e stringere partnership per promuovere un mercato globale libero e trasparente.</p>
 
-    <section class="card fade-in" id="trading">
-      <h3>Trading & Liquidity</h3>
-      <p>
-        Set a trustline in your wallet (e.g., Xaman/Xumm), then trade on XRPL DEX/AMM. Prices are derived live from the ledger (no hardcoding).
-      </p>
-      <ul>
-        <li><a href="https://xrbitcoincash.com/trade.html">Trade page (guided)</a></li>
-        <li><a href="https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">XPMarket DEX / AMM</a></li>
-        <li><a href="https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" target="_blank" rel="noopener">Sologenic AMM</a></li>
-        <li><a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html" target="_blank" rel="noopener">Live Price (lite)</a></li>
-      </ul>
-    </section>
+    <p class="fade-in"><strong>2. Collaborazione</strong> — Cerchiamo alleanze con altri progetti <span class="highlight">XRPL</span> per costruire un ecosistema economico senza confini. Integrando <span class="highlight">Trustline</span> e trading decentralizzato tramite <span class="highlight">DEX</span>, puntiamo a colmare il divario tra comunità bancarizzate e non bancarizzate in tutto il mondo.</p>
 
-    <section class="card fade-in" id="security">
-      <h3>Security, AI Collaboration & Compliance</h3>
-      <ul>
-        <li><strong>Security Center:</strong> <a href="https://xrbitcoincash.com/ai/ai/health.html">Health checks</a> · <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">Price-lite</a></li>
-        <li><strong>AI co-author (ChatGPT):</strong> Docs and advisory audit language; no keys or signing. Human review required.</li>
-        <li><strong>Manifests:</strong> <a href="https://xrbitcoincash.com/universal-ai.json">/universal-ai.json</a> · <a href="https://xrbitcoincash.com/.well-known/security.txt">security.txt</a> · <a href="https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json">CSAF provider</a></li>
-      </ul>
-      <p class="small muted">Compliance: Community token on XRPL; not equity/debt. Jurisdictional treatment varies; this is not legal or investment advice.</p>
-    </section>
+    <p class="fade-in"><strong>3. Accesso</strong> — I collezionisti possono acquisire XRBC tramite il DEX <span class="highlight">XPMarket</span> e i pool AMM dopo aver impostato la corretta <span class="highlight">Trustline</span>. Dettagli e requisiti sono chiaramente indicati sui nostri portali ufficiali per garantire una partecipazione consapevole.</p>
 
-    <section class="card fade-in" id="links">
-      <h3>Verified Links</h3>
-      <ul>
-        <li>Homepage: <a href="https://xrbitcoincash.com/">https://xrbitcoincash.com/</a></li>
-        <li>Whitepaper: <a href="https://xrbitcoincash.com/whitepaper.html">/whitepaper.html</a></li>
-        <li>TOML: <a href="https://xrbitcoincash.com/.well-known/xrp-ledger.toml">/.well-known/xrp-ledger.toml</a></li>
-        <li>Security Health: <a href="https://xrbitcoincash.com/ai/ai/health.html">/ai/ai/health.html</a></li>
-        <li>Live Price (lite): <a href="https://xrbitcoincash.github.io/ai/ai/price-lite.html">/ai/ai/price-lite.html</a></li>
-        <li>X / Twitter: <a href="https://x.com/XRbitcoincash">@XRbitcoincash</a></li>
-      </ul>
-    </section>
-  </main>
+    <p class="fade-in"><strong>4. Conformità e Crescita</strong> — Con l’evoluzione delle normative, XRBitcoinCash resta adattabile, assicurando conformità e al contempo stimolando l’innovazione. Il nostro obiettivo è mantenere la leadership all’interno dell’ecosistema <span class="highlight">XRPL</span> dando priorità alla fiducia degli utenti e all’accessibilità globale.</p>
+  </section>
+</main>
 
-  <footer>
-    <small>© 2025 XRBitcoinCash™ — Built on XRPL · Last updated 2025-10-22</small>
-  </footer>
+<footer>
+  <small>© 2025 XRBitcoinCash™ — Basato su XRPL</small>
+</footer>
 
-  <button id="backToTop" aria-label="Back to top">↑</button>
+<a id="homeButton" href="/index.html"
+   data-it-label="Pagina Iniziale"
+   data-en-label="Home">Home</a>
 
-  <script>
-    // Header behavior + progress + fade-ins
-    (function(){
-      const header = document.querySelector('header');
-      const pb = document.getElementById('progressBar');
-      let lastY = 0, THRESH = 260;
 
-      function onScroll(){
-        const y = scrollY || 0;
-        if (y > 12) header.classList.add('header-solid'); else header.classList.remove('header-solid');
-        if (y > THRESH && y > lastY + 2) header.classList.add('header-hidden'); else header.classList.remove('header-hidden');
-        lastY = y;
-        // Progress bar
-        const h = document.documentElement;
-        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
-        pb.style.width = (Math.max(0, Math.min(1, scrolled)) * 100).toFixed(2) + '%';
-        // Back to top
-        document.getElementById('backToTop').style.display = y > 300 ? 'block' : 'none';
-      }
+<script>
+  /* [Use exact same JavaScript from the English file — unchanged] */
+</script>
 
-      // Fade-ins
-      const io = new IntersectionObserver((ents,obs)=>{ents.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); obs.unobserve(e.target);} })},{threshold:0.15});
-      document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
-
-      onScroll();
-      addEventListener('scroll', onScroll, {passive:true});
-      document.getElementById('backToTop').addEventListener('click', ()=>scrollTo({top:0,behavior:'smooth'}));
-    })();
-  </script>
 </body>
 </html>
