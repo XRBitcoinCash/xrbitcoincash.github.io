@@ -1,28 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; url=https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" />
-    <title>Redirecting to XRBitcoinCash NFT Gallery</title>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting to XRBitcoinCash NFT Gallery</title>
 
-    <!-- XRBitcoinCash Metadata -->
-    <meta name="description" content="Explore XRBitcoinCash NFTs on the Sologenic Marketplace. Redirecting to the official profile." />
-    <meta name="keywords" content="XRBitcoinCash, XRBC, NFTs, Sologenic, XRPL, crypto art, decentralized exchange" />
-    <meta name="author" content="XRBitcoinCash Team" />
-    <meta name="robots" content="noindex, follow" />
+  <!-- ===== Fast redirect (instant) ===== -->
+  <meta http-equiv="refresh" content="0; url=https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="XRBitcoinCash NFT Gallery" />
-    <meta property="og:description" content="View XRBitcoinCash NFTs on Sologenic Marketplace." />
-    <meta property="og:url" content="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/assets/xrbc-og.png" />
+  <!-- Canonical: tell crawlers the destination is the source of truth -->
+  <link rel="canonical" href="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" />
+  <meta name="robots" content="noindex,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="theme-color" content="#0B1020" />
 
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  </head>
-  <body>
-    <p>Redirecting to <a href="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet">XRBitcoinCash NFT Gallery</a>...</p>
-  </body>
+  <!-- Discovery: help agents & wallets understand context -->
+  <link rel="alternate" type="application/json" href="https://xrbitcoincash.com/universal-ai.json" title="XRBC Universal AI Manifest" />
+  <link rel="security" type="text/plain" href="https://xrbitcoincash.com/.well-known/security.txt" />
+
+  <!-- Performance hints -->
+  <link rel="dns-prefetch" href="https://sologenic.org">
+  <link rel="preconnect" href="https://sologenic.org" crossorigin>
+
+  <!-- Basic branding -->
+  <link rel="icon" href="/xrbc-nft.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Meta / Social -->
+  <meta name="description" content="Explore XRBitcoinCash NFTs on Sologenic. Redirecting to the official XRBC profile." />
+  <meta name="keywords" content="XRBitcoinCash, XRBC, NFT, Sologenic, XRPL, crypto art, decentralized exchange" />
+  <meta name="author" content="XRBitcoinCash" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="XRBitcoinCash NFT Gallery" />
+  <meta property="og:description" content="View XRBitcoinCash NFTs on the Sologenic Marketplace." />
+  <meta property="og:url" content="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="XRBitcoinCash NFT Gallery" />
+  <meta name="twitter:description" content="Redirecting to XRBC’s official Sologenic profile." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- AI usage disclosure (human-readable) -->
+  <meta name="ai:usage" content="This redirect and related docs were co-authored with ChatGPT (OpenAI). Advisory only; no keys or secrets." />
+
+  <!-- JSON-LD for agent comprehension -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "XRBitcoinCash NFT Gallery Redirect",
+    "description": "Redirects to XRBitcoinCash (XRBC) profile on Sologenic Marketplace.",
+    "isPartOf": { "@type": "WebSite", "name": "XRBitcoinCash", "url": "https://xrbitcoincash.com" },
+    "mainEntityOfPage": "https://sologenic.org/profile/xrbitcoincash.com?network=mainnet",
+    "about": { "@type": "Organization", "name": "XRBitcoinCash", "url": "https://xrbitcoincash.com" },
+    "potentialAction": {
+      "@type": "ViewAction",
+      "target": "https://sologenic.org/profile/xrbitcoincash.com?network=mainnet"
+    }
+  }
+  </script>
+
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0B1020;color:#ECF3FF}
+    .wrap{min-height:100%;display:grid;place-items:center;padding:24px;text-align:center}
+    a{color:#00E5FF}
+    .muted{color:#9EB2D0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p>Redirecting to <a id="dest" href="https://sologenic.org/profile/xrbitcoincash.com?network=mainnet">XRBitcoinCash NFT Gallery on Sologenic</a>…</p>
+    <p class="muted">If you are not redirected automatically, use the link above.</p>
+  </div>
+
+  <!-- JS redirect that preserves query/hash if present -->
+  <script>
+    (function(){
+      var base = "https://sologenic.org/profile/xrbitcoincash.com?network=mainnet";
+      var qs = location.search || "";
+      var hash = location.hash || "";
+      // Only append if there are user-provided params
+      var url = base + (qs ? "&__ref=xrbc" + qs.replace(/^\?/, "&") : "") + hash;
+      document.getElementById("dest").href = url;
+      // Perform JS redirect (meta refresh already covers non-JS)
+      try { window.location.replace(url); } catch(_) { window.location.href = url; }
+    })();
+  </script>
+</body>
 </html>
