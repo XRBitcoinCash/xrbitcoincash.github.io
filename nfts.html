@@ -82,7 +82,6 @@
   }
   </script>
 
-  <!-- Page-local CSS -->
 <style>
   :root{
     --wrap:980px; --gap:14px; --border:#2b3a4b;
@@ -121,6 +120,7 @@
     padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none;
     box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
     max-width:100%;
+    display:inline-flex; align-items:center; justify-content:center; line-height:1; /* center label */
   }
   .btn-home:hover{ filter:brightness(0.98); }
 
@@ -146,7 +146,7 @@
     box-shadow:0 10px 30px rgba(0,0,0,.35);
     display:flex; flex-direction:column;
   }
-  .nft-card h2{ margin:0 0 8px; }
+  .nft-card h2{ margin:0 0 8px; font-size:clamp(1rem, 2.8vw, 1.25rem); }
   .lead{ color:#9fb0c5; margin:0 0 12px; line-height:1.6; }
 
   /* --- Sologenic buttons: 2 across; 3rd centered below --- */
@@ -166,9 +166,7 @@
   }
   @media (max-width:640px){
     .cta-row{ grid-template-columns: 1fr; }
-    .cta-row a:nth-child(3){
-      grid-column:auto; justify-self:stretch; max-width:none;
-    }
+    .cta-row a:nth-child(3){ grid-column:auto; justify-self:stretch; max-width:none; }
   }
 
   /* Red CTAs */
@@ -180,7 +178,7 @@
     text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;
     box-shadow:0 0 28px rgba(239,68,68,.35), 0 8px 24px rgba(239,68,68,.25), inset 0 0 0 1px rgba(255,255,255,.08);
     transition: transform .06s ease, filter .2s ease, box-shadow .2s ease;
-    max-width:100%;
+    max-width:100%; line-height:1; /* center label vertically */
   }
   .btn-red small{ opacity:.9; font-weight:700; line-height:1; display:block; }
   .btn-red:hover{
@@ -196,25 +194,25 @@
   /* Gallery */
   .gallery-card{ padding:0; overflow:hidden; }
   .gallery-frame{ width:100%; height:980px; border:0; display:block; background:#0b1524; }
-  @media (max-width:640px){ .gallery-frame{ height:820px; } }
+  @media (max-width:640px){ .gallery-frame{ height:560px; } } /* tighter on phones */
 
-  /* ================= Footer (centered; X button in the middle) ================= */
+  /* ================= Footer (centered; X button prominent; matches light-mode card) ================= */
   .ecosystem-footer{ border-top:1px solid rgba(255,255,255,.06); margin-top:12px; }
   .footer-container{ max-width:var(--wrap); margin:0 auto; padding:14px; }
   .ecosystem-links,
   .footer-links{
     display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;
-    justify-content:center; align-items:flex-start;
+    justify-content:center; align-items:flex-start; text-align:center;
   }
   .ecosystem-links a,
   .footer-links a{
-    text-decoration:none; text-align:center;
+    text-decoration:none;
     padding:8px 10px; border:1px solid var(--border); border-radius:12px;
     background:linear-gradient(180deg,#0e1520,#0c131c); color:#e7edf5;
-    flex:0 1 220px;
+    flex:0 1 220px; display:inline-flex; align-items:center; justify-content:center; line-height:1;
   }
 
-  /* Order so the X (Follow) sits in the middle row and centered on mobile */
+  /* Order so the X (Follow) can sit centered under a row (mobile) */
   .ecosystem-links a[href*="xrpscan"], .footer-links a[href*="xrpscan"]{ order:1; }
   .ecosystem-links a[href*="x.com"], .ecosystem-links a[href*="twitter.com"],
   .footer-links a[href*="x.com"],   .footer-links a[href*="twitter.com"]{
@@ -228,22 +226,51 @@
   body.light-mode .nft-card{ background:#fff; border-color:#cbd5e1; box-shadow:none; }
   body.light-mode .lead{ color:#3b4a5f; }
   body.light-mode .fact{ background:#f6f8fb; border-color:#e5eaf0; }
-  body.light-mode :where(h1,h2,h3,h4,h5,h6,p,li,small,strong,em,span,div,code,button,a){
-    color:#0b0f14 !important;
-    text-shadow:0 0 10px rgba(16,185,129,.22), 0 0 2px rgba(16,185,129,.18);
+
+  /* Make footer look like the card in light mode */
+  body.light-mode .ecosystem-footer{ border-top:1px solid #e5eaf0; background:#ffffff; }
+  body.light-mode .ecosystem-links a,
+  body.light-mode .footer-links a{
+    background:#ffffff !important; color:#0b0f14 !important;
+    border-color:#cbd5e1 !important; box-shadow:none !important;
   }
+
+  /* Buttons in light mode keep readable colors */
   body.light-mode .btn-red{
     background:#ffffff; border-color:var(--red); color:#0b0f14 !important;
     box-shadow:0 0 14px rgba(16,185,129,.18), 0 8px 22px rgba(239,68,68,.16), inset 0 0 0 1px rgba(239,68,68,.10);
   }
   body.light-mode .btn-red:hover{ filter:brightness(0.98); }
 
-  /* ================= Mobile polish ================= */
+  /* ================= Mobile polish (shrink & center everything) ================= */
   @media (max-width:640px){
+    html{ font-size:15px; } /* global downscale */
+    .header-wrap{ padding:8px 10px; }
+    .brand img{ width:36px; height:36px; }
+    .btn-home{ padding:7px 9px; font-size:.9rem; border-radius:10px; }
+
     .stage{ min-height:unset; padding-top:6px; }
+    .nft-card{ padding:14px; align-items:center; text-align:center; }
+    .lead{ font-size:.95rem; }
+    .nft-card img{ max-height:140px; object-fit:contain; margin-inline:auto; display:block; }
+
+    .cta-row{ gap:10px; }
+    .btn-red{ padding:9px 12px; font-size:.95rem; border-radius:12px; }
+
     .fact-grid{ grid-template-columns:1fr; }
-    .nft-card img{ max-height:140px; object-fit:contain; } /* smaller on phones */
+
+    .ecosystem-links a,
+    .footer-links a{ flex:1 1 260px; } /* neat centered rows */
   }
+
+  /* Even smaller phones */
+  @media (max-width:400px){
+    html{ font-size:14px; }
+    .btn-red{ padding:8px 10px; font-size:.9rem; }
+    .nft-card img{ max-height:120px; }
+    .gallery-frame{ height:480px; }
+  }
+
   @media (prefers-reduced-motion: reduce){
     .site-header, .btn-red{ transition:none; }
   }
