@@ -96,7 +96,7 @@
   }
   </script>
 
-  <style>
+ <style>
   :root {
     --bg:#0B1020; --card:#0F1724; --ink:#ECF3FF; --muted:#9EB2D0; --accent:#00E5FF;
   }
@@ -113,24 +113,107 @@
   .page-frame { position:fixed; inset:12px; border-radius:16px; border:2px solid rgba(0,229,255,0.10); pointer-events:none; z-index:5; }
   .progress-bar { position:fixed; top:0; left:0; height:4px; background:var(--accent); box-shadow:0 0 12px var(--accent); z-index:999; width:0%; transition:width 0.15s linear; }
 
-  /* Header: brand + centered nav grid with dropdown */
-  header { position:sticky; top:12px; z-index:10; background:transparent; padding:10px 18px; max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  /* === DROP-IN: Overlay header with opaque veil + auto-hide (works with your JS) === */
+  header {
+    position: fixed;
+    top: 12px;              /* sits inside the page-frame inset */
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: transparent; /* veil lives on ::before */
+    padding: 10px 18px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+
+    transform: translateY(0);
+    transition: transform .35s ease, box-shadow .25s ease;
+  }
+
+  /* Opaque background that sits BEHIND logo/buttons */
+  header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgba(11,16,32,.96);               /* opaque veil */
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px;
+    backdrop-filter: saturate(140%) blur(.5px);    /* graceful if unsupported */
+  }
+
+  /* JS toggles these */
+  header.header-hidden { transform: translateY(calc(-100% - 14px)); }
+  header.header-solid  { box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+
   .brand { display:flex; gap:12px; align-items:center; }
   .brand img { width:56px; height:56px; border-radius:10px; animation:glowPulse 2.5s infinite alternate; }
   @keyframes glowPulse { from { box-shadow:0 0 4px var(--accent);} to { box-shadow:0 0 14px var(--accent);} }
   .brand h1 { font-size:1.15rem; margin:0; }
 
   nav.main { width:100%; }
-  .nav-grid { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); align-items:center; justify-items:center; }
-  .nav-grid a, .nav-grid button.menu { text-decoration:none; font-weight:600; color:#00121a; background:linear-gradient(180deg,var(--accent),#00b6d0); padding:8px 12px; border-radius:10px; border:none; cursor:pointer; width:100%; text-align:center; }
-  .nav-grid a.muted { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.08); }
+
+  /* Responsive, evenly spaced grid that won’t overflow */
+  .nav-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); /* tighter min for small screens */
+    align-items: center;
+    justify-items: center;
+  }
+  .nav-grid a, .nav-grid button.menu {
+    text-decoration: none;
+    font-weight: 600;
+    color: #00121a;
+    background: linear-gradient(180deg, var(--accent), #00b6d0);
+    padding: 8px 10px;     /* slightly reduced for mobile fit */
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    font-size: .95rem;
+  }
+  .nav-grid a.muted {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
   .dropdown { position:relative; width:100%; }
-  .dropdown summary { list-style:none; cursor:pointer; background:linear-gradient(180deg,var(--accent),#00b6d0); color:#00121a; padding:8px 12px; border-radius:10px; font-weight:700; }
+  .dropdown summary {
+    list-style:none;
+    cursor:pointer;
+    background: linear-gradient(180deg, var(--accent), #00b6d0);
+    color:#00121a;
+    padding:8px 12px;
+    border-radius:10px;
+    font-weight:700;
+  }
   .dropdown[open] summary { border-bottom-left-radius:0; border-bottom-right-radius:0; }
-  .dropdown .menu { position:absolute; left:0; right:0; background:var(--card); border:1px solid rgba(255,255,255,0.06); border-top:none; border-bottom-left-radius:10px; border-bottom-right-radius:10px; padding:8px; display:grid; gap:8px; z-index:20; }
-  .dropdown .menu a { display:block; text-decoration:none; font-weight:600; color:var(--muted); background:transparent; padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); }
+  .dropdown .menu {
+    position:absolute; left:0; right:0;
+    background:var(--card);
+    border:1px solid rgba(255,255,255,0.06);
+    border-top:none;
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+    padding:8px;
+    display:grid; gap:8px;
+    z-index:20;
+  }
+  .dropdown .menu a {
+    display:block; text-decoration:none; font-weight:600;
+    color:var(--muted); background:transparent;
+    padding:8px 10px; border-radius:8px;
+    border:1px solid rgba(255,255,255,0.06);
+  }
   .dropdown .menu a:hover { color:var(--ink); border-color:rgba(255,255,255,0.18); }
 
+  /* Content */
   main { position:relative; z-index:2; max-width:1000px; margin:20px auto 40px; padding:0 18px 24px; }
   .card { background:var(--card); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); max-width:100%; margin:0 auto 16px; }
 
@@ -139,8 +222,8 @@
   .highlight { color:var(--accent); font-weight:600; }
   .muted { color:var(--muted); }
 
-  /* Section headings + anchor spacing */
-  h2, h3 { scroll-margin-top:90px; }
+  /* Section headings + anchor spacing (for overlay header) */
+  h2, h3 { scroll-margin-top: 90px; }
 
   /* Table of contents */
   .toc { display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
@@ -151,8 +234,15 @@
   #backToTop { position:fixed; bottom:20px; right:20px; background:var(--accent); color:#00121a; border:none; border-radius:50%; width:44px; height:44px; font-size:18px; cursor:pointer; display:none; box-shadow:0 0 10px var(--accent); }
   #backToTop:hover { background:#00b6d0 }
 
+  /* Mobile tightening */
+  @media (max-width: 480px){
+    .nav-grid { gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+    .brand img { width:48px; height:48px; }
+  }
+
   @media (prefers-reduced-motion: reduce){ .fade-in{transition:none !important} }
-  </style>
+</style>
+
 </head>
 <body>
   <div class="bg-blob"></div>
@@ -331,5 +421,40 @@
     if (s) s.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
   });
   </script>
+<script>
+(function() {
+  const header = document.querySelector('header');
+  if (!header) return;
+
+  let lastY = window.scrollY || 0;
+  const THRESH = 260; // change this if you want the hide point earlier/later
+
+  function onScroll() {
+    const y = window.scrollY || 0;
+
+    // Give the header a subtle shadow once we leave the very top
+    if (y > 12) header.classList.add('header-solid');
+    else        header.classList.remove('header-solid');
+
+    // Hide on downward scroll past threshold; show otherwise
+    if (y > THRESH && y > lastY + 2) header.classList.add('header-hidden');
+    else                             header.classList.remove('header-hidden');
+
+    lastY = y;
+
+    // Optional: drive the progress bar if it's in the DOM
+    const pb = document.querySelector('.progress-bar');
+    if (pb) {
+      const h = document.documentElement;
+      const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+      pb.style.width = (Math.max(0, Math.min(1, scrolled)) * 100).toFixed(2) + '%';
+    }
+  }
+
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+})();
+</script>
+
 </body>
 </html>
