@@ -965,8 +965,6 @@ body.light-mode .side-explain .note{
 
   
   
-  
-  
   <script>
 (function(){
   /* ========= Helpers: modal + QR ========= */
@@ -1393,7 +1391,7 @@ body.light-mode .side-explain .note{
       typeTabs.forEach(b => {
         b.classList.toggle('active', b === btn);
         b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-      });
+      }));
 
       const t = btn.dataset.type; // 'limit' or 'market'
       if (orderTypeEl) orderTypeEl.value = t;
@@ -1580,6 +1578,164 @@ body.light-mode .side-explain .note{
   updateAmmPool();
   setInterval(updateAmmPool, 15000);
 
+  /* ========= XRBC DEX — Live Metrics (inside same IIFE) ========= */
+  (function liveMetrics(){
+    const $ = (id) => document.getElementById(id);
+    const status = $("metricsStatus");
+    const ledgerOut = $("ledgerOutput");
+    const bookOut   = $("priceOutput");
+
+    const liveMid     = $("liveMid");
+    const liveSpread  = $("liveSpread");
+    const liveBid     = $("liveBid");
+    const liveAsk     = $("liveAsk");
+    const ammReserves = $("ammReserves");
+    const ammFee      = $("ammFee");
+    const vol24h      = $("vol24h");
+    const trades24h   = $("trades24h");
+
+    function setText(el, v){ if (el) el.textContent = v; }
+    function ok(msg){ if(status){ status.textContent = msg; status.classList.remove("err","connecting"); status.classList.add("ok"); } }
+    function info(msg){ if(status){ status.textContent = msg; status.classList.remove("ok","err"); status.classList.add("connecting"); } }
+    function fail(msg){ if(status){ status.textContent = msg; status.classList.remove("ok","connecting"); status.classList.add("err"); } }
+
+    async function refreshLedger() {
+      if (!ledgerOut) return;
+      try {
+        info("Fetching validated ledger…");
+        const data = await getLedgerInfo();
+        const r = (data && data.result) || {};
+        const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
+        const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
+        const close = r.ledger?.close_time_human || r.closed?.close_time_human;
+        const summary = {
+          ledger_index: idx ?? "(unknown)",
+          ledger_hash : hash ?? "(unknown)",
+          close_time  : close || "(not expanded)",
+          validated   : r.validated === undefined ? true : !!r.validated
+        };
+        ledgerOut.textContent = JSON.stringify(summary, null, 2);
+        ok("Ledger updated");
+      } catch (e) {
+        fail("Error fetching ledger");
+        ledgerOut.textContent = "Error fetching ledger: " + (e?.message || e);
+      }
+    }
+
+    function priceFromOffer(of) {
+      if (!of) return null;
+      const gets = of.TakerGets?.value
+        ? parseFloat(of.TakerGets.value)
+        : parseFloat(of.TakerGets) / XRP_TO_DROPS;
+      const pays = of.TakerPays?.value
+        ? parseFloat(of.TakerPays.value)
+        : parseFloat(of.TakerPays) / XRP_TO_DROPS;
+      if (!isFinite(gets) || !isFinite(pays) || gets <= 0) return null;
+      return pays / gets; // XRP per XRBC
+    }
+
+    async function refreshTicker() {
+      try {
+        const [askRes, bidRes] = await Promise.all([
+          xrplRequest({ method: "book_offers",
+            params: [{ taker_gets: XRBC, taker_pays: { currency: "XRP" }, limit: 1 }] }),
+          xrplRequest({ method: "book_offers",
+            params: [{ taker_gets: { currency: "XRP" }, taker_pays: XRBC, limit: 1 }] })
+        ]);
+
+        const bestAsk = priceFromOffer(askRes?.result?.offers?.[0]);
+        const bestBid = priceFromOffer(bidRes?.result?.offers?.[0]);
+
+        if (bestAsk && bestBid) {
+          const mid    = (bestAsk + bestBid) / 2;
+          const spread = bestAsk - bestBid;
+          setText(liveMid,    mid.toFixed(6));
+          setText(liveSpread, spread.toFixed(6));
+          setText(liveBid,    bestBid.toFixed(6));
+          setText(liveAsk,    bestAsk.toFixed(6));
+          ok("Live price updated");
+        } else {
+          setText(liveMid, "—"); setText(liveSpread, "—");
+          setText(liveBid, "—"); setText(liveAsk, "—");
+          info("No top-of-book quotes");
+        }
+      } catch (e) {
+        setText(liveMid, "—"); setText(liveSpread, "—");
+        setText(liveBid, "—"); setText(liveAsk, "—");
+        fail("Ticker error");
+      }
+    }
+
+    async function refreshOrderBook() {
+      if (!bookOut) return;
+      try {
+        info("Loading order book…");
+        const html = await getXrbcOrderBook();
+        bookOut.innerHTML = html;
+        ok("Order book updated");
+      } catch (e) {
+        bookOut.textContent = "Error loading order book: " + (e?.message || e);
+        fail("Error loading order book");
+      }
+    }
+
+    async function refreshAmmMini() {
+      try {
+        const data = await xrplRequest({
+          method: "amm_info",
+          params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+        });
+        const amm = data?.result?.amm;
+        if (amm) {
+          const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+          const reserveXrbc = parseFloat(amm.amount2?.value || 0).toFixed(6);
+          const feePct      = (amm.trading_fee / 10000).toFixed(2) + "%";
+          setText(ammReserves, `${reserveXrp} XRP · ${reserveXrbc} XRBC`);
+          setText(ammFee, feePct);
+        } else {
+          setText(ammReserves, "—");
+          setText(ammFee, "—");
+        }
+        try { updateAmmPool(); } catch(_) {}
+      } catch (e) {
+        setText(ammReserves, "—");
+        setText(ammFee, "—");
+      }
+    }
+
+    function refresh24hStub() {
+      setText(vol24h,   "—");
+      setText(trades24h,"Trades: —");
+    }
+
+    async function refreshAll(){
+      info("Refreshing metrics…");
+      await Promise.allSettled([
+        refreshTicker(),
+        refreshAmmMini(),
+        refreshOrderBook(),
+        refreshLedger()
+      ]);
+      refresh24hStub();
+    }
+
+    // Button wiring (support old and new IDs if present)
+    const allBtn    = document.getElementById("metricsRefreshBtn") || document.getElementById("refreshMetricsBtn");
+    const bookBtn   = document.getElementById("metricsBookBtn")    || document.getElementById("fetchPriceBtn");
+    const ledgerBtn = document.getElementById("metricsLedgerBtn")  || document.getElementById("fetchLedgerBtn");
+
+    if (allBtn)    allBtn.addEventListener("click", () => refreshAll().catch(()=>{}));
+    if (bookBtn)   bookBtn.addEventListener("click", () => refreshOrderBook().catch(()=>{}));
+    if (ledgerBtn) ledgerBtn.addEventListener("click", () => refreshLedger().catch(()=>{}));
+
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll().catch(()=>{}); });
+    window.addEventListener("focus", () => refreshAll().catch(()=>{}));
+    setInterval(() => refreshAll().catch(()=>{}), 15000);
+
+    // kick off
+    refreshAll().catch(()=>{});
+  })();
+
   /* ========= Download Xaman button (popover) ========= */
   const downloadBtn = document.getElementById('downloadXamanBtn');
   if (downloadBtn){
@@ -1640,85 +1796,6 @@ body.light-mode .side-explain .note{
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
   }
 })(); // end IIFE
-</script>
-<script>
-/* XRBC live metrics wiring — keeps existing DEX code untouched */
-(function () {
-  // Ensure your helpers exist
-  if (typeof getLedgerInfo !== "function" ||
-      typeof getXrbcOrderBook !== "function" ||
-      typeof updateAmmPool !== "function") {
-    console.warn("[XRBC metrics] Required helpers missing; aborting wiring.");
-    return;
-  }
-
-  const ledgerBtn = document.getElementById("fetchLedgerBtn");
-  const ledgerOut = document.getElementById("ledgerOutput");
-  const bookBtn   = document.getElementById("fetchPriceBtn");
-  const bookOut   = document.getElementById("priceOutput");
-  const poolOut   = document.getElementById("ammPoolOutput");
-
-  // ---- Ledger (button + auto)
-  async function refreshLedger() {
-    if (!ledgerOut) return;
-    try {
-      ledgerOut.textContent = "Fetching validated ledger…";
-      const data = await getLedgerInfo();
-
-      // XRPL 'ledger' response varies by params; show a safe, compact summary.
-      const r = (data && data.result) || {};
-      const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
-      const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
-      const close = r.ledger?.close_time_human || r.closed?.close_time_human;
-
-      const summary = {
-        ledger_index: idx ?? "(unknown)",
-        ledger_hash : hash ?? "(unknown)",
-        close_time  : close || "(not expanded)",
-        validated   : r.validated === undefined ? true : !!r.validated
-      };
-      ledgerOut.textContent = JSON.stringify(summary, null, 2);
-    } catch (e) {
-      ledgerOut.textContent = "Error fetching ledger: " + (e?.message || e);
-    }
-  }
-
-  // ---- Order book (button + auto)
-  async function refreshOrderBook() {
-    if (!bookOut) return;
-    try {
-      bookOut.textContent = "Loading order book…";
-      const html = await getXrbcOrderBook(); // your helper returns HTML table
-      bookOut.innerHTML = html;
-    } catch (e) {
-      bookOut.textContent = "Error loading order book: " + (e?.message || e);
-    }
-  }
-
-  // ---- Wire buttons
-  if (ledgerBtn && ledgerOut) ledgerBtn.addEventListener("click", refreshLedger);
-  if (bookBtn && bookOut) bookBtn.addEventListener("click", refreshOrderBook);
-
-  // ---- Keep AMM pool fresh on focus / visibility (you already have a 15s interval)
-  function safeUpdatePool(){ try { updateAmmPool(); } catch(_){} }
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) safeUpdatePool(); });
-  window.addEventListener("focus", safeUpdatePool);
-
-  // ---- Light auto-refresh for all 3 metric panes (15s)
-  //      (AMM also has its own 15s interval already; this simply nudges the button-driven ones)
-  setInterval(() => {
-    refreshLedger().catch(()=>{});
-    refreshOrderBook().catch(()=>{});
-    safeUpdatePool();
-  }, 15000);
-
-  // ---- First paint on load
-  (async () => {
-    await refreshLedger();
-    await refreshOrderBook();
-    safeUpdatePool();
-  })();
-})();
 </script>
 
 
