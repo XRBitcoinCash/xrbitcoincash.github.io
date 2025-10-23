@@ -591,11 +591,6 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
 </div>
 
 
-  <!-- Keep this; it will show the connected wallet address -->
-  <p id="walletStatus" class="status-text">Status: Not connected</p>
-
-  <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
-</div>
 
 
     <!-- ===== Trading UI (exchange style) ===== -->
@@ -730,147 +725,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
 
   <!-- Xaman SDK -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-
-  <!-- Minimal QR helper (hosted PNG) -->
-  <script>
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-    const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/';
-
-    function renderQr() {
-      const pageQr = document.getElementById('pageQr');
-      const pageUrlCopy = document.getElementById('pageUrlCopy');
-      if (!pageQr) return;
-      pageQr.innerHTML = '';
-      const img = new Image();
-      img.alt = 'QR to open https://xrbitcoincash.com/';
-      img.style.maxWidth = '240px';
-      img.style.height = 'auto';
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.src = `https://xrbitcoincash.github.io/qrcode_xrbitcoincash.com.png?v=1`;
-      img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
-      pageQr.appendChild(img);
-      if (pageUrlCopy) pageUrlCopy.textContent = MOBILE_TARGET_URL;
-    }
-    function openMobileModal(mode){
-      const modal = document.getElementById('mobileModal');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalIntro = document.getElementById('modalIntro');
-      if (!modal) return;
-      if (mode === 'trustline') {
-        modalTitle.textContent = 'Set XRBC Trustline on Mobile';
-        modalIntro.innerHTML = 'Trustline setup can only be completed in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile, then tap <em>Connect Wallet</em> there to set the trustline.';
-      } else if (mode === 'trade') {
-        modalTitle.textContent = 'Place Orders in Xaman (Mobile Only)';
-        modalIntro.innerHTML = 'For security, order signing happens in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile and place your order.';
-      } else {
-        modalTitle.textContent = 'Open on Mobile to Trade Safely';
-        modalIntro.innerHTML = 'XRBC transactions are signed in <strong>Xaman</strong> on mobile. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.';
-      }
-      renderQr();
-      modal.classList.add('open');
-      modal.setAttribute('aria-hidden','false');
-    }
-    function closeMobileModal(){
-      const modal = document.getElementById('mobileModal');
-      if (!modal) return;
-      modal.classList.remove('open');
-      modal.setAttribute('aria-hidden','true');
-    }
-    addEventListener('DOMContentLoaded', () => {
-      const closeModalBtn = document.getElementById('closeModalBtn');
-      const modal = document.getElementById('mobileModal');
-      if (closeModalBtn) closeModalBtn.addEventListener('click', closeMobileModal);
-      if (modal) modal.querySelector('.backdrop').addEventListener('click', closeMobileModal);
-    });
-  </script>
-
-  <!-- XRPL proxy + trading + Xaman wallet logic -->
-  <script>
-  (async function () {
-    const cfg = JSON.parse(document.getElementById("app-config").textContent);
-    const PROXY_URL = cfg.proxyUrl;
-    const XRP_TO_DROPS = 1_000_000;
-
-    const XRBC = {
-      currency: "5852626974636F696E6361736800000000000000",
-      issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-    };
-
-    async function xrplRequest(payload) {
-      const res = await fetch(PROXY_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Proxy error: " + res.status);
-      const data = await res.json();
-      if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
-      return data;
-    }
-    const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
-
-    async function getLedgerInfo() {
-      return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
-    }
-
-    async function getXrbcOrderBook() {
-      async function fetchSide(taker_gets, taker_pays, sideName) {
-        const rows = [];
-        try {
-          const data = await xrplRequest({
-            method: "book_offers",
-            params: [{ taker_gets, taker_pays, limit: 5 }]
-          });
-          if (data.result?.offers?.length) {
-            for (const offer of data.result.offers) {
-              const gets = offer.TakerGets.value
-                ? parseFloat(offer.TakerGets.value)
-                : parseFloat(offer.TakerGets) / XRP_TO_DROPS;
-              const pays = offer.TakerPays.value
-                ? parseFloat(offer.TakerPays.value)
-                : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
-              const price = pays / gets;
-              rows.push(`<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)}</td></tr>`);
-            }
-          } else {
-            rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
-          }
-        } catch (err) {
-          rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${err.message}</td></tr>`);
-        }
-        return rows;
-      }
-      const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
-      const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
-      return `
-        <div style="max-height:340px;overflow:auto;">
-          <table class="table">
-            <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
-            <tbody>${asks.join("")}${bids.join("")}</tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    /* ===== Theme toggle (persisted) ===== */
-    (function themeInit(){
-      const btn = document.getElementById('themeToggle');
-      const saved = localStorage.getItem('xrbc-theme');
-      if (saved === 'light') document.body.classList.add('light-mode');
-      if (btn) {
-        const sync = () => btn.setAttribute('aria-pressed', document.body.classList.contains('light-mode') ? 'true' : 'false');
-        sync();
-        btn.addEventListener('click', () => {
-          document.body.classList.toggle('light-mode');
-          const mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-          localStorage.setItem('xrbc-theme', mode);
-          sync();
-        });
-      }
-    })();
-
-   <script>
+<script>
 (function(){
   /* ========= Helpers: modal + QR ========= */
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -886,7 +741,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
     modalTitle.textContent = title || 'Open on Mobile';
     modalIntro.innerHTML = html || '';
 
-    // Render a QR for any URL on-demand (no extra libs)
+    // Render a tiny PNG QR for the given URL
     pageQr.innerHTML = '';
     if (url){
       const img = new Image();
@@ -895,7 +750,6 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       img.style.height = 'auto';
       img.decoding = 'async';
       img.loading = 'eager';
-      // Public QR service (tiny PNG)
       img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(url);
       img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
       pageQr.appendChild(img);
@@ -981,9 +835,9 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   }
   async function refreshWalletStatus() {
     try {
-      const acct = await xumm.user.account; // rXXXX or null
+      const acct = await xumm.user.account;
       if (acct) setConnectedUI(acct);
-    } catch {/* ignore */}
+    } catch {}
   }
 
   // Restore prior session
@@ -999,11 +853,11 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
   window.addEventListener("focus", refreshWalletStatus);
 
-  // CONNECT (Xumm shows QR on desktop automatically)
+  // CONNECT
   if (connectBtn) connectBtn.addEventListener("click", async () => {
     try {
       if (statusEl) statusEl.textContent = "Waiting for Xaman… (scan QR if shown)";
-      await xumm.authorize();
+      await xumm.authorize(); // desktop → QR, mobile → app
       const acct = await xumm.user.account;
       if (acct) setConnectedUI(acct);
       else if (statusEl) statusEl.textContent = "Still waiting for Xaman…";
@@ -1018,7 +872,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
     xumm.logout();
   });
 
-  // TRUSTLINE (show QR even if not connected; include Account if we have it)
+  // TRUSTLINE
   const setTrustBtn = document.getElementById("setTrustlineBtn");
   if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
     if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request…";
@@ -1035,7 +889,6 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
         if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected.";
       });
 
-      // Show QR inline on desktop too
       if (created?.refs?.qr_png && trustlineMsg) {
         const qr = document.createElement("img");
         qr.src = created.refs.qr_png;
@@ -1100,21 +953,12 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   const ledgerBtn = document.getElementById("fetchLedgerBtn");
   if (ledgerBtn) ledgerBtn.addEventListener("click", async () => {
     const ledgerOut = document.getElementById("ledgerOutput");
-    if (ledgerOut){
-      ledgerOut.textContent = "Initializing secure connection…";
-      ledgerOut.style.color = "#9fb0c5";
-    }
+    if (ledgerOut){ ledgerOut.textContent = "Initializing secure connection…"; ledgerOut.style.color = "#9fb0c5"; }
     try {
       const info = await getLedgerInfo();
-      if (ledgerOut){
-        ledgerOut.style.color = "#a3e4ff";
-        ledgerOut.textContent = JSON.stringify(info, null, 2);
-      }
+      if (ledgerOut){ ledgerOut.style.color = "#a3e4ff"; ledgerOut.textContent = JSON.stringify(info, null, 2); }
     } catch (err) {
-      if (ledgerOut){
-        ledgerOut.style.color = "#ef4444";
-        ledgerOut.textContent = "Error: " + err.message;
-      }
+      if (ledgerOut){ ledgerOut.style.color = "#ef4444"; ledgerOut.textContent = "Error: " + err.message; }
     }
   });
 
@@ -1139,7 +983,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   const buyTab   = document.getElementById("buyTab");
   const sellTab  = document.getElementById("sellTab");
   const totalXrpEl  = document.getElementById("totalXrp");
-  const suggestBtn  = document.getElementById("suggestPriceBtn"); // <- FIXED: use correct var
+  const suggestBtn  = document.getElementById("suggestPriceBtn");
   const orderTypeEl = document.getElementById("orderType");
   const priceField  = document.getElementById("priceField");
   const stopField   = document.getElementById("stopField");
@@ -1251,7 +1095,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       if (tradeMsg){ tradeMsg.textContent = "🔐 Still connecting securely to XRPL…"; tradeMsg.classList.add("connecting"); }
     }
   }
-  if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice); // <- FIXED
+  if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
 
   // Auto-refresh AMM estimate if amount > 0
   setInterval(() => {
@@ -1344,7 +1188,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
 
       const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
       const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
-      const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
+      const feeRate     = (amm.trading_fee / 10000).toFixed(2);
 
       out.innerHTML = `
         <table class="table">
@@ -1359,19 +1203,15 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   updateAmmPool();
   setInterval(updateAmmPool, 15000);
 
-  /* ========= Download Xaman button: QR on desktop, deep-link on mobile ========= */
+  /* ========= Download Xaman button ========= */
   const downloadBtn = document.getElementById('downloadXamanBtn');
   if (downloadBtn){
-    const IOS_URL      = 'https://apps.apple.com/us/app/xaman-wallet/id1492302343';
-    const ANDROID_URL  = 'https://play.google.com/store/apps/details?id=com.xrpllabs.xumm';
     const DOWNLOAD_URL = 'https://xaman.app/download'; // universal page
 
     downloadBtn.addEventListener('click', () => {
       if (isMobile){
-        // Go straight to the best universal page; store handles the rest
-        window.location.href = DOWNLOAD_URL;
+        window.location.href = DOWNLOAD_URL; // mobile → go straight to store/universal
       } else {
-        // Show QR that opens the universal download page on phone
         openMobileModal({
           title: 'Download Xaman Wallet',
           html: 'Scan this QR with your phone to open the official <strong>Xaman</strong> download page.',
