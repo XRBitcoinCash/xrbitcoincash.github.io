@@ -526,6 +526,42 @@ body.light-mode .otype{
 .tag-beginner  { color:#22c55e;  border-color:rgba(34,197,94,.55); }    /* matches Market (green) */
 .tag-advanced  { color:#eab308;  border-color:rgba(234,179,8,.55); }    /* matches Limit (amber) */
 .tag-protection{ color:#ef4444;  border-color:rgba(239,68,68,.55); }    /* matches Stop Loss (red) */
+/* Inline token chips (logo + ticker, text-sized) */
+.asset-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:800; line-height:1; font-size:1em;
+  padding:3px 8px; border-radius:9999px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,#0b1119,#0a0f15);
+  vertical-align:baseline; /* keeps height aligned with text */
+}
+.asset-chip img{
+  width:1em; height:1em; border-radius:3px; object-fit:cover;
+  display:inline-block; border:1px solid var(--line);
+}
+
+/* Color accents + glow */
+.asset-xrp{
+  color:#22c55e;
+  box-shadow:0 0 0 2px rgba(34,197,94,.18) inset, 0 0 22px rgba(34,197,94,.25);
+  border-color:rgba(34,197,94,.55);
+}
+.asset-xrbc{
+  color:#60a5fa; /* light blue */
+  box-shadow:0 0 0 2px rgba(96,165,250,.18) inset, 0 0 22px rgba(96,165,250,.25);
+  border-color:rgba(96,165,250,.55);
+}
+
+/* Light mode legibility */
+body.light-mode .asset-chip{
+  background:#fff; border-color:#000; box-shadow:none;
+}
+body.light-mode .asset-xrp{
+  color:#15803d; border-color:#000; box-shadow:0 0 20px rgba(34,197,94,.25);
+}
+body.light-mode .asset-xrbc{
+  color:#0b6bdc; border-color:#000; box-shadow:0 0 20px rgba(96,165,250,.25);
+}
 
   </style>
 </head>
@@ -640,11 +676,17 @@ body.light-mode .otype{
     <!-- ===== Trading UI (exchange style) ===== -->
     <section class="trade-card" id="tradeCard" aria-label="XRBC Trading">
 
-      <!-- Tiny pair badge -->
-      <div class="trade-logo">
-        <img src="/xrbc-nft.png" alt="XRBC logo">
-        <span class="pair">XRBC / XRP</span>
-      </div>
+    <!-- Tiny pair badge (chips) -->
+<div class="trade-logo" style="gap:10px;">
+  <span class="asset-chip asset-xrbc">
+    <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+  </span>
+  <span class="nowrap">/</span>
+  <span class="asset-chip asset-xrp">
+    <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+  </span>
+</div>
+
 
  <div class="otype-tabs" role="tablist" aria-label="Order type">
   <button class="otype otype-limit glow glow-yellow active" data-type="limit"  role="tab" aria-selected="true">Limit (Advanced)</button>
@@ -679,31 +721,33 @@ body.light-mode .otype{
   <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
 </div>
 
-<!-- NEW: Explanation under the Buy/Sell buttons -->
+<!-- NEW: Explanation under the Buy/Sell buttons (chips, text-sized icons) -->
 <div class="side-explain" id="sideExplain" aria-live="polite">
-  <!-- BUY: trade XRP -> receive XRBC -->
   <div class="note buy active" data-side="buy">
-    <span class="pair-visual">
-      <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" />
-      <span class="arrow">→</span>
-      <img src="/xrbc-nft.png" alt="XRBC" />
-    </span>
     <span class="copy">
       <strong>Buying XRBC:</strong>
-      You’re trading <span class="nowrap">XRP</span> to receive <span class="nowrap">XRBC</span>.
+      You’re trading
+      <span class="asset-chip asset-xrp">
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+      </span>
+      to receive
+      <span class="asset-chip asset-xrbc">
+        <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+      </span>.
     </span>
   </div>
 
-  <!-- SELL: trade XRBC -> receive XRP -->
   <div class="note sell" data-side="sell" hidden>
-    <span class="pair-visual">
-      <img src="/xrbc-nft.png" alt="XRBC" />
-      <span class="arrow">→</span>
-      <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" />
-    </span>
     <span class="copy">
       <strong>Selling XRBC:</strong>
-      You’re trading <span class="nowrap">XRBC</span> to receive <span class="nowrap">XRP</span>.
+      You’re trading
+      <span class="asset-chip asset-xrbc">
+        <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+      </span>
+      to receive
+      <span class="asset-chip asset-xrp">
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+      </span>.
     </span>
   </div>
 </div>
