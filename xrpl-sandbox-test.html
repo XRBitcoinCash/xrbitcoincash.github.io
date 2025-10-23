@@ -82,145 +82,182 @@
        XRBC — Compact, Exchange-Style CSS
        ========================= -->
   <style>
+/* ========= Neon / Glow pack (drop-in) ========= */
+
+/* Shared glow tokens + animation */
 :root{
-  --wrap:980px; --wrap-wide:1080px;
-  --bg:#0b0f14; --panel:#0e1520; --panel-2:#0c131c;
-  --ink:#e7edf5; --muted:#9fb0c5; --line:#2b3a4b;
-  --accent:#60a5fa; --accent-2:#22d3ee; --ok:#22c55e; --err:#ef4444;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --glow-blur: 14px;
+  --glow-opacity: .75;
 }
-*,*::before,*::after{ box-sizing:border-box; }
-html{ scroll-behavior:smooth; }
-html,body{ height:100%; max-width:100%; overflow-x:hidden; }
-body{ background:var(--bg); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
-img{ max-width:100%; height:auto; display:block; }
-.mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; overflow-wrap:anywhere; }
-.nowrap{ white-space:nowrap; }
+@keyframes glowPulse{ 0%{opacity:.55;transform:translateY(0)} 50%{opacity:.25} 100%{opacity:.6} }
 
-/* Header */
-.site-header{ position:sticky; top:0; z-index:20; width:100%;
-  background:linear-gradient(180deg,#0b0f14,#0b1017);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  backdrop-filter:saturate(140%) blur(6px);
+/* Header soft auras */
+.header-wrap::after{
+  content:""; position:absolute; inset:-8px -6px; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(42% 100% at 10% 50%, rgba(0,182,255,.22), transparent 60%),
+    radial-gradient(28% 70% at 95% 25%, rgba(0,182,255,.16), transparent 70%);
+  filter:blur(8px); opacity:.9;
 }
-.header-wrap{ max-width:var(--wrap); margin:0 auto; padding:12px 16px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; position:relative; }
-.brand{ display:flex; align-items:center; gap:10px; min-width:0; }
-.brand img{ width:40px; height:40px; border-radius:10px; background:#0e1520; border:1px solid var(--line); }
-.brand h1{ margin:0; font-size:1.05rem; line-height:1.1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.header-center{ justify-self:center; }
-.header-right{ justify-self:end; display:flex; gap:8px; align-items:center; }
-.header-nav{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+/* ===== Buttons & pills (glow by element, no HTML changes) ===== */
+#downloadXamanBtn,
+#setTrustlineBtn,
+#connectWalletBtn,
+#disconnectWalletBtn,
+#placeOfferBtn,
+.best-price-btn,
 .nav-pill{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  min-height:44px; padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none; cursor:pointer;
-  background:linear-gradient(180deg,#0e1520,#0c131c); color:var(--ink); border:1px solid var(--line); box-shadow:var(--shadow);
+  position:relative; z-index:0;
 }
-.nav-pill:hover{ filter:brightness(1.05); }
-
-/* Theme toggle */
-#themeToggle{ appearance:none; border:1px solid var(--line); border-radius:10px; background:linear-gradient(180deg,#0e1520,#0c131c);
-  color:var(--ink); font-weight:800; line-height:1; padding:8px 12px; box-shadow:var(--shadow); cursor:pointer; }
-#themeToggle:hover{ filter:brightness(1.05); }
-
-/* Layout */
-.container{ max-width:800px; margin:12px auto 14px; padding:0 16px; }
-
-/* Cards & Buttons */
-.card{ background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:var(--shadow); }
-.btn{
-  appearance:none; border:1px solid var(--line); border-radius:12px; background:linear-gradient(180deg,#0e1520,#0c131c);
-  color:var(--ink); padding:12px 16px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  min-height:44px; text-decoration:none; }
-.btn:hover{ filter:brightness(1.05); }
-.btn small{ display:block; font-size:.88em; opacity:.9; line-height:1.1; }
-
-/* Trade UI */
-.trade-card{ display:grid; gap:12px; text-align:left; padding:14px; border-radius:14px; background:linear-gradient(180deg,#0d141e,#0b1119); border:1px solid rgba(96,165,250,.25); }
-.trade-logo{ display:flex; align-items:center; justify-content:center; gap:10px; margin:2px 0 6px; }
-.asset-chip{
-  display:inline-flex; align-items:center; gap:6px; font-weight:800; line-height:1; font-size:1em; padding:3px 8px; border-radius:9999px;
-  border:1px solid var(--line); background:linear-gradient(180deg,#0b1119,#0a0f15);
+#downloadXamanBtn::after,  /* blue */
+.nav-pill::after{
+  content:""; position:absolute; inset:-8px; border-radius:14px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(96,165,250,.85), transparent 70%);
+  transition:opacity .2s ease, filter .2s ease;
 }
-.asset-chip img{ width:1em; height:1em; border-radius:3px; border:1px solid var(--line); }
-.asset-xrp{ color:#22c55e; }
-.asset-xrbc{ color:#60a5fa; }
+.nav-pill:hover::after{ opacity:.95; filter:blur(16px); }
 
-.otype-tabs{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:2px; }
+#setTrustlineBtn::after{     /* amber */
+  content:""; position:absolute; inset:-8px; border-radius:14px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(234,179,8,.85), transparent 70%);
+  animation:glowPulse 2.2s ease-in-out infinite;
+}
+#connectWalletBtn::after{    /* green */
+  content:""; position:absolute; inset:-8px; border-radius:14px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(34,197,94,.85), transparent 70%);
+  animation:glowPulse 1.9s ease-in-out infinite;
+}
+#disconnectWalletBtn::after{ /* red */
+  content:""; position:absolute; inset:-8px; border-radius:14px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(239,68,68,.85), transparent 70%);
+  animation:glowPulse 2.6s ease-in-out infinite;
+}
+.best-price-btn::after{      /* cyan */
+  content:""; position:absolute; inset:-8px; border-radius:10px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(34,211,238,.85), transparent 70%);
+}
+
+/* Make the primary submit mirror side (buy/sell) */
+#tradeCard.buy  #placeOfferBtn{
+  border-color:rgba(34,197,94,.65);
+  box-shadow:inset 0 0 0 2px rgba(34,197,94,.22), 0 0 22px rgba(34,197,94,.28);
+}
+#tradeCard.buy  #placeOfferBtn::after{
+  content:""; position:absolute; inset:-8px; border-radius:10px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(34,197,94,.85), transparent 70%);
+}
+#tradeCard.sell #placeOfferBtn{
+  border-color:rgba(239,68,68,.65);
+  box-shadow:inset 0 0 0 2px rgba(239,68,68,.22), 0 0 22px rgba(239,68,68,.28);
+}
+#tradeCard.sell #placeOfferBtn::after{
+  content:""; position:absolute; inset:-8px; border-radius:10px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(239,68,68,.85), transparent 70%);
+}
+
+/* ===== Order-type tabs: neon outline text + colored borders ===== */
 .otype{
-  padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-weight:800; font-size:16px; cursor:pointer; text-align:center; background:transparent;
+  /* neon hollow text */
+  color:transparent;
+  -webkit-text-stroke:1px #000;
+  text-shadow:
+    0 0 2px rgba(255,255,255,.95),
+    0 0 6px rgba(255,255,255,.85);
+  overflow:visible; /* let glow spill */
 }
-.otype.active{ box-shadow:0 0 0 1px rgba(96,165,250,.35); }
-
-.tabset{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
-.tab{ padding:10px 12px; border:1px solid var(--line); border-radius:10px; font-weight:800; cursor:pointer; text-align:center; }
-.tab.buy{ color:#22c55e; } .tab.sell{ color:#ef4444; }
-.tab.active{ box-shadow:inset 0 0 0 2px rgba(96,165,250,.18); }
-
-.best-price-strip{ display:grid; gap:8px; margin-top:8px; padding:8px 10px; border:1px dashed var(--line); border-radius:10px; background:linear-gradient(180deg,#0b1119,#0a0f15); }
-.best-price-btn{ width:100%; min-height:44px; font-weight:800; border:1px solid var(--line); border-radius:10px; background:linear-gradient(180deg,#0e1520,#0c131c); }
-.hint{ font-size:.9rem; color:var(--muted); }
-
-.field{ display:grid; gap:6px; margin-top:2px; }
-.field label{ font-size:13px; color:var(--muted); }
-.field input{ width:100%; height:42px; padding:0 12px; border-radius:10px; border:1px solid var(--line); background:#0c131c; color:var(--ink); font-size:14px; }
-.field input:focus{ border-color:rgba(96,165,250,.6); box-shadow:0 0 0 3px rgba(96,165,250,.20); }
-.inline-hint{ font-size:12px; color:var(--muted); }
-.amount-row{ display:flex; align-items:center; gap:6px; }
-.amount-row img{ max-height:18px; }
-
-.quick-amounts{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
-.qa{ height:34px; border:1px dashed var(--line); border-radius:8px; background:#0b1119; color:var(--ink); font-weight:700; font-size:12px; cursor:pointer; }
-
-.total-line{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border:1px dashed var(--line); border-radius:10px; background:linear-gradient(180deg,#0b1119,#0a0f15); }
-
-.button-row{ display:grid; grid-template-columns:1fr auto; gap:10px; }
-@media (max-width:600px){ .button-row{ grid-template-columns:1fr; } }
-
-/* Status + table */
-.status-text{ font-size:13px; color:var(--muted); }
-.status-text.ok{ color:var(--ok); } .status-text.err{ color:var(--err); }
-.table{ width:100%; border-collapse:collapse; font-size:14px; }
-.table th,.table td{ padding:8px 10px; border-bottom:1px solid #1a2433; }
-.table thead th{ background:#0f1722; color:#cfe2ff; }
-
-/* Wallet card + popover */
-.wallet-title{ display:flex; align-items:center; justify-content:center; gap:8px; margin:6px 0 10px; }
-.wallet-title img{ width:22px; height:22px; border-radius:6px; border:1px solid var(--line); background:#0e1520; }
-.wallet-actions{ position:relative; display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:10px 0 12px; }
-.qr-popover{
-  position:absolute; min-width:220px; max-width:240px; padding:10px; border-radius:12px;
-  background:#ffffff; color:#0b0f14; border:1px solid #000; box-shadow:0 10px 30px rgba(0,0,0,.35);
-  display:none; z-index:30;
+.otype[data-type="limit"]{
+  border-color:rgba(234,179,8,.90);
+  box-shadow:inset 0 0 0 2px rgba(234,179,8,.18);
 }
-.qr-popover.show{ display:block; }
-.qr-popover .label{ font-weight:800; font-size:12px; text-align:center; margin-top:8px; }
-
-/* Footer */
-.site-footer{ margin-top:24px; background:#0b0f14; color:#9fb0c5; border-top:1px solid rgba(255,255,255,.06); }
-.site-footer .wrap{ max-width:var(--wrap-wide); margin:0 auto; padding:16px; display:grid; gap:12px; }
-.eco-link{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; min-height:44px; border:1px solid var(--line);
-  border-radius:12px; text-decoration:none; color:var(--ink); background:linear-gradient(180deg,#0e1520,#0c131c); }
-.eco-link:hover{ filter:brightness(1.05); }
-.eco-link img{ width:22px; height:22px; border-radius:6px; object-fit:cover; }
-
-/* Light mode */
-body.light-mode{
-  --bg:#ffffff; --panel:#ffffff; --panel-2:#ffffff; --ink:#0b0f14; --muted:#4b5565; --line:#000000;
-  background:#ffffff; color:var(--ink);
+.otype[data-type="limit"].active{
+  box-shadow:
+    inset 0 0 0 2px rgba(234,179,8,.22),
+    0 0 0 1px rgba(96,165,250,.35);
 }
-body.light-mode .card, body.light-mode .trade-card, body.light-mode .btn, body.light-mode .eco-link, body.light-mode .nav-pill{
-  background:#ffffff !important; color:var(--ink) !important; border-color:var(--line) !important; box-shadow:none !important;
+.otype[data-type="limit"]::after{
+  content:""; position:absolute; inset:-10px; border-radius:12px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:.7;
+  background:radial-gradient(closest-side, rgba(234,179,8,.75), transparent 70%);
+}
+.otype[data-type="market"]{
+  border-color:rgba(34,197,94,.90);
+  box-shadow:inset 0 0 0 2px rgba(34,197,94,.18);
+}
+.otype[data-type="market"].active{
+  box-shadow:
+    inset 0 0 0 2px rgba(34,197,94,.22),
+    0 0 0 1px rgba(96,165,250,.35);
+}
+.otype[data-type="market"]::after{
+  content:""; position:absolute; inset:-10px; border-radius:12px; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:.7;
+  background:radial-gradient(closest-side, rgba(34,197,94,.75), transparent 70%);
 }
 
-/* Mobile */
-@media (max-width:560px){
-  html{ font-size:13px; }
-  .header-wrap{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); grid-auto-rows:minmax(0,auto); column-gap:8px; padding:8px 16px; }
-  .brand{ grid-column:1 / -1; grid-row:1; justify-self:center; }
-  .header-center{ grid-column:1 / -1; grid-row:2; }
-  .header-right{ grid-column:1 / -1; grid-row:3; justify-self:center; }
-  .header-nav .nav-pill{ width:100%; }
+/* Light-mode legibility for neon outline */
+body.light-mode .otype{
+  -webkit-text-stroke:1px #000 !important;
+  text-shadow:
+    0 0 2px rgba(255,255,255,.90),
+    0 0 6px rgba(255,255,255,.80);
 }
+
+/* ===== Buy/Sell tabs: stronger “selected” glow ===== */
+.tab.buy.active{
+  border-color:rgba(34,197,94,.65);
+  box-shadow:inset 0 0 0 2px rgba(34,197,94,.22), 0 0 18px rgba(34,197,94,.18);
+}
+.tab.sell.active{
+  border-color:rgba(239,68,68,.65);
+  box-shadow:inset 0 0 0 2px rgba(239,68,68,.22), 0 0 18px rgba(239,68,68,.18);
+}
+
+/* ===== Asset chips: give a soft inner glow ===== */
+.asset-chip{
+  box-shadow:inset 0 0 0 2px rgba(96,165,250,.18);
+}
+.asset-xrp{
+  box-shadow:
+    inset 0 0 0 2px rgba(34,197,94,.18),
+    0 0 22px rgba(34,197,94,.22);
+  border-color:rgba(34,197,94,.55);
+}
+.asset-xrbc{
+  box-shadow:
+    inset 0 0 0 2px rgba(96,165,250,.18),
+    0 0 22px rgba(96,165,250,.22);
+  border-color:rgba(96,165,250,.55);
+}
+body.light-mode .asset-chip{ box-shadow:none; border-color:#000; }
+
+/* ===== Reduced motion: keep the glow, stop the pulse ===== */
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; }
+}
+
+/* ========= OPTIONAL: utility classes if you want manual control ========= */
+/* Add: class="btn glow glow-green" (etc). Not required with the ID rules above. */
+.glow{ position:relative; z-index:0; }
+.glow::after{
+  content:""; position:absolute; inset:-8px; border-radius:inherit; z-index:-1; pointer-events:none;
+  filter:blur(var(--glow-blur)); opacity:var(--glow-opacity);
+  background:radial-gradient(closest-side, rgba(255,255,255,.85), transparent 70%);
+}
+.glow.pulse::after{ animation:glowPulse 2.2s ease-in-out infinite; }
+.glow-blue::after{  background:radial-gradient(closest-side, rgba(96,165,250,.85), transparent 70%); }
+.glow-cyan::after{  background:radial-gradient(closest-side, rgba(34,211,238,.85), transparent 70%); }
+.glow-green::after{ background:radial-gradient(closest-side, rgba(34,197,94,.85),  transparent 70%); }
+.glow-yellow::after{background:radial-gradient(closest-side, rgba(234,179,8,.85),  transparent 70%); }
+.glow-red::after{   background:radial-gradient(closest-side, rgba(239,68,68,.85),  transparent 70%); }
+
   </style>
 </head>
 <body>
