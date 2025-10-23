@@ -476,6 +476,19 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
 
 /* Optional: make all wallet buttons consistent height */
 .wallet-actions .btn { min-height:46px; }
+/* Wallet title layout + green glow for Connect */
+.wallet-title{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin:6px 0 10px;
+}
+.wallet-title img{
+  width:22px;height:22px;border-radius:6px;object-fit:cover;
+  border:1px solid var(--line);background:#0e1520;
+}
+.btn.glow-green::after{
+  background: radial-gradient(closest-side, rgba(34,197,94,.75), transparent 70%);
+  animation-duration: 1.9s;
+}
 
   </style>
 </head>
@@ -547,9 +560,12 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       </div>
     </div>
 
-  <!-- Wallet card -->
+<!-- Wallet card -->
 <div class="card wallet-card" style="margin:16px 0 20px;">
-  <h2 style="margin:6px 0 10px;">Wallet</h2>
+  <h2 class="wallet-title">
+    <img src="/xrbc-nft.png" alt="XRBC logo">
+    <span>Connect wallet to the XRBC decentralized exchange</span>
+  </h2>
 
   <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
     <button id="downloadXamanBtn" class="btn glow glow-white" style="border-left:4px solid #2563eb;">
@@ -560,7 +576,8 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       Set XRBC Trustline
     </button>
 
-    <button id="connectWalletBtn" class="btn glow glow-yellow">
+    <!-- changed to green glow -->
+    <button id="connectWalletBtn" class="btn glow glow-green">
       Connect Wallet
     </button>
 
@@ -568,6 +585,11 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       Disconnect
     </button>
   </div>
+
+  <p id="walletStatus" class="status-text">Status: Not connected</p>
+  <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+</div>
+
 
   <!-- Keep this; it will show the connected wallet address -->
   <p id="walletStatus" class="status-text">Status: Not connected</p>
