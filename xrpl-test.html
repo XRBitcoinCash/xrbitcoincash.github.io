@@ -873,35 +873,11 @@ body.light-mode .side-explain .note{
     <h2 style="margin:0;display:flex;align-items:center;gap:10px">
       <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
       XRBC DEX — Live Metrics
-    </h2>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="dexRefreshBtn" class="btn">Refresh now</button>
-      <button id="dexShowOrderBookBtn" class="btn">Update Order Book</button>
-      <button id="dexShowLedgerBtn" class="btn">Update Ledger</button>
-    </div>
-  </div>
+  
 
-  <!-- status line -->
-  <p id="dexStatus" class="status-text" style="margin:8px 0 12px">Loading…</p>
 
-  <!-- KPI grid: mid, spread, bid/ask, AMM reserves/fee -->
-  <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
-    <div class="kpi card" style="padding:10px">
-      <div style="color:var(--muted);font-size:12px;">Mid Price (XRP/XRBC)</div>
-      <div id="kpiPrice" style="font-weight:800;font-size:1.25rem">—</div>
-      <div id="kpiTopOfBook" style="color:var(--muted);font-size:12px">Bid: — · Ask: —</div>
-    </div>
-    <div class="kpi card" style="padding:10px">
-      <div style="color:var(--muted);font-size:12px;">Spread (Ask − Bid)</div>
-      <div id="kpiSpread" style="font-weight:800;font-size:1.25rem">—</div>
-      <div style="color:var(--muted);font-size:12px">From top-of-book quotes</div>
-    </div>
-    <div class="kpi card" style="padding:10px">
-      <div style="color:var(--muted);font-size:12px;">AMM Reserves / Fee</div>
-      <div id="kpiReserves" style="font-weight:800;font-size:1.05rem">—</div>
-      <div id="kpiFee" style="color:var(--muted);font-size:12px">Fee: —</div>
-    </div>
-  </div>
+
+ 
 
   <!-- Order book + Ledger (no inner scrolls; use page scroll only) -->
   <div style="display:grid;gap:16px;margin-top:6px">
