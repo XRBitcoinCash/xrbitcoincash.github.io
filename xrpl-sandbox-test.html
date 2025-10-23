@@ -526,6 +526,7 @@ body.light-mode .otype{
 .tag-beginner  { color:#22c55e;  border-color:rgba(34,197,94,.55); }    /* matches Market (green) */
 .tag-advanced  { color:#eab308;  border-color:rgba(234,179,8,.55); }    /* matches Limit (amber) */
 .tag-protection{ color:#ef4444;  border-color:rgba(239,68,68,.55); }    /* matches Stop Loss (red) */
+
 /* Inline token chips (logo + ticker, text-sized) */
 .asset-chip{
   display:inline-flex; align-items:center; gap:6px;
@@ -533,7 +534,7 @@ body.light-mode .otype{
   padding:3px 8px; border-radius:9999px;
   border:1px solid var(--line);
   background:linear-gradient(180deg,#0b1119,#0a0f15);
-  vertical-align:baseline; /* keeps height aligned with text */
+  vertical-align:baseline;
 }
 .asset-chip img{
   width:1em; height:1em; border-radius:3px; object-fit:cover;
@@ -605,7 +606,6 @@ body.light-mode .asset-xrbc{
 body.light-mode .side-explain .note{
   background:#fff; color:#2c3644; border-color:#000;
 }
-
   </style>
 </head>
 <body>
@@ -618,7 +618,7 @@ body.light-mode .side-explain .note{
         <h1>XRBitcoinCash</h1>
       </div>
 
-      <!-- Center pills (white glow for Ecosystem, black glow for White Paper) -->
+      <!-- Center pills -->
       <nav class="header-center" role="navigation" aria-label="Primary">
         <div class="header-nav">
           <a class="nav-pill pill-ecosys" href="/xrbc-ecosystem.html" title="XRBC Ecosystem · DEX/AMM">XRBC Ecosystem · DEX/AMM</a>
@@ -676,218 +676,172 @@ body.light-mode .side-explain .note{
       </div>
     </div>
 
-<!-- Wallet card -->
-<div class="card wallet-card" style="margin:16px 0 20px;">
-  <h2 class="wallet-title">
-    <img src="/xrbc-nft.png" alt="XRBC logo">
-    <span>Connect wallet to the XRBC decentralized exchange</span>
-  </h2>
+    <!-- Wallet card -->
+    <div class="card wallet-card" style="margin:16px 0 20px;">
+      <h2 class="wallet-title">
+        <img src="/xrbc-nft.png" alt="XRBC logo">
+        <span>Connect wallet to the XRBC decentralized exchange</span>
+      </h2>
 
-  <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
-    <button id="downloadXamanBtn" class="btn glow glow-white" style="border-left:4px solid #2563eb;">
-      Download Xaman
-    </button>
+      <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
+        <button id="downloadXamanBtn" class="btn glow glow-white" style="border-left:4px solid #2563eb;">
+          Download Xaman
+        </button>
 
-    <button id="setTrustlineBtn" class="btn glow glow-yellow">
-      Set XRBC Trustline
-    </button>
+        <button id="setTrustlineBtn" class="btn glow glow-yellow">
+          Set XRBC Trustline
+        </button>
 
-    <!-- changed to green glow -->
-    <button id="connectWalletBtn" class="btn glow glow-green">
-      Connect Wallet
-    </button>
+        <button id="connectWalletBtn" class="btn glow glow-green">
+          Connect Wallet
+        </button>
 
-    <button id="disconnectWalletBtn" class="btn glow glow-red" disabled>
-      Disconnect
-    </button>
-  </div>
+        <button id="disconnectWalletBtn" class="btn glow glow-red" disabled>
+          Disconnect
+        </button>
+      </div>
 
-  <p id="walletStatus" class="status-text">Status: Not connected</p>
-  <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
-</div>
+      <p id="walletStatus" class="status-text">Status: Not connected</p>
+      <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+    </div>
 
-<!-- ▼ Add this right after the Download button -->
-<div id="dlPopover" class="qr-popover" role="dialog" aria-label="Download Xaman QR" aria-hidden="true">
-  <div class="qr">
-    <img id="dlQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
-  </div>
-  <div class="label">Scan to download Xaman</div>
-</div>
+    <!-- ▼ Popover QR (desktop) -->
+    <div id="dlPopover" class="qr-popover" role="dialog" aria-label="Download Xaman QR" aria-hidden="true">
+      <div class="qr">
+        <img id="dlQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
+      </div>
+      <div class="label">Scan to download Xaman</div>
+    </div>
 
-
-
-    <!-- ===== Trading UI (exchange style) ===== -->
+    <!-- ===== Trading UI ===== -->
     <section class="trade-card" id="tradeCard" aria-label="XRBC Trading">
 
-    <!-- Tiny pair badge (chips) -->
-<div class="trade-logo" style="gap:10px;">
-  <span class="asset-chip asset-xrbc">
-    <img src="/xrbc-nft.png" alt="XRBC"> XRBC
-  </span>
-  <span class="nowrap">/</span>
-  <span class="asset-chip asset-xrp">
-    <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
-  </span>
-</div>
+      <!-- Pair chips -->
+      <div class="trade-logo" style="gap:10px;">
+        <span class="asset-chip asset-xrbc">
+          <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+        </span>
+        <span class="nowrap">/</span>
+        <span class="asset-chip asset-xrp">
+          <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+        </span>
+      </div>
 
+      <!-- Order type -->
+      <div class="otype-tabs" role="tablist" aria-label="Order type">
+        <button class="otype otype-limit glow glow-yellow active" data-type="limit"  role="tab" aria-selected="true">Limit (Advanced)</button>
+        <button class="otype otype-market glow glow-green"        data-type="market" role="tab" aria-selected="false">Market (Beginner)</button>
+        <button class="otype otype-stop glow"                     data-type="stop"   role="tab" aria-selected="false">Stop Loss</button>
+      </div>
 
- <div class="otype-tabs" role="tablist" aria-label="Order type">
-  <button class="otype otype-limit glow glow-yellow active" data-type="limit"  role="tab" aria-selected="true">Limit (Advanced)</button>
-  <button class="otype otype-market glow glow-green"        data-type="market" role="tab" aria-selected="false">Market (Beginner)</button>
-  <button class="otype otype-stop glow"                     data-type="stop"   role="tab" aria-selected="false">Stop Loss</button>
-</div>
+      <div class="otype-notes" id="otypeNotes" aria-live="polite">
+        <div data-note="limit">
+          <span class="note-tag tag-advanced">Advanced</span>
+          <strong>Limit:</strong> Place an order at <em>your</em> price. It only executes if the market reaches that price. Nothing is sent until you tap <strong>Place Limit Order</strong> and sign in Xaman.
+        </div>
+        <div data-note="market" hidden>
+          <span class="note-tag tag-beginner">Beginner</span>
+          <strong>Market:</strong> Quick & easy. Executes now at the best available price (uses <span class="mono">IOC</span>). You’ll still review and sign in Xaman.
+        </div>
+        <div data-note="stop" hidden>
+          <span class="note-tag tag-protection">Protection</span>
+          <strong>Stop Loss:</strong> Set a trigger price to help prevent large losses. <em>Preview only here</em>—no XRPL transaction is submitted yet.
+        </div>
+      </div>
 
-<!-- NEW: concise explanation that “surrounds” the mode with detail -->
-<div class="otype-notes" id="otypeNotes" aria-live="polite">
-  <div data-note="limit">
-    <span class="note-tag tag-advanced">Advanced</span>
-    <strong>Limit:</strong> Place an order at <em>your</em> price. It only executes if the market reaches that price. Nothing is sent until you tap <strong>Place Limit Order</strong> and sign in Xaman.
-  </div>
-  <div data-note="market" hidden>
-    <span class="note-tag tag-beginner">Beginner</span>
-    <strong>Market:</strong> Quick & easy. Executes now at the best available price (uses <span class="mono">IOC</span>). You’ll still review and sign in Xaman.
-  </div>
-  <div data-note="stop" hidden>
-    <span class="note-tag tag-protection">Protection</span>
-    <strong>Stop Loss:</strong> Set a trigger price to help prevent large losses. <em>Preview only here</em>—no XRPL transaction is submitted yet.
-  </div>
-</div>
-
-
-
-      
-      
-      
       <!-- Buy/Sell -->
-<div class="tabset" role="tablist" aria-label="Choose buy or sell">
-  <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
-  <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
-</div>
+      <div class="tabset" role="tablist" aria-label="Choose buy or sell">
+        <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
+        <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
+      </div>
 
-<!-- NEW: Explanation under the Buy/Sell buttons (chips, text-sized icons) -->
-<div class="side-explain" id="sideExplain" aria-live="polite">
-  <div class="note buy active" data-side="buy">
-    <span class="copy">
-      <strong>Buying XRBC:</strong>
-      You’re trading
-      <span class="asset-chip asset-xrp">
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
-      </span>
-      to receive
-      <span class="asset-chip asset-xrbc">
-        <img src="/xrbc-nft.png" alt="XRBC"> XRBC
-      </span>.
-    </span>
-  </div>
+      <!-- Side explainer (single, no duplicates) -->
+      <div class="side-explain" id="sideExplain" aria-live="polite" style="margin-top:6px">
+        <div class="note buy active" data-side="buy">
+          <span class="copy">
+            <strong>Buying XRBC:</strong>
+            You’re trading
+            <span class="asset-chip asset-xrp">
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+            </span>
+            to receive
+            <span class="asset-chip asset-xrbc">
+              <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+            </span>.
+          </span>
+        </div>
 
-  <div class="note sell" data-side="sell" hidden>
-    <span class="copy">
-      <strong>Selling XRBC:</strong>
-      You’re trading
-      <span class="asset-chip asset-xrbc">
-        <img src="/xrbc-nft.png" alt="XRBC"> XRBC
-      </span>
-      to receive
-      <span class="asset-chip asset-xrp">
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
-      </span>.
-    </span>
-  </div>
-</div>
+        <div class="note sell" data-side="sell" hidden>
+          <span class="copy">
+            <strong>Selling XRBC:</strong>
+            You’re trading
+            <span class="asset-chip asset-xrbc">
+              <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+            </span>
+            to receive
+            <span class="asset-chip asset-xrp">
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+            </span>.
+          </span>
+        </div>
+      </div>
 
-<!-- ===== BUY/SELL ===== -->
-<div class="tabset" role="tablist" aria-label="Choose buy or sell">
-  <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
-  <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
-</div>
+      <!-- Amount -->
+      <div class="field" style="margin-top:8px">
+        <label for="amount" id="amountLabel">Amount (XRBC)</label>
+        <div class="amount-row">
+          <img src="/xrbc-nft.png" alt="XRBC logo">
+          <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
+        </div>
 
-<!-- Explanation under the Buy/Sell buttons (chips, text-sized icons) -->
-<div class="side-explain" id="sideExplain" aria-live="polite" style="margin-top:6px">
-  <div class="note buy active" data-side="buy">
-    <span class="copy">
-      <strong>Buying XRBC:</strong>
-      You’re trading
-      <span class="asset-chip asset-xrp">
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
-      </span>
-      to receive
-      <span class="asset-chip asset-xrbc">
-        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
-      </span>.
-    </span>
-  </div>
+        <!-- % chips -->
+        <div class="quick-amounts" role="group" aria-label="Quick amount">
+          <button class="qa" data-q="25">25%</button>
+          <button class="qa" data-q="50">50%</button>
+          <button class="qa" data-q="75">75%</button>
+          <button class="qa" data-q="100">100%</button>
+        </div>
 
-  <div class="note sell" data-side="sell" hidden>
-    <span class="copy">
-      <strong>Selling XRBC:</strong>
-      You’re trading
-      <span class="asset-chip asset-xrbc">
-        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
-      </span>
-      to receive
-      <span class="asset-chip asset-xrp">
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
-      </span>.
-    </span>
-  </div>
-</div>
+        <!-- Dynamic explainer for the amount input -->
+        <div class="inline-hint" id="amountHint" style="margin-top:6px">
+          How many XRBC you want to <span id="actionWord">buy</span>.
+          <span class="nowrap">You’re trading
+            <span class="asset-chip asset-xrp">
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+            </span>
+            to receive
+            <span class="asset-chip asset-xrbc">
+              <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+            </span>.
+          </span>
+        </div>
+      </div>
 
-<!-- ===== AMOUNT ===== -->
-<div class="field" style="margin-top:8px">
-  <label for="amount" id="amountLabel">Amount (XRBC)</label>
-  <div class="amount-row">
-    <img src="/xrbc-nft.png" alt="XRBC logo">
-    <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
-  </div>
+      <!-- Best Price BELOW Amount -->
+      <div class="best-price-strip" style="margin-top:10px">
+        <button class="btn best-price-btn" id="suggestPriceBtn" type="button">Best Price (AMM)</button>
+        <div class="hint">Auto-updates every 10s after you enter an <strong>Amount</strong>.</div>
+      </div>
 
-  <!-- % chips (now wallet-aware) -->
-  <div class="quick-amounts" role="group" aria-label="Quick amount">
-    <button class="qa" data-q="25">25%</button>
-    <button class="qa" data-q="50">50%</button>
-    <button class="qa" data-q="75">75%</button>
-    <button class="qa" data-q="100">100%</button>
-  </div>
+      <!-- Price (hidden for Market) -->
+      <div class="field" id="priceField">
+        <label for="price">Price (XRP per XRBC)</label>
+        <input id="price" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.500000">
+        <div class="inline-hint">Limit price. (Use Market to execute immediately.)</div>
+      </div>
 
-  <!-- Dynamic explainer for the amount input -->
-  <div class="inline-hint" id="amountHint" style="margin-top:6px">
-    How many XRBC you want to <span id="actionWord">buy</span>.
-    <span class="nowrap">You’re trading
-      <span class="asset-chip asset-xrp">
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
-      </span>
-      to receive
-      <span class="asset-chip asset-xrbc">
-        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
-      </span>.
-    </span>
-  </div>
-</div>
+      <!-- Stop (for Stop orders) -->
+      <div class="field" id="stopField" hidden>
+        <label for="stop">Stop price (XRP)</label>
+        <input id="stop" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.450000">
+        <div class="inline-hint">Stop orders are not yet submitted programmatically on XRPL here (UI preview only).</div>
+      </div>
 
-<!-- ===== Best Price (moved BELOW Amount) ===== -->
-<div class="best-price-strip" style="margin-top:10px">
-  <button class="btn best-price-btn" id="suggestPriceBtn" type="button">Best Price (AMM)</button>
-  <div class="hint">Auto-updates every 10s after you enter an <strong>Amount</strong>.</div>
-</div>
-
-<!-- ===== PRICE (hidden for Market) ===== -->
-<div class="field" id="priceField">
-  <label for="price">Price (XRP per XRBC)</label>
-  <input id="price" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.500000">
-  <div class="inline-hint">Limit price. (Use Market to execute immediately.)</div>
-</div>
-
-<!-- ===== STOP (for Stop orders) ===== -->
-<div class="field" id="stopField" hidden>
-  <label for="stop">Stop price (XRP)</label>
-  <input id="stop" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.450000">
-  <div class="inline-hint">Stop orders are not yet submitted programmatically on XRPL here (UI preview only).</div>
-</div>
-
-<!-- ===== TOTAL ===== -->
-<div class="total-line" aria-live="polite">
-  <span>Total</span>
-  <strong id="totalXrp">0.000000 XRP</strong>
-</div>
+      <!-- Total -->
+      <div class="total-line" aria-live="polite">
+        <span>Total</span>
+        <strong id="totalXrp">0.000000 XRP</strong>
+      </div>
 
       <!-- Submit -->
       <div class="button-row">
@@ -1085,22 +1039,32 @@ body.light-mode .side-explain .note{
   window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
   window.addEventListener("focus", refreshWalletStatus);
 
-  // CONNECT
+  // ===== CONNECT (now refreshes balances after connect) =====
   if (connectBtn) connectBtn.addEventListener("click", async () => {
+    const prevDisabled = connectBtn.disabled;
+    connectBtn.disabled = true;
     try {
       if (statusEl) statusEl.textContent = "Waiting for Xaman… (scan QR if shown)";
       await xumm.authorize(); // desktop → QR, mobile → app
       const acct = await xumm.user.account;
-      if (acct) setConnectedUI(acct);
-      else if (statusEl) statusEl.textContent = "Still waiting for Xaman…";
+      if (acct) {
+        setConnectedUI(acct);
+        // balance refresh (exposed later on window)
+        if (window.fetchBalances) { try { await window.fetchBalances(); } catch(e){} }
+      } else if (statusEl) {
+        statusEl.textContent = "Still waiting for Xaman…";
+      }
     } catch {
       if (statusEl) statusEl.textContent = "Failed to connect wallet";
+    } finally {
+      if (!window.__xrbcWallet) connectBtn.disabled = prevDisabled;
     }
   });
 
   // DISCONNECT
   if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
     setDisconnectedUI();
+    if (window.BAL) { window.BAL.xrp = 0; window.BAL.xrbc = 0; }
     xumm.logout();
   });
 
@@ -1139,7 +1103,7 @@ body.light-mode .side-explain .note{
     }
   });
 
-  /* ========= Ledger, Order Book, Trading UI ========= */
+  /* ========= Ledger, Order Book ========= */
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
@@ -1206,7 +1170,7 @@ body.light-mode .side-explain .note{
     }
   });
 
-  // Trading UI wires
+  // ========= Trading UI =========
   const placeOfferBtn = document.getElementById("placeOfferBtn");
   const sideEl   = document.getElementById("side");
   const amountEl = document.getElementById("amount");
@@ -1221,14 +1185,45 @@ body.light-mode .side-explain .note{
   const stopField   = document.getElementById("stopField");
   const tradeCard   = document.getElementById("tradeCard");
   const actionWordEl= document.getElementById("actionWord");
-
-  /* === NEW: Buy/Sell explainer swap & highlight === */
   const explainWrap = document.getElementById('sideExplain');
+
+  // Wallet-aware balances (exposed globally for other handlers)
+  const BAL = { xrp: 0, xrbc: 0 };
+  const CURRENCY_HEX_SHORT = XRBC.currency.replace(/0+$/,'');
+  const RESERVE_BUFFER_XRP = 1.0;
+  window.BAL = BAL; // expose
+
+  async function fetchBalances(){
+    const acct = window.__xrbcWallet;
+    if (!acct) { BAL.xrp = 0; BAL.xrbc = 0; return BAL; }
+
+    try {
+      const info = await xrplRequest({
+        method: "account_info",
+        params: [{ account: acct, ledger_index: "validated" }]
+      });
+      BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
+    } catch { BAL.xrp = 0; }
+
+    try {
+      const lines = await xrplRequest({
+        method: "account_lines",
+        params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
+      });
+      const tl = (lines?.result?.lines || []).find(l =>
+        (l.currency || '').toUpperCase() === CURRENCY_HEX_SHORT.toUpperCase()
+      );
+      BAL.xrbc = tl ? Number(tl.balance || 0) : 0;
+    } catch { BAL.xrbc = 0; }
+
+    return BAL;
+  }
+  window.fetchBalances = fetchBalances; // expose
+
   function updateSideExplain(side){
     if (!explainWrap) return;
     const buyNote  = explainWrap.querySelector('.note.buy');
     const sellNote = explainWrap.querySelector('.note.sell');
-
     const showBuy = (side === 'buy');
 
     if (buyNote){
@@ -1241,13 +1236,34 @@ body.light-mode .side-explain .note{
       sellNote.classList.toggle('active', !showBuy);
       sellNote.setAttribute('aria-hidden', (showBuy).toString());
     }
-
-    // Ensure XRP icons are readable inside chips (white bg for XRP logo)
     explainWrap.querySelectorAll('.asset-xrp img').forEach(img => {
       img.style.background = '#fff';
       img.style.borderRadius = '3px';
     });
   }
+
+  function updateAmountHint(side){
+    const hint = document.getElementById('amountHint');
+    const label = document.getElementById('amountLabel');
+    if (!hint) return;
+
+    if (side === 'buy'){
+      if (label) label.textContent = 'Amount (XRBC)';
+      hint.innerHTML =
+        `How many XRBC you want to <span id="actionWord">buy</span>. ` +
+        `<span class="nowrap">You’re trading ` +
+        `<span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> ` +
+        `to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`;
+    } else {
+      if (label) label.textContent = 'Amount (XRBC)';
+      hint.innerHTML =
+        `How many XRBC you want to <span id="actionWord">sell</span>. ` +
+        `<span class="nowrap">You’re trading ` +
+        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
+        `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+    }
+  }
+  window.updateAmountHint = updateAmountHint;
 
   function setSide(side) {
     if (!sideEl) return;
@@ -1264,15 +1280,14 @@ body.light-mode .side-explain .note{
       sellTab.setAttribute('aria-selected', isSell ? 'true' : 'false');
     }
 
-    // NEW: swap & color the explainer chip row
     updateSideExplain(side);
-
     if (actionWordEl) actionWordEl.textContent = side === 'buy' ? 'buy' : 'sell';
     if (tradeCard){
       tradeCard.classList.toggle('buy',  side === 'buy');
       tradeCard.classList.toggle('sell', side === 'sell');
     }
     recalcTotals();
+    updateAmountHint(side);
   }
 
   function recalcTotals() {
@@ -1285,175 +1300,7 @@ body.light-mode .side-explain .note{
   if (amountEl) amountEl.addEventListener("input", recalcTotals);
   if (priceEl)  priceEl.addEventListener("input", recalcTotals);
 
-  // % chips (demo)
-  (() => {
-   /* === Wallet-aware balances + dynamic hint for Amount === */
-const BAL = { xrp: 0, xrbc: 0 };
-const CURRENCY_HEX_SHORT = XRBC.currency.replace(/0+$/,''); // strip trailing zeros
-const RESERVE_BUFFER_XRP = 1.0; // small cushion so users don’t hit XRP reserve
-
-async function fetchBalances(){
-  const acct = window.__xrbcWallet;
-  if (!acct) { BAL.xrp = 0; BAL.xrbc = 0; return BAL; }
-
-  // XRP balance (drops → XRP)
-  try {
-    const info = await xrplRequest({
-      method: "account_info",
-      params: [{ account: acct, ledger_index: "validated" }]
-    });
-    BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
-  } catch { BAL.xrp = 0; }
-
-  // XRBC trustline balance
-  try {
-    const lines = await xrplRequest({
-      method: "account_lines",
-      params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
-    });
-    const tl = (lines?.result?.lines || []).find(l =>
-      (l.currency || '').toUpperCase() === CURRENCY_HEX_SHORT.toUpperCase()
-    );
-    BAL.xrbc = tl ? Number(tl.balance || 0) : 0;
-  } catch { BAL.xrbc = 0; }
-
-  return BAL;
-}
-
-function updateAmountHint(side){
-  const hint = document.getElementById('amountHint');
-  const label = document.getElementById('amountLabel');
-  if (!hint) return;
-
-  if (side === 'buy'){
-    if (label) label.textContent = 'Amount (XRBC)';
-    hint.innerHTML =
-      `How many XRBC you want to <span id="actionWord">buy</span>. ` +
-      `<span class="nowrap">You’re trading ` +
-      `<span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> ` +
-      `to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`;
-  } else {
-    if (label) label.textContent = 'Amount (XRBC)';
-    hint.innerHTML =
-      `How many XRBC you want to <span id="actionWord">sell</span>. ` +
-      `<span class="nowrap">You’re trading ` +
-      `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
-      `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
-  }
-}
-
-/* Replace your existing setSide with this tiny augmentation */
-const _origSetSide = setSide; // keep reference if defined above
-setSide = function(side){
-  if (typeof _origSetSide === 'function') _origSetSide(side);
-  updateAmountHint(side);
-};
-
-/* Refresh balances whenever we connect / refocus */
-(async () => {
-  if (window.__xrbcWallet) await fetchBalances();
-})();
-window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(); });
-
-/* === % chips: wallet-aware === */
-(() => {
-  const chips = document.querySelectorAll('.quick-amounts .qa');
-  if (!chips.length) return;
-
-  async function applyPercent(pct){
-    const side = sideEl?.value || 'buy';
-    const orderType = orderTypeEl?.value || 'limit';
-
-    // Ensure balances are fresh
-    await fetchBalances();
-
-    if (side === 'sell'){
-      // Selling XRBC → amount is XRBC directly
-      const amt = Math.max(0, BAL.xrbc * (pct/100));
-      if (amountEl){
-        amountEl.value = amt.toFixed(6);
-        amountEl.dispatchEvent(new Event('input'));
-      }
-      return;
-    }
-
-    // Buying XRBC → % of XRP budget, convert to XRBC via price
-    let price = Number(priceEl?.value) || 0;
-    if (orderType === 'market' || !price){
-      // get fresh AMM estimate for price
-      await fillBestPrice();
-      price = Number(priceEl?.value) || 0;
-    }
-    if (!price || price <= 0) return; // no price available
-
-    // Budget = % of XRP (leave small buffer)
-    const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
-    const amt = spendable > 0 ? (spendable / price) : 0;
-
-    if (amountEl){
-      amountEl.value = amt.toFixed(6);
-      amountEl.dispatchEvent(new Event('input'));
-    }
-  }
-
-  chips.forEach(btn => btn.addEventListener('click', async () => {
-    const pct = Number(btn.dataset.q || 0);
-    if (!pct) return;
-    btn.disabled = true;
-    try { await applyPercent(pct); }
-    finally { btn.disabled = false; }
-  }));
-})();
-
-
-  // Order type tabs + notes (no nested <script> tags)
-  (() => {
-    const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
-    const notesWrap = document.getElementById('otypeNotes');
-
-    const showNote = (t) => {
-      if (!notesWrap) return;
-      notesWrap.querySelectorAll('[data-note]').forEach(n => {
-        n.hidden = n.getAttribute('data-note') !== t;
-      });
-    };
-
-    typeTabs.forEach(btn => btn.addEventListener('click', () => {
-      typeTabs.forEach(b => {
-        b.classList.toggle('active', b === btn);
-        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-      });
-
-      const t = btn.dataset.type;
-      if (orderTypeEl) orderTypeEl.value = t;
-
-      if (t === 'limit') {
-        if (priceField) priceField.hidden = false;
-        if (stopField)  stopField.hidden  = true;
-        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
-      }
-
-      if (t === 'market') {
-        if (priceField) priceField.hidden = true;
-        if (stopField)  stopField.hidden  = true;
-        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
-      }
-
-      if (t === 'stop') {
-        if (priceField) priceField.hidden = false;
-        if (stopField)  stopField.hidden  = false;
-        if (placeOfferBtn) { placeOfferBtn.disabled = true; placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
-      }
-
-      showNote(t);
-      recalcTotals();
-    }));
-
-    // init notes on load
-    showNote(orderTypeEl?.value || 'limit');
-  })();
-
-  // Side toggles (ensure this stays inside the same main <script>)
+  // Side toggles
   (() => {
     const apply = () => {
       if (!tradeCard) return;
@@ -1520,6 +1367,53 @@ window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(
     const amt = Number(amountEl?.value);
     if (amt > 0) fillBestPrice().catch(()=>{});
   }, 10000);
+
+  // Order type tabs + notes
+  (() => {
+    const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
+    const notesWrap = document.getElementById('otypeNotes');
+
+    const showNote = (t) => {
+      if (!notesWrap) return;
+      notesWrap.querySelectorAll('[data-note]').forEach(n => {
+        n.hidden = n.getAttribute('data-note') !== t;
+      });
+    };
+
+    typeTabs.forEach(btn => btn.addEventListener('click', () => {
+      typeTabs.forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      }));
+
+      const t = btn.dataset.type;
+      if (orderTypeEl) orderTypeEl.value = t;
+
+      if (t === 'limit') {
+        if (priceField) priceField.hidden = false;
+        if (stopField)  stopField.hidden  = true;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
+      }
+
+      if (t === 'market') {
+        if (priceField) priceField.hidden = true;
+        if (stopField)  stopField.hidden  = true;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
+      }
+
+      if (t === 'stop') {
+        if (priceField) priceField.hidden = false;
+        if (stopField)  stopField.hidden  = false;
+        if (placeOfferBtn) { placeOfferBtn.disabled = true; placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
+      }
+
+      showNote(t);
+      recalcTotals();
+    }));
+
+    // init notes on load
+    showNote(orderTypeEl?.value || 'limit');
+  })();
 
   // Place Offer
   if (placeOfferBtn) placeOfferBtn.addEventListener("click", async () => {
@@ -1689,9 +1583,7 @@ window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(
   }
 
 })(); // end IIFE
-
 </script>
-
 
   <!-- ===== XRBC Footer ===== -->
   <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
