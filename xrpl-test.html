@@ -873,11 +873,35 @@ body.light-mode .side-explain .note{
     <h2 style="margin:0;display:flex;align-items:center;gap:10px">
       <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
       XRBC DEX — Live Metrics
-    <
+    </h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="dexRefreshBtn" class="btn">Refresh now</button>
+      <button id="dexShowOrderBookBtn" class="btn">Update Order Book</button>
+      <button id="dexShowLedgerBtn" class="btn">Update Ledger</button>
+    </div>
+  </div>
 
   <!-- status line -->
   <p id="dexStatus" class="status-text" style="margin:8px 0 12px">Loading…</p>
 
+  <!-- KPI grid: mid, spread, bid/ask, AMM reserves/fee -->
+  <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px">
+    <div class="kpi card" style="padding:10px">
+      <div style="color:var(--muted);font-size:12px;">Mid Price (XRP/XRBC)</div>
+      <div id="kpiPrice" style="font-weight:800;font-size:1.25rem">—</div>
+      <div id="kpiTopOfBook" style="color:var(--muted);font-size:12px">Bid: — · Ask: —</div>
+    </div>
+    <div class="kpi card" style="padding:10px">
+      <div style="color:var(--muted);font-size:12px;">Spread (Ask − Bid)</div>
+      <div id="kpiSpread" style="font-weight:800;font-size:1.25rem">—</div>
+      <div style="color:var(--muted);font-size:12px">From top-of-book quotes</div>
+    </div>
+    <div class="kpi card" style="padding:10px">
+      <div style="color:var(--muted);font-size:12px;">AMM Reserves / Fee</div>
+      <div id="kpiReserves" style="font-weight:800;font-size:1.05rem">—</div>
+      <div id="kpiFee" style="color:var(--muted);font-size:12px">Fee: —</div>
+    </div>
+  </div>
 
   <!-- Order book + Ledger (no inner scrolls; use page scroll only) -->
   <div style="display:grid;gap:16px;margin-top:6px">
@@ -894,63 +918,62 @@ body.light-mode .side-explain .note{
 
 
     
-<script>
+    <script>
 (function () {
-  // ----- Config --------------------------------------------------------------
+  // ---- CONFIG & CONSTANTS ---------------------------------------------------
   const cfgEl = document.getElementById("app-config");
   if (!cfgEl) { console.error("[XRBC Metrics] Missing #app-config"); return; }
-  let cfg = {};
-  try { cfg = JSON.parse(cfgEl.textContent || "{}"); } catch(e){ console.error("Bad #app-config JSON"); return; }
+  const cfg = JSON.parse(cfgEl.textContent || "{}");
   const PROXY_URL = cfg.proxyUrl;
   const XRP_TO_DROPS = 1_000_000;
 
-  // XRBC token (hex currency + issuer)
+  // XRBC issued token (hex currency code + issuer)
   const XRBC = {
     currency: "5852626974636F696E6361736800000000000000",
     issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
 
-  // ----- DOM -----------------------------------------------------------------
-  const $  = (id) => document.getElementById(id);
-  const s  = $("dexStatus");
-  const elMid     = $("kpiPrice");
-  const elSpread  = $("kpiSpread");
-  const elTopbook = $("kpiTopOfBook");
-  const elRes     = $("kpiReserves");
-  const elFee     = $("kpiFee");
-  const bookOut   = $("priceOutput");
+  // ---- DOM ------------------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
+  const statusEl  = $("dexStatus");
+  const priceEl   = $("kpiPrice");
+  const spreadEl  = $("kpiSpread");
+  const topBookEl = $("kpiTopOfBook");
+  const reservesEl= $("kpiReserves");
+  const feeEl     = $("kpiFee");
   const ledgerOut = $("ledgerOutput");
+  const bookOut   = $("priceOutput");
 
-  const btnRefresh = $("dexRefreshBtn");
-  const btnBook    = $("dexShowOrderBookBtn");
-  const btnLedger  = $("dexShowLedgerBtn");
+  const btnRefresh   = $("dexRefreshBtn");
+  const btnBook      = $("dexShowOrderBookBtn");
+  const btnLedger    = $("dexShowLedgerBtn");
 
-  // remove nested scrolls if any styles bleed in
-  if (bookOut)   { bookOut.style.maxHeight = ""; bookOut.style.overflow = ""; }
+  // Make legacy panes use page scroll (single scrollbar)
   if (ledgerOut) { ledgerOut.style.maxHeight = ""; ledgerOut.style.overflow = ""; }
+  if (bookOut)   { bookOut.style.maxHeight   = ""; bookOut.style.overflow   = ""; }
 
-  function setStatus(kind, msg){
-    if (!s) return;
-    s.textContent = msg;
-    s.classList.remove("ok","err","connecting");
-    s.classList.add(kind); // ok | err | connecting
+  // ---- HELPERS --------------------------------------------------------------
+  function setStatus(kind, msg) {
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.classList.remove("ok","err","connecting");
+    statusEl.classList.add(kind); // "ok" | "err" | "connecting"
   }
 
-  // ----- XRPL request helper -------------------------------------------------
-  async function xrpl(payload){
+  async function xrpl(payload) {
     const res = await fetch(PROXY_URL, {
       method: "POST",
-      headers: { "Content-Type":"application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Proxy HTTP " + res.status);
     const data = await res.json();
-    if (data && data.error) throw new Error("XRPL " + JSON.stringify(data.error));
+    if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
     return data;
   }
 
-  // ----- Conversions ---------------------------------------------------------
-  function priceFromOffer(of){
+  // Price from a single offer
+  function priceFromOffer(of) {
     if (!of) return null;
     const gets = of.TakerGets?.value ? parseFloat(of.TakerGets.value)
                                      : parseFloat(of.TakerGets) / XRP_TO_DROPS;
@@ -960,131 +983,1021 @@ body.light-mode .side-explain .note{
     return pays / gets; // XRP per XRBC
   }
 
-  // ----- Fetchers ------------------------------------------------------------
-  async function fetchTopOfBook(){
-    const [askRes, bidRes] = await Promise.all([
-      xrpl({ method: "book_offers", params: [{ taker_gets: XRBC, taker_pays: { currency:"XRP" }, limit: 1 }] }),
-      xrpl({ method: "book_offers", params: [{ taker_gets: { currency:"XRP" }, taker_pays: XRBC, limit: 1 }] })
-    ]);
+  // ---- DATA FETCHERS --------------------------------------------------------
+  async function getTopOfBook() {
+    // best ask: offers selling XRBC for XRP → taker_gets XRBC, taker_pays XRP
+    const askReq = xrpl({
+      method: "book_offers",
+      params: [{ taker_gets: XRBC, taker_pays: { currency: "XRP" }, limit: 1 }]
+    });
+    // best bid: offers buying XRBC paying XRP → taker_gets XRP, taker_pays XRBC
+    const bidReq = xrpl({
+      method: "book_offers",
+      params: [{ taker_gets: { currency: "XRP" }, taker_pays: XRBC, limit: 1 }]
+    });
+
+    const [askRes, bidRes] = await Promise.all([askReq, bidReq]);
     const bestAsk = priceFromOffer(askRes?.result?.offers?.[0]);
     const bestBid = priceFromOffer(bidRes?.result?.offers?.[0]);
+
     return { bestAsk, bestBid };
   }
 
-  async function fetchAmmInfo(){
+  async function getAmmMini() {
     const res = await xrpl({
       method: "amm_info",
-      params: [{ asset: { currency:"XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
     });
     const amm = res?.result?.amm || null;
     if (!amm) return { reserveXrp: null, reserveXrbc: null, feePct: null };
+
     const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
     const reserveXrbc = parseFloat(amm.amount2?.value || 0);
-    const feePct      = amm.trading_fee / 10000; // millionths -> %
+    const feePct      = (amm.trading_fee / 10000); // docs: millionths → percentage
     return { reserveXrp, reserveXrbc, feePct };
   }
 
-  async function fetchLedgerSummary(){
-    const r = await xrpl({ method: "ledger", params: [{ ledger_index: "validated" }] });
-    const x = r?.result || {};
+  async function getLedgerSummary() {
+    const res = await xrpl({ method: "ledger", params: [{ ledger_index: "validated" }] });
+    const r = res?.result || {};
+    const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
+    const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
+    const close = r.ledger?.close_time_human || r.closed?.close_time_human;
     return {
-      ledger_index: x.ledger_index || x.validated_ledger_index || x.ledger?.ledger_index || "(unknown)",
-      ledger_hash : x.ledger_hash  || x.ledger?.ledger_hash || "(unknown)",
-      close_time  : x.ledger?.close_time_human || x.closed?.close_time_human || "(not expanded)",
-      validated   : x.validated === undefined ? true : !!x.validated
+      ledger_index: idx ?? "(unknown)",
+      ledger_hash : hash ?? "(unknown)",
+      close_time  : close || "(not expanded)",
+      validated   : r.validated === undefined ? true : !!r.validated
     };
   }
 
-  async function fetchOrderBookHtml(){
-    async function sideRow(taker_gets, taker_pays, tag){
-      try{
-        const r = await xrpl({ method:"book_offers", params:[{ taker_gets, taker_pays, limit:5 }]});
-        const offers = r?.result?.offers || [];
-        if (!offers.length) return `<tr><td>${tag}</td><td>No offers</td><td>-</td></tr>`;
-        return offers.map(of => {
+  async function getOrderBookHtml() {
+    async function side(taker_gets, taker_pays, sideName) {
+      try {
+        const res = await xrpl({
+          method: "book_offers",
+          params: [{ taker_gets, taker_pays, limit: 5 }]
+        });
+        const rows = (res?.result?.offers || []).map(of => {
           const gets = of.TakerGets?.value ? parseFloat(of.TakerGets.value)
-                                           : parseFloat(of.TakerGets)/XRP_TO_DROPS;
+                                           : parseFloat(of.TakerGets) / XRP_TO_DROPS;
           const pays = of.TakerPays?.value ? parseFloat(of.TakerPays.value)
-                                           : parseFloat(of.TakerPays)/XRP_TO_DROPS;
-          const px = (isFinite(gets) && gets>0) ? (pays/gets) : NaN;
-          return `<tr><td>${tag}</td><td>${isFinite(px)?px.toFixed(6):"—"}</td><td>${isFinite(gets)?gets.toFixed(2):"—"}</td></tr>`;
-        }).join("");
-      }catch(e){
-        return `<tr><td>${tag}</td><td>Error</td><td>${e?.message||e}</td></tr>`;
+                                           : parseFloat(of.TakerPays) / XRP_TO_DROPS;
+          const price = (isFinite(gets) && gets > 0) ? (pays / gets) : NaN;
+          return `<tr><td>${sideName}</td><td>${isFinite(price)?price.toFixed(6):"—"}</td><td>${isFinite(gets)?gets.toFixed(2):"—"}</td></tr>`;
+        });
+        return rows.length ? rows.join("") : `<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`;
+      } catch (e) {
+        return `<tr><td>${sideName}</td><td>Error</td><td>${e?.message || e}</td></tr>`;
       }
     }
-    const asks = await sideRow(XRBC, { currency:"XRP" }, "Ask");
-    const bids = await sideRow({ currency:"XRP" }, XRBC, "Bid");
+    const asks = await side(XRBC, { currency: "XRP" }, "Ask");
+    const bids = await side({ currency: "XRP" }, XRBC, "Bid");
     return `
-      <table class="table">
-        <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
-        <tbody>${asks}${bids}</tbody>
-      </table>`;
+      <div style="overflow:auto">
+        <table class="table">
+          <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
+          <tbody>${asks}${bids}</tbody>
+        </table>
+      </div>
+    `;
   }
 
-  // ----- Renderers -----------------------------------------------------------
-  function renderTopOfBook({bestAsk, bestBid}){
-    if (bestAsk && bestBid){
-      const mid = (bestAsk + bestBid)/2;
-      if (elMid)     elMid.textContent = mid.toFixed(6);
-      if (elSpread)  elSpread.textContent = (bestAsk - bestBid).toFixed(6);
-      if (elTopbook) elTopbook.textContent = `Bid: ${bestBid.toFixed(6)} · Ask: ${bestAsk.toFixed(6)}`;
-    }else{
-      if (elMid)     elMid.textContent = "—";
-      if (elSpread)  elSpread.textContent = "—";
-      if (elTopbook) elTopbook.textContent = "Bid: — · Ask: —";
+  // ---- RENDERERS ------------------------------------------------------------
+  function renderTopOfBook({ bestAsk, bestBid }) {
+    if (bestAsk && bestBid) {
+      const mid = (bestAsk + bestBid) / 2;
+      if (priceEl)  priceEl.textContent  = mid.toFixed(6);
+      if (spreadEl) spreadEl.textContent = (bestAsk - bestBid).toFixed(6);
+      if (topBookEl) topBookEl.textContent = `Bid: ${bestBid.toFixed(6)} · Ask: ${bestAsk.toFixed(6)}`;
+    } else {
+      if (priceEl)  priceEl.textContent  = "—";
+      if (spreadEl) spreadEl.textContent = "—";
+      if (topBookEl) topBookEl.textContent = "Bid: — · Ask: —";
     }
   }
-  function renderAmm({reserveXrp, reserveXrbc, feePct}){
-    if (elRes) elRes.textContent = (reserveXrp!=null && reserveXrbc!=null)
-      ? `${reserveXrp.toFixed(6)} XRP · ${reserveXrbc.toFixed(6)} XRBC` : "—";
-    if (elFee) elFee.textContent = (feePct!=null) ? `Fee: ${feePct.toFixed(2)}%` : "Fee: —";
+
+  function renderAmm({ reserveXrp, reserveXrbc, feePct }) {
+    if (reservesEl) reservesEl.textContent =
+      (reserveXrp != null && reserveXrbc != null) ? `${reserveXrp.toFixed(6)} XRP · ${reserveXrbc.toFixed(6)} XRBC` : "—";
+    if (feeEl) feeEl.textContent =
+      (feePct != null) ? `Fee: ${feePct.toFixed(2)}%` : "Fee: —";
   }
 
-  // ----- Orchestration -------------------------------------------------------
+  // ---- REFRESH ORCHESTRATION ------------------------------------------------
   let refreshing = false;
-  async function refreshAll(includeLedger = true){
+  async function refreshAll(includeLedger = true) {
     if (refreshing) return;
     refreshing = true;
-    setStatus("connecting","Refreshing live metrics…");
-    try{
+    setStatus("connecting", "Refreshing live metrics…");
+
+    try {
       const jobs = [
-        fetchTopOfBook().then(renderTopOfBook),
-        fetchAmmInfo().then(renderAmm),
-        fetchOrderBookHtml().then(html => { if (bookOut) bookOut.innerHTML = html; })
+        getTopOfBook().then(renderTopOfBook),
+        getAmmMini().then(renderAmm),
       ];
-      if (includeLedger){
-        jobs.push(fetchLedgerSummary().then(s => { if (ledgerOut) ledgerOut.textContent = JSON.stringify(s, null, 2); }));
+      if (includeLedger) {
+        jobs.push(getLedgerSummary().then(sum => {
+          if (ledgerOut) ledgerOut.textContent = JSON.stringify(sum, null, 2);
+        }));
       }
       await Promise.all(jobs);
-      setStatus("ok","Metrics updated.");
-    }catch(e){
-      setStatus("err","Refresh failed: " + (e?.message || e));
-    }finally{
+
+      // Always update the order book snapshot if present
+      if (bookOut) {
+        try {
+          const html = await getOrderBookHtml();
+          bookOut.innerHTML = html;
+        } catch (e) {
+          bookOut.textContent = "Order book error: " + (e?.message || e);
+        }
+      }
+
+      setStatus("ok", "Metrics updated.");
+    } catch (e) {
+      setStatus("err", "Refresh failed: " + (e?.message || e));
+    } finally {
       refreshing = false;
     }
   }
 
-  // ----- Buttons & Auto-refresh ---------------------------------------------
+  // ---- BUTTONS & AUTO -------------------------------------------------------
   if (btnRefresh) btnRefresh.addEventListener("click", () => refreshAll(true));
-  if (btnBook)    btnBook.addEventListener("click", async () => {
-    setStatus("connecting","Updating order book…");
-    try { const html = await fetchOrderBookHtml(); if (bookOut) bookOut.innerHTML = html; setStatus("ok","Order book updated."); }
-    catch(e){ setStatus("err","Order book failed: " + (e?.message||e)); }
+  if (btnBook)    btnBook.addEventListener("click",  async () => {
+    setStatus("connecting", "Updating order book…");
+    try {
+      const html = await getOrderBookHtml();
+      if (bookOut) bookOut.innerHTML = html;
+      setStatus("ok", "Order book updated.");
+    } catch (e) {
+      setStatus("err", "Order book failed: " + (e?.message || e));
+    }
   });
   if (btnLedger)  btnLedger.addEventListener("click", async () => {
-    setStatus("connecting","Fetching ledger…");
-    try { const s = await fetchLedgerSummary(); if (ledgerOut) ledgerOut.textContent = JSON.stringify(s, null, 2); setStatus("ok","Ledger updated."); }
-    catch(e){ setStatus("err","Ledger failed: " + (e?.message||e)); }
+    setStatus("connecting", "Fetching ledger…");
+    try {
+      const sum = await getLedgerSummary();
+      if (ledgerOut) ledgerOut.textContent = JSON.stringify(sum, null, 2);
+      setStatus("ok", "Ledger updated.");
+    } catch (e) {
+      setStatus("err", "Ledger failed: " + (e?.message || e));
+    }
   });
 
-  // Gentle auto-refresh, no overlap
+  // Auto refresh gently every 15s (won't overlap; respects proxy)
   const INTERVAL_MS = 15000;
   setInterval(() => { refreshAll(false).catch(()=>{}); }, INTERVAL_MS);
 
   // First paint
   refreshAll(true).catch(()=>{});
 })();
+</script>
+
+    
+    
+    <!-- Config -->
+  <script type="application/json" id="app-config">
+  {
+    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+  }
+  </script>
+
+  <!-- Xaman SDK -->
+  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+
+  
+  
+<script>
+(function(){
+  /* ========= Helpers: modal + QR ========= */
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  function openMobileModal({ title, html, url }){
+    const modal = document.getElementById('mobileModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalIntro = document.getElementById('modalIntro');
+    const pageQr = document.getElementById('pageQr');
+    const pageUrlCopy = document.getElementById('pageUrlCopy');
+    if (!modal || !modalTitle || !modalIntro || !pageQr) return;
+
+    modalTitle.textContent = title || 'Open on Mobile';
+    modalIntro.innerHTML = html || '';
+
+    // Render a tiny PNG QR for the given URL
+    pageQr.innerHTML = '';
+    if (url){
+      const img = new Image();
+      img.alt = 'Scan with your phone';
+      img.style.maxWidth = '240px';
+      img.style.height = 'auto';
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(url);
+      img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
+      pageQr.appendChild(img);
+      if (pageUrlCopy) pageUrlCopy.textContent = url;
+    }
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function closeMobileModal(){
+    const modal = document.getElementById('mobileModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modal = document.getElementById('mobileModal');
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeMobileModal);
+    if (modal && modal.querySelector('.backdrop')) modal.querySelector('.backdrop').addEventListener('click', closeMobileModal);
+  });
+
+  /* ========= App config / constants ========= */
+  const cfgNode = document.getElementById("app-config");
+  if (!cfgNode) { console.error("Missing #app-config"); return; }
+  const cfg = JSON.parse(cfgNode.textContent);
+  const PROXY_URL = cfg.proxyUrl;
+  const XRP_TO_DROPS = 1_000_000;
+
+  const XRBC = {
+    currency: "5852626974636F696E6361736800000000000000",
+    issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  };
+
+  async function xrplRequest(payload) {
+    const res = await fetch(PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error("Proxy error: " + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
+    return data;
+  }
+  const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
+
+  /* ========= Theme toggle ========= */
+  (function themeInit(){
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('xrbc-theme');
+    if (saved === 'light') document.body.classList.add('light-mode');
+    if (btn) {
+      const sync = () => btn.setAttribute('aria-pressed', document.body.classList.contains('light-mode') ? 'true' : 'false');
+      sync();
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        const mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        localStorage.setItem('xrbc-theme', mode);
+        sync();
+      });
+    }
+  })();
+
+  /* ========= Xaman SDK: connect / disconnect / trustline ========= */
+  // Fix: don't exit the whole script if Xumm isn't ready yet.
+  let xumm = null;
+  if (typeof Xumm !== 'undefined') {
+    xumm = new Xumm(cfg.xummApiKey);
+    const connectBtn   = document.getElementById("connectWalletBtn");
+    const disconnectBtn= document.getElementById("disconnectWalletBtn");
+    const statusEl     = document.getElementById("walletStatus");
+    const trustlineMsg = document.getElementById("trustlineMsg");
+
+    function setConnectedUI(acct) {
+      if (statusEl) statusEl.textContent = "Connected: " + acct;
+      window.__xrbcWallet = acct;
+      localStorage.setItem("xrbcWallet", acct);
+      if (disconnectBtn) disconnectBtn.disabled = false;
+      if (connectBtn) connectBtn.disabled = true;
+    }
+    function setDisconnectedUI() {
+      if (statusEl) statusEl.textContent = "Status: Not connected";
+      window.__xrbcWallet = null;
+      localStorage.removeItem("xrbcWallet");
+      if (disconnectBtn) disconnectBtn.disabled = true;
+      if (connectBtn) connectBtn.disabled = false;
+    }
+    async function refreshWalletStatus() {
+      try {
+        const acct = await xumm.user.account;
+        if (acct) setConnectedUI(acct);
+      } catch {}
+    }
+
+    // Restore prior session
+    const savedAcct = localStorage.getItem("xrbcWallet");
+    if (savedAcct) setConnectedUI(savedAcct);
+
+    xumm.on("ready", async () => {
+      if (connectBtn) connectBtn.disabled = !!window.__xrbcWallet;
+      await refreshWalletStatus();
+      if (connectBtn && !window.__xrbcWallet) connectBtn.disabled = false;
+    });
+
+    window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
+    window.addEventListener("focus", refreshWalletStatus);
+
+    // CONNECT
+    if (connectBtn) connectBtn.addEventListener("click", async () => {
+      try {
+        if (statusEl) statusEl.textContent = "Waiting for Xaman… (scan QR if shown)";
+        await xumm.authorize(); // desktop → QR, mobile → app
+        const acct = await xumm.user.account;
+        if (acct) setConnectedUI(acct);
+        else if (statusEl) statusEl.textContent = "Still waiting for Xaman…";
+      } catch {
+        if (statusEl) statusEl.textContent = "Failed to connect wallet";
+      }
+    });
+
+    // DISCONNECT
+    if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
+      setDisconnectedUI();
+      xumm.logout();
+    });
+
+    // TRUSTLINE
+    const setTrustBtn = document.getElementById("setTrustlineBtn");
+    if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
+      if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request…";
+      try {
+        const acct = window.__xrbcWallet;
+        const txjson = {
+          TransactionType: "TrustSet",
+          LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+        };
+        if (acct) txjson.Account = acct;
+
+        const { created, resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+          if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+          if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected.";
+        });
+
+        if (created?.refs?.qr_png && trustlineMsg) {
+          const qr = document.createElement("img");
+          qr.src = created.refs.qr_png;
+          qr.alt = "Scan with Xaman to set XRBC trustline";
+          qr.style.maxWidth = "240px";
+          qr.style.marginTop = "12px";
+          trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+          trustlineMsg.appendChild(qr);
+        }
+
+        const result = await resolved;
+        if (!result.signed) { if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed."; return; }
+        if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
+      } catch (err) {
+        if (trustlineMsg) trustlineMsg.textContent = "Error: " + err.message;
+      }
+    });
+  } else {
+    console.warn("Xumm SDK not loaded yet — continuing without wallet UI.");
+  }
+
+  /* ========= Ledger, Order Book, Trading UI ========= */
+  async function getLedgerInfo() {
+    return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
+  }
+  async function getXrbcOrderBook() {
+    async function fetchSide(taker_gets, taker_pays, sideName) {
+      const rows = [];
+      try {
+        const data = await xrplRequest({
+          method: "book_offers",
+          params: [{ taker_gets, taker_pays, limit: 5 }]
+        });
+        if (data.result?.offers?.length) {
+          for (const offer of data.result.offers) {
+            const gets = offer.TakerGets?.value
+              ? parseFloat(offer.TakerGets.value)
+              : parseFloat(offer.TakerGets) / XRP_TO_DROPS;
+            const pays = offer.TakerPays?.value
+              ? parseFloat(offer.TakerPays.value)
+              : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
+            const price = pays / gets;
+            rows.push(`<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)}</td></tr>`);
+          }
+        } else {
+          rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
+        }
+      } catch (err) {
+        rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${(err && err.message) || err}</td></tr>`);
+      }
+      return rows;
+    }
+    const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
+    const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
+    return `
+      <div style="max-height:340px;overflow:auto;">
+        <table class="table">
+          <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
+          <tbody>${asks.join("")}${bids.join("")}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  // Trading UI wires (robust to duplicate markup)
+  const placeOfferBtn = document.getElementById("placeOfferBtn");
+  const sideEl   = document.getElementById("side");
+  const amountEl = document.getElementById("amount");
+  const priceEl  = document.getElementById("price");
+  const tradeMsg = document.getElementById("tradeMsg");
+  const totalXrpEl  = document.getElementById("totalXrp");
+  const suggestBtn  = document.getElementById("suggestPriceBtn");
+  const orderTypeEl = document.getElementById("orderType");
+  const priceField  = document.getElementById("priceField");
+  const tradeCard   = document.getElementById("tradeCard");
+
+  const buyTabs  = Array.from(document.querySelectorAll('#buyTab'));
+  const sellTabs = Array.from(document.querySelectorAll('#sellTab'));
+  const sideExplainWraps = Array.from(document.querySelectorAll('[id="sideExplain"]'));
+  const actionWordEls = Array.from(document.querySelectorAll('[id="actionWord"]'));
+
+  function updateOneExplainer(wrap, side){
+    if (!wrap) return;
+    const buyNote  = wrap.querySelector('.note.buy');
+    const sellNote = wrap.querySelector('.note.sell');
+    const showBuy = (side === 'buy');
+    if (buyNote){
+      buyNote.hidden = !showBuy;
+      buyNote.classList.toggle('active', showBuy);
+      buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+    }
+    if (sellNote){
+      sellNote.hidden = showBuy;
+      sellNote.classList.toggle('active', !showBuy);
+      sellNote.setAttribute('aria-hidden', (showBuy).toString());
+    }
+    wrap.querySelectorAll('.asset-xrp img').forEach(img => {
+      img.style.background = '#fff';
+      img.style.borderRadius = '3px';
+    });
+  }
+
+  function updateAmountHint(side){
+    const hint = document.getElementById('amountHint');
+    const label = document.getElementById('amountLabel');
+    if (!hint) return;
+
+    if (side === 'buy'){
+      if (label) label.textContent = 'Amount (XRBC)';
+      hint.innerHTML =
+        `How many XRBC you want to <span id="actionWord">buy</span>. ` +
+        `<span class="nowrap">You’re trading ` +
+        `<span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> ` +
+        `to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`;
+    } else {
+      if (label) label.textContent = 'Amount (XRBC)';
+      hint.innerHTML =
+        `How many XRBC you want to <span id="actionWord">sell</span>. ` +
+        `<span class="nowrap">You’re trading ` +
+        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width-auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
+        `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+    }
+  }
+
+  function setSide(side) {
+    if (sideEl) sideEl.value = side;
+
+    buyTabs.forEach(btn => {
+      btn.classList.toggle("active", side === 'buy');
+      btn.setAttribute('aria-selected', side === 'buy' ? 'true' : 'false');
+    });
+    sellTabs.forEach(btn => {
+      btn.classList.toggle("active", side === 'sell');
+      btn.setAttribute('aria-selected', side === 'sell' ? 'true' : 'false');
+    });
+
+    sideExplainWraps.forEach(wrap => updateOneExplainer(wrap, side));
+    actionWordEls.forEach(el => { el.textContent = (side === 'buy' ? 'buy' : 'sell'); });
+
+    if (tradeCard){
+      tradeCard.classList.toggle('buy',  side === 'buy');
+      tradeCard.classList.toggle('sell', side === 'sell');
+    }
+
+    updateAmountHint(side);
+    recalcTotals();
+  }
+
+  function recalcTotals() {
+    if (!totalXrpEl) return;
+    const amt = Number(amountEl?.value) || 0;
+    const px  = Number(priceEl?.value)  || 0;
+    const total = (px || 0) * amt;
+    totalXrpEl.textContent = (isFinite(total) ? total : 0).toFixed(6) + " XRP";
+  }
+  if (amountEl) amountEl.addEventListener("input", recalcTotals);
+  if (priceEl)  priceEl.addEventListener("input", recalcTotals);
+
+  /* === Wallet-aware balances + dynamic hint for % chips === */
+  const BAL = { xrp: 0, xrbc: 0 };
+  const RESERVE_BUFFER_XRP = 1.0; // cushion
+
+  const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
+  const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
+
+  async function fetchBalances(){
+    const acct = window.__xrbcWallet;
+    if (!acct) { BAL.xrp = 0; BAL.xrbc = 0; return BAL; }
+
+    try {
+      const info = await xrplRequest({
+        method: "account_info",
+        params: [{ account: acct, ledger_index: "validated" }]
+      });
+      BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
+    } catch { BAL.xrp = 0; }
+
+    try {
+      const lines = await xrplRequest({
+        method: "account_lines",
+        params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
+      });
+      const tl = (lines?.result?.lines || []).find(l =>
+        normalizeHexCurrency(l.currency) === XRBC_HEX_NORM
+      );
+      BAL.xrbc = tl ? Math.max(0, Number(tl.balance || 0)) : 0;
+    } catch { BAL.xrbc = 0; }
+
+    return BAL;
+  }
+
+  (async () => { if (window.__xrbcWallet) await fetchBalances(); })();
+  window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(); });
+
+  // % chips: handle all of them
+  (function initPercentChips(){
+    const chips = document.querySelectorAll('.quick-amounts .qa');
+    if (!chips.length) return;
+
+    async function applyPercent(pct){
+      const side = sideEl?.value || 'buy';
+      const orderType = orderTypeEl?.value || 'limit';
+      await fetchBalances();
+
+      if (side === 'sell'){
+        const amt = Math.max(0, BAL.xrbc * (pct/100));
+        if (amountEl){
+          amountEl.value = amt.toFixed(6);
+          amountEl.dispatchEvent(new Event('input'));
+        }
+        return;
+      }
+
+      let price = Number(priceEl?.value) || 0;
+      if (orderType === 'market' || !price){
+        await fillBestPrice();
+        price = Number(priceEl?.value) || 0;
+      }
+      if (!price || price <= 0) return;
+
+      const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
+      const amt = spendable > 0 ? (spendable / price) : 0;
+
+      if (amountEl){
+        amountEl.value = amt.toFixed(6);
+        amountEl.dispatchEvent(new Event('input'));
+      }
+    }
+
+    chips.forEach(btn => btn.addEventListener('click', async () => {
+      const pct = Number(btn.dataset.q || 0);
+      if (!pct) return;
+      btn.disabled = true;
+      try { await applyPercent(pct); }
+      finally { btn.disabled = false; }
+    }));
+  })();
+
+  // Order type tabs + notes (stop-free) — fixed stray "}))" paren
+  (function initOrderTypeTabs(){
+    const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
+    const notesWrap = document.getElementById('otypeNotes');
+
+    const showNote = (t) => {
+      if (!notesWrap) return;
+      notesWrap.querySelectorAll('[data-note]').forEach(n => {
+        n.hidden = n.getAttribute('data-note') !== t;
+      });
+    };
+
+    typeTabs.forEach(btn => btn.addEventListener('click', () => {
+      typeTabs.forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+
+      const t = btn.dataset.type; // 'limit' or 'market'
+      if (orderTypeEl) orderTypeEl.value = t;
+
+      if (t === 'limit') {
+        if (priceField) priceField.hidden = false;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
+      }
+
+      if (t === 'market') {
+        if (priceField) priceField.hidden = true;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
+      }
+
+      showNote(t);
+      recalcTotals();
+    }));
+
+    showNote(orderTypeEl?.value || 'limit');
+  })();
+
+  // Side toggles (attach to ALL duplicate tabs)
+  (function initSideToggles(){
+    const apply = () => {
+      if (!tradeCard) return;
+      tradeCard.classList.toggle('buy',  sideEl?.value === 'buy');
+      tradeCard.classList.toggle('sell', sideEl?.value === 'sell');
+    };
+
+    buyTabs.forEach(btn => btn.addEventListener('click', () => { setSide('buy');  apply(); }));
+    sellTabs.forEach(btn => btn.addEventListener('click', () => { setSide('sell'); apply(); }));
+
+    setSide(sideEl?.value || 'buy');
+    apply();
+  })();
+
+  async function fillBestPrice() {
+    if (!sideEl || !amountEl || !priceEl) return;
+    const side = sideEl.value;
+    const amount = Number(amountEl.value);
+    if (!amount || amount <= 0) {
+      if (tradeMsg){ tradeMsg.textContent = "Enter a valid XRBC amount."; tradeMsg.classList.remove("ok","err","connecting"); }
+      return;
+    }
+    if (tradeMsg){ tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…"; tradeMsg.classList.remove("ok","err"); tradeMsg.classList.add("connecting"); }
+
+    try {
+      const data = await xrplRequest({
+        method: "amm_info",
+        params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      });
+      const amm = data.result?.amm;
+      if (!amm) throw new Error("No AMM found for XRBC/XRP");
+
+      const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
+      const reserveXrbc = parseFloat(amm.amount2.value);
+      const feeRate     = amm.trading_fee / 1_000_000;
+      const k           = reserveXrp * reserveXrbc;
+
+      let effectivePrice;
+      if (side === "buy") {
+        const newY = reserveXrbc - amount;
+        const newX = k / newY;
+        let xrpIn = newX - reserveXrp;
+        xrpIn += xrpIn * feeRate;
+        effectivePrice = xrpIn / amount;
+      } else {
+        const newY = reserveXrbc + amount;
+        const newX = k / newY;
+        let xrpOut = reserveXrp - newX;
+        xrpOut -= xrpOut * feeRate;
+        effectivePrice = xrpOut / amount;
+      }
+
+      priceEl.value = Number(effectivePrice).toFixed(6);
+      recalcTotals();
+      if (tradeMsg){ tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`; tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("ok"); }
+    } catch {
+      if (tradeMsg){ tradeMsg.textContent = "🔐 Still connecting securely to XRPL…"; tradeMsg.classList.add("connecting"); }
+    }
+  }
+  if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
+
+  // Auto-refresh AMM estimate if amount > 0
+  setInterval(() => {
+    const amt = Number(amountEl?.value);
+    if (amt > 0) fillBestPrice().catch(()=>{});
+  }, 10000);
+
+  // Place Offer (stop-free)
+  if (placeOfferBtn) placeOfferBtn.addEventListener("click", async () => {
+    const orderType = orderTypeEl?.value;
+
+    try {
+      // Extra guard: require SDK + connection
+      if (!xumm) throw new Error("Wallet SDK not available.");
+      const account = window.__xrbcWallet;
+      if (!account) throw new Error("Connect your wallet first.");
+
+      const side   = sideEl?.value;
+      const amt    = Number(amountEl?.value);
+      let priceVal = Number(priceEl?.value);
+
+      if (orderType === 'market') {
+        if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
+        await fillBestPrice();
+        priceVal = Number(priceEl?.value);
+        if (!priceVal || priceVal <= 0) throw new Error("Unable to fetch market estimate.");
+      } else {
+        if (!amt || !priceVal || amt <= 0 || priceVal <= 0) throw new Error("Enter valid Amount & Price.");
+      }
+
+      const xrpTotal = priceVal * amt;
+      const TF_SELL = 0x00080000;
+      const TF_IOC  = 0x00020000;
+
+      let txjson;
+      if (side === "sell") {
+        txjson = {
+          TransactionType: "OfferCreate",
+          Account: account,
+          TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          TakerPays: toDrops(xrpTotal),
+          Flags: (orderType === 'market') ? (TF_SELL | TF_IOC) : TF_SELL
+        };
+      } else {
+        txjson = {
+          TransactionType: "OfferCreate",
+          Account: account,
+          TakerGets: toDrops(xrpTotal),
+          TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          Flags: (orderType === 'market') ? TF_IOC : 0
+        };
+      }
+
+      if (tradeMsg) tradeMsg.textContent = "Open Xaman to review & sign…";
+      const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+        if (ev?.opened && tradeMsg) tradeMsg.textContent = "Payload opened in Xaman…";
+        if (ev?.signed === false && tradeMsg) tradeMsg.textContent = "Order rejected.";
+      });
+
+      const result = await resolved;
+      if (!result.signed) { if (tradeMsg) tradeMsg.textContent = "Order not signed."; return; }
+
+      if (tradeMsg) tradeMsg.textContent = "Order submitted. Refreshing order book…";
+      const html = await getXrbcOrderBook();
+      const priceOut = document.getElementById("priceOutput");
+      if (priceOut) priceOut.innerHTML = html;
+
+    } catch (err) {
+      if (tradeMsg) tradeMsg.textContent = "Error: " + (err && err.message ? err.message : err);
+    }
+  });
+
+  /* ========= AMM Pool updater ========= */
+  async function updateAmmPool() {
+    try {
+      const data = await xrplRequest({
+        method: "amm_info",
+        params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      });
+
+      const out = document.getElementById("ammPoolOutput");
+      if (!out) return;
+
+      const amm = data.result?.amm;
+      if (!amm) {
+        out.textContent = "No AMM pool exists yet.";
+        return;
+      }
+
+      const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+      const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
+      const feeRate     = (amm.trading_fee / 10000).toFixed(2);
+
+      out.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
+          <tbody><tr><td>${reserveXrp}</td><td>${reserveXrbc}</td><td>${feeRate}%</td></tr></tbody>
+        </table>`;
+    } catch (err) {
+      const out = document.getElementById("ammPoolOutput");
+      if (out) out.textContent = "Error fetching AMM pool: " + ((err && err.message) || err);
+    }
+  }
+  updateAmmPool();
+  setInterval(updateAmmPool, 15000);
+
+  /* ========= XRBC DEX — Live Metrics (inside same IIFE) ========= */
+  (function liveMetrics(){
+    const $ = (id) => document.getElementById(id);
+    const status = $("metricsStatus");
+    const ledgerOut = $("ledgerOutput");
+    const bookOut   = $("priceOutput");
+
+    const liveMid     = $("liveMid");
+    const liveSpread  = $("liveSpread");
+    const liveBid     = $("liveBid");
+    const liveAsk     = $("liveAsk");
+    const ammReserves = $("ammReserves");
+    const ammFee      = $("ammFee");
+    const vol24h      = $("vol24h");
+    const trades24h   = $("trades24h");
+
+    function setText(el, v){ if (el) el.textContent = v; }
+    function ok(msg){ if(status){ status.textContent = msg; status.classList.remove("err","connecting"); status.classList.add("ok"); } }
+    function info(msg){ if(status){ status.textContent = msg; status.classList.remove("ok","err"); status.classList.add("connecting"); } }
+    function fail(msg){ if(status){ status.textContent = msg; status.classList.remove("ok","connecting"); status.classList.add("err"); } }
+
+    async function refreshLedger() {
+      if (!ledgerOut) return;
+      try {
+        info("Fetching validated ledger…");
+        const data = await getLedgerInfo();
+        const r = (data && data.result) || {};
+        const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
+        const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
+        const close = r.ledger?.close_time_human || r.closed?.close_time_human;
+        const summary = {
+          ledger_index: idx ?? "(unknown)",
+          ledger_hash : hash ?? "(unknown)",
+          close_time  : close || "(not expanded)",
+          validated   : r.validated === undefined ? true : !!r.validated
+        };
+        ledgerOut.textContent = JSON.stringify(summary, null, 2);
+        ok("Ledger updated");
+      } catch (e) {
+        fail("Error fetching ledger");
+        if (ledgerOut) ledgerOut.textContent = "Error fetching ledger: " + (e?.message || e);
+      }
+    }
+
+    function priceFromOffer(of) {
+      if (!of) return null;
+      const gets = of.TakerGets?.value
+        ? parseFloat(of.TakerGets.value)
+        : parseFloat(of.TakerGets) / XRP_TO_DROPS;
+      const pays = of.TakerPays?.value
+        ? parseFloat(of.TakerPays.value)
+        : parseFloat(of.TakerPays) / XRP_TO_DROPS;
+      if (!isFinite(gets) || !isFinite(pays) || gets <= 0) return null;
+      return pays / gets; // XRP per XRBC
+    }
+
+    async function refreshTicker() {
+      try {
+        const [askRes, bidRes] = await Promise.all([
+          xrplRequest({ method: "book_offers",
+            params: [{ taker_gets: XRBC, taker_pays: { currency: "XRP" }, limit: 1 }] }),
+          xrplRequest({ method: "book_offers",
+            params: [{ taker_gets: { currency: "XRP" }, taker_pays: XRBC, limit: 1 }] })
+        ]);
+
+        const bestAsk = priceFromOffer(askRes?.result?.offers?.[0]);
+        const bestBid = priceFromOffer(bidRes?.result?.offers?.[0]);
+
+        if (bestAsk && bestBid) {
+          const mid    = (bestAsk + bestBid) / 2;
+          const spread = bestAsk - bestBid;
+          setText(liveMid,    mid.toFixed(6));
+          setText(liveSpread, spread.toFixed(6));
+          setText(liveBid,    bestBid.toFixed(6));
+          setText(liveAsk,    bestAsk.toFixed(6));
+          ok("Live price updated");
+        } else {
+          setText(liveMid, "—"); setText(liveSpread, "—");
+          setText(liveBid, "—"); setText(liveAsk, "—");
+          info("No top-of-book quotes");
+        }
+      } catch (e) {
+        setText(liveMid, "—"); setText(liveSpread, "—");
+        setText(liveBid, "—"); setText(liveAsk, "—");
+        fail("Ticker error");
+      }
+    }
+
+    async function refreshOrderBook() {
+      if (!bookOut) return;
+      try {
+        info("Loading order book…");
+        const html = await getXrbcOrderBook();
+        bookOut.innerHTML = html;
+        ok("Order book updated");
+      } catch (e) {
+        bookOut.textContent = "Error loading order book: " + (e?.message || e);
+        fail("Error loading order book");
+      }
+    }
+
+    async function refreshAmmMini() {
+      try {
+        const data = await xrplRequest({
+          method: "amm_info",
+          params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+        });
+        const amm = data?.result?.amm;
+        if (amm) {
+          const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+          const reserveXrbc = parseFloat(amm.amount2?.value || 0).toFixed(6);
+          const feePct      = (amm.trading_fee / 10000).toFixed(2) + "%";
+          setText(ammReserves, `${reserveXrp} XRP · ${reserveXrbc} XRBC`);
+          setText(ammFee, feePct);
+        } else {
+          setText(ammReserves, "—");
+          setText(ammFee, "—");
+        }
+        try { updateAmmPool(); } catch(_) {}
+      } catch (e) {
+        setText(ammReserves, "—");
+        setText(ammFee, "—");
+      }
+    }
+
+    function refresh24hStub() {
+      setText(vol24h,   "—");
+      setText(trades24h,"Trades: —");
+    }
+
+    async function refreshAll(){
+      info("Refreshing metrics…");
+      await Promise.allSettled([
+        refreshTicker(),
+        refreshAmmMini(),
+        refreshOrderBook(),
+        refreshLedger()
+      ]);
+      refresh24hStub();
+    }
+
+    // Button wiring (support old and new IDs if present)
+    const allBtn    = document.getElementById("metricsRefreshBtn") || document.getElementById("refreshMetricsBtn");
+    const bookBtn   = document.getElementById("metricsBookBtn")    || document.getElementById("fetchPriceBtn");
+    const ledgerBtn = document.getElementById("metricsLedgerBtn")  || document.getElementById("fetchLedgerBtn");
+
+    if (allBtn)    allBtn.addEventListener("click", () => refreshAll().catch(()=>{}));
+    if (bookBtn)   bookBtn.addEventListener("click", () => refreshOrderBook().catch(()=>{}));
+    if (ledgerBtn) ledgerBtn.addEventListener("click", () => refreshLedger().catch(()=>{}));
+
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll().catch(()=>{}); });
+    window.addEventListener("focus", () => refreshAll().catch(()=>{}));
+    setInterval(() => refreshAll().catch(()=>{}), 15000);
+
+    // kick off
+    refreshAll().catch(()=>{});
+  })();
+
+  /* ========= Download Xaman button (popover) ========= */
+  const downloadBtn = document.getElementById('downloadXamanBtn');
+  if (downloadBtn){
+    const DOWNLOAD_URL = 'https://xaman.app/download';
+    const pop = document.getElementById('dlPopover');
+    const qrImg = document.getElementById('dlQr');
+    const actions = downloadBtn.closest('.wallet-actions');
+
+    if (qrImg && !qrImg.src){
+      qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
+    }
+
+    function hidePopover(){
+      if (!pop) return;
+      pop.classList.remove('show');
+      document.body.classList.remove('dl-popover-open');
+      pop.setAttribute('aria-hidden','true');
+    }
+
+    function showPopover(){
+      if (!pop || !actions) return;
+      pop.style.visibility = 'hidden';
+      pop.classList.add('show');
+
+      const br = downloadBtn.getBoundingClientRect();
+      const ar = actions.getBoundingClientRect();
+      const pw = pop.offsetWidth;
+      const ph = pop.offsetHeight;
+
+      const top = (br.top - ar.top) + (br.height/2) - (ph/2);
+      const left = (br.left - ar.left) - pw - 12;
+
+      pop.style.top = `${Math.max(0, top)}px`;
+      pop.style.left = `${Math.max(0, left)}px`;
+
+      pop.style.visibility = '';
+      document.body.classList.add('dl-popover-open');
+      pop.setAttribute('aria-hidden','false');
+    }
+
+    downloadBtn.addEventListener('click', (e) => {
+      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.location.href = DOWNLOAD_URL;
+        return;
+      }
+      e.preventDefault();
+      if (pop.classList.contains('show')) hidePopover();
+      else showPopover();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!pop.classList.contains('show')) return;
+      if (e.target === downloadBtn || pop.contains(e.target)) return;
+      hidePopover();
+    });
+    window.addEventListener('resize', hidePopover);
+    window.addEventListener('scroll', hidePopover, { passive:true });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
+  }
+})(); // end IIFE
 </script>
 
 
