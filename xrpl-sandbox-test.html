@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Canonical -->
-  <link rel="canonical" href="https://xrbitcoincash.com/trade.html" />
-  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/trade.html" />
+  <link rel="canonical" href="https://xrbitcoincash.com/" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/" />
 
   <!-- Primary SEO -->
   <meta name="description" content="Safely trade XRBC on the XRP Ledger. Connect your Xaman (Xumm) wallet to place XRBC/XRP limit orders, read the order book, and view AMM pool info." />
@@ -25,7 +25,7 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Safely trade XRBC · XRBitcoinCash">
   <meta property="og:description" content="Decentralized XRBC/XRP trading on the XRP Ledger with live order book and AMM price helper.">
-  <meta property="og:url" content="https://xrbitcoincash.com/trade.html">
+  <meta property="og:url" content="https://xrbitcoincash.com/">
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
 
   <!-- Twitter -->
@@ -40,7 +40,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Safely trade XRBC · XRBitcoinCash",
-    "url": "https://xrbitcoincash.com/trade.html",
+    "url": "https://xrbitcoincash.com/",
     "description": "Safely trade XRBC on the XRP Ledger. Connect your Xaman (Xumm) wallet to place XRBC/XRP limit orders, read the order book, and view AMM pool info.",
     "isPartOf": {
       "@type": "WebSite",
@@ -61,7 +61,7 @@
         { "@type": "PropertyValue", "name": "network", "value": "XRP Ledger (XRPL)" }
       ]
     },
-    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/trade.html" }]
+    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/" }]
   }
   </script>
 
@@ -200,8 +200,8 @@
       <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.
     </p>
     <div class="qr-wrap">
-      <div id="pageQr" aria-label="QR for https://xrbitcoincash.com/trade.html"></div>
-      <code id="pageUrlCopy" class="url">https://xrbitcoincash.com/trade.html</code>
+      <div id="pageQr" aria-label="QR for https://xrbitcoincash.com/"></div>
+      <code id="pageUrlCopy" class="url">https://xrbitcoincash.com/</code>
     </div>
     <p id="modalFoot" class="fine" style="margin-top:12px;">
       <strong>Always check the URL:</strong> it must start with <code>https://xrbitcoincash.com</code>.<br>
@@ -245,7 +245,7 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 
   // Device check + canonical target for QR
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/trade.html';
+  const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/';
 
   // === XRBC constants ===
   const XRBC = {
@@ -332,17 +332,13 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 
   function renderQr() {
     pageQr.innerHTML = '';
-    const img = new Image();
-    img.alt = 'QR to open https://xrbitcoincash.com/trade.html';
-    img.style.maxWidth = '240px';
-    img.style.height = 'auto';
-    img.decoding = 'async';
-    img.loading = 'eager';
-    // Hosted QR image (encodes https://xrbitcoincash.com/trade.html)
-    img.src = 'https://xrbitcoincash.github.io/xaman_trade_qr.png';
-    img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
-    pageQr.appendChild(img);
-
+    // Generate QR dynamically for the new root URL
+    window.__MiniQR.render(pageQr, MOBILE_TARGET_URL, 216);
+    const canvas = pageQr.querySelector('canvas');
+    if (canvas) {
+      canvas.setAttribute('role','img');
+      canvas.setAttribute('aria-label','QR to open https://xrbitcoincash.com/');
+    }
     // Show canonical URL under the QR
     pageUrlCopy.textContent = MOBILE_TARGET_URL;
   }
