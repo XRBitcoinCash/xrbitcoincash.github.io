@@ -489,6 +489,41 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   background: radial-gradient(closest-side, rgba(34,197,94,.75), transparent 70%);
   animation-duration: 1.9s;
 }
+/* --- Inline QR popover beside the Download button --- */
+.wallet-actions { position: relative; } /* anchor for absolute popover */
+
+.qr-popover{
+  position:absolute;
+  min-width:220px; max-width:240px;
+  padding:10px;
+  border-radius:12px;
+  background:#ffffff;
+  color:#0b0f14;
+  border:1px solid #000; /* visible in light & dark */
+  box-shadow:0 0 0 2px rgba(255,255,255,.9), 0 10px 30px rgba(0,0,0,.35);
+  display:none;
+  z-index:30;
+}
+.qr-popover.show{ display:block; }
+
+.qr-popover .qr{ display:flex; align-items:center; justify-content:center; }
+.qr-popover .label{ font-weight:800; font-size:12px; text-align:center; margin-top:8px; }
+
+/* little arrow on the right (since popover sits to the left of the button) */
+.qr-popover::after{
+  content:"";
+  position:absolute; top:50%; right:-8px;
+  width:12px; height:12px; background:#fff;
+  border-left:1px solid #000; border-top:1px solid #000;
+  transform:translateY(-50%) rotate(45deg);
+  box-shadow:0 0 0 2px rgba(255,255,255,.9);
+}
+
+/* subtle “it’s active” glow for the button when the popover is visible */
+.dl-popover-open #downloadXamanBtn{
+  box-shadow:0 0 0 2px rgba(255,255,255,.9), 0 0 18px rgba(255,255,255,.6), var(--shadow);
+  border-color:#000;
+}
 
   </style>
 </head>
@@ -590,6 +625,13 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
 </div>
 
+<!-- ▼ Add this right after the Download button -->
+<div id="dlPopover" class="qr-popover" role="dialog" aria-label="Download Xaman QR" aria-hidden="true">
+  <div class="qr">
+    <img id="dlQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
+  </div>
+  <div class="label">Scan to download Xaman</div>
+</div>
 
 
 
@@ -1203,23 +1245,73 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
   updateAmmPool();
   setInterval(updateAmmPool, 15000);
 
-  /* ========= Download Xaman button ========= */
-  const downloadBtn = document.getElementById('downloadXamanBtn');
-  if (downloadBtn){
-    const DOWNLOAD_URL = 'https://xaman.app/download'; // universal page
+/* ========= Download Xaman button (popover) ========= */
+const downloadBtn = document.getElementById('downloadXamanBtn');
+if (downloadBtn){
+  const DOWNLOAD_URL = 'https://xaman.app/download';
+  const pop = document.getElementById('dlPopover');
+  const qrImg = document.getElementById('dlQr');
+  const actions = downloadBtn.closest('.wallet-actions');
 
-    downloadBtn.addEventListener('click', () => {
-      if (isMobile){
-        window.location.href = DOWNLOAD_URL; // mobile → go straight to store/universal
-      } else {
-        openMobileModal({
-          title: 'Download Xaman Wallet',
-          html: 'Scan this QR with your phone to open the official <strong>Xaman</strong> download page.',
-          url: DOWNLOAD_URL
-        });
-      }
-    });
+  // Prepare QR once
+  if (qrImg && !qrImg.src){
+    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
   }
+
+  function hidePopover(){
+    if (!pop) return;
+    pop.classList.remove('show');
+    document.body.classList.remove('dl-popover-open');
+    pop.setAttribute('aria-hidden','true');
+  }
+
+  function showPopover(){
+    if (!pop || !actions) return;
+
+    // Make it visible to measure
+    pop.style.visibility = 'hidden';
+    pop.classList.add('show');
+
+    // Place it to the LEFT of the button, vertically centered
+    const br = downloadBtn.getBoundingClientRect();
+    const ar = actions.getBoundingClientRect();
+    const pw = pop.offsetWidth;
+    const ph = pop.offsetHeight;
+
+    const top = (br.top - ar.top) + (br.height/2) - (ph/2);
+    const left = (br.left - ar.left) - pw - 12;
+
+    pop.style.top = `${Math.max(0, top)}px`;
+    pop.style.left = `${Math.max(0, left)}px`;
+
+    pop.style.visibility = '';
+    document.body.classList.add('dl-popover-open');
+    pop.setAttribute('aria-hidden','false');
+  }
+
+  downloadBtn.addEventListener('click', (e) => {
+    // On mobile, go straight to store page
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      window.location.href = DOWNLOAD_URL;
+      return;
+    }
+    // Desktop → toggle popover
+    e.preventDefault();
+    if (pop.classList.contains('show')) hidePopover();
+    else showPopover();
+  });
+
+  // Click outside / escape / resize → hide
+  document.addEventListener('click', (e) => {
+    if (!pop.classList.contains('show')) return;
+    if (e.target === downloadBtn || pop.contains(e.target)) return;
+    hidePopover();
+  });
+  window.addEventListener('resize', hidePopover);
+  window.addEventListener('scroll', hidePopover, { passive:true });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
+}
+
 
 })(); // end IIFE
 </script>
