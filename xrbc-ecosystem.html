@@ -37,11 +37,11 @@
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f14" />
   <meta name="format-detection" content="telephone=no" />
 
-  <!-- Open Graph (covers Slack/Discord/LinkedIn/Telegram/WhatsApp) -->
+  <!-- Open Graph -->
   <meta property="og:site_name" content="XRBitcoinCash" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
-  <meta property="og:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, and access project resources." />
+  <meta property="og:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, issuer & docs, and project resources." />
   <meta property="og:url" content="https://xrbitcoincash.com/xrbc-ecosystem.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:image:alt" content="XRBitcoinCash (XRBC) artwork" />
@@ -52,11 +52,8 @@
   <meta name="twitter:site" content="@XRbitcoincash" />
   <meta name="twitter:creator" content="@XRbitcoincash" />
   <meta name="twitter:title" content="XRBC Ecosystem & Information · XRBitcoinCash" />
-  <meta name="twitter:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, and access project resources." />
+  <meta name="twitter:description" content="Trade XRBC on XRPL DEX/AMMs, open verified pools, issuer & docs, and project resources." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
-
-  <!-- Optional alternate (only add if you later localize) -->
-  <!-- <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/xrbc-ecosystem.html" /> -->
 
   <!-- Base CSS already on site -->
   <link rel="stylesheet" href="/xrbc.css">
@@ -117,11 +114,12 @@
 /* ---------- Tokens ---------- */
 :root{
   --wrap:980px;
-  --gap-quarter:0.25in;           /* ≈ 24px; requested spacing */
+  --gap-quarter:0.25in;           /* ≈ 24px */
   --ink:#e7edf5;
   --muted:#9fb0c5;
   --border:#2b3a4b;
   --xrbc-green:#10b981; --xrbc-cyan:#22d3ee; --xrbc-blue:#60a5fa; --xrbc-red:#ef4444; --xrbc-purple:#7c3aed;
+  --twitter-blue:#1da1f2;
 }
 
 body{ background:#0b0f14; color:var(--ink); }
@@ -134,21 +132,16 @@ body{ background:#0b0f14; color:var(--ink); }
   border-bottom:1px solid rgba(255,255,255,.06);
 }
 .header-wrap{
-  max-width:var(--wrap); margin:0 auto; padding:10px 12px; /* slimmer */
+  max-width:var(--wrap); margin:0 auto; padding:10px 12px;
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
 }
-
-/* Brand / logo fits inside the box neatly */
 .brand{display:flex;align-items:center;gap:10px;min-width:0;}
 .brand img{
-  width:46px;height:46px;border-radius:10px;object-fit:contain; /* contain, not crop */
+  width:46px;height:46px;border-radius:10px;object-fit:contain;
   background:#0e1520; border:1px solid var(--border);
   box-shadow:0 0 24px rgba(16,185,129,.24),0 0 48px rgba(56,189,248,.18);
 }
-.brand h1{
-  font-size:1.15rem;line-height:1.1;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
+.brand h1{ font-size:1.15rem;line-height:1.1;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .header-center{justify-self:center;}
 .header-right{justify-self:end;display:flex;gap:8px;align-items:center;min-width:0;}
 
@@ -182,7 +175,7 @@ body{ background:#0b0f14; color:var(--ink); }
 .trade-cta-card h2{margin:0 0 8px;letter-spacing:.1px;}
 .trade-cta-card p{margin:0 0 14px;color:var(--muted);}
 
-/* Buttons (¼-inch even spacing) */
+/* Buttons (¼-inch spacing) */
 .button-grid{display:grid;grid-template-columns:1fr;gap:var(--gap-quarter);max-width:560px;margin-top:auto;}
 @media (min-width:680px){.button-grid{grid-template-columns:1fr 1fr;}}
 .btn{
@@ -194,7 +187,7 @@ body{ background:#0b0f14; color:var(--ink); }
   transition:transform .06s ease,filter .2s ease,border-color .2s ease,box-shadow .2s ease;
   max-width:100%;
 }
-.btn-sm{ padding:8px 10px; font-size:.92rem; line-height:1; } /* compact header buttons */
+.btn-sm{ padding:8px 10px; font-size:.92rem; line-height:1; }
 .btn:hover{transform:translateY(-1px);filter:brightness(1.05);border-color:#324355;}
 .btn small{display:block;font-size:.88em;opacity:.9;line-height:1.1;}
 .btn-xaman{border-left:4px solid var(--xrbc-green);}
@@ -202,7 +195,7 @@ body{ background:#0b0f14; color:var(--ink); }
 .btn-solo-pool{border-left:4px solid var(--xrbc-blue);}
 .btn-xpmarket{border-left:4px solid var(--xrbc-cyan);}
 
-/* NFT card (right) — show full image, not cropped */
+/* NFT card (right) */
 .card{
   background:linear-gradient(180deg,#0e1520,#0c131c);
   border:1px solid var(--border); border-radius:14px; padding:16px;
@@ -211,7 +204,7 @@ body{ background:#0b0f14; color:var(--ink); }
 }
 .card.nft img{
   width:100%; height:auto; border-radius:10px;
-  max-height:200px; object-fit:contain; /* show full image */
+  max-height:200px; object-fit:contain;
 }
 .glow-green{box-shadow:0 0 24px rgba(16,185,129,.18),0 0 46px rgba(16,185,129,.10);}
 
@@ -255,31 +248,37 @@ body{ background:#0b0f14; color:var(--ink); }
 .ai-badges .chip small{opacity:.8;}
 .ticker-xrbc{ color:#d1fae5;font-weight:800; text-shadow:0 0 8px rgba(16,185,129,.65),0 0 20px rgba(56,189,248,.45); }
 
-/* ===== Footer (better mobile alignment) ===== */
+/* ===== Footer ===== */
 .ecosystem-footer{border-top:1px solid rgba(255,255,255,.06);margin-top:12px;}
 .footer-container{max-width:var(--wrap);margin:0 auto;padding:14px;}
+
+/* Evenly spaced buttons across; Follow first */
 .ecosystem-links{
-  display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;
-  justify-content:center;
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+  align-items:center;
 }
+
+/* Shared footer button style */
 .eco-link{
   display:inline-flex;align-items:center;gap:8px;padding:8px 10px;
   border:1px solid var(--border);border-radius:12px;text-decoration:none;color:var(--ink);
   background:linear-gradient(180deg,#0e1520,#0c131c);
-  flex:0 1 220px; /* consistent size */
 }
 .eco-link img{width:22px;height:22px;border-radius:6px;object-fit:cover;}
 
-/* Put Follow (X) directly UNDER the XRPScan Issuer button */
-.ecosystem-links .eco-link[href*="xrpscan"]{ order: 10; } /* issuer */
-.ecosystem-links .eco-link[href*="x.com"],
-.ecosystem-links .eco-link[href*="twitter.com"]{
-  order: 11;
-  flex-basis:100%;
-  max-width:560px; /* centered full row under issuer */
+/* Twitter Follow container with blue glow */
+.eco-x-follow{ display:flex; justify-content:center; align-items:center; padding:6px; }
+.eco-x-follow iframe{
+  border-radius:9999px !important;
+  box-shadow:
+    0 0 0 2px var(--twitter-blue),
+    0 0 18px rgba(29,161,242,.45),
+    0 6px 24px rgba(0,0,0,.35);
 }
 
-/* ===== Light Mode ===== */
+/* Light Mode */
 body.light-mode{ background:#ffffff; color:#0b0f14; }
 body.light-mode .site-header{
   background:rgba(255,255,255,.9);
@@ -290,7 +289,6 @@ body.light-mode .brand h1{ color:#0b0f14; }
 body.light-mode #themeToggle{
   background:#ffffff; color:#0b0f14; border-color:#94a3b8;
 }
-
 body.light-mode .card,
 body.light-mode .trade-cta-card,
 body.light-mode .btn,
@@ -308,10 +306,7 @@ body.light-mode .btn-solo-dex,
 body.light-mode .btn-solo-pool,
 body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 
-/* ===== Mobile header layout =====
-   Row 1: brand (centered)
-   Row 2: Home + Light/Dark side-by-side (shrunk, no overflow)
-*/
+/* ===== Mobile header layout ===== */
 @media (max-width:560px){
   .header-wrap{
     grid-template-columns:minmax(0,1fr) minmax(0,1fr);
@@ -321,13 +316,9 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .brand{ grid-column:1 / -1; grid-row:1; justify-self:center; }
   .header-center{ grid-column:1; grid-row:2; justify-self:stretch; }
   .header-right{ grid-column:2; grid-row:2; justify-self:stretch; display:flex; gap:8px; }
-
-  /* shrink both buttons and make them fill their columns safely */
-  .header-center .btn,
-  #themeToggle{
+  .header-center .btn, #themeToggle{
     width:100%; min-width:0; padding:7px 9px; font-size:.88rem; line-height:1;
   }
-
   .brand img{ width:40px; height:40px; }
   .brand h1{ font-size:1rem; max-width:70vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 }
@@ -337,68 +328,9 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .btn{padding:10px 12px;}
   .btn-steam{padding:12px 14px;}
   .card,.trade-cta-card{min-height:unset;}
-  .card.nft img{max-height:100px;} /* ~half height on small screens */
+  .card.nft img{max-height:100px;}
 }
-
-
-/* --- X/Twitter footer widget --- */
-.eco-x-widget {
-  display: grid;
-  gap: 8px;
-  min-width: 260px;
-  max-width: 380px;
-}
-
-/* Button look/feel to match your footer */
-.eco-x-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border: 1px solid #1f2a37;
-  border-radius: 12px;
-  text-decoration: none;
-  color: #e7edf5;
-  background: #0e1520;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset;
-  font-weight: 700;
-}
-.eco-x-button:hover { border-color: #2b3b4f; }
-
-/* Round the embedded iframe corners */
-.eco-x-widget .twitter-timeline {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-/* Mobile tweaks */
-@media (max-width: 640px) {
-  .eco-x-widget { max-width: 100%; }
-  .eco-x-button { width: 100%; justify-content: center; }
-  /* If the embed feels tall on small screens, lower the height: */
-  .eco-x-widget .twitter-timeline { height: 220px; }
-}
-
-/* (Optional) ensure your ecosystem-links row keeps wrapping nicely */
-.ecosystem-links {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-/* Let the X widget behave like a nice flex item in the row */
-.ecosystem-links .eco-x-widget { flex: 1 1 360px; max-width: 380px; }
-
-/* If you want the widget right-aligned on desktop: */
-@media (min-width: 800px) {
-  .ecosystem-links { justify-content: flex-start; } /* was center */
-  /* keep the inline margin-left:auto on .eco-x-widget */
-}
-
-
 </style>
-
-
 </head>
 
 <body>
@@ -427,7 +359,7 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
     </div>
   </header>
 
-  <!-- ===== Hero / Cards (now safely below header) ===== -->
+  <!-- ===== Hero / Cards ===== -->
   <section class="hero">
     <div class="hero-layout">
       <!-- Left: trading/options card -->
@@ -475,14 +407,13 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
     </div>
   </section>
 
-  <!-- ===== Dev row (Auditor | Recert | README aligned right) ===== -->
+  <!-- ===== Dev row ===== -->
   <section class="dev">
     <div class="dev-grid">
-     <a href="https://xrbitcoincash.com/compliance.html" class="btn btn-steam" rel="noopener" aria-label="Open Compliance & Readiness Dashboard">
-  ✅ Compliance & Readiness Dashboard
-  <small>Live scans & disclosures</small>
-</a>
-
+      <a href="https://xrbitcoincash.com/compliance.html" class="btn btn-steam" rel="noopener" aria-label="Open Compliance & Readiness Dashboard">
+        ✅ Compliance & Readiness Dashboard
+        <small>Live scans & disclosures</small>
+      </a>
 
       <span class="recert-chip btn-steam is-static" title="Security recertification interval" style="display:inline-flex;align-items:center;gap:10px;font-weight:800;">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -512,204 +443,145 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
     </nav>
   </section>
 
-<!-- ===== Footer ===== -->
-<footer class="ecosystem-footer">
-  <div class="footer-container">
-    <div class="ecosystem-links">
-      <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
-        <span>XRBitcoin</span>
-      </a>
+  <!-- ===== Footer ===== -->
+  <footer class="ecosystem-footer">
+    <div class="footer-container">
+      <div class="ecosystem-links">
+        <!-- Follow button (first item, with blue glow) -->
+        <div class="eco-x-follow" aria-label="Follow XRBitcoinCash on X">
+          <a href="https://twitter.com/XRbitcoincash"
+             class="twitter-follow-button"
+             data-size="large"
+             data-show-count="true"
+             data-show-screen-name="true">
+            Follow @XRbitcoincash
+          </a>
+          <noscript>
+            <a class="eco-link" href="https://twitter.com/XRbitcoincash" rel="noopener">Follow @XRbitcoincash</a>
+          </noscript>
+        </div>
 
-      <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
-        <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
-        <span>Jesus Christ Saves</span>
-      </a>
-
-      <!-- X/Twitter: Follow + Scrollable Timeline (single wrapper) -->
-      <div class="eco-x-widget" style="margin-left:auto">
-        <!-- Official X Follow button -->
-        <a href="https://twitter.com/XRbitcoincash"
-           class="twitter-follow-button"
-           data-size="large"
-           data-show-count="true"
-           data-show-screen-name="true">
-          Follow @XRbitcoincash
+        <!-- Evenly spaced project buttons -->
+        <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
+          <img src="/XRBitcoin/xrbitcoin-logo.png" alt="XRBitcoin logo">
+          <span>XRBitcoin</span>
         </a>
 
-        <!-- Programmatic timeline mount -->
-        <div id="xTimeline" class="x-timeline-embed" role="region" aria-label="XRBitcoinCash on X"></div>
+        <a href="https://jesuschristsavestoken.com/" class="eco-link" target="_blank" rel="noopener">
+          <img src="/JCS-token-on-the-XRPL/jcs-logo.png" alt="Jesus Christ Saves Token logo">
+          <span>Jesus Christ Saves</span>
+        </a>
+      </div> <!-- /.ecosystem-links -->
+    </div> <!-- /.footer-container -->
+  </footer>
 
-        <noscript>
-          <a class="eco-x-button" href="https://twitter.com/XRbitcoincash" rel="noopener">
-            View @XRbitcoincash on X
-          </a>
-        </noscript>
-      </div>
-      <!-- /eco-x-widget -->
-    </div> <!-- /.ecosystem-links -->
-  </div> <!-- /.footer-container -->
-</footer>
+  <!-- Load X widgets once (required for Follow button) -->
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-<!-- Load X widgets once (must appear after footer markup) -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <!-- Theme toggle -->
+  <script>
+  (function(){
+    const btn = document.getElementById('themeToggle');
+    if(!btn) return;
 
-<!-- Theme toggle -->
-<script>
-(function(){
-  const btn = document.getElementById('themeToggle');
-  if(!btn) return;
-
-  function apply(mode){
-    const isLight = mode === 'light';
-    document.body.classList.toggle('light-mode', isLight);
-    try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
-  }
-  try{
-    const saved = localStorage.getItem('xrbc-theme');
-    if (saved) apply(saved);
-  }catch(_){}
-
-  btn.addEventListener('click', () => {
-    const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-    apply(next);
-  });
-})();
-</script>
-
-<!-- Security badge JS -->
-<script>
-(() => {
-  const targets = [
-    {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
-    {key:"xrb_manifest",   label:"XRBitcoin Manifest", url:"/XRBitcoin/universal-ai.json", kind:"json"},
-    {key:"ai_index",       label:"AI Index",           url:"/.well-known/ai.json",         kind:"json"},
-    {key:"security_txt",   label:"security.txt",       url:"/.well-known/security.txt",    kind:"text"},
-    {key:"provenance",     label:"Provenance",         url:"/ai/provenance.json",          kind:"json"}
-  ];
-  const TIMEOUT_MS = 7000;
-  const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms));
-
-  function shield(okCount, total) {
-    const color = okCount===total ? "#2ecc71" : (okCount>0 ? "#f1c40f" : "#e74c3c");
-    return `
-      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="${color}" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
-        <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
-      </svg>`;
-  }
-
-  Promise.all(targets.map(async t => {
-    const start = Date.now();
-    try {
-      const r = await Promise.race([fetch(t.url, { cache:"no-store" }), timeout(TIMEOUT_MS)]);
-      if (!r.ok) return { ...t, ok:false, status:r.status, ms:Date.now()-start };
-      if (t.kind === "json") { await r.json().catch(()=>{}); } else { await r.text().catch(()=>{}); }
-      return { ...t, ok:true, status:r.status, ms:Date.now()-start };
-    } catch (e) {
-      return { ...t, ok:false, status:0, ms:Date.now()-start, err:String(e) };
+    function apply(mode){
+      const isLight = mode === 'light';
+      document.body.classList.toggle('light-mode', isLight);
+      try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
     }
-  })).then(results => {
-    const okCount = results.filter(x => x.ok).length;
-    const total   = results.length;
-    const root    = document.getElementById("aiBadges");
-    if (!root) return;
+    try{
+      const saved = localStorage.getItem('xrbc-theme');
+      if (saved) apply(saved);
+    }catch(_){}
 
-    root.innerHTML = `
-      <style>
-        .ai-badges .wrap { display:flex; align-items:center; gap:var(--gap-quarter); flex-wrap:wrap; justify-content:center; }
-        .ai-badges .summary { display:inline-flex; align-items:center; gap:8px; }
-        .ai-badges .chip { display:inline-flex; align-items:center; gap:6px; }
-        .ai-badges .chip:hover { filter:brightness(1.08); }
-        .ai-badges .chip small { opacity:.8; }
-      </style>
-      <div class="wrap">
-        <span class="summary">
-          ${shield(okCount, total)}
-          <strong>Security Badge</strong>
-          <span>${okCount}/${total} checks OK</span>
-        </span>
-        ${results.map(r => `
-          <a class="chip ${r.ok ? "pass" : "fail"}" href="${r.url}" target="_blank" rel="nofollow noopener"
-             title="${r.ok ? "OK" : "Missing/Errored"} • ${r.status || "—"} • ${r.ms}ms">
-            ${r.ok ? "✅" : "⚠️"} ${r.label}
-            <small>(${r.status || "—"})</small>
-          </a>
-        `).join("")}
-      </div>
-    `;
+    btn.addEventListener('click', () => {
+      const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+      apply(next);
+    });
+  })();
+  </script>
 
-    const provOk = results.find(r => r.key === "provenance" && r.ok);
-    if (provOk) {
-      fetch("/ai/provenance.json", { cache: "no-store" })
-        .then(r => r.json())
-        .then(j => {
-          const ts = j.updated || j.updatedAt || j.last_updated || j.timestamp || j.date;
-          const span = document.getElementById("updateCountdown");
-          if (!span || !ts) return;
-          const base = new Date(ts);
-          if (isNaN(base.getTime())) return;
-          const next = new Date(base.getTime() + 90*24*60*60*1000);
-          const days = Math.max(0, Math.ceil((next - new Date()) / 86400000));
-          span.textContent = `${days} day${days===1?"":"s"}`;
-        })
-        .catch(() => {});
+  <!-- Security badge JS -->
+  <script>
+  (() => {
+    const targets = [
+      {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
+      {key:"xrb_manifest",   label:"XRBitcoin Manifest", url:"/XRBitcoin/universal-ai.json", kind:"json"},
+      {key:"ai_index",       label:"AI Index",           url:"/.well-known/ai.json",         kind:"json"},
+      {key:"security_txt",   label:"security.txt",       url:"/.well-known/security.txt",    kind:"text"},
+      {key:"provenance",     label:"Provenance",         url:"/ai/provenance.json",          kind:"json"}
+    ];
+    const TIMEOUT_MS = 7000;
+    const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms));
+
+    function shield(okCount, total) {
+      const color = okCount===total ? "#2ecc71" : (okCount>0 ? "#f1c40f" : "#e74c3c");
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="${color}" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
+          <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
+        </svg>`;
     }
-  });
-})();
-</script>
 
-<!-- X timeline (force-render, with fallback) -->
-<script>
-(function () {
-  const mount = document.getElementById('xTimeline');
-  if (!mount) return;
-
-  function injectWidgetsJs(cb){
-    let s = document.querySelector('script[src^="https://platform.twitter.com/widgets.js"]');
-    if (s) { s.addEventListener('load', cb); setTimeout(cb, 500); return; }
-    s = document.createElement('script');
-    s.src = 'https://platform.twitter.com/widgets.js';
-    s.async = true;
-    s.addEventListener('load', cb);
-    document.body.appendChild(s);
-  }
-
-  function renderTimeline(){
-    const width = Math.min(520, Math.max(320, mount.clientWidth || 380));
-    return twttr.widgets.createTimeline(
-      { sourceType: 'profile', screenName: 'XRbitcoincash' },
-      mount,
-      {
-        theme: 'dark',
-        chrome: 'noheader nofooter noborders transparent',
-        height: 520,
-        width,
-        dnt: true
+    Promise.all(targets.map(async t => {
+      const start = Date.now();
+      try {
+        const r = await Promise.race([fetch(t.url, { cache:"no-store" }), timeout(TIMEOUT_MS)]);
+        if (!r.ok) return { ...t, ok:false, status:r.status, ms:Date.now()-start };
+        if (t.kind === "json") { await r.json().catch(()=>{}); } else { await r.text().catch(()=>{}); }
+        return { ...t, ok:true, status:r.status, ms:Date.now()-start };
+      } catch (e) {
+        return { ...t, ok:false, status:0, ms:Date.now()-start, err:String(e) };
       }
-    );
-  }
+    })).then(results => {
+      const okCount = results.filter(x => x.ok).length;
+      const total   = results.length;
+      const root    = document.getElementById("aiBadges");
+      if (!root) return;
 
-  function start(){
-    if (window.twttr && twttr.widgets) {
-      renderTimeline().catch(() => {});
-    } else {
-      injectWidgetsJs(() => {
-        if (window.twttr && twttr.widgets) renderTimeline().catch(() => {});
-      });
-    }
-  }
+      root.innerHTML = `
+        <style>
+          .ai-badges .wrap { display:flex; align-items:center; gap:var(--gap-quarter); flex-wrap:wrap; justify-content:center; }
+          .ai-badges .summary { display:inline-flex; align-items:center; gap:8px; }
+          .ai-badges .chip { display:inline-flex; align-items:center; gap:6px; }
+          .ai-badges .chip:hover { filter:brightness(1.08); }
+          .ai-badges .chip small { opacity:.8; }
+        </style>
+        <div class="wrap">
+          <span class="summary">
+            ${shield(okCount, total)}
+            <strong>Security Badge</strong>
+            <span>${okCount}/${total} checks OK</span>
+          </span>
+          ${results.map(r => `
+            <a class="chip ${r.ok ? "pass" : "fail"}" href="${r.url}" target="_blank" rel="nofollow noopener"
+               title="${r.ok ? "OK" : "Missing/Errored"} • ${r.status || "—"} • ${r.ms}ms">
+              ${r.ok ? "✅" : "⚠️"} ${r.label}
+              <small>(${r.status || "—"})</small>
+            </a>
+          `).join("")}
+        </div>
+      `;
 
-  // Run + safety net if blocked by privacy tools
-  start();
-  setTimeout(() => {
-    if (!mount.querySelector('iframe')) {
-      mount.innerHTML =
-        '<a class="eco-x-button" href="https://twitter.com/XRbitcoincash" target="_blank" rel="noopener">Open @XRbitcoincash on X</a>';
-    }
-  }, 3000);
-})();
-</script>
+      const provOk = results.find(r => r.key === "provenance" && r.ok);
+      if (provOk) {
+        fetch("/ai/provenance.json", { cache: "no-store" })
+          .then(r => r.json())
+          .then(j => {
+            const ts = j.updated || j.updatedAt || j.last_updated || j.timestamp || j.date;
+            const span = document.getElementById("updateCountdown");
+            if (!span || !ts) return;
+            const base = new Date(ts);
+            if (isNaN(base.getTime())) return;
+            const next = new Date(base.getTime() + 90*24*60*60*1000);
+            const days = Math.max(0, Math.ceil((next - new Date()) / 86400000));
+            span.textContent = `${days} day${days===1?"":"s"}`;
+          })
+          .catch(() => {});
+      }
+    });
+  })();
+  </script>
 
 </body>
 </html>
