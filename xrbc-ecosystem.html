@@ -526,7 +526,7 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
         <span>Jesus Christ Saves</span>
       </a>
 
-      <!-- X/Twitter: Follow + Scrollable Timeline -->
+      <!-- X/Twitter: Follow + Scrollable Timeline (single wrapper) -->
       <div class="eco-x-widget" style="margin-left:auto">
         <!-- Official X Follow button -->
         <a href="https://twitter.com/XRbitcoincash"
@@ -537,7 +537,7 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
           Follow @XRbitcoincash
         </a>
 
-        <!-- Programmatic timeline target -->
+        <!-- Programmatic timeline mount -->
         <div id="xTimeline" class="x-timeline-embed" role="region" aria-label="XRBitcoinCash on X"></div>
 
         <noscript>
@@ -547,16 +547,14 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
         </noscript>
       </div>
       <!-- /eco-x-widget -->
-    </div>
-    <!-- /.ecosystem-links -->
-  </div>
-  <!-- /.footer-container -->
+    </div> <!-- /.ecosystem-links -->
+  </div> <!-- /.footer-container -->
 </footer>
 
+<!-- Load X widgets once (must appear after footer markup) -->
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-  <!-- ===== Theme toggle script (Light/Dark; cards outline-only in light) ===== -->
- <!-- Theme toggle -->
+<!-- Theme toggle -->
 <script>
 (function(){
   const btn = document.getElementById('themeToggle');
@@ -579,7 +577,7 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 })();
 </script>
 
-<!-- ===== Security badge JS (closed properly) ===== -->
+<!-- Security badge JS -->
 <script>
 (() => {
   const targets = [
@@ -661,42 +659,49 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
 })();
 </script>
 
-<!-- ===== X timeline (separate; force-render) ===== -->
+<!-- X timeline (force-render, with fallback) -->
 <script>
 (function () {
-  const mount = document.getElementById('xTimeline'); // requires <div id="xTimeline"></div> in your footer
+  const mount = document.getElementById('xTimeline');
   if (!mount) return;
 
-  function create() {
-    if (!window.twttr || !twttr.widgets) return false;
-    twttr.widgets.createTimeline(
+  function injectWidgetsJs(cb){
+    let s = document.querySelector('script[src^="https://platform.twitter.com/widgets.js"]');
+    if (s) { s.addEventListener('load', cb); setTimeout(cb, 500); return; }
+    s = document.createElement('script');
+    s.src = 'https://platform.twitter.com/widgets.js';
+    s.async = true;
+    s.addEventListener('load', cb);
+    document.body.appendChild(s);
+  }
+
+  function renderTimeline(){
+    const width = Math.min(520, Math.max(320, mount.clientWidth || 380));
+    return twttr.widgets.createTimeline(
       { sourceType: 'profile', screenName: 'XRbitcoincash' },
       mount,
       {
         theme: 'dark',
         chrome: 'noheader nofooter noborders transparent',
         height: 520,
+        width,
         dnt: true
       }
-    ).catch(() => {});
-    return true;
+    );
   }
 
-  if (!create()) {
-    let s = document.querySelector('script[src^="https://platform.twitter.com/widgets.js"]');
-    if (!s) {
-      s = document.createElement('script');
-      s.src = 'https://platform.twitter.com/widgets.js';
-      s.async = true;
-      document.body.appendChild(s);
-      s.addEventListener('load', create);
+  function start(){
+    if (window.twttr && twttr.widgets) {
+      renderTimeline().catch(() => {});
     } else {
-      s.addEventListener('load', create);
-      setTimeout(create, 500);
+      injectWidgetsJs(() => {
+        if (window.twttr && twttr.widgets) renderTimeline().catch(() => {});
+      });
     }
   }
 
-  // Graceful fallback if blocked by privacy tools
+  // Run + safety net if blocked by privacy tools
+  start();
   setTimeout(() => {
     if (!mount.querySelector('iframe')) {
       mount.innerHTML =
