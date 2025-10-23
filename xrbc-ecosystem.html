@@ -330,6 +330,25 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .card,.trade-cta-card{min-height:unset;}
   .card.nft img{max-height:100px;}
 }
+/* Sologenic glow button */
+.btn-sologenic{
+  background: radial-gradient(120% 140% at 50% -20%, #f87171 0%, #ef4444 50%, #7f1d1d 100%);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.6);
+  box-shadow:
+    0 0 28px rgba(239,68,68,.35),
+    0 8px 24px rgba(239,68,68,.25),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.btn-sologenic:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.05);
+  box-shadow:
+    0 0 36px rgba(239,68,68,.45),
+    0 8px 28px rgba(239,68,68,.35),
+    inset 0 0 0 1px rgba(255,255,255,.14);
+}
+
 </style>
 </head>
 
@@ -390,22 +409,28 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
         </div>
       </div>
 
-      <!-- Right: NFT card -->
-      <aside class="card nft glow-green">
-        <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT artwork" />
-        <p class="muted small" style="margin-top:10px">
-          The XRBitcoinCash NFT collection preserves our earliest minting style on XRPL—a <em>pre-XLS-20</em> era often associated with early XLS-14 proposals. We keep this original line for nostalgia and historical context.
-        </p>
-        <p class="muted small" style="margin-top:8px">
-          Trading venues include AMMs like <strong>Sologenic AMM</strong> and <strong>XPMarket</strong>. Ticker: <span class="ticker-xrbc">XRBC</span>.
-        </p>
-        <p class="muted small" style="margin-top:8px">
-          Artwork provenance:
-          <a href="https://sologenic.org/profile/xrbitcoincash.com" target="_blank" rel="noopener">sologenic.org/profile/xrbitcoincash.com</a>
-        </p>
-      </aside>
-    </div>
-  </section>
+    <!-- Right: NFT card -->
+<aside class="card nft glow-green">
+  <img src="/xrbc-nft.png" alt="XRBitcoinCash NFT artwork" />
+  <p class="muted small" style="margin-top:10px">
+    The XRBitcoinCash NFT collection preserves our earliest minting style on XRPL—a <em>pre-XLS-20</em> era often associated with early XLS-14 proposals. We keep this original line for nostalgia and historical context.
+  </p>
+  <p class="muted small" style="margin-top:8px">
+    Trading venues include AMMs like <strong>Sologenic AMM</strong> and <strong>XPMarket</strong>. Ticker: <span class="ticker-xrbc">XRBC</span>.
+  </p>
+
+  <!-- Replaces the plain provenance link with a glowing Sologenic button -->
+  <div class="button-grid" style="margin-top:10px">
+    <a
+      class="btn btn-sologenic"
+      href="https://xrbitcoincash.com/nfts.html"
+      aria-label="Open XRBitcoinCash NFTs page (Sologenic provenance)"
+    >
+      Sologenic — XRBC NFTs
+      <small>Artwork provenance & collection</small>
+    </a>
+  </div>
+</aside>
 
   <!-- ===== Dev row ===== -->
   <section class="dev">
