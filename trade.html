@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Canonical -->
-  <link rel="canonical" href="https://xrbitcoincash.com/trade.html" />
-  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/trade.html" />
+  <link rel="canonical" href="https://xrbitcoincash.com/" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/" />
 
   <!-- Primary SEO -->
   <meta name="description" content="Safely trade XRBC on the XRP Ledger. Connect your Xaman (Xumm) wallet to place XRBC/XRP limit orders, read the order book, and view AMM pool info." />
@@ -15,37 +15,24 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="theme-color" content="#0b0f14" />
 
-  <!-- Favicons (keep your existing + add universal coverage) -->
+  <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" type="image/png">
   <link rel="shortcut icon" href="/xrbc-nft.png" type="image/png">
   <link rel="apple-touch-icon" href="/xrbc-nft.png">
   <meta name="msapplication-TileImage" content="/xrbc-nft.png">
 
-  <!-- Added: broad favicon support (safe if files don't exist yet) -->
-  <link rel="icon" href="/favicon.ico?v=1" sizes="any">
-  <link rel="icon" type="image/png" href="/favicons/favicon-32.png?v=1" sizes="32x32">
-  <link rel="icon" type="image/png" href="/favicons/favicon-16.png?v=1" sizes="16x16">
-  <link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png?v=1" sizes="180x180">
-  <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=1" color="#0b0f14">
-  <meta name="msapplication-TileColor" content="#0b0f14">
-  <link rel="manifest" href="/site.webmanifest?v=1">
-
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="XRBitcoinCash">
   <meta property="og:title" content="Safely trade XRBC · XRBitcoinCash">
   <meta property="og:description" content="Decentralized XRBC/XRP trading on the XRP Ledger with live order book and AMM price helper.">
-  <meta property="og:url" content="https://xrbitcoincash.com/trade.html">
+  <meta property="og:url" content="https://xrbitcoincash.com/">
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
-  <meta property="og:image:secure_url" content="https://xrbitcoincash.com/xrbc-nft.png">
-  <meta property="og:image:alt" content="XRBitcoinCash — XRBC/XRP trading page">
 
-  <!-- Twitter / X -->
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Safely trade XRBC · XRBitcoinCash">
   <meta name="twitter:description" content="Trade XRBC on XRPL. Connect your wallet, place limit orders, and view AMM pool info.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
-  <meta name="twitter:image:alt" content="XRBitcoinCash — XRBC/XRP trading page">
 
   <!-- AI / machine-readable metadata (JSON-LD) -->
   <script type="application/ld+json">
@@ -53,7 +40,7 @@
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Safely trade XRBC · XRBitcoinCash",
-    "url": "https://xrbitcoincash.com/trade.html",
+    "url": "https://xrbitcoincash.com/",
     "description": "Safely trade XRBC on the XRP Ledger. Connect your Xaman (Xumm) wallet to place XRBC/XRP limit orders, read the order book, and view AMM pool info.",
     "isPartOf": {
       "@type": "WebSite",
@@ -74,7 +61,7 @@
         { "@type": "PropertyValue", "name": "network", "value": "XRP Ledger (XRPL)" }
       ]
     },
-    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/trade.html" }]
+    "potentialAction": [{ "@type": "BuyAction", "target": "https://xrbitcoincash.com/" }]
   }
   </script>
 
@@ -136,20 +123,6 @@
 
   <div class="card" style="margin-bottom:24px;">
     <h2 style="margin-top:0;">Trade XRBC ↔ XRP</h2>
-<!-- AMM fee explainer (drop-in, mobile-friendly) -->
-<div role="note" aria-label="AMM fee and slippage"
-     style="margin:8px 0 14px; padding:10px 12px; border:1px solid #1f2a37;
-            border-radius:10px; background:linear-gradient(180deg,#0e1520,#0c131c);
-            color:#9fb0c5; font-size:13px; text-align:left">
-  <strong style="color:#e7edf5">Heads up:</strong>
-  XRBC↔XRP trades include a <strong>small AMM pool fee</strong> that is
-  <em>set by liquidity providers, not this site</em>. It compensates LPs and
-  helps reduce short-lived arbitrage. The fee is governed by LP voting and typically
-  falls in the <span style="white-space:nowrap">~0.025%–0.30%</span> range
-  <span style="opacity:.85">(current: <span id="amm-fee-now">auto</span>)</span>.
-  Our <em>Best Price</em> helper and the totals already include this fee and
-  estimated slippage. Some apps/wallets may also show their own service fee separately.
-</div>
 
     <div class="trade-card" id="tradeCard">
       <!-- Tabs -->
@@ -217,7 +190,7 @@
   <div id="ammPoolOutput">Loading pool info…</div>
 </div>
 
-<!-- Modal (desktop only; opened by Connect Wallet, Trustline, or Place Order) -->
+<!-- Modal (desktop only; opened by Connect Wallet or Set Trustline) -->
 <div id="mobileModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Open on mobile">
   <div class="backdrop"></div>
   <div class="dialog">
@@ -227,8 +200,8 @@
       <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.
     </p>
     <div class="qr-wrap">
-      <div id="pageQr" aria-label="QR for https://xrbitcoincash.com/trade.html"></div>
-      <code id="pageUrlCopy" class="url">https://xrbitcoincash.com/trade.html</code>
+      <div id="pageQr" aria-label="QR for https://xrbitcoincash.com/"></div>
+      <code id="pageUrlCopy" class="url">https://xrbitcoincash.com/</code>
     </div>
     <p id="modalFoot" class="fine" style="margin-top:12px;">
       <strong>Always check the URL:</strong> it must start with <code>https://xrbitcoincash.com</code>.<br>
@@ -272,7 +245,7 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 
   // Device check + canonical target for QR
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-  const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/trade.html';
+  const MOBILE_TARGET_URL = 'https://xrbitcoincash.com/';
 
   // === XRBC constants ===
   const XRBC = {
@@ -359,29 +332,21 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
 
   function renderQr() {
     pageQr.innerHTML = '';
-    const img = new Image();
-    img.alt = 'QR to open https://xrbitcoincash.com/trade.html';
-    img.style.maxWidth = '240px';
-    img.style.height = 'auto';
-    img.decoding = 'async';
-    img.loading = 'eager';
-    // Hosted QR image (encodes https://xrbitcoincash.com/trade.html)
-    img.src = 'https://xrbitcoincash.github.io/xaman_trade_qr.png';
-    img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
-    pageQr.appendChild(img);
-
+    // Generate QR dynamically for the new root URL
+    window.__MiniQR.render(pageQr, MOBILE_TARGET_URL, 216);
+    const canvas = pageQr.querySelector('canvas');
+    if (canvas) {
+      canvas.setAttribute('role','img');
+      canvas.setAttribute('aria-label','QR to open https://xrbitcoincash.com/');
+    }
     // Show canonical URL under the QR
     pageUrlCopy.textContent = MOBILE_TARGET_URL;
   }
 
-  // UPDATED: supports 'trade' mode
-  function openMobileModal(mode /* 'connect' | 'trustline' | 'trade' */){
+  function openMobileModal(mode /* 'connect' | 'trustline' */){
     if (mode === 'trustline') {
       modalTitle.textContent = 'Set XRBC Trustline on Mobile';
       modalIntro.innerHTML = 'Trustline setup can only be completed in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile, then tap <em>Connect Wallet</em> there to set the trustline.';
-    } else if (mode === 'trade') {
-      modalTitle.textContent = 'Place Orders in Xaman (Mobile Only)';
-      modalIntro.innerHTML = 'For security, order signing happens in <strong>Xaman</strong> on your phone. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on mobile and place your limit order.<br><span class="fine">This desktop view is read-only for order submission.</span>';
     } else {
       modalTitle.textContent = 'Open on Mobile to Trade Safely';
       modalIntro.innerHTML = 'XRBC transactions are signed in <strong>Xaman</strong> on mobile. Scan this QR to open the <strong>verified XRBitcoinCash trading page</strong> on your phone and continue safely.';
@@ -628,13 +593,7 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
     }
   }, 10000);
 
-  // UPDATED: desktop shows QR modal; mobile keeps signing flow
   placeOfferBtn.addEventListener("click", async () => {
-    if (!isMobile) { 
-      openMobileModal('trade'); 
-      return; 
-    }
-
     try {
       const account = requireWallet();
       const side   = sideEl.value;
@@ -771,94 +730,5 @@ window.__MiniQR={render:function(el,txt,size){var qr=new y(4,1);qr.addData(txt);
   setInterval(updateAmmPool, 15000);
 })();
 </script>
-<!-- ===== XRBC Footer (drop-in) ===== -->
-<footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
-  <style>
-    .site-footer{
-      margin-top:40px;background:#0b0f14;color:#9fb0c5;border-top:1px solid #1f2a37
-    }
-    .site-footer .wrap{
-      max-width:1000px;margin:0 auto;padding:24px 20px;display:grid;gap:18px
-    }
-    .site-footer h3{margin:0 0 6px;font-size:1.05rem;color:#e4f0fb}
-    .site-footer .cols{display:grid;gap:18px}
-    @media (min-width:820px){.site-footer .cols{grid-template-columns:1.2fr 1fr 1fr}}
-    .factlist{display:grid;gap:6px;margin:0}
-    .fact{display:flex;gap:8px}
-    .fact strong{min-width:142px;color:#cfe6ff}
-    .small{font-size:.9rem;opacity:.95}
-    .legal{border-top:1px dashed #1f2a37;padding-top:12px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
-    .cta-chatgpt{display:inline-flex;align-items:center;gap:10px;text-decoration:none;border:1px solid #1f2a37;border-radius:12px;padding:8px 12px}
-    .cta-chatgpt:hover{border-color:#2b3b4f}
-    .cta-chatgpt img{width:20px;height:20px;display:block}
-    .muted{opacity:.8}
-    .bullet{list-style:disc;margin-left:18px}
-    .bullet li{margin:4px 0}
-    .nowrap{white-space:nowrap}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-  </style>
-
-  <div class="wrap">
-    <div class="cols">
-      <!-- What this page is -->
-      <section>
-        <h3>About this page</h3>
-        <p class="small">
-          A minimal, security-first trading &amp; ledger portal for
-          <strong>XRBitcoinCash (XRBC)</strong> on the <span class="nowrap">XRP Ledger</span>.
-          Signing is handled in <strong>Xaman</strong> on mobile for safer review and execution.
-        </p>
-        <dl class="factlist" aria-label="XRBC details">
-          <div class="fact"><strong>Symbol</strong><span class="mono">XRBC</span></div>
-          <div class="fact"><strong>Issuer</strong><span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span> <span class="muted">(blackholed, immutable, beyond temptation)</span></div>
-          <div class="fact"><strong>Currency Code</strong><span class="mono">5852626974636F696E6361736800000000000000</span></div>
-          <div class="fact"><strong>Total Supply</strong><span class="mono">21,000,000</span> — because legends matter.</div>
-        </dl>
-      </section>
-
-      <!-- Security measures summary -->
-      <section>
-        <h3>Security measures</h3>
-        <ul class="bullet small">
-          <li><strong>Mobile-only signing</strong> via Xaman; desktop shows a QR that opens this verified page on your phone.</li>
-          <li>No keys ever requested or stored; only the public account address may be cached (localStorage).</li>
-          <li>XRPL calls validated; errors handled; no <span class="mono">eval</span> or dynamic script injection.</li>
-          <li>XRBC issuer &amp; currency code are constants; XRP↔drops conversion is precise.</li>
-          <li>Trustline flow provided before trading; AMM helper estimates effective price incl. fee.</li>
-        </ul>
-      </section>
-
-      <!-- Rights, license, ChatGPT link -->
-      <section>
-        <h3>Rights &amp; credits</h3>
-        <p class="small">
-          © <span id="xrbc-year"></span> XRBitcoinCash. All rights reserved.
-          Code/license: see the repository’s <a href="/LICENSE" class="muted">LICENSE</a> file.
-        </p>
-        <a class="cta-chatgpt" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" aria-label="Talk to ChatGPT">
-          <!-- Optional: place an approved ChatGPT mark you host at /assets/chatgpt-mark.svg -->
-          <img src="/assets/chatgpt-mark.svg" alt="" onerror="this.remove()">
-          <span>Built with assistance from ChatGPT</span>
-        </a>
-        <p class="small muted" style="margin-top:8px">
-          Trading involves risk. Always verify the URL starts with
-          <span class="mono">https://xrbitcoincash.com</span>.
-        </p>
-      </section>
-    </div>
-
-    <div class="legal small">
-      <span>XRBC · XRBC/XRP Trading &amp; Ledger Portal</span>
-      <span class="mono">Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
-    </div>
-  </div>
-
-  <script>
-    // Set current year automatically
-    (function(){ var el=document.getElementById('xrbc-year'); if(el){ el.textContent=new Date().getFullYear(); }})();
-  </script>
-</footer>
-<!-- ===== /XRBC Footer ===== -->
-
 </body>
 </html>
