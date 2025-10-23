@@ -607,6 +607,12 @@ body.light-mode .side-explain .note{
 }
 
   </style>
+
+
+
+
+
+
 </head>
 <body>
 
@@ -956,7 +962,12 @@ body.light-mode .side-explain .note{
 
   <!-- Xaman SDK -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
-<script>
+
+  
+  
+  
+  
+  <script>
 (function(){
   /* ========= Helpers: modal + QR ========= */
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
@@ -1630,10 +1641,92 @@ body.light-mode .side-explain .note{
   }
 })(); // end IIFE
 </script>
+<script>
+/* XRBC live metrics wiring — keeps existing DEX code untouched */
+(function () {
+  // Ensure your helpers exist
+  if (typeof getLedgerInfo !== "function" ||
+      typeof getXrbcOrderBook !== "function" ||
+      typeof updateAmmPool !== "function") {
+    console.warn("[XRBC metrics] Required helpers missing; aborting wiring.");
+    return;
+  }
+
+  const ledgerBtn = document.getElementById("fetchLedgerBtn");
+  const ledgerOut = document.getElementById("ledgerOutput");
+  const bookBtn   = document.getElementById("fetchPriceBtn");
+  const bookOut   = document.getElementById("priceOutput");
+  const poolOut   = document.getElementById("ammPoolOutput");
+
+  // ---- Ledger (button + auto)
+  async function refreshLedger() {
+    if (!ledgerOut) return;
+    try {
+      ledgerOut.textContent = "Fetching validated ledger…";
+      const data = await getLedgerInfo();
+
+      // XRPL 'ledger' response varies by params; show a safe, compact summary.
+      const r = (data && data.result) || {};
+      const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
+      const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
+      const close = r.ledger?.close_time_human || r.closed?.close_time_human;
+
+      const summary = {
+        ledger_index: idx ?? "(unknown)",
+        ledger_hash : hash ?? "(unknown)",
+        close_time  : close || "(not expanded)",
+        validated   : r.validated === undefined ? true : !!r.validated
+      };
+      ledgerOut.textContent = JSON.stringify(summary, null, 2);
+    } catch (e) {
+      ledgerOut.textContent = "Error fetching ledger: " + (e?.message || e);
+    }
+  }
+
+  // ---- Order book (button + auto)
+  async function refreshOrderBook() {
+    if (!bookOut) return;
+    try {
+      bookOut.textContent = "Loading order book…";
+      const html = await getXrbcOrderBook(); // your helper returns HTML table
+      bookOut.innerHTML = html;
+    } catch (e) {
+      bookOut.textContent = "Error loading order book: " + (e?.message || e);
+    }
+  }
+
+  // ---- Wire buttons
+  if (ledgerBtn && ledgerOut) ledgerBtn.addEventListener("click", refreshLedger);
+  if (bookBtn && bookOut) bookBtn.addEventListener("click", refreshOrderBook);
+
+  // ---- Keep AMM pool fresh on focus / visibility (you already have a 15s interval)
+  function safeUpdatePool(){ try { updateAmmPool(); } catch(_){} }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) safeUpdatePool(); });
+  window.addEventListener("focus", safeUpdatePool);
+
+  // ---- Light auto-refresh for all 3 metric panes (15s)
+  //      (AMM also has its own 15s interval already; this simply nudges the button-driven ones)
+  setInterval(() => {
+    refreshLedger().catch(()=>{});
+    refreshOrderBook().catch(()=>{});
+    safeUpdatePool();
+  }, 15000);
+
+  // ---- First paint on load
+  (async () => {
+    await refreshLedger();
+    await refreshOrderBook();
+    safeUpdatePool();
+  })();
+})();
+</script>
 
 
 
 
+
+  
+  
   <!-- ===== XRBC Footer ===== -->
   <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
     <div class="wrap">
