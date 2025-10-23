@@ -526,151 +526,185 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
         <span>Jesus Christ Saves</span>
       </a>
 
-     <!-- X/Twitter: Follow widget + latest post -->
-<div class="eco-x-widget" style="margin-left:auto">
-  <!-- Official X Follow button (widget) -->
-<!-- Follow button (works already) -->
-<a href="https://twitter.com/XRbitcoincash"
-   class="twitter-follow-button"
-   data-size="large"
-   data-show-count="true"
-   data-show-screen-name="true">
-  Follow @XRbitcoincash
-</a>
+      <!-- X/Twitter: Follow + Scrollable Timeline -->
+      <div class="eco-x-widget" style="margin-left:auto">
+        <!-- Official X Follow button -->
+        <a href="https://twitter.com/XRbitcoincash"
+           class="twitter-follow-button"
+           data-size="large"
+           data-show-count="true"
+           data-show-screen-name="true">
+          Follow @XRbitcoincash
+        </a>
 
-<!-- Actual posts widget (timeline) -->
-<a class="twitter-timeline"
-   href="https://twitter.com/XRbitcoincash"
-   data-theme="dark"
-   data-dnt="true"
-   data-tweet-limit="1"
-   data-chrome="noheader nofooter noborders transparent"
-   data-width="380"
-   data-height="260">
-  Tweets by @XRbitcoincash
-</a>
+        <!-- Programmatic timeline target -->
+        <div id="xTimeline" class="x-timeline-embed" role="region" aria-label="XRBitcoinCash on X"></div>
 
-<!-- X/Twitter: scrollable timeline (latest first) -->
-<div class="eco-x-widget" style="margin-left:auto">
-  <a
-    class="twitter-timeline"
-    href="https://twitter.com/XRbitcoincash"
-    data-theme="dark"
-    data-dnt="true"
-    data-chrome="noheader nofooter noborders transparent"
-    data-width="380"
-    data-height="520"
-  >
-    Tweets by @XRbitcoincash
-  </a>
-</div>
-
+        <noscript>
+          <a class="eco-x-button" href="https://twitter.com/XRbitcoincash" rel="noopener">
+            View @XRbitcoincash on X
+          </a>
+        </noscript>
+      </div>
+      <!-- /eco-x-widget -->
+    </div>
+    <!-- /.ecosystem-links -->
+  </div>
+  <!-- /.footer-container -->
 </footer>
 
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
   <!-- ===== Theme toggle script (Light/Dark; cards outline-only in light) ===== -->
-  <script>
-    (function(){
-      const btn = document.getElementById('themeToggle');
-      if(!btn) return;
+ <!-- Theme toggle -->
+<script>
+(function(){
+  const btn = document.getElementById('themeToggle');
+  if(!btn) return;
 
-      function apply(mode){
-        const isLight = mode === 'light';
-        document.body.classList.toggle('light-mode', isLight);
-        try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
-      }
-      try{
-        const saved = localStorage.getItem('xrbc-theme');
-        if (saved) apply(saved);
-      }catch(_){}
+  function apply(mode){
+    const isLight = mode === 'light';
+    document.body.classList.toggle('light-mode', isLight);
+    try{ localStorage.setItem('xrbc-theme', isLight ? 'light' : 'dark'); }catch(_){}
+  }
+  try{
+    const saved = localStorage.getItem('xrbc-theme');
+    if (saved) apply(saved);
+  }catch(_){}
 
-      btn.addEventListener('click', () => {
-        const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
-        apply(next);
-      });
-    })();
-  </script>
+  btn.addEventListener('click', () => {
+    const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+    apply(next);
+  });
+})();
+</script>
 
-  <!-- ===== Security badge JS (unchanged, centers via CSS) ===== -->
-  <script>
-  (() => {
-    const targets = [
-      {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
-      {key:"xrb_manifest",   label:"XRBitcoin Manifest", url:"/XRBitcoin/universal-ai.json", kind:"json"},
-      {key:"ai_index",       label:"AI Index",           url:"/.well-known/ai.json",         kind:"json"},
-      {key:"security_txt",   label:"security.txt",       url:"/.well-known/security.txt",    kind:"text"},
-      {key:"provenance",     label:"Provenance",         url:"/ai/provenance.json",          kind:"json"}
-    ];
-    const TIMEOUT_MS = 7000;
-    const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms));
+<!-- ===== Security badge JS (closed properly) ===== -->
+<script>
+(() => {
+  const targets = [
+    {key:"xrbc_manifest",  label:"XRBC Manifest",      url:"/universal-ai.json",          kind:"json"},
+    {key:"xrb_manifest",   label:"XRBitcoin Manifest", url:"/XRBitcoin/universal-ai.json", kind:"json"},
+    {key:"ai_index",       label:"AI Index",           url:"/.well-known/ai.json",         kind:"json"},
+    {key:"security_txt",   label:"security.txt",       url:"/.well-known/security.txt",    kind:"text"},
+    {key:"provenance",     label:"Provenance",         url:"/ai/provenance.json",          kind:"json"}
+  ];
+  const TIMEOUT_MS = 7000;
+  const timeout = ms => new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), ms));
 
-    function shield(okCount, total) {
-      const color = okCount===total ? "#2ecc71" : (okCount>0 ? "#f1c40f" : "#e74c3c");
-      return `
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="${color}" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
-          <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
-        </svg>`;
+  function shield(okCount, total) {
+    const color = okCount===total ? "#2ecc71" : (okCount>0 ? "#f1c40f" : "#e74c3c");
+    return `
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="${color}" d="M12 2l7 3v6c0 5-3.5 9.3-7 11-3.5-1.7-7-6-7-11V5l7-3z"></path>
+        <path fill="#0b1622" d="M10.2 12.7l-2-2 1.4-1.4 0.6 0.6 4.3-4.3 1.4 1.4-5.7 5.7z"></path>
+      </svg>`;
+  }
+
+  Promise.all(targets.map(async t => {
+    const start = Date.now();
+    try {
+      const r = await Promise.race([fetch(t.url, { cache:"no-store" }), timeout(TIMEOUT_MS)]);
+      if (!r.ok) return { ...t, ok:false, status:r.status, ms:Date.now()-start };
+      if (t.kind === "json") { await r.json().catch(()=>{}); } else { await r.text().catch(()=>{}); }
+      return { ...t, ok:true, status:r.status, ms:Date.now()-start };
+    } catch (e) {
+      return { ...t, ok:false, status:0, ms:Date.now()-start, err:String(e) };
     }
+  })).then(results => {
+    const okCount = results.filter(x => x.ok).length;
+    const total   = results.length;
+    const root    = document.getElementById("aiBadges");
+    if (!root) return;
 
-    Promise.all(targets.map(async t => {
-      const start = Date.now();
-      try {
-        const r = await Promise.race([fetch(t.url, { cache:"no-store" }), timeout(TIMEOUT_MS)]);
-        if (!r.ok) return { ...t, ok:false, status:r.status, ms:Date.now()-start };
-        if (t.kind === "json") { await r.json().catch(()=>{}); } else { await r.text().catch(()=>{}); }
-        return { ...t, ok:true, status:r.status, ms:Date.now()-start };
-      } catch (e) {
-        return { ...t, ok:false, status:0, ms:Date.now()-start, err:String(e) };
+    root.innerHTML = `
+      <style>
+        .ai-badges .wrap { display:flex; align-items:center; gap:var(--gap-quarter); flex-wrap:wrap; justify-content:center; }
+        .ai-badges .summary { display:inline-flex; align-items:center; gap:8px; }
+        .ai-badges .chip { display:inline-flex; align-items:center; gap:6px; }
+        .ai-badges .chip:hover { filter:brightness(1.08); }
+        .ai-badges .chip small { opacity:.8; }
+      </style>
+      <div class="wrap">
+        <span class="summary">
+          ${shield(okCount, total)}
+          <strong>Security Badge</strong>
+          <span>${okCount}/${total} checks OK</span>
+        </span>
+        ${results.map(r => `
+          <a class="chip ${r.ok ? "pass" : "fail"}" href="${r.url}" target="_blank" rel="nofollow noopener"
+             title="${r.ok ? "OK" : "Missing/Errored"} • ${r.status || "—"} • ${r.ms}ms">
+            ${r.ok ? "✅" : "⚠️"} ${r.label}
+            <small>(${r.status || "—"})</small>
+          </a>
+        `).join("")}
+      </div>
+    `;
+
+    const provOk = results.find(r => r.key === "provenance" && r.ok);
+    if (provOk) {
+      fetch("/ai/provenance.json", { cache: "no-store" })
+        .then(r => r.json())
+        .then(j => {
+          const ts = j.updated || j.updatedAt || j.last_updated || j.timestamp || j.date;
+          const span = document.getElementById("updateCountdown");
+          if (!span || !ts) return;
+          const base = new Date(ts);
+          if (isNaN(base.getTime())) return;
+          const next = new Date(base.getTime() + 90*24*60*60*1000);
+          const days = Math.max(0, Math.ceil((next - new Date()) / 86400000));
+          span.textContent = `${days} day${days===1?"":"s"}`;
+        })
+        .catch(() => {});
+    }
+  });
+})();
+</script>
+
+<!-- ===== X timeline (separate; force-render) ===== -->
+<script>
+(function () {
+  const mount = document.getElementById('xTimeline'); // requires <div id="xTimeline"></div> in your footer
+  if (!mount) return;
+
+  function create() {
+    if (!window.twttr || !twttr.widgets) return false;
+    twttr.widgets.createTimeline(
+      { sourceType: 'profile', screenName: 'XRbitcoincash' },
+      mount,
+      {
+        theme: 'dark',
+        chrome: 'noheader nofooter noborders transparent',
+        height: 520,
+        dnt: true
       }
-    })).then(results => {
-      const okCount = results.filter(x => x.ok).length;
-      const total   = results.length;
-      const root    = document.getElementById("aiBadges");
-      if (!root) return;
+    ).catch(() => {});
+    return true;
+  }
 
-      root.innerHTML = `
-        <style>
-          .ai-badges .wrap { display:flex; align-items:center; gap:var(--gap-quarter); flex-wrap:wrap; justify-content:center; }
-          .ai-badges .summary { display:inline-flex; align-items:center; gap:8px; }
-          .ai-badges .chip { display:inline-flex; align-items:center; gap:6px; }
-          .ai-badges .chip:hover { filter:brightness(1.08); }
-          .ai-badges .chip small { opacity:.8; }
-        </style>
-        <div class="wrap">
-          <span class="summary">
-            ${shield(okCount, total)}
-            <strong>Security Badge</strong>
-            <span>${okCount}/${total} checks OK</span>
-          </span>
-          ${results.map(r => `
-            <a class="chip ${r.ok ? "pass" : "fail"}" href="${r.url}" target="_blank" rel="nofollow noopener"
-               title="${r.ok ? "OK" : "Missing/Errored"} • ${r.status || "—"} • ${r.ms}ms">
-              ${r.ok ? "✅" : "⚠️"} ${r.label}
-              <small>(${r.status || "—"})</small>
-            </a>
-          `).join("")}
-        </div>
-      `;
+  if (!create()) {
+    let s = document.querySelector('script[src^="https://platform.twitter.com/widgets.js"]');
+    if (!s) {
+      s = document.createElement('script');
+      s.src = 'https://platform.twitter.com/widgets.js';
+      s.async = true;
+      document.body.appendChild(s);
+      s.addEventListener('load', create);
+    } else {
+      s.addEventListener('load', create);
+      setTimeout(create, 500);
+    }
+  }
 
-      const provOk = results.find(r => r.key === "provenance" && r.ok);
-      if (provOk) {
-        fetch("/ai/provenance.json", { cache: "no-store" })
-          .then(r => r.json())
-          .then(j => {
-            const ts = j.updated || j.updatedAt || j.last_updated || j.timestamp || j.date;
-            const span = document.getElementById("updateCountdown");
-            if (!span || !ts) return;
-            const base = new Date(ts);
-            if (isNaN(base.getTime())) return;
-            const next = new Date(base.getTime() + 90*24*60*60*1000);
-            const days = Math.max(0, Math.ceil((next - new Date()) / 86400000));
-            span.textContent = `${days} day${days===1?"":"s"}`;
-          })
-          .catch(() => {});
-      }
-    });
-  })();
-  </script>
+  // Graceful fallback if blocked by privacy tools
+  setTimeout(() => {
+    if (!mount.querySelector('iframe')) {
+      mount.innerHTML =
+        '<a class="eco-x-button" href="https://twitter.com/XRbitcoincash" target="_blank" rel="noopener">Open @XRbitcoincash on X</a>';
+    }
+  }, 3000);
+})();
+</script>
+
 </body>
 </html>
