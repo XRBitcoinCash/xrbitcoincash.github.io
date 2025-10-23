@@ -562,6 +562,49 @@ body.light-mode .asset-xrp{
 body.light-mode .asset-xrbc{
   color:#0b6bdc; border-color:#000; box-shadow:0 0 20px rgba(96,165,250,.25);
 }
+/* Chips: make XRP icon readable on dark bg */
+.asset-xrp img { background:#fff; }
+
+/* Buy/Sell explanation block */
+.side-explain { margin-top:6px; }
+.side-explain .note{
+  display:block;
+  padding:10px 12px;
+  margin-top:6px;
+  border:1px dashed var(--line);
+  border-radius:10px;
+  background:linear-gradient(180deg,#0b1119,#0a0f15);
+  color:var(--muted);
+  transition:box-shadow .2s ease, border-color .2s ease, color .2s ease;
+}
+.side-explain .note .copy strong{ color:var(--ink); }
+
+/* Light up the active side’s explainer in its color */
+.side-explain .note.buy.active{
+  border-color:rgba(34,197,94,.65);
+  box-shadow:0 0 0 2px rgba(34,197,94,.25) inset, 0 0 18px rgba(34,197,94,.18);
+  color:#b7f7cc;
+}
+.side-explain .note.sell.active{
+  border-color:rgba(239,68,68,.65);
+  box-shadow:0 0 0 2px rgba(239,68,68,.25) inset, 0 0 18px rgba(239,68,68,.18);
+  color:#fecaca;
+}
+
+/* Stronger, unmistakable outlines on the Buy/Sell tabs when selected */
+.tabset .tab.buy.active{
+  border-color:rgba(34,197,94,.65);
+  box-shadow:0 0 0 2px rgba(34,197,94,.25) inset, 0 0 18px rgba(34,197,94,.15);
+}
+.tabset .tab.sell.active{
+  border-color:rgba(239,68,68,.65);
+  box-shadow:0 0 0 2px rgba(239,68,68,.25) inset, 0 0 18px rgba(239,68,68,.15);
+}
+
+/* Light mode tweaks for the explainer */
+body.light-mode .side-explain .note{
+  background:#fff; color:#2c3644; border-color:#000;
+}
 
   </style>
 </head>
@@ -1133,15 +1176,59 @@ body.light-mode .asset-xrbc{
   const tradeCard   = document.getElementById("tradeCard");
   const actionWordEl= document.getElementById("actionWord");
 
+  /* === NEW: Buy/Sell explainer swap & highlight === */
+  const explainWrap = document.getElementById('sideExplain');
+  function updateSideExplain(side){
+    if (!explainWrap) return;
+    const buyNote  = explainWrap.querySelector('.note.buy');
+    const sellNote = explainWrap.querySelector('.note.sell');
+
+    const showBuy = (side === 'buy');
+
+    if (buyNote){
+      buyNote.hidden = !showBuy;
+      buyNote.classList.toggle('active', showBuy);
+      buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+    }
+    if (sellNote){
+      sellNote.hidden = showBuy;
+      sellNote.classList.toggle('active', !showBuy);
+      sellNote.setAttribute('aria-hidden', (showBuy).toString());
+    }
+
+    // Ensure XRP icons are readable inside chips (white bg for XRP logo)
+    explainWrap.querySelectorAll('.asset-xrp img').forEach(img => {
+      img.style.background = '#fff';
+      img.style.borderRadius = '3px';
+    });
+  }
+
   function setSide(side) {
     if (!sideEl) return;
     sideEl.value = side;
-    if (buyTab)  { buyTab.classList.toggle("active", side === "buy");  buyTab.setAttribute('aria-selected', side === 'buy' ? 'true' : 'false'); }
-    if (sellTab) { sellTab.classList.toggle("active", side === "sell"); sellTab.setAttribute('aria-selected', side === 'sell' ? 'true' : 'false'); }
+
+    if (buyTab){
+      const isBuy = (side === 'buy');
+      buyTab.classList.toggle("active", isBuy);
+      buyTab.setAttribute('aria-selected', isBuy ? 'true' : 'false');
+    }
+    if (sellTab){
+      const isSell = (side === 'sell');
+      sellTab.classList.toggle("active", isSell);
+      sellTab.setAttribute('aria-selected', isSell ? 'true' : 'false');
+    }
+
+    // NEW: swap & color the explainer chip row
+    updateSideExplain(side);
+
     if (actionWordEl) actionWordEl.textContent = side === 'buy' ? 'buy' : 'sell';
-    if (tradeCard) { tradeCard.classList.toggle('buy', side === 'buy'); tradeCard.classList.toggle('sell', side === 'sell'); }
+    if (tradeCard){
+      tradeCard.classList.toggle('buy',  side === 'buy');
+      tradeCard.classList.toggle('sell', side === 'sell');
+    }
     recalcTotals();
   }
+
   function recalcTotals() {
     if (!totalXrpEl) return;
     const amt = Number(amountEl?.value) || 0;
@@ -1166,69 +1253,67 @@ body.light-mode .asset-xrbc{
     }));
   })();
 
- 
-// Order type tabs + notes (no nested <script> tags)
-(() => {
-  const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
-  const notesWrap = document.getElementById('otypeNotes');
+  // Order type tabs + notes (no nested <script> tags)
+  (() => {
+    const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
+    const notesWrap = document.getElementById('otypeNotes');
 
-  const showNote = (t) => {
-    if (!notesWrap) return;
-    notesWrap.querySelectorAll('[data-note]').forEach(n => {
-      n.hidden = n.getAttribute('data-note') !== t;
-    });
-  };
+    const showNote = (t) => {
+      if (!notesWrap) return;
+      notesWrap.querySelectorAll('[data-note]').forEach(n => {
+        n.hidden = n.getAttribute('data-note') !== t;
+      });
+    };
 
-  typeTabs.forEach(btn => btn.addEventListener('click', () => {
-    typeTabs.forEach(b => {
-      b.classList.toggle('active', b === btn);
-      b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-    });
+    typeTabs.forEach(btn => btn.addEventListener('click', () => {
+      typeTabs.forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
 
-    const t = btn.dataset.type;
-    if (orderTypeEl) orderTypeEl.value = t;
+      const t = btn.dataset.type;
+      if (orderTypeEl) orderTypeEl.value = t;
 
-    if (t === 'limit') {
-      if (priceField) priceField.hidden = false;
-      if (stopField)  stopField.hidden  = true;
-      if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
-    }
+      if (t === 'limit') {
+        if (priceField) priceField.hidden = false;
+        if (stopField)  stopField.hidden  = true;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
+      }
 
-    if (t === 'market') {
-      if (priceField) priceField.hidden = true;
-      if (stopField)  stopField.hidden  = true;
-      if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
-    }
+      if (t === 'market') {
+        if (priceField) priceField.hidden = true;
+        if (stopField)  stopField.hidden  = true;
+        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
+      }
 
-    if (t === 'stop') {
-      if (priceField) priceField.hidden = false;
-      if (stopField)  stopField.hidden  = false;
-      if (placeOfferBtn) { placeOfferBtn.disabled = true; placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
-    }
+      if (t === 'stop') {
+        if (priceField) priceField.hidden = false;
+        if (stopField)  stopField.hidden  = false;
+        if (placeOfferBtn) { placeOfferBtn.disabled = true; placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
+      }
 
-    showNote(t);
-    recalcTotals();
-  }));
+      showNote(t);
+      recalcTotals();
+    }));
 
-  // init notes on load
-  showNote(orderTypeEl?.value || 'limit');
-})();
+    // init notes on load
+    showNote(orderTypeEl?.value || 'limit');
+  })();
 
-// Side toggles (ensure this stays inside the same main <script>)
-(() => {
-  const apply = () => {
-    if (!tradeCard) return;
-    tradeCard.classList.toggle('buy',  sideEl?.value === 'buy');
-    tradeCard.classList.toggle('sell', sideEl?.value === 'sell');
-  };
-  if (buyTab)  buyTab.addEventListener('click', () => { setSide('buy');  apply(); });
-  if (sellTab) sellTab.addEventListener('click', () => { setSide('sell'); apply(); });
-  setSide(sideEl?.value || 'buy');
-  apply();
-})();
+  // Side toggles (ensure this stays inside the same main <script>)
+  (() => {
+    const apply = () => {
+      if (!tradeCard) return;
+      tradeCard.classList.toggle('buy',  sideEl?.value === 'buy');
+      tradeCard.classList.toggle('sell', sideEl?.value === 'sell');
+    };
+    if (buyTab)  buyTab.addEventListener('click', () => { setSide('buy');  apply(); });
+    if (sellTab) sellTab.addEventListener('click', () => { setSide('sell'); apply(); });
 
-
-
+    // init side + explainer on load
+    setSide(sideEl?.value || 'buy');
+    apply();
+  })();
 
   async function fillBestPrice() {
     if (!sideEl || !amountEl || !priceEl) return;
@@ -1383,75 +1468,75 @@ body.light-mode .asset-xrbc{
   updateAmmPool();
   setInterval(updateAmmPool, 15000);
 
-/* ========= Download Xaman button (popover) ========= */
-const downloadBtn = document.getElementById('downloadXamanBtn');
-if (downloadBtn){
-  const DOWNLOAD_URL = 'https://xaman.app/download';
-  const pop = document.getElementById('dlPopover');
-  const qrImg = document.getElementById('dlQr');
-  const actions = downloadBtn.closest('.wallet-actions');
+  /* ========= Download Xaman button (popover) ========= */
+  const downloadBtn = document.getElementById('downloadXamanBtn');
+  if (downloadBtn){
+    const DOWNLOAD_URL = 'https://xaman.app/download';
+    const pop = document.getElementById('dlPopover');
+    const qrImg = document.getElementById('dlQr');
+    const actions = downloadBtn.closest('.wallet-actions');
 
-  // Prepare QR once
-  if (qrImg && !qrImg.src){
-    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
-  }
-
-  function hidePopover(){
-    if (!pop) return;
-    pop.classList.remove('show');
-    document.body.classList.remove('dl-popover-open');
-    pop.setAttribute('aria-hidden','true');
-  }
-
-  function showPopover(){
-    if (!pop || !actions) return;
-
-    // Make it visible to measure
-    pop.style.visibility = 'hidden';
-    pop.classList.add('show');
-
-    // Place it to the LEFT of the button, vertically centered
-    const br = downloadBtn.getBoundingClientRect();
-    const ar = actions.getBoundingClientRect();
-    const pw = pop.offsetWidth;
-    const ph = pop.offsetHeight;
-
-    const top = (br.top - ar.top) + (br.height/2) - (ph/2);
-    const left = (br.left - ar.left) - pw - 12;
-
-    pop.style.top = `${Math.max(0, top)}px`;
-    pop.style.left = `${Math.max(0, left)}px`;
-
-    pop.style.visibility = '';
-    document.body.classList.add('dl-popover-open');
-    pop.setAttribute('aria-hidden','false');
-  }
-
-  downloadBtn.addEventListener('click', (e) => {
-    // On mobile, go straight to store page
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      window.location.href = DOWNLOAD_URL;
-      return;
+    // Prepare QR once
+    if (qrImg && !qrImg.src){
+      qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
     }
-    // Desktop → toggle popover
-    e.preventDefault();
-    if (pop.classList.contains('show')) hidePopover();
-    else showPopover();
-  });
 
-  // Click outside / escape / resize → hide
-  document.addEventListener('click', (e) => {
-    if (!pop.classList.contains('show')) return;
-    if (e.target === downloadBtn || pop.contains(e.target)) return;
-    hidePopover();
-  });
-  window.addEventListener('resize', hidePopover);
-  window.addEventListener('scroll', hidePopover, { passive:true });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
-}
+    function hidePopover(){
+      if (!pop) return;
+      pop.classList.remove('show');
+      document.body.classList.remove('dl-popover-open');
+      pop.setAttribute('aria-hidden','true');
+    }
 
+    function showPopover(){
+      if (!pop || !actions) return;
+
+      // Make it visible to measure
+      pop.style.visibility = 'hidden';
+      pop.classList.add('show');
+
+      // Place it to the LEFT of the button, vertically centered
+      const br = downloadBtn.getBoundingClientRect();
+      const ar = actions.getBoundingClientRect();
+      const pw = pop.offsetWidth;
+      const ph = pop.offsetHeight;
+
+      const top = (br.top - ar.top) + (br.height/2) - (ph/2);
+      const left = (br.left - ar.left) - pw - 12;
+
+      pop.style.top = `${Math.max(0, top)}px`;
+      pop.style.left = `${Math.max(0, left)}px`;
+
+      pop.style.visibility = '';
+      document.body.classList.add('dl-popover-open');
+      pop.setAttribute('aria-hidden','false');
+    }
+
+    downloadBtn.addEventListener('click', (e) => {
+      // On mobile, go straight to store page
+      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.location.href = DOWNLOAD_URL;
+        return;
+      }
+      // Desktop → toggle popover
+      e.preventDefault();
+      if (pop.classList.contains('show')) hidePopover();
+      else showPopover();
+    });
+
+    // Click outside / escape / resize → hide
+    document.addEventListener('click', (e) => {
+      if (!pop.classList.contains('show')) return;
+      if (e.target === downloadBtn || pop.contains(e.target)) return;
+      hidePopover();
+    });
+    window.addEventListener('resize', hidePopover);
+    window.addEventListener('scroll', hidePopover, { passive:true });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
+  }
 
 })(); // end IIFE
+
 </script>
 
 
