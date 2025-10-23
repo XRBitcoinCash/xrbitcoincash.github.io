@@ -849,48 +849,51 @@ body.light-mode .side-explain .note{
   <strong id="totalXrp">0.000000 XRP</strong>
 </div>
 
-      <!-- Submit -->
-      <div class="button-row">
-        <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Order</button>
-        <div class="refresh-indicator" aria-hidden="true">
-          <div class="clock"></div>
-          <span class="refresh-text">Auto-refresh every 10s</span>
-        </div>
-      </div>
-
-      <p id="tradeMsg" class="status-text">—</p>
-
-      <select id="side" hidden>
-        <option value="buy" selected>Buy</option>
-        <option value="sell">Sell</option>
-      </select>
-      <input id="orderType" type="hidden" value="limit">
-    </section>
-
-<!-- ===== XRBC DEX — Live Metrics (lean, single-scroll, XRPL-native) ===== -->
+     <!-- ==== XRBC DEX — Live Metrics (clean layout, HTML only) ==== -->
 <section class="card" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics" style="margin:20px 0 24px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <h2 style="margin:0;display:flex;align-items:center;gap:10px">
-      <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <h2 style="margin:0;display:flex;align-items:center;gap:8px">
+      <img src="/xrbc-nft.png" alt="XRBC" width="22" height="22" style="border-radius:6px;border:1px solid var(--line)">
       XRBC DEX — Live Metrics
-  
+    </h2>
+    <!-- Optional: keep the ID if your existing code uses it to trigger a manual refresh -->
+    <button id="dexRefreshBtn" class="btn" style="min-height:36px;padding:8px 12px;font-size:.95rem">Refresh</button>
+  </div>
 
+  <!-- Optional status line (your existing code can update #dexStatus) -->
+  <p id="dexStatus" class="status-text" style="margin:8px 0 12px">—</p>
 
-
- 
-
-  <!-- Order book + Ledger (no inner scrolls; use page scroll only) -->
-  <div style="display:grid;gap:16px;margin-top:6px">
-    <div>
-      <h3 style="margin:0 0 6px">XRBC/XRP Order Book (top 5)</h3>
-      <div id="priceOutput">—</div>
+  <!-- Panels: Order Book + Ledger (two columns on desktop, single column on mobile) -->
+  <div style="
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+    ">
+    <!-- Order Book -->
+    <div class="card" style="padding:12px;">
+      <h3 style="margin:0 0 8px;font-size:1rem">XRBC/XRP Order Book (top 5)</h3>
+      <!-- Your script writes the table into #priceOutput -->
+      <div id="priceOutput" style="margin:0">—</div>
     </div>
-    <div>
-      <h3 style="margin:6px 0">Ledger (validated)</h3>
-      <pre id="ledgerOutput" style="text-align:left;margin:0">—</pre>
+
+    <!-- Ledger -->
+    <div class="card" style="padding:12px;">
+      <h3 style="margin:0 0 8px;font-size:1rem">Ledger (validated)</h3>
+      <!-- Your script writes the summary into #ledgerOutput -->
+      <pre id="ledgerOutput" style="margin:0;white-space:pre-wrap;word-break:break-word">—</pre>
     </div>
   </div>
 </section>
+
+<!-- Mobile stack -->
+<style>
+@media (max-width:720px){
+  #xrbcDexHero > div[style*="grid-template-columns"]{
+    grid-template-columns:1fr !important;
+  }
+}
+</style>
 
 
     
