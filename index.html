@@ -435,19 +435,26 @@
     const modalFoot  = document.getElementById('modalFoot');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    function renderQr() {
-      pageQr.innerHTML = '';
-      const img = new Image();
-      img.alt = 'QR to open https://xrbitcoincash.com/trade.html';
-      img.style.maxWidth = '240px';
-      img.style.height = 'auto';
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.src = 'https://xrbitcoincash.github.io/xaman_trade_qr.png';
-      img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
-      pageQr.appendChild(img);
-      pageUrlCopy.textContent = MOBILE_TARGET_URL;
-    }
+   function renderQr() {
+  pageQr.innerHTML = '';
+
+  const img = new Image();
+  img.alt = 'QR to open https://xrbitcoincash.com/';
+  img.style.maxWidth = '240px';
+  img.style.height = 'auto';
+  img.decoding = 'async';
+  img.loading = 'eager';
+
+  // Optional cache-buster so browsers don’t reuse the old QR image
+  const v = 'v=1';
+  img.src = `https://xrbitcoincash.github.io/qrcode_xrbitcoincash.com.png?${v}`;
+
+  img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
+  pageQr.appendChild(img);
+
+  // Text shown under the QR
+  pageUrlCopy.textContent = MOBILE_TARGET_URL;
+}
 
     function openMobileModal(mode /* 'connect' | 'trustline' | 'trade' */){
       if (mode === 'trustline') {
