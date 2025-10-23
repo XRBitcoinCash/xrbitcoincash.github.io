@@ -731,10 +731,9 @@ body.light-mode .side-explain .note{
 </div>
 
 
- <div class="otype-tabs" role="tablist" aria-label="Order type">
+<div class="otype-tabs" role="tablist" aria-label="Order type">
   <button class="otype otype-limit glow glow-yellow active" data-type="limit"  role="tab" aria-selected="true">Limit (Advanced)</button>
   <button class="otype otype-market glow glow-green"        data-type="market" role="tab" aria-selected="false">Market (Beginner)</button>
-  <button class="otype otype-stop glow"                     data-type="stop"   role="tab" aria-selected="false">Stop Loss</button>
 </div>
 
 <!-- NEW: concise explanation that “surrounds” the mode with detail -->
@@ -746,10 +745,6 @@ body.light-mode .side-explain .note{
   <div data-note="market" hidden>
     <span class="note-tag tag-beginner">Beginner</span>
     <strong>Market:</strong> Quick & easy. Executes now at the best available price (uses <span class="mono">IOC</span>). You’ll still review and sign in Xaman.
-  </div>
-  <div data-note="stop" hidden>
-    <span class="note-tag tag-protection">Protection</span>
-    <strong>Stop Loss:</strong> Set a trigger price to help prevent large losses. <em>Preview only here</em>—no XRPL transaction is submitted yet.
   </div>
 </div>
 
@@ -840,12 +835,7 @@ body.light-mode .side-explain .note{
   <div class="inline-hint">Limit price. (Use Market to execute immediately.)</div>
 </div>
 
-<!-- ===== STOP (for Stop orders) ===== -->
-<div class="field" id="stopField" hidden>
-  <label for="stop">Stop price (XRP)</label>
-  <input id="stop" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.450000">
-  <div class="inline-hint">Stop orders are not yet submitted programmatically on XRPL here (UI preview only).</div>
-</div>
+
 
 <!-- ===== TOTAL ===== -->
 <div class="total-line" aria-live="polite">
@@ -1159,7 +1149,6 @@ body.light-mode .side-explain .note{
   const suggestBtn  = document.getElementById("suggestPriceBtn");
   const orderTypeEl = document.getElementById("orderType");
   const priceField  = document.getElementById("priceField");
-  const stopField   = document.getElementById("stopField");
   const tradeCard   = document.getElementById("tradeCard");
 
   // NOTE: Select ALL duplicate buttons/blocks by ID (illegal HTML but browsers allow it)
@@ -1207,7 +1196,7 @@ body.light-mode .side-explain .note{
       hint.innerHTML =
         `How many XRBC you want to <span id="actionWord">sell</span>. ` +
         `<span class="nowrap">You’re trading ` +
-        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
+        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width-auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
         `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
     }
   }
@@ -1327,7 +1316,7 @@ body.light-mode .side-explain .note{
     }));
   })();
 
-  // Order type tabs + notes
+  // Order type tabs + notes (stop-free)
   (function initOrderTypeTabs(){
     const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
     const notesWrap = document.getElementById('otypeNotes');
@@ -1345,25 +1334,17 @@ body.light-mode .side-explain .note{
         b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
       });
 
-      const t = btn.dataset.type;
+      const t = btn.dataset.type; // 'limit' or 'market'
       if (orderTypeEl) orderTypeEl.value = t;
 
       if (t === 'limit') {
         if (priceField) priceField.hidden = false;
-        if (stopField)  stopField.hidden  = true;
         if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
       }
 
       if (t === 'market') {
         if (priceField) priceField.hidden = true;
-        if (stopField)  stopField.hidden  = true;
         if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
-      }
-
-      if (t === 'stop') {
-        if (priceField) priceField.hidden = false;
-        if (stopField)  stopField.hidden  = false;
-        if (placeOfferBtn) { placeOfferBtn.disabled = true; placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
       }
 
       showNote(t);
@@ -1442,13 +1423,9 @@ body.light-mode .side-explain .note{
     if (amt > 0) fillBestPrice().catch(()=>{});
   }, 10000);
 
-  // Place Offer
+  // Place Offer (stop-free)
   if (placeOfferBtn) placeOfferBtn.addEventListener("click", async () => {
     const orderType = orderTypeEl?.value;
-    if (orderType === 'stop') {
-      if (tradeMsg) tradeMsg.textContent = "Stop orders are UI-only for now.";
-      return;
-    }
 
     try {
       const account = window.__xrbcWallet;
@@ -1603,6 +1580,7 @@ body.light-mode .side-explain .note{
   }
 })(); // end IIFE
 </script>
+
 
 
   <!-- ===== XRBC Footer ===== -->
