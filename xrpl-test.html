@@ -605,6 +605,52 @@ body.light-mode .asset-xrbc{
 body.light-mode .side-explain .note{
   background:#fff; color:#2c3644; border-color:#000;
 }
+/* ===== Compact Live Metrics card ===== */
+#xrbcDexHero.compact-metrics{
+  margin:16px 0 20px; padding:14px;
+  text-align:center;
+}
+#xrbcDexHero .metrics-header h2{
+  margin:0; display:inline-flex; align-items:center; gap:10px;
+  font-size:1.05rem; letter-spacing:.2px;
+}
+#xrbcDexHero .metrics-grid{
+  display:grid; gap:10px; justify-items:center;
+  grid-template-columns:1fr;            /* single column, tight */
+}
+#xrbcDexHero .metrics-block h3{
+  margin:2px 0 6px; font-size:.95rem; font-weight:800; opacity:.95;
+}
+
+/* Condensed order book table (JS still writes into #priceOutput) */
+.book-compact{ width:100%; max-width:640px; margin:0 auto; }
+.book-compact .table{ width:100%; border-collapse:collapse; font-size:.9rem; }
+.book-compact .table th,
+.book-compact .table td{
+  padding:6px 8px; text-align:center; border-bottom:1px solid var(--line);
+}
+.book-compact .table thead th{
+  background:#0f1722; color:#cfe2ff; position:static;
+}
+
+/* Slim ledger block — small, wrapped, centered */
+.ledger-compact{
+  width:min(640px, 100%); margin:0 auto;
+  font:12px/1.25 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color:var(--muted);
+  background:transparent;
+  border:1px dashed var(--line); border-radius:10px;
+  padding:8px 10px;
+  white-space:pre-wrap;       /* wrap the 4 lines neatly */
+  text-align:center;
+}
+
+/* Keep everything tight on mobile */
+@media (max-width:560px){
+  #xrbcDexHero .metrics-header h2{ font-size:1rem; }
+  .book-compact .table{ font-size:.85rem; }
+  .ledger-compact{ font-size:11px; }
+}
 
   </style>
 
@@ -867,30 +913,27 @@ body.light-mode .side-explain .note{
       <input id="orderType" type="hidden" value="limit">
     </section>
 
-<!-- ===== XRBC DEX — Live Metrics (lean, single-scroll, XRPL-native) ===== -->
-<section class="card" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics" style="margin:20px 0 24px;">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <h2 style="margin:0;display:flex;align-items:center;gap:10px">
+<!-- ===== XRBC DEX — Live Metrics (compact) ===== -->
+<section class="card compact-metrics" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics">
+  <div class="metrics-header">
+    <h2>
       <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
       XRBC DEX — Live Metrics
-  
+    </h2>
+  </div>
 
-
-
- 
-
-  <!-- Order book + Ledger (no inner scrolls; use page scroll only) -->
-  <div style="display:grid;gap:16px;margin-top:6px">
-    <div>
-      <h3 style="margin:0 0 6px">XRBC/XRP Order Book (top 5)</h3>
-      <div id="priceOutput">—</div>
+  <div class="metrics-grid">
+    <div class="metrics-block">
+      <h3>XRBC/XRP Order Book</h3>
+      <div id="priceOutput" class="book-compact">—</div>
     </div>
-    <div>
-      <h3 style="margin:6px 0">Ledger (validated)</h3>
-      <pre id="ledgerOutput" style="text-align:left;margin:0">—</pre>
+    <div class="metrics-block">
+      <h3>Ledger</h3>
+      <pre id="ledgerOutput" class="ledger-compact">—</pre>
     </div>
   </div>
 </section>
+
 
 
     
