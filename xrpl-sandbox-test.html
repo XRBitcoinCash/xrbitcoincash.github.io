@@ -795,53 +795,99 @@ body.light-mode .side-explain .note{
   </div>
 </div>
 
-<!-- Best Price ABOVE Amount (unchanged) -->
-<div class="best-price-strip">
+<!-- ===== BUY/SELL ===== -->
+<div class="tabset" role="tablist" aria-label="Choose buy or sell">
+  <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
+  <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
+</div>
+
+<!-- Explanation under the Buy/Sell buttons (chips, text-sized icons) -->
+<div class="side-explain" id="sideExplain" aria-live="polite" style="margin-top:6px">
+  <div class="note buy active" data-side="buy">
+    <span class="copy">
+      <strong>Buying XRBC:</strong>
+      You’re trading
+      <span class="asset-chip asset-xrp">
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+      </span>
+      to receive
+      <span class="asset-chip asset-xrbc">
+        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+      </span>.
+    </span>
+  </div>
+
+  <div class="note sell" data-side="sell" hidden>
+    <span class="copy">
+      <strong>Selling XRBC:</strong>
+      You’re trading
+      <span class="asset-chip asset-xrbc">
+        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+      </span>
+      to receive
+      <span class="asset-chip asset-xrp">
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+      </span>.
+    </span>
+  </div>
+</div>
+
+<!-- ===== AMOUNT ===== -->
+<div class="field" style="margin-top:8px">
+  <label for="amount" id="amountLabel">Amount (XRBC)</label>
+  <div class="amount-row">
+    <img src="/xrbc-nft.png" alt="XRBC logo">
+    <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
+  </div>
+
+  <!-- % chips (now wallet-aware) -->
+  <div class="quick-amounts" role="group" aria-label="Quick amount">
+    <button class="qa" data-q="25">25%</button>
+    <button class="qa" data-q="50">50%</button>
+    <button class="qa" data-q="75">75%</button>
+    <button class="qa" data-q="100">100%</button>
+  </div>
+
+  <!-- Dynamic explainer for the amount input -->
+  <div class="inline-hint" id="amountHint" style="margin-top:6px">
+    How many XRBC you want to <span id="actionWord">buy</span>.
+    <span class="nowrap">You’re trading
+      <span class="asset-chip asset-xrp">
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+      </span>
+      to receive
+      <span class="asset-chip asset-xrbc">
+        <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+      </span>.
+    </span>
+  </div>
+</div>
+
+<!-- ===== Best Price (moved BELOW Amount) ===== -->
+<div class="best-price-strip" style="margin-top:10px">
   <button class="btn best-price-btn" id="suggestPriceBtn" type="button">Best Price (AMM)</button>
   <div class="hint">Auto-updates every 10s after you enter an <strong>Amount</strong>.</div>
 </div>
 
+<!-- ===== PRICE (hidden for Market) ===== -->
+<div class="field" id="priceField">
+  <label for="price">Price (XRP per XRBC)</label>
+  <input id="price" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.500000">
+  <div class="inline-hint">Limit price. (Use Market to execute immediately.)</div>
+</div>
 
-  
-      
-      
-      
-      
-      <!-- Amount -->
-      <div class="field">
-        <label for="amount">Amount (XRBC)</label>
-        <div class="amount-row">
-          <img src="/xrbc-nft.png" alt="XRBC logo">
-          <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
-        </div>
-        <div class="quick-amounts" role="group" aria-label="Quick amount">
-          <button class="qa" data-q="25">25%</button>
-          <button class="qa" data-q="50">50%</button>
-          <button class="qa" data-q="75">75%</button>
-          <button class="qa" data-q="100">100%</button>
-        </div>
-        <div class="inline-hint">How many XRBC you want to <span id="actionWord">buy</span>.</div>
-      </div>
+<!-- ===== STOP (for Stop orders) ===== -->
+<div class="field" id="stopField" hidden>
+  <label for="stop">Stop price (XRP)</label>
+  <input id="stop" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.450000">
+  <div class="inline-hint">Stop orders are not yet submitted programmatically on XRPL here (UI preview only).</div>
+</div>
 
-      <!-- Price (hidden for Market) -->
-      <div class="field" id="priceField">
-        <label for="price">Price (XRP per XRBC)</label>
-        <input id="price" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.500000">
-        <div class="inline-hint">Limit price. (Use Market to execute immediately.)</div>
-      </div>
-
-      <!-- Stop price (for Stop orders) -->
-      <div class="field" id="stopField" hidden>
-        <label for="stop">Stop price (XRP)</label>
-        <input id="stop" type="number" step="0.000001" inputmode="decimal" placeholder="e.g., 0.450000">
-        <div class="inline-hint">Stop orders are not yet submitted programmatically on XRPL here (UI preview only).</div>
-      </div>
-
-      <!-- Total -->
-      <div class="total-line" aria-live="polite">
-        <span>Total</span>
-        <strong id="totalXrp">0.000000 XRP</strong>
-      </div>
+<!-- ===== TOTAL ===== -->
+<div class="total-line" aria-live="polite">
+  <span>Total</span>
+  <strong id="totalXrp">0.000000 XRP</strong>
+</div>
 
       <!-- Submit -->
       <div class="button-row">
@@ -1241,17 +1287,124 @@ body.light-mode .side-explain .note{
 
   // % chips (demo)
   (() => {
-    const chips = document.querySelectorAll('.quick-amounts .qa');
-    chips.forEach(btn => btn.addEventListener('click', () => {
-      const pct = Number(btn.dataset.q);
-      const current = Number(amountEl?.value) || 0;
-      const target = current > 0 ? current * (pct / 100) : pct;
+   /* === Wallet-aware balances + dynamic hint for Amount === */
+const BAL = { xrp: 0, xrbc: 0 };
+const CURRENCY_HEX_SHORT = XRBC.currency.replace(/0+$/,''); // strip trailing zeros
+const RESERVE_BUFFER_XRP = 1.0; // small cushion so users don’t hit XRP reserve
+
+async function fetchBalances(){
+  const acct = window.__xrbcWallet;
+  if (!acct) { BAL.xrp = 0; BAL.xrbc = 0; return BAL; }
+
+  // XRP balance (drops → XRP)
+  try {
+    const info = await xrplRequest({
+      method: "account_info",
+      params: [{ account: acct, ledger_index: "validated" }]
+    });
+    BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
+  } catch { BAL.xrp = 0; }
+
+  // XRBC trustline balance
+  try {
+    const lines = await xrplRequest({
+      method: "account_lines",
+      params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
+    });
+    const tl = (lines?.result?.lines || []).find(l =>
+      (l.currency || '').toUpperCase() === CURRENCY_HEX_SHORT.toUpperCase()
+    );
+    BAL.xrbc = tl ? Number(tl.balance || 0) : 0;
+  } catch { BAL.xrbc = 0; }
+
+  return BAL;
+}
+
+function updateAmountHint(side){
+  const hint = document.getElementById('amountHint');
+  const label = document.getElementById('amountLabel');
+  if (!hint) return;
+
+  if (side === 'buy'){
+    if (label) label.textContent = 'Amount (XRBC)';
+    hint.innerHTML =
+      `How many XRBC you want to <span id="actionWord">buy</span>. ` +
+      `<span class="nowrap">You’re trading ` +
+      `<span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> ` +
+      `to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`;
+  } else {
+    if (label) label.textContent = 'Amount (XRBC)';
+    hint.innerHTML =
+      `How many XRBC you want to <span id="actionWord">sell</span>. ` +
+      `<span class="nowrap">You’re trading ` +
+      `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
+      `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+  }
+}
+
+/* Replace your existing setSide with this tiny augmentation */
+const _origSetSide = setSide; // keep reference if defined above
+setSide = function(side){
+  if (typeof _origSetSide === 'function') _origSetSide(side);
+  updateAmountHint(side);
+};
+
+/* Refresh balances whenever we connect / refocus */
+(async () => {
+  if (window.__xrbcWallet) await fetchBalances();
+})();
+window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(); });
+
+/* === % chips: wallet-aware === */
+(() => {
+  const chips = document.querySelectorAll('.quick-amounts .qa');
+  if (!chips.length) return;
+
+  async function applyPercent(pct){
+    const side = sideEl?.value || 'buy';
+    const orderType = orderTypeEl?.value || 'limit';
+
+    // Ensure balances are fresh
+    await fetchBalances();
+
+    if (side === 'sell'){
+      // Selling XRBC → amount is XRBC directly
+      const amt = Math.max(0, BAL.xrbc * (pct/100));
       if (amountEl){
-        amountEl.value = Number(target).toFixed(6);
+        amountEl.value = amt.toFixed(6);
         amountEl.dispatchEvent(new Event('input'));
       }
-    }));
-  })();
+      return;
+    }
+
+    // Buying XRBC → % of XRP budget, convert to XRBC via price
+    let price = Number(priceEl?.value) || 0;
+    if (orderType === 'market' || !price){
+      // get fresh AMM estimate for price
+      await fillBestPrice();
+      price = Number(priceEl?.value) || 0;
+    }
+    if (!price || price <= 0) return; // no price available
+
+    // Budget = % of XRP (leave small buffer)
+    const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
+    const amt = spendable > 0 ? (spendable / price) : 0;
+
+    if (amountEl){
+      amountEl.value = amt.toFixed(6);
+      amountEl.dispatchEvent(new Event('input'));
+    }
+  }
+
+  chips.forEach(btn => btn.addEventListener('click', async () => {
+    const pct = Number(btn.dataset.q || 0);
+    if (!pct) return;
+    btn.disabled = true;
+    try { await applyPercent(pct); }
+    finally { btn.disabled = false; }
+  }));
+})();
+
 
   // Order type tabs + notes (no nested <script> tags)
   (() => {
