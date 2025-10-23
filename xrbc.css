@@ -217,4 +217,62 @@ section.grid, section.card{ margin-top:24px; }
 
 /* prevent long issuer text overflow */
 .card p strong{ word-break:break-all; overflow-wrap:anywhere; display:inline-block; line-height:1.5; }
-.card p{ overflow-wrap:break-word
+.card p{ overflow-wrap:break-word; max-width:100%; }
+
+/* === 10) FOOTER (single centered row, safe-area) === */
+.ecosystem-footer{
+  text-align:center; margin-top:40px; padding:24px max(16px, env(safe-area-inset-left)) 32px max(16px, env(safe-area-inset-right));
+  border-top:1px solid rgba(0,229,255,.12); background:#0b0f1f;
+}
+.footer-container{ max-width:var(--wrap); margin:0 auto; }
+.ecosystem-links{
+  display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px;
+}
+.eco-link{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 16px; border-radius:12px; text-decoration:none; font-weight:700;
+  color:var(--ink); background:linear-gradient(180deg,#0f1724,#0d1420);
+  border:1px solid var(--border); box-shadow:var(--shadow);
+}
+.eco-link img{ width:26px; height:26px; border-radius:6px; object-fit:cover; }
+.eco-link:hover{ transform:translateY(-2px); filter:brightness(1.06); border-color:#2f4158; }
+
+/* === 11) LIGHT MODE === */
+.light-mode{
+  --bg:#fdfdfd; --card:#ffffff; --ink:#0b0c10; --muted:#4a4f5c; --accent:#0078ff;
+  --green:#00b86b; --blue:#007bff; --red:#ff3b3b; --orange:#ff9b3d; --purple:#7b4dff;
+}
+.light-mode header{
+  background:rgba(255,255,255,.9); border-bottom:1px solid rgba(0,0,0,.08);
+  backdrop-filter:saturate(120%) blur(6px);
+}
+.light-mode header::after{ opacity:1; filter:blur(10px) brightness(1.18); }
+.light-mode .brand h1{
+  color:#0b0c10; text-shadow:0 0 12px rgba(0,122,255,.55), 0 0 24px rgba(0,122,255,.42);
+}
+
+/* in light mode, surfaces flip to light for a crisp look */
+.light-mode .card,
+.light-mode .hero,
+.light-mode .btn,
+.light-mode .eco-link{
+  background:#ffffff !important; color:#0b0c10 !important; border-color:#cbd5e1 !important; box-shadow:none !important;
+}
+.light-mode .btn-xaman,
+.light-mode .btn-solo-dex,
+.light-mode .btn-solo-pool,
+.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
+
+/* === 12) MOBILE SAFE-AREA + TIGHTEN === */
+@media (max-width:560px){
+  html{ font-size:13px; }
+  .btn-head{ width:100%; min-width:0; padding:7px 9px; font-size:.88rem; }
+  .hero{ padding:16px; }
+  .grid .card, .card{ min-height:unset; }
+  .ecosystem-footer{ padding:20px max(16px, env(safe-area-inset-left)) 24px max(16px, env(safe-area-inset-right)); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *{ transition:none !important; animation:none !important; }
+}
