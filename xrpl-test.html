@@ -1239,8 +1239,11 @@ body.light-mode .side-explain .note{
 
   /* === Wallet-aware balances + dynamic hint for % chips === */
   const BAL = { xrp: 0, xrbc: 0 };
-  const CURRENCY_HEX_SHORT = XRBC.currency.replace(/0+$/,''); // strip trailing zeros
   const RESERVE_BUFFER_XRP = 1.0; // cushion
+
+  // FIX: normalize currency code from account_lines (XRPL may omit trailing zeros)
+  const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
+  const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
 
   async function fetchBalances(){
     const acct = window.__xrbcWallet;
@@ -1260,9 +1263,10 @@ body.light-mode .side-explain .note{
         params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
       });
       const tl = (lines?.result?.lines || []).find(l =>
-        (l.currency || '').toUpperCase() === CURRENCY_HEX_SHORT.toUpperCase()
+        normalizeHexCurrency(l.currency) === XRBC_HEX_NORM
       );
-      BAL.xrbc = tl ? Number(tl.balance || 0) : 0;
+      // Clamp negatives to 0 for sell % chips (negative = you owe issuer)
+      BAL.xrbc = tl ? Math.max(0, Number(tl.balance || 0)) : 0;
     } catch { BAL.xrbc = 0; }
 
     return BAL;
@@ -1282,6 +1286,7 @@ body.light-mode .side-explain .note{
       await fetchBalances();
 
       if (side === 'sell'){
+        // Use detected XRBC balance (trustline)
         const amt = Math.max(0, BAL.xrbc * (pct/100));
         if (amountEl){
           amountEl.value = amt.toFixed(6);
@@ -1580,6 +1585,7 @@ body.light-mode .side-explain .note{
   }
 })(); // end IIFE
 </script>
+
 
 
 
