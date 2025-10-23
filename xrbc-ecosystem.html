@@ -339,6 +339,63 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .card,.trade-cta-card{min-height:unset;}
   .card.nft img{max-height:100px;} /* ~half height on small screens */
 }
+
+
+/* --- X/Twitter footer widget --- */
+.eco-x-widget {
+  display: grid;
+  gap: 8px;
+  min-width: 260px;
+  max-width: 380px;
+}
+
+/* Button look/feel to match your footer */
+.eco-x-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid #1f2a37;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #e7edf5;
+  background: #0e1520;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset;
+  font-weight: 700;
+}
+.eco-x-button:hover { border-color: #2b3b4f; }
+
+/* Round the embedded iframe corners */
+.eco-x-widget .twitter-timeline {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .eco-x-widget { max-width: 100%; }
+  .eco-x-button { width: 100%; justify-content: center; }
+  /* If the embed feels tall on small screens, lower the height: */
+  .eco-x-widget .twitter-timeline { height: 220px; }
+}
+
+/* (Optional) ensure your ecosystem-links row keeps wrapping nicely */
+.ecosystem-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+/* Let the X widget behave like a nice flex item in the row */
+.ecosystem-links .eco-x-widget { flex: 1 1 360px; max-width: 380px; }
+
+/* If you want the widget right-aligned on desktop: */
+@media (min-width: 800px) {
+  .ecosystem-links { justify-content: flex-start; } /* was center */
+  /* keep the inline margin-left:auto on .eco-x-widget */
+}
+
+
 </style>
 
 
@@ -455,8 +512,8 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
     </nav>
   </section>
 
-  <!-- ===== Footer ===== -->
-  <footer class="ecosystem-footer">
+<!-- ===== Footer ===== -->
+<footer class="ecosystem-footer">
   <div class="footer-container">
     <div class="ecosystem-links">
       <a href="/XRBitcoin/" class="eco-link" target="_blank" rel="noopener">
@@ -469,23 +526,37 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
         <span>Jesus Christ Saves</span>
       </a>
 
-      <a href="https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" class="eco-link" target="_blank" rel="noopener">
-        <img src="/xrbc-nft.png" alt="Explorer icon">
-        <span>XRPSCAN issuer</span>
-      </a>
+      <!-- X/Twitter: button + latest-post embed -->
+      <div class="eco-x-widget" style="margin-left:auto">
+        <!-- Button-style link to your profile -->
+        <a class="eco-x-button"
+           href="https://x.com/XRbitcoincash"
+           target="_blank"
+           rel="noopener"
+           aria-label="Follow XRBitcoinCash on X (Twitter)">
+          <svg width="22" height="22" viewBox="0 0 120 120" aria-hidden="true">
+            <rect width="120" height="120" rx="12" fill="#0e1520"></rect>
+            <path fill="#e7edf5" d="M86.6 23L63.7 53l30.7 44H83.5L61.5 66.4 36.8 97H20l24.3-30.8L15.9 23h10.8l20.6 30.1L70.5 23h16.1Zm-47.5 9.8h-6.8l48.6 71.2h6.8L39.1 32.8Z"/>
+          </svg>
+          <span>Follow @XRbitcoincash</span>
+        </a>
 
-      <!-- Right-aligned X (Twitter) link -->
-      <a href="https://x.com/XRbitcoincash" class="eco-link" target="_blank" rel="noopener" style="margin-left:auto">
-        <svg width="22" height="22" viewBox="0 0 120 120" aria-hidden="true">
-          <rect width="120" height="120" rx="12" fill="#0e1520"></rect>
-          <path fill="#e7edf5" d="M86.6 23L63.7 53l30.7 44H83.5L61.5 66.4 36.8 97H20l24.3-30.8L15.9 23h10.8l20.6 30.1L70.5 23h16.1Zm-47.5 9.8h-6.8l48.6 71.2h6.8L39.1 32.8Z"/>
-        </svg>
-        <span>Follow @XRbitcoincash</span>
-      </a>
-    </div>
-  </div>
+        <!-- Latest post embed (official X widget) -->
+        <a
+          class="twitter-timeline"
+          href="https://twitter.com/XRbitcoincash"
+          data-theme="dark"
+          data-tweet-limit="1"
+          data-chrome="noheader nofooter noborders transparent"
+          data-height="260"
+        >Latest post by @XRbitcoincash</a>
+      </div>
+    </div> <!-- /.ecosystem-links -->
+  </div> <!-- /.footer-container -->
 </footer>
 
+<!-- X/Twitter embed runtime -->
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
   <!-- ===== Theme toggle script (Light/Dark; cards outline-only in light) ===== -->
   <script>
