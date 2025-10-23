@@ -186,18 +186,20 @@ body{ background:#0b0f14; color:var(--ink); }
 .hero{
   max-width:var(--wrap);
   margin:12px auto 14px;
-  padding-inline:max(16px, env(safe-area-inset-left), 16px);
+  /* FIX: proper safe-area padding on each side */
+  padding-left:max(16px, env(safe-area-inset-left));
+  padding-right:max(16px, env(safe-area-inset-right));
 }
 .hero-layout{
   display:grid;gap:14px;align-items:stretch;grid-template-columns:1fr;
 }
 @media (min-width:980px){.hero-layout{grid-template-columns:1fr 1fr;}}
 
-/* ==== Make both hero cards visually consistent & centered ==== */
+/* Make both hero cards visually consistent & centered */
 .trade-cta-card,
 .card.nft{
   display:flex;flex-direction:column;justify-content:flex-start;align-items:center;
-  text-align:center;
+  text-align:center; min-height:340px;
 }
 
 /* CTA (left) */
@@ -209,19 +211,21 @@ body{ background:#0b0f14; color:var(--ink); }
   border-left:4px solid var(--xrbc-purple);
   border-radius:14px;
   box-shadow:0 0 0 1px rgba(124,58,237,.28) inset,0 12px 30px rgba(124,58,237,.22),0 22px 46px rgba(16,24,39,.55);
-  padding:18px; min-height:340px; /* a touch taller so copy breathes */
+  padding:18px;
 }
 .trade-cta-card h2{
   margin:0 0 10px;
   letter-spacing:.15px;
-  font-size:clamp(1.35rem, 2.4vw, 1.9rem); /* larger per request */
+  font-size:clamp(1.35rem, 2.4vw, 1.9rem);
   line-height:1.2;
+  text-wrap:balance;
 }
 .trade-cta-card .lead{
   margin:0 0 12px;
   color:var(--muted);
-  font-size:clamp(1.02rem, 1.1vw, 1.15rem); /* bigger body right under heading */
-  line-height:1.55;
+  font-size:clamp(1.02rem, 1.1vw, 1.15rem);
+  line-height:1.6;
+  text-wrap:pretty;
 }
 
 /* Keep paragraphs & lists centered in a comfortable column width */
@@ -237,7 +241,7 @@ body{ background:#0b0f14; color:var(--ink); }
 .benefits{
   margin:8px 0 16px; padding:0; list-style:none;
   display:grid; gap:10px; color:var(--ink);
-  text-align:left; /* readable bullets while whole block is centered */
+  text-align:left;
 }
 .benefits li{ display:flex; gap:10px; align-items:flex-start; }
 .benefits li::before{
@@ -282,22 +286,20 @@ body{ background:#0b0f14; color:var(--ink); }
 .card{
   background:linear-gradient(180deg,#0e1520,#0c131c);
   border:1px solid var(--border); border-radius:14px; padding:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,.35); min-height:340px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
 }
 .card.nft img{
   width:100%; height:auto; border-radius:10px;
   max-height:200px; object-fit:contain;
 }
-.card.nft > p{
-  font-size:1rem; line-height:1.55;
-}
+.card.nft > p{ font-size:1rem; line-height:1.6; }
 .glow-green{box-shadow:0 0 24px rgba(16,185,129,.18),0 0 46px rgba(16,185,129,.10);}
 
 /* Make NFT-card CTA align to bottom and match text column width */
 .card .btn:last-child{ margin-top:auto; }
 .card.nft .btn-sologenic{
-  width:min(100%, 62ch);   /* same width as copy column */
-  align-self:center;       /* centered in card */
+  width:min(100%, 62ch);
+  align-self:center;
 }
 
 /* Sologenic glow button — compact height */
@@ -372,7 +374,9 @@ body{ background:#0b0f14; color:var(--ink); }
 
 /* ===== Footer ===== */
 .ecosystem-footer{border-top:1px solid rgba(255,255,255,.06);margin-top:12px;}
-.footer-container{max-width:var(--wrap);margin:0 auto;padding:14px max(16px, env(safe-area-inset-left)) 14px max(16px, env(safe-area-inset-right));}
+.footer-container{max-width:var(--wrap);margin:0 auto;
+  padding:14px max(16px, env(safe-area-inset-left)) 14px max(16px, env(safe-area-inset-right));
+}
 
 /* One straight centered line (wraps neatly on small screens) */
 .ecosystem-links{
@@ -460,12 +464,17 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .brand img{ width:40px; height:40px; }
   .brand h1{ font-size:1rem; max-width:80vw; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  .hero{ padding-inline:max(16px, env(safe-area-inset-left), 16px); }
+  .hero{
+    padding-left:max(16px, env(safe-area-inset-left));
+    padding-right:max(16px, env(safe-area-inset-right));
+  }
   .card,.trade-cta-card{ min-height:unset; }
   .card.nft img{ max-height:100px; }
 
   .ecosystem-links{ padding-inline:0; }
-  .footer-container{ padding:14px max(16px, env(safe-area-inset-left)) 14px max(16px, env(safe-area-inset-right)); }
+  .footer-container{
+    padding:14px max(16px, env(safe-area-inset-left)) 14px max(16px, env(safe-area-inset-right));
+  }
 }
 
 @media (max-width:420px){
@@ -473,6 +482,12 @@ body.light-mode .btn-xpmarket{ border-left:1px solid #cbd5e1 !important; }
   .btn-steam{padding:12px 14px;}
   .card.nft img{max-height:100px;}
 }
+
+/* Motion preference */
+@media (prefers-reduced-motion: reduce){
+  * { transition:none !important; }
+}
+
 
 </style>
 </head>
