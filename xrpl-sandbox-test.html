@@ -474,6 +474,69 @@ body.light-mode .otype{ -webkit-text-stroke:1px #000; }
 }
 
 
+/* === XRBC: quick experiment overrides (paste at end) === */
+
+/* 1) Larger text on all buttons */
+.btn{ font-size:1.05rem; letter-spacing:.2px; }
+.tab{ font-size:1rem;   letter-spacing:.25px; }
+.otype{ font-size:16px; letter-spacing:.3px; }
+
+/* 2) White line across the middle of buttons */
+.btn, .tab, .otype { position:relative; }
+.btn::before, .tab::before, .otype::before{
+  content:"";
+  position:absolute;
+  left:8px; right:8px;
+  top:50%; transform:translateY(-50%);
+  height:1px;
+  background:rgba(255,255,255,.75);
+  pointer-events:none;
+}
+/* keep visible in light mode */
+body.light-mode .btn::before,
+body.light-mode .tab::before,
+body.light-mode .otype::before{
+  background:rgba(0,0,0,.85);
+}
+
+/* 3) Black outline on button text (+fallback for non-webkit) */
+.btn, .tab{
+  -webkit-text-stroke:1px #000;
+  text-shadow:
+    -1px 0 0 #000, 1px 0 0 #000,
+     0 -1px 0 #000, 0 1px 0 #000;
+}
+
+/* Order-type tabs keep transparent fill but get black outline */
+.otype{
+  -webkit-text-stroke:1px #000;
+  text-shadow:
+    -1px 0 0 #000, 1px 0 0 #000,
+     0 -1px 0 #000, 0 1px 0 #000;
+}
+
+/* 4) STOP tab → red */
+.otype-stop{
+  /* add red glow while keeping black outline above */
+  text-shadow:
+    0 0 10px rgba(239,68,68,.75),
+    0 0 22px rgba(239,68,68,.45),
+    -1px 0 0 #000, 1px 0 0 #000,
+     0 -1px 0 #000, 0 1px 0 #000;
+}
+/* override the yellow glow background if present */
+.otype-stop.glow::after{
+  background: radial-gradient(closest-side, rgba(239,68,68,.70), transparent 70%);
+}
+/* selected STOP border tint */
+.otype-stop.active{
+  border-color: rgba(239,68,68,.55);
+  box-shadow: 0 0 0 2px rgba(239,68,68,.18) inset;
+}
+
+
+
+    
   </style>
 </head>
 <body>
