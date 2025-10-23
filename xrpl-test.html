@@ -867,53 +867,19 @@ body.light-mode .side-explain .note{
       <input id="orderType" type="hidden" value="limit">
     </section>
 
-<!-- ===== XRBC DEX — Hero Metrics Card (drop-in, simplified) ===== -->
+<!-- ===== XRBC DEX — Hero Metrics Card (minimal, no JS hooks, no nested scrolls) ===== -->
 <section class="card" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics" style="margin:20px 0 24px;">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
     <h2 style="margin:0;display:flex;align-items:center;gap:10px">
       <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
       XRBC DEX — Live Metrics
     </h2>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button id="dexRefreshBtn" class="btn">Refresh now</button>
-      <button id="dexShowOrderBookBtn" class="btn">Update Order Book</button>
-      <button id="dexShowLedgerBtn" class="btn">Update Ledger</button>
-    </div>
   </div>
 
-  <!-- quick status line -->
-  <p id="dexStatus" class="status-text" style="margin:8px 0 12px">Loading…</p>
-
-  <!-- KPI grid (only the wired KPIs) -->
-  <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px">
-    <div class="kpi card" style="padding:10px">
-      <div class="label" style="color:var(--muted);font-size:12px;">Live Price (XRP/XRBC)</div>
-      <div id="kpiPrice" class="value" style="font-weight:800;font-size:1.25rem">—</div>
-      <div class="sub" style="color:var(--muted);font-size:12px">Mid from best bid/ask</div>
-    </div>
-    <div class="kpi card" style="padding:10px">
-      <div class="label" style="color:var(--muted);font-size:12px;">Spread</div>
-      <div id="kpiSpread" class="value" style="font-weight:800;font-size:1.25rem">—</div>
-      <div id="kpiTopOfBook" class="sub" style="color:var(--muted);font-size:12px">Bid: — · Ask: —</div>
-    </div>
-    <div class="kpi card" style="padding:10px">
-      <div class="label" style="color:var(--muted);font-size:12px;">AMM Reserves</div>
-      <div id="kpiReserves" class="value" style="font-weight:800;font-size:1.05rem">—</div>
-      <div id="kpiFee" class="sub" style="color:var(--muted);font-size:12px">Fee: —</div>
-    </div>
-  </div>
-
-  <!-- Legacy outputs (kept; updated by buttons) -->
-  <div style="display:grid;gap:12px;margin-top:14px">
-    <div>
-      <h3 style="margin:0 0 6px">Ledger (validated)</h3>
-      <pre id="ledgerOutput" style="text-align:left;max-height:220px;overflow:auto;margin:0">—</pre>
-    </div>
-    <div>
-      <h3 style="margin:10px 0 6px">XRBC/XRP Order Book (top 5)</h3>
-      <div id="priceOutput" style="max-height:260px;overflow:auto;border:1px dashed var(--line);border-radius:10px;padding:8px">—</div>
-    </div>
-  </div>
+  <!-- single status line; everything else removed to avoid double scroll & broken widgets -->
+  <p class="status-text" style="margin:12px 0 0">
+    Live metrics are temporarily unavailable. This section will return once data sources are re-wired.
+  </p>
 </section>
 
   <!-- Config -->
