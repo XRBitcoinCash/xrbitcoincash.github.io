@@ -86,7 +86,7 @@
   :root{
     --wrap:980px; --gap:14px; --border:#2b3a4b;
     --red:#ef4444; --red-2:#f87171; --white:#ffffff; --green:#10b981;
-    --twitter-blue:#1da1f2; /* for bluish glow */
+    --twitter-blue:#1da1f2; /* bluish glow tone */
   }
 
   /* Global safety: prevent mobile overflow */
@@ -118,53 +118,51 @@
     width:48px;height:48px;border-radius:50%;object-fit:cover;
     box-shadow:0 0 24px rgba(16,185,129,.32),0 0 48px rgba(16,185,129,.20);
   }
+  /* NEW: subtle glow behind the XRBitcoinCash text for readability in both themes */
+  .brand h1{
+    margin:0;
+    text-shadow:
+      0 0 10px rgba(16,185,129,.38),   /* green halo */
+      0 0 16px rgba(29,161,242,.32);   /* blue halo */
+  }
+  body.light-mode .brand h1{
+    color:#0b0f14;
+    text-shadow:
+      0 0 6px rgba(16,185,129,.30),
+      0 0 12px rgba(29,161,242,.28);
+  }
 
   /* Home button (reference size) */
   .btn-home{
     appearance:none; border:1px solid #cbd5e1; background:#ffffff; color:#0b0f14;
     padding:8px 12px; border-radius:12px; font-weight:800; text-decoration:none;
-    box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
+    box-shadow:0 0 22px rgba(16,185,129,.22), 0 8px 26px rgba(16,185,129,.12);
     max-width:100%; min-width:0;
     display:grid; place-items:center; line-height:1;
   }
   .btn-home:hover{ filter:brightness(0.98); }
 
-  /* ================= THEME TOGGLE — circular, logo-sized, with outer label ================= */
+  /* ================= THEME TOGGLE — match Home button size, label INSIDE, glow ================= */
   #themeToggle{
-    position:relative;
-    width:48px; height:48px; border-radius:50%;
-    border:2px solid #000; /* black outline */
-    background:linear-gradient(180deg,#0e1520,#0b111a);
-    color:transparent; /* hide intrinsic text */
-    display:inline-grid; place-items:center;
+    appearance:none; cursor:pointer;
+    padding:8px 12px; border-radius:12px; font-weight:800; line-height:1;
+    border:1px solid #cbd5e1; background:#ffffff; color:#0b0f14;
     box-shadow:
-      0 0 24px rgba(16,185,129,.32),   /* green hue like logo */
-      0 0 38px rgba(29,161,242,.35),   /* bluish glow */
-      0 8px 24px rgba(0,0,0,.35);
-    overflow:visible; /* allow label outside */
-    white-space:nowrap;
+      0 0 22px rgba(16,185,129,.28), /* green glow */
+      0 0 28px rgba(29,161,242,.26), /* blue glow */
+      0 8px 24px rgba(0,0,0,.20);
+    max-width:100%; min-width:0; white-space:nowrap;
   }
-  /* Visible text label *next to* the round button */
-  #themeToggle::after{
-    content:"Light";
-    position:absolute; left:calc(100% + 10px); top:50%;
-    transform:translateY(-50%);
-    font-weight:800; letter-spacing:.2px;
-    color:#e7edf5;
-    pointer-events:none;
-  }
-  /* Hover polish */
-  #themeToggle:hover{ filter:brightness(1.02); }
+  #themeToggle:hover{ filter:brightness(0.98); }
 
-  /* Light mode: button stays circular; label flips to “Dark” and turns dark text for contrast */
+  /* In light mode we invert colors for contrast but keep the glow */
   body.light-mode #themeToggle{
-    background:linear-gradient(180deg,#ffffff,#e8edf4);
+    background:#0e1520; color:#ffffff; border-color:#94a3b8;
     box-shadow:
-      0 0 24px rgba(16,185,129,.26),
-      0 0 34px rgba(29,161,242,.32),
-      0 2px 10px rgba(0,0,0,.15);
+      0 0 22px rgba(16,185,129,.26),
+      0 0 28px rgba(29,161,242,.26),
+      0 4px 12px rgba(0,0,0,.25);
   }
-  body.light-mode #themeToggle::after{ content:"Dark"; color:#0b0f14; }
 
   /* Focus ring for accessibility */
   #themeToggle:focus-visible{
@@ -312,10 +310,11 @@
     .header-center{ grid-column:1; grid-row:2; justify-self:stretch; }
     .header-right{ grid-column:2; grid-row:2; justify-self:stretch; display:flex; align-items:center; gap:10px; }
 
-    /* Logo + theme toggle shrink proportionally */
+    /* Shrink buttons proportionally on mobile (match sizes) */
+    .btn-home, #themeToggle{
+      padding:6px 8px; font-size:.84rem; border-radius:10px; width:100%; min-width:0;
+    }
     .brand img{ width:32px; height:32px; }
-    #themeToggle{ width:32px; height:32px; }
-    #themeToggle::after{ font-size:.9rem; left:calc(100% + 8px); }
 
     /* Pull hero content closer to header with a small gap */
     .stage{ min-height:unset; padding-top:4px; }
@@ -324,10 +323,10 @@
     /* Center content in the first card on mobile */
     .nft-card{ padding:14px; align-items:center; text-align:center; }
 
-    /* >>> Make red CTAs ~2x taller on mobile (vertical size) <<< */
+    /* Taller red CTAs (~2x) on mobile */
     .cta-row{ gap:12px; }
     .btn-red{
-      padding:20px 16px;              /* more vertical padding (roughly ~2x) */
+      padding:20px 16px;
       border-radius:12px;
       font-size:1rem;
     }
@@ -340,7 +339,7 @@
   /* Even smaller phones */
   @media (max-width:400px){
     html{ font-size:12px; }
-    .btn-red{ padding:22px 16px; font-size:.98rem; } /* keep tall */
+    .btn-red{ padding:22px 16px; font-size:.98rem; }
     .gallery-frame{ height:440px; }
   }
 
