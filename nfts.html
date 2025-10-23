@@ -86,6 +86,7 @@
   :root{
     --wrap:980px; --gap:14px; --border:#2b3a4b;
     --red:#ef4444; --red-2:#f87171; --white:#ffffff; --green:#10b981;
+    --twitter-blue:#1da1f2; /* for bluish glow */
   }
 
   /* Global safety: prevent mobile overflow */
@@ -128,26 +129,51 @@
   }
   .btn-home:hover{ filter:brightness(0.98); }
 
-  /* Theme button — EXACTLY matches Home size; label centered via grid + block pseudo */
+  /* ================= THEME TOGGLE — circular, logo-sized, with outer label ================= */
   #themeToggle{
-    position:relative; appearance:none;
-    padding:8px 12px; border-radius:12px; font-weight:800; line-height:1;
-    border:1px solid #cbd5e1; background:#ffffff; color:transparent;
-    box-shadow:0 0 22px rgba(16,185,129,.35), 0 8px 26px rgba(16,185,129,.18);
-    max-width:100%; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    display:grid; place-items:center;           /* <<< hard center */
-  }
-  #themeToggle::after{
-    content:"Light"; color:#0b0f14; letter-spacing:.2px;
-    display:block; width:100%; text-align:center; /* <<< center the label itself */
-  }
-  /* Light mode: dark button w/ white text + “Dark” label */
-  body.light-mode #themeToggle{
+    position:relative;
+    width:48px; height:48px; border-radius:50%;
+    border:2px solid #000; /* black outline */
     background:linear-gradient(180deg,#0e1520,#0b111a);
-    border-color:#94a3b8; color:transparent; box-shadow:none;
+    color:transparent; /* hide intrinsic text */
+    display:inline-grid; place-items:center;
+    box-shadow:
+      0 0 24px rgba(16,185,129,.32),   /* green hue like logo */
+      0 0 38px rgba(29,161,242,.35),   /* bluish glow */
+      0 8px 24px rgba(0,0,0,.35);
+    overflow:visible; /* allow label outside */
+    white-space:nowrap;
   }
-  body.light-mode #themeToggle::after{ content:"Dark"; color:#ffffff; }
-  #themeToggle:hover{ filter:brightness(0.98); }
+  /* Visible text label *next to* the round button */
+  #themeToggle::after{
+    content:"Light";
+    position:absolute; left:calc(100% + 10px); top:50%;
+    transform:translateY(-50%);
+    font-weight:800; letter-spacing:.2px;
+    color:#e7edf5;
+    pointer-events:none;
+  }
+  /* Hover polish */
+  #themeToggle:hover{ filter:brightness(1.02); }
+
+  /* Light mode: button stays circular; label flips to “Dark” and turns dark text for contrast */
+  body.light-mode #themeToggle{
+    background:linear-gradient(180deg,#ffffff,#e8edf4);
+    box-shadow:
+      0 0 24px rgba(16,185,129,.26),
+      0 0 34px rgba(29,161,242,.32),
+      0 2px 10px rgba(0,0,0,.15);
+  }
+  body.light-mode #themeToggle::after{ content:"Dark"; color:#0b0f14; }
+
+  /* Focus ring for accessibility */
+  #themeToggle:focus-visible{
+    outline:2px solid var(--twitter-blue);
+    outline-offset:3px;
+  }
+
+  .header-center{justify-self:center;}
+  .header-right{justify-self:end;display:flex;gap:12px;align-items:center;min-width:0;}
 
   /* ================= Layout / Cards ================= */
   main{ padding-inline:14px; }
@@ -215,11 +241,11 @@
   /* ================= Footer (centered; X button own centered row; text centered) ================= */
   .ecosystem-footer{
     border-top:1px solid rgba(255,255,255,.06); margin-top:12px;
-    text-align:center;                                /* <<< center text */
+    text-align:center;
   }
   .footer-container{
     max-width:var(--wrap); margin:0 auto; padding:14px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; /* <<< center block */
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
   }
   .ecosystem-links,
   .footer-links{
@@ -271,29 +297,40 @@
   }
   body.light-mode .btn-red:hover{ filter:brightness(0.98); }
 
-  /* ================= Mobile polish (shrink ~20% & center) ================= */
+  /* ================= Mobile polish ================= */
   @media (max-width:560px){
     html{ font-size:13px; }
+
     .header-wrap{
       grid-template-columns:minmax(0,1fr) minmax(0,1fr);
       grid-auto-rows:minmax(0,auto);
       padding:6px 8px; column-gap:8px;
     }
     .brand{ grid-column:1 / -1; grid-row:1; justify-self:center; }
+
+    /* Home + Theme side-by-side, evenly spaced */
     .header-center{ grid-column:1; grid-row:2; justify-self:stretch; }
-    .header-right{ grid-column:2; grid-row:2; justify-self:stretch; display:flex; }
+    .header-right{ grid-column:2; grid-row:2; justify-self:stretch; display:flex; align-items:center; gap:10px; }
 
+    /* Logo + theme toggle shrink proportionally */
     .brand img{ width:32px; height:32px; }
-    .btn-home, #themeToggle{ padding:6px 8px; font-size:.84rem; border-radius:10px; width:100%; min-width:0; }
+    #themeToggle{ width:32px; height:32px; }
+    #themeToggle::after{ font-size:.9rem; left:calc(100% + 8px); }
 
+    /* Pull hero content closer to header with a small gap */
     .stage{ min-height:unset; padding-top:4px; }
-    .nft-card{ padding:12px; align-items:center; text-align:center; }
-    .nft-card h2{ font-size:.98rem; }
-    .lead{ font-size:.9rem; }
-    .nft-card img{ max-height:110px; object-fit:contain; margin-inline:auto; display:block; }
+    .nft-hero{ margin-top:6px; }
 
-    .cta-row{ gap:10px; }
-    .btn-red{ padding:8px 10px; font-size:.9rem; border-radius:10px; }
+    /* Center content in the first card on mobile */
+    .nft-card{ padding:14px; align-items:center; text-align:center; }
+
+    /* >>> Make red CTAs ~2x taller on mobile (vertical size) <<< */
+    .cta-row{ gap:12px; }
+    .btn-red{
+      padding:20px 16px;              /* more vertical padding (roughly ~2x) */
+      border-radius:12px;
+      font-size:1rem;
+    }
 
     .fact-grid{ grid-template-columns:1fr; }
 
@@ -303,8 +340,7 @@
   /* Even smaller phones */
   @media (max-width:400px){
     html{ font-size:12px; }
-    .btn-red{ padding:7px 9px; font-size:.86rem; }
-    .nft-card img{ max-height:96px; }
+    .btn-red{ padding:22px 16px; font-size:.98rem; } /* keep tall */
     .gallery-frame{ height:440px; }
   }
 
