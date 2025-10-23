@@ -424,6 +424,59 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
 @media (prefers-reduced-motion:reduce){
   *{ transition:none !important; animation:none !important; }
 }
+/* Wallet card subtle background glow */
+.wallet-card {
+  position: relative;
+  overflow: hidden;
+}
+.wallet-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 14px;
+  background:
+    radial-gradient(44% 60% at 20% 20%, rgba(96,165,250,.20), transparent 60%),
+    radial-gradient(44% 60% at 80% 80%, rgba(34,211,238,.16), transparent 60%);
+  filter: blur(18px);
+  opacity: .25;
+  z-index: 0;
+}
+
+/* Button glow/flicker (per color) */
+.btn.glow { position: relative; z-index: 1; }
+.btn.glow::after{
+  content:"";
+  position:absolute;
+  inset:-8px;
+  border-radius:14px;
+  filter:blur(12px);
+  z-index:-1;
+  opacity:.7;
+  animation:btnFlicker 2.2s infinite ease-in-out;
+}
+.btn.glow-white::after{
+  background: radial-gradient(closest-side, rgba(255,255,255,.85), transparent 70%);
+  animation-duration: 1.8s;
+}
+.btn.glow-yellow::after{
+  background: radial-gradient(closest-side, rgba(234,179,8,.70), transparent 70%);
+  animation-duration: 2.1s;
+}
+.btn.glow-red::after{
+  background: radial-gradient(closest-side, rgba(239,68,68,.70), transparent 70%);
+  animation-duration: 2.6s;
+}
+
+@keyframes btnFlicker{
+  0%   { opacity:.55; transform:translateY(0) }
+  45%  { opacity:.20; transform:translateY(.5px) }
+  55%  { opacity:.35; transform:translateY(0) }
+  100% { opacity:.60; transform:translateY(0) }
+}
+
+/* Optional: make all wallet buttons consistent height */
+.wallet-actions .btn { min-height:46px; }
+
   </style>
 </head>
 <body>
@@ -494,21 +547,34 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       </div>
     </div>
 
-    <!-- Wallet card -->
-    <div class="card" style="margin:16px 0 20px;">
-      <h2 style="margin:6px 0 10px;">Wallet</h2>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:6px 0 12px;">
-        <button id="connectWalletBtn" class="btn">Connect Wallet</button>
-        <button id="setTrustlineBtn" class="btn">Set XRBC Trustline</button>
-        <button id="disconnectWalletBtn" class="btn" disabled>Disconnect</button>
-      </div>
-      <p id="walletStatus" class="status-text">Status: Not connected</p>
-      <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
-      <p id="walletHelp" class="status-text" style="margin-top:6px">
-        Don’t have a wallet yet?
-        <a href="https://xaman.app/" target="_blank" rel="noopener">Create your wallet in Xaman</a>.
-      </p>
-    </div>
+  <!-- Wallet card -->
+<div class="card wallet-card" style="margin:16px 0 20px;">
+  <h2 style="margin:6px 0 10px;">Wallet</h2>
+
+  <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
+    <button id="downloadXamanBtn" class="btn glow glow-white" style="border-left:4px solid #2563eb;">
+      Download Xaman
+    </button>
+
+    <button id="setTrustlineBtn" class="btn glow glow-yellow">
+      Set XRBC Trustline
+    </button>
+
+    <button id="connectWalletBtn" class="btn glow glow-yellow">
+      Connect Wallet
+    </button>
+
+    <button id="disconnectWalletBtn" class="btn glow glow-red" disabled>
+      Disconnect
+    </button>
+  </div>
+
+  <!-- Keep this; it will show the connected wallet address -->
+  <p id="walletStatus" class="status-text">Status: Not connected</p>
+
+  <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+</div>
+
 
     <!-- ===== Trading UI (exchange style) ===== -->
     <section class="trade-card" id="tradeCard" aria-label="XRBC Trading">
@@ -1122,32 +1188,77 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       }
     });
 
-    /* ===== AMM Pool updater ===== */
-    async function updateAmmPool() {
-      try {
-        const data = await xrplRequest({
-          method: "amm_info",
-          params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
-        });
-        const amm = data.result?.amm;
-        const out = document.getElementById("ammPoolOutput");
-        if (!amm) { out.textContent = "No AMM pool exists yet."; return; }
-        const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
-        const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
-        const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
-        out.innerHTML = `
-          <table class="table">
-            <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
-            <tbody><tr><td>${reserveXrp}</td><td>${reserveXrbc}</td><td>${feeRate}%</td></tr></tbody>
-          </table>`;
-      } catch (err) {
-        document.getElementById("ammPoolOutput").textContent = "Error fetching AMM pool: " + err.message;
+  <!-- === END of main XRPL logic block (safe closure) === -->
+<script>
+  // ===== AMM Pool updater =====
+  async function updateAmmPool() {
+    try {
+      const data = await xrplRequest({
+        method: "amm_info",
+        params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      });
+
+      const out = document.getElementById("ammPoolOutput");
+      if (!out) return; // guard if element is missing
+
+      const amm = data.result?.amm;
+      if (!amm) {
+        out.textContent = "No AMM pool exists yet.";
+        return;
       }
+
+      const reserveXrp  = (parseFloat(amm.amount) / XRP_TO_DROPS).toFixed(6);
+      const reserveXrbc = parseFloat(amm.amount2.value).toFixed(6);
+      const feeRate     = (amm.trading_fee / 10000).toFixed(2); // %
+
+      out.innerHTML = `
+        <table class="table">
+          <thead><tr><th>Reserve XRP</th><th>Reserve XRBC</th><th>Trading Fee</th></tr></thead>
+          <tbody><tr><td>${reserveXrp}</td><td>${reserveXrbc}</td><td>${feeRate}%</td></tr></tbody>
+        </table>`;
+    } catch (err) {
+      const out = document.getElementById("ammPoolOutput");
+      if (out) out.textContent = "Error fetching AMM pool: " + err.message;
     }
-    updateAmmPool();
-    setInterval(updateAmmPool, 15000);
+  }
+
+  // kick off + refresh timer
+  updateAmmPool();
+  const _ammTimer = setInterval(updateAmmPool, 15000);
+
+})(); // <— closes your big (async function () { ... }) IIFE safely
+</script>
+
+<!-- === Download Xaman button logic (separate, self-contained) === -->
+<script>
+  (function(){
+    const btn = document.getElementById('downloadXamanBtn');
+    if (!btn) return;
+
+    const IOS_URL      = 'https://apps.apple.com/us/app/xaman-wallet/id1492302343';
+    const ANDROID_URL  = 'https://play.google.com/store/apps/details?id=com.xrpllabs.xumm';
+    const DOWNLOAD_URL = 'https://xaman.app/download';
+
+    function getOS(){
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      if (/android/i.test(ua)) return 'android';
+      if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
+      return 'other';
+    }
+
+    btn.addEventListener('click', () => {
+      const os = getOS();
+      if (os === 'android') { window.location.href = ANDROID_URL; return; }
+      if (os === 'ios')     { window.location.href = IOS_URL;     return; }
+      window.open(DOWNLOAD_URL, '_blank', 'noopener');
+    });
+
+    // Optional: reflect saved session in the status line, if present
+    const statusEl = document.getElementById('walletStatus');
+    const savedAcct = localStorage.getItem('xrbcWallet');
+    if (savedAcct && statusEl) statusEl.textContent = 'Connected: ' + savedAcct;
   })();
-  </script>
+</script>
 
   <!-- ===== XRBC Footer ===== -->
   <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
