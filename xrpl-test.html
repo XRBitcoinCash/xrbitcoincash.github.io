@@ -983,6 +983,43 @@ body.light-mode .side-explain .note{
   }
   const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
+  /* === Reserve-aware spendable helpers (drops→XRP) ================= */
+  // Caches for live state used by % chips (buy side, XRP spendable)
+  window.lastAccountInfo = null;   // full result of account_info
+  window.lastServerState = null;   // {result:{state:{validated_ledger:{reserve_base, reserve_inc}}}}
+
+  function computeSpendableXrp({
+    balanceDrops,
+    ownerCount,
+    reserveBaseDrops,
+    reserveIncDrops,
+    feeBufferDrops = 1000,
+    needsOfferSlot = false
+  }) {
+    const required = reserveBaseDrops + (ownerCount * reserveIncDrops);
+    const offerInc = needsOfferSlot ? reserveIncDrops : 0;
+    const spendableDrops = Math.max(0, balanceDrops - required - offerInc - feeBufferDrops);
+    return spendableDrops / 1_000_000; // → XRP
+  }
+
+  function spendableXrpFrom(accountInfo, serverState, {
+    needsOfferSlot = false,
+    feeBufferDrops = 1000
+  } = {}) {
+    const balanceDrops = Number(accountInfo?.result?.account_data?.Balance ?? 0);
+    const ownerCount   = Number(accountInfo?.result?.account_data?.OwnerCount ?? 0);
+
+    // Be tolerant of shapes: {result:{state:{validated_ledger:{...}}}} or direct {state:{...}}
+    const stateObj = (serverState?.result?.state) ?? serverState?.state ?? serverState?.result ?? serverState ?? {};
+    const v = stateObj?.validated_ledger ?? stateObj;
+    const reserveBaseDrops = Number(v?.reserve_base ?? 0);
+    const reserveIncDrops  = Number(v?.reserve_inc  ?? 0);
+
+    return computeSpendableXrp({
+      balanceDrops, ownerCount, reserveBaseDrops, reserveIncDrops, feeBufferDrops, needsOfferSlot
+    });
+  }
+
   /* ========= Theme toggle ========= */
   (function themeInit(){
     const btn = document.getElementById('themeToggle');
@@ -1037,10 +1074,15 @@ body.light-mode .side-explain .note{
     if (connectBtn) connectBtn.disabled = !!window.__xrbcWallet;
     await refreshWalletStatus();
     if (connectBtn && !window.__xrbcWallet) connectBtn.disabled = false;
+    // pull reserves once we’re ready
+    getServerState().catch(()=>{});
   });
 
   window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
-  window.addEventListener("focus", refreshWalletStatus);
+  window.addEventListener("focus", () => {
+    refreshWalletStatus();
+    getServerState().catch(()=>{});
+  });
 
   // CONNECT
   if (connectBtn) connectBtn.addEventListener("click", async () => {
@@ -1097,9 +1139,24 @@ body.light-mode .side-explain .note{
   });
 
   /* ========= Ledger, Order Book, Trading UI ========= */
+
+  // server_state → reserves (drops)
+  async function getServerState(){
+    try{
+      const data = await xrplRequest({ method: "server_state", params: [{}] });
+      // store the useful portion (result) but keep tolerant code elsewhere
+      window.lastServerState = data?.result ?? data;
+      return window.lastServerState;
+    } catch(e){
+      console.warn("server_state failed", e);
+      return window.lastServerState;
+    }
+  }
+
   async function getLedgerInfo() {
     return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
   }
+
   async function getXrbcOrderBook() {
     async function fetchSide(taker_gets, taker_pays, sideName) {
       const rows = [];
@@ -1196,7 +1253,7 @@ body.light-mode .side-explain .note{
       hint.innerHTML =
         `How many XRBC you want to <span id="actionWord">sell</span>. ` +
         `<span class="nowrap">You’re trading ` +
-        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width-auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
+        `<span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> ` +
         `to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
     }
   }
@@ -1237,10 +1294,9 @@ body.light-mode .side-explain .note{
   if (amountEl) amountEl.addEventListener("input", recalcTotals);
   if (priceEl)  priceEl.addEventListener("input", recalcTotals);
 
-  /* === Wallet-aware balances + dynamic hint for % chips === */
+  /* === Wallet-aware balances (XRBC IOU + XRP total) =============== */
   const BAL = { xrp: 0, xrbc: 0 };
   const CURRENCY_HEX_SHORT = XRBC.currency.replace(/0+$/,''); // strip trailing zeros
-  const RESERVE_BUFFER_XRP = 1.0; // cushion
 
   async function fetchBalances(){
     const acct = window.__xrbcWallet;
@@ -1251,6 +1307,8 @@ body.light-mode .side-explain .note{
         method: "account_info",
         params: [{ account: acct, ledger_index: "validated" }]
       });
+      // cache full response for spendable calc
+      window.lastAccountInfo = info;
       BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
     } catch { BAL.xrp = 0; }
 
@@ -1271,7 +1329,29 @@ body.light-mode .side-explain .note{
   (async () => { if (window.__xrbcWallet) await fetchBalances(); })();
   window.addEventListener('focus', () => { if (window.__xrbcWallet) fetchBalances(); });
 
-  // % chips: handle all of them
+  /* === AMM spot-price helper (when no limit price is set) ========= */
+  async function getAmmSpotPrice(side /* 'buy'|'sell' */){
+    try {
+      const data = await xrplRequest({
+        method: "amm_info",
+        params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      });
+      const amm = data?.result?.amm;
+      if (!amm) return 0;
+      const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
+      const reserveXrbc = parseFloat(amm.amount2.value);
+      const feeRate     = amm.trading_fee / 1_000_000; // fraction
+      let px = reserveXrp / reserveXrbc;                // XRP per XRBC (marginal)
+      // Be slightly conservative: include fee directionally
+      if (side === 'buy')  px = px * (1 + feeRate);
+      if (side === 'sell') px = px * (1 - feeRate);
+      return px;
+    } catch {
+      return 0;
+    }
+  }
+
+  // % chips: reserve-aware buy (XRP) & trustline-aware sell (XRBC)
   (function initPercentChips(){
     const chips = document.querySelectorAll('.quick-amounts .qa');
     if (!chips.length) return;
@@ -1279,7 +1359,10 @@ body.light-mode .side-explain .note{
     async function applyPercent(pct){
       const side = sideEl?.value || 'buy';
       const orderType = orderTypeEl?.value || 'limit';
+
+      // Always refresh balances; ensure we have reserves
       await fetchBalances();
+      if (!window.lastServerState) { await getServerState(); }
 
       if (side === 'sell'){
         const amt = Math.max(0, BAL.xrbc * (pct/100));
@@ -1290,16 +1373,19 @@ body.light-mode .side-explain .note{
         return;
       }
 
-      // buy: convert % of XRP budget into XRBC using price
+      // BUY path: use *spendable XRP* after reserves (+ optional offer slot if limit)
+      const needsOfferSlot = (orderType === 'limit');
+      const spendableXrp = spendableXrpFrom(window.lastAccountInfo, window.lastServerState, { needsOfferSlot });
+
+      // Choose price: prefer typed limit; else spot AMM price (works even with 0 amount)
       let price = Number(priceEl?.value) || 0;
-      if (orderType === 'market' || !price){
-        await fillBestPrice();
-        price = Number(priceEl?.value) || 0;
+      if (!price || orderType === 'market'){
+        price = await getAmmSpotPrice('buy');
       }
       if (!price || price <= 0) return;
 
-      const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
-      const amt = spendable > 0 ? (spendable / price) : 0;
+      const budget = Math.max(0, spendableXrp * (pct/100));
+      const amt = budget > 0 ? (budget / price) : 0;
 
       if (amountEl){
         amountEl.value = amt.toFixed(6);
@@ -1436,8 +1522,15 @@ body.light-mode .side-explain .note{
 
       if (orderType === 'market') {
         if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
-        await fillBestPrice();
-        priceVal = Number(priceEl?.value);
+        // For market, ensure we have a price estimate
+        if (!priceVal || priceVal <= 0){
+          // try spot if amount is too small for AMM calc
+          priceVal = await getAmmSpotPrice(side === 'buy' ? 'buy' : 'sell');
+          if (!priceVal || priceVal <= 0) {
+            await fillBestPrice();
+            priceVal = Number(priceEl?.value);
+          }
+        }
         if (!priceVal || priceVal <= 0) throw new Error("Unable to fetch market estimate.");
       } else {
         if (!amt || !priceVal || amt <= 0 || priceVal <= 0) throw new Error("Enter valid Amount & Price.");
@@ -1580,6 +1673,7 @@ body.light-mode .side-explain .note{
   }
 })(); // end IIFE
 </script>
+
 
 
 
