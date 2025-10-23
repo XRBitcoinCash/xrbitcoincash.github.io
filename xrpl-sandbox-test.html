@@ -870,349 +870,462 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       }
     })();
 
-    /* ===== Xaman wallet: connect / disconnect / trustline (desktop & mobile) ===== */
-    const xumm = new Xumm(cfg.xummApiKey);
-    const connectBtn = document.getElementById("connectWalletBtn");
-    const disconnectBtn = document.getElementById("disconnectWalletBtn");
-    const statusEl = document.getElementById("walletStatus");
-    const trustlineMsg = document.getElementById("trustlineMsg");
+   <script>
+(function(){
+  /* ========= Helpers: modal + QR ========= */
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    function setConnectedUI(acct) {
-      statusEl.textContent = "Connected: " + acct;
-      window.__xrbcWallet = acct;
-      localStorage.setItem("xrbcWallet", acct);
-      disconnectBtn.disabled = false;
-      connectBtn.disabled = true;
-    }
-    function setDisconnectedUI() {
-      statusEl.textContent = "Status: Not connected";
-      window.__xrbcWallet = null;
-      localStorage.removeItem("xrbcWallet");
-      disconnectBtn.disabled = true;
-      connectBtn.disabled = false;
-    }
-    async function refreshWalletStatus() {
-      try {
-        const acct = await xumm.user.account; // rXXXX or null
-        if (acct) setConnectedUI(acct);
-      } catch {}
+  function openMobileModal({ title, html, url }){
+    const modal = document.getElementById('mobileModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalIntro = document.getElementById('modalIntro');
+    const pageQr = document.getElementById('pageQr');
+    const pageUrlCopy = document.getElementById('pageUrlCopy');
+    if (!modal || !modalTitle || !modalIntro || !pageQr) return;
+
+    modalTitle.textContent = title || 'Open on Mobile';
+    modalIntro.innerHTML = html || '';
+
+    // Render a QR for any URL on-demand (no extra libs)
+    pageQr.innerHTML = '';
+    if (url){
+      const img = new Image();
+      img.alt = 'Scan with your phone';
+      img.style.maxWidth = '240px';
+      img.style.height = 'auto';
+      img.decoding = 'async';
+      img.loading = 'eager';
+      // Public QR service (tiny PNG)
+      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(url);
+      img.onerror = () => { pageQr.textContent = 'QR failed to load'; };
+      pageQr.appendChild(img);
+      if (pageUrlCopy) pageUrlCopy.textContent = url;
     }
 
-    // Restore prior session on ANY device
-    const savedAcct = localStorage.getItem("xrbcWallet");
-    if (savedAcct) setConnectedUI(savedAcct);
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function closeMobileModal(){
+    const modal = document.getElementById('mobileModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modal = document.getElementById('mobileModal');
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeMobileModal);
+    if (modal && modal.querySelector('.backdrop')) modal.querySelector('.backdrop').addEventListener('click', closeMobileModal);
+  });
 
-    // Enable connect & sync when SDK ready
-    xumm.on("ready", async () => {
-      connectBtn.disabled = !!window.__xrbcWallet;
-      await refreshWalletStatus();
-      if (!window.__xrbcWallet) connectBtn.disabled = false;
+  /* ========= App config / constants ========= */
+  const cfg = JSON.parse(document.getElementById("app-config").textContent);
+  const PROXY_URL = cfg.proxyUrl;
+  const XRP_TO_DROPS = 1_000_000;
+
+  const XRBC = {
+    currency: "5852626974636F696E6361736800000000000000",
+    issuer: "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  };
+
+  async function xrplRequest(payload) {
+    const res = await fetch(PROXY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
+    if (!res.ok) throw new Error("Proxy error: " + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error("XRPL error: " + JSON.stringify(data.error));
+    return data;
+  }
+  const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
-    // Keep status fresh when returning to tab / app
-    window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
-    window.addEventListener("focus", refreshWalletStatus);
-    [500, 2000, 4000, 8000].forEach(ms => setTimeout(refreshWalletStatus, ms));
+  /* ========= Theme toggle ========= */
+  (function themeInit(){
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('xrbc-theme');
+    if (saved === 'light') document.body.classList.add('light-mode');
+    if (btn) {
+      const sync = () => btn.setAttribute('aria-pressed', document.body.classList.contains('light-mode') ? 'true' : 'false');
+      sync();
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        const mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        localStorage.setItem('xrbc-theme', mode);
+        sync();
+      });
+    }
+  })();
 
-    // CONNECT: use xumm.authorize() on desktop & mobile
-    connectBtn.addEventListener("click", async () => {
-      try {
-        statusEl.textContent = "Waiting for Xaman… (scan QR if shown)";
-        await xumm.authorize();                    // Desktop → SDK shows QR; Mobile → opens Xaman
-        const acct = await xumm.user.account;
-        if (acct) setConnectedUI(acct);
-        else statusEl.textContent = "Still waiting for Xaman…";
-      } catch (err) {
-        statusEl.textContent = "Failed to connect wallet";
+  /* ========= Xaman SDK: connect / disconnect / trustline ========= */
+  const xumm = new Xumm(cfg.xummApiKey);
+  const connectBtn = document.getElementById("connectWalletBtn");
+  const disconnectBtn = document.getElementById("disconnectWalletBtn");
+  const statusEl = document.getElementById("walletStatus");
+  const trustlineMsg = document.getElementById("trustlineMsg");
+
+  function setConnectedUI(acct) {
+    if (statusEl) statusEl.textContent = "Connected: " + acct;
+    window.__xrbcWallet = acct;
+    localStorage.setItem("xrbcWallet", acct);
+    if (disconnectBtn) disconnectBtn.disabled = false;
+    if (connectBtn) connectBtn.disabled = true;
+  }
+  function setDisconnectedUI() {
+    if (statusEl) statusEl.textContent = "Status: Not connected";
+    window.__xrbcWallet = null;
+    localStorage.removeItem("xrbcWallet");
+    if (disconnectBtn) disconnectBtn.disabled = true;
+    if (connectBtn) connectBtn.disabled = false;
+  }
+  async function refreshWalletStatus() {
+    try {
+      const acct = await xumm.user.account; // rXXXX or null
+      if (acct) setConnectedUI(acct);
+    } catch {/* ignore */}
+  }
+
+  // Restore prior session
+  const savedAcct = localStorage.getItem("xrbcWallet");
+  if (savedAcct) setConnectedUI(savedAcct);
+
+  xumm.on("ready", async () => {
+    if (connectBtn) connectBtn.disabled = !!window.__xrbcWallet;
+    await refreshWalletStatus();
+    if (connectBtn && !window.__xrbcWallet) connectBtn.disabled = false;
+  });
+
+  window.addEventListener("visibilitychange", () => { if (!document.hidden) refreshWalletStatus(); });
+  window.addEventListener("focus", refreshWalletStatus);
+
+  // CONNECT (Xumm shows QR on desktop automatically)
+  if (connectBtn) connectBtn.addEventListener("click", async () => {
+    try {
+      if (statusEl) statusEl.textContent = "Waiting for Xaman… (scan QR if shown)";
+      await xumm.authorize();
+      const acct = await xumm.user.account;
+      if (acct) setConnectedUI(acct);
+      else if (statusEl) statusEl.textContent = "Still waiting for Xaman…";
+    } catch {
+      if (statusEl) statusEl.textContent = "Failed to connect wallet";
+    }
+  });
+
+  // DISCONNECT
+  if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
+    setDisconnectedUI();
+    xumm.logout();
+  });
+
+  // TRUSTLINE (show QR even if not connected; include Account if we have it)
+  const setTrustBtn = document.getElementById("setTrustlineBtn");
+  if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
+    if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request…";
+    try {
+      const acct = window.__xrbcWallet;
+      const txjson = {
+        TransactionType: "TrustSet",
+        LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+      };
+      if (acct) txjson.Account = acct;
+
+      const { created, resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+        if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+        if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected.";
+      });
+
+      // Show QR inline on desktop too
+      if (created?.refs?.qr_png && trustlineMsg) {
+        const qr = document.createElement("img");
+        qr.src = created.refs.qr_png;
+        qr.alt = "Scan with Xaman to set XRBC trustline";
+        qr.style.maxWidth = "240px";
+        qr.style.marginTop = "12px";
+        trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+        trustlineMsg.appendChild(qr);
       }
-    });
 
-    // DISCONNECT
-    disconnectBtn.addEventListener("click", () => {
-      setDisconnectedUI();
-      xumm.logout(); // end Xaman session so it won't auto-reconnect
-    });
+      const result = await resolved;
+      if (!result.signed) { if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed."; return; }
+      if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
+    } catch (err) {
+      if (trustlineMsg) trustlineMsg.textContent = "Error: " + err.message;
+    }
+  });
 
-    /* ===== Ledger & Order Book ===== */
-    document.getElementById("fetchLedgerBtn").addEventListener("click", async () => {
-      const ledgerOut = document.getElementById("ledgerOutput");
+  /* ========= Ledger, Order Book, Trading UI ========= */
+  async function getLedgerInfo() {
+    return await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
+  }
+  async function getXrbcOrderBook() {
+    async function fetchSide(taker_gets, taker_pays, sideName) {
+      const rows = [];
+      try {
+        const data = await xrplRequest({
+          method: "book_offers",
+          params: [{ taker_gets, taker_pays, limit: 5 }]
+        });
+        if (data.result?.offers?.length) {
+          for (const offer of data.result.offers) {
+            const gets = offer.TakerGets.value
+              ? parseFloat(offer.TakerGets.value)
+              : parseFloat(offer.TakerGets) / XRP_TO_DROPS;
+            const pays = offer.TakerPays.value
+              ? parseFloat(offer.TakerPays.value)
+              : parseFloat(offer.TakerPays) / XRP_TO_DROPS;
+            const price = pays / gets;
+            rows.push(`<tr><td>${sideName}</td><td>${price.toFixed(6)}</td><td>${gets.toFixed(2)}</td></tr>`);
+          }
+        } else {
+          rows.push(`<tr><td>${sideName}</td><td>No offers</td><td>-</td></tr>`);
+        }
+      } catch (err) {
+        rows.push(`<tr><td>${sideName}</td><td>Error</td><td>${err.message}</td></tr>`);
+      }
+      return rows;
+    }
+    const asks = await fetchSide(XRBC, { currency: "XRP" }, "Ask");
+    const bids = await fetchSide({ currency: "XRP" }, XRBC, "Bid");
+    return `
+      <div style="max-height:340px;overflow:auto;">
+        <table class="table">
+          <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
+          <tbody>${asks.join("")}${bids.join("")}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  const ledgerBtn = document.getElementById("fetchLedgerBtn");
+  if (ledgerBtn) ledgerBtn.addEventListener("click", async () => {
+    const ledgerOut = document.getElementById("ledgerOutput");
+    if (ledgerOut){
       ledgerOut.textContent = "Initializing secure connection…";
       ledgerOut.style.color = "#9fb0c5";
-      try {
-        const info = await getLedgerInfo();
+    }
+    try {
+      const info = await getLedgerInfo();
+      if (ledgerOut){
         ledgerOut.style.color = "#a3e4ff";
         ledgerOut.textContent = JSON.stringify(info, null, 2);
-      } catch (err) {
+      }
+    } catch (err) {
+      if (ledgerOut){
         ledgerOut.style.color = "#ef4444";
         ledgerOut.textContent = "Error: " + err.message;
       }
-    });
-
-    document.getElementById("fetchPriceBtn").addEventListener("click", async () => {
-      const priceOut = document.getElementById("priceOutput");
-      priceOut.textContent = "Loading XRBC/XRP order book…";
-      try {
-        const html = await getXrbcOrderBook();
-        priceOut.innerHTML = html;
-      } catch (err) {
-        priceOut.textContent = "Error: " + err.message;
-      }
-    });
-
-    /* ===== Trading UI ===== */
-    const placeOfferBtn = document.getElementById("placeOfferBtn");
-    const sideEl   = document.getElementById("side");
-    const amountEl = document.getElementById("amount");
-    const priceEl  = document.getElementById("price");
-    const stopEl   = document.getElementById("stop");
-    const tradeMsg = document.getElementById("tradeMsg");
-    const buyTab   = document.getElementById("buyTab");
-    const sellTab  = document.getElementById("sellTab");
-    const totalXrpEl  = document.getElementById("totalXrp");
-    const suggestBtn  = document.getElementById("suggestPriceBtn");
-    const actionWordEl= document.getElementById("actionWord");
-    const orderTypeEl = document.getElementById("orderType");
-    const priceField  = document.getElementById("priceField");
-    const stopField   = document.getElementById("stopField");
-    const tradeCard   = document.getElementById("tradeCard");
-
-    function setSide(side) {
-      sideEl.value = side;
-      buyTab.classList.toggle("active", side === "buy");
-      sellTab.classList.toggle("active", side === "sell");
-      buyTab.setAttribute('aria-selected', side === 'buy' ? 'true' : 'false');
-      sellTab.setAttribute('aria-selected', side === 'sell' ? 'true' : 'false');
-      if (actionWordEl) actionWordEl.textContent = side === 'buy' ? 'buy' : 'sell';
-      tradeCard.classList.toggle('buy', side === 'buy');
-      tradeCard.classList.toggle('sell', side === 'sell');
-      recalcTotals();
     }
-    function recalcTotals() {
-      const amt = Number(amountEl.value) || 0;
-      const px  = Number(priceEl.value)  || 0;
-      const total = (px || 0) * amt;
-      totalXrpEl.textContent = (isFinite(total) ? total : 0).toFixed(6) + " XRP";
+  });
+
+  const priceBtn = document.getElementById("fetchPriceBtn");
+  if (priceBtn) priceBtn.addEventListener("click", async () => {
+    const priceOut = document.getElementById("priceOutput");
+    if (priceOut) priceOut.textContent = "Loading XRBC/XRP order book…";
+    try {
+      const html = await getXrbcOrderBook();
+      if (priceOut) priceOut.innerHTML = html;
+    } catch (err) {
+      if (priceOut) priceOut.textContent = "Error: " + err.message;
     }
-    [amountEl, priceEl].forEach(el => el.addEventListener("input", recalcTotals));
+  });
 
-    // % chips (placeholder math — wire to real balance later)
-    (() => {
-      const chips = document.querySelectorAll('.quick-amounts .qa');
-      chips.forEach(btn => btn.addEventListener('click', () => {
-        const pct = Number(btn.dataset.q);
-        const current = Number(amountEl.value) || 0;
-        const target = current > 0 ? current * (pct / 100) : pct;
-        amountEl.value = target.toFixed(6);
-        amountEl.dispatchEvent(new Event('input'));
-      }));
-    })();
+  // Trading UI wires
+  const placeOfferBtn = document.getElementById("placeOfferBtn");
+  const sideEl   = document.getElementById("side");
+  const amountEl = document.getElementById("amount");
+  const priceEl  = document.getElementById("price");
+  const tradeMsg = document.getElementById("tradeMsg");
+  const buyTab   = document.getElementById("buyTab");
+  const sellTab  = document.getElementById("sellTab");
+  const totalXrpEl  = document.getElementById("totalXrp");
+  const suggestBtn  = document.getElementById("suggestPriceBtn"); // <- FIXED: use correct var
+  const orderTypeEl = document.getElementById("orderType");
+  const priceField  = document.getElementById("priceField");
+  const stopField   = document.getElementById("stopField");
+  const tradeCard   = document.getElementById("tradeCard");
+  const actionWordEl= document.getElementById("actionWord");
 
-    // Order-type behavior
-    (() => {
-      const typeTabs = document.querySelectorAll('.otype-tabs .otype');
-      typeTabs.forEach(btn => btn.addEventListener('click', () => {
-        typeTabs.forEach(b => { b.classList.toggle('active', b === btn); b.setAttribute('aria-selected', b===btn?'true':'false'); });
-        const t = btn.dataset.type;
-        orderTypeEl.value = t;
-        if (t === 'limit') { priceField.hidden = false; stopField.hidden = true; placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
-        if (t === 'market'){ priceField.hidden = true;  stopField.hidden = true; placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
-        if (t === 'stop')  { priceField.hidden = false; stopField.hidden = false; placeOfferBtn.disabled = true;  placeOfferBtn.textContent = 'Stop Orders (Preview)'; }
-        recalcTotals();
-      }));
-    })();
-
-    // Side coloring hookup
-    (() => {
-      const apply = () => {
-        tradeCard.classList.toggle('buy', buyTab.classList.contains('active'));
-        tradeCard.classList.toggle('sell', sellTab.classList.contains('active'));
-      };
-      buyTab.addEventListener('click', () => { setSide('buy'); apply(); });
-      sellTab.addEventListener('click', () => { setSide('sell'); apply(); });
-      apply();
-    })();
-
-    async function fillBestPrice() {
-      const side = sideEl.value;
-      const amount = Number(amountEl.value);
-      if (!amount || amount <= 0) {
-        tradeMsg.textContent = "Enter a valid XRBC amount.";
-        tradeMsg.classList.remove("ok", "err");
-        return;
-      }
-      tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…";
-      tradeMsg.classList.remove("ok", "err");
-      tradeMsg.classList.add("connecting");
-
-      try {
-        const data = await xrplRequest({
-          method: "amm_info",
-          params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
-        });
-        const amm = data.result?.amm;
-        if (!amm) throw new Error("No AMM found for XRBC/XRP");
-
-        const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
-        const reserveXrbc = parseFloat(amm.amount2.value);
-        const feeRate     = amm.trading_fee / 1_000_000;
-        const k           = reserveXrp * reserveXrbc;
-
-        let effectivePrice;
-        if (side === "buy") {
-          const newY = reserveXrbc - amount;
-          const newX = k / newY;
-          let xrpIn = newX - reserveXrp;
-          xrpIn += xrpIn * feeRate;
-          effectivePrice = xrpIn / amount;
-        } else {
-          const newY = reserveXrbc + amount;
-          const newX = k / newY;
-          let xrpOut = reserveXrp - newX;
-          xrpOut -= xrpOut * feeRate;
-          effectivePrice = xrpOut / amount;
-        }
-
-        priceEl.value = Number(effectivePrice).toFixed(6);
-        recalcTotals();
-        tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`;
-        tradeMsg.classList.remove("connecting");
-        tradeMsg.classList.add("ok");
-
-        const poolOut = document.getElementById("ammPoolOutput");
-        if (poolOut) {
-          poolOut.innerHTML = `
-            <table class="table">
-              <thead><tr><th>Reserve</th><th>Value</th></tr></thead>
-              <tbody>
-                <tr><td>XRP</td><td>${reserveXrp.toFixed(2)} XRP</td></tr>
-                <tr><td>XRBC</td><td>${reserveXrbc.toFixed(2)} XRBC</td></tr>
-                <tr><td>Trading Fee</td><td>${(feeRate*100).toFixed(3)}%</td></tr>
-              </tbody>
-            </table>
-          `;
-        }
-      } catch {
-        tradeMsg.textContent = "🔐 Still connecting securely to XRPL…";
-        tradeMsg.classList.add("connecting");
-      }
-    }
-
-    if (suggestBtn) suggestPriceBtn.addEventListener("click", fillBestPrice);
-    setSide(sideEl.value || "buy");
+  function setSide(side) {
+    if (!sideEl) return;
+    sideEl.value = side;
+    if (buyTab)  { buyTab.classList.toggle("active", side === "buy");  buyTab.setAttribute('aria-selected', side === 'buy' ? 'true' : 'false'); }
+    if (sellTab) { sellTab.classList.toggle("active", side === "sell"); sellTab.setAttribute('aria-selected', side === 'sell' ? 'true' : 'false'); }
+    if (actionWordEl) actionWordEl.textContent = side === 'buy' ? 'buy' : 'sell';
+    if (tradeCard) { tradeCard.classList.toggle('buy', side === 'buy'); tradeCard.classList.toggle('sell', side === 'sell'); }
     recalcTotals();
+  }
+  function recalcTotals() {
+    if (!totalXrpEl) return;
+    const amt = Number(amountEl?.value) || 0;
+    const px  = Number(priceEl?.value)  || 0;
+    const total = (px || 0) * amt;
+    totalXrpEl.textContent = (isFinite(total) ? total : 0).toFixed(6) + " XRP";
+  }
+  if (amountEl) amountEl.addEventListener("input", recalcTotals);
+  if (priceEl)  priceEl.addEventListener("input", recalcTotals);
 
-    // Auto-refresh AMM price if amount > 0
-    setInterval(() => {
-      const amt = Number(amountEl.value);
-      if (amt > 0) fillBestPrice().catch(()=>{});
-    }, 10000);
+  // % chips (demo)
+  (() => {
+    const chips = document.querySelectorAll('.quick-amounts .qa');
+    chips.forEach(btn => btn.addEventListener('click', () => {
+      const pct = Number(btn.dataset.q);
+      const current = Number(amountEl?.value) || 0;
+      const target = current > 0 ? current * (pct / 100) : pct;
+      if (amountEl){
+        amountEl.value = Number(target).toFixed(6);
+        amountEl.dispatchEvent(new Event('input'));
+      }
+    }));
+  })();
 
-    // Place Order (mobile or desktop; Xaman shows app or QR)
-    placeOfferBtn.addEventListener("click", async () => {
-      const orderType = orderTypeEl.value;
-      if (orderType === 'stop') {
-        tradeMsg.textContent = "Stop orders are UI-only for now.";
-        return;
+  // Order type tabs
+  (() => {
+    const typeTabs = document.querySelectorAll('.otype-tabs .otype');
+    typeTabs.forEach(btn => btn.addEventListener('click', () => {
+      typeTabs.forEach(b => { b.classList.toggle('active', b === btn); b.setAttribute('aria-selected', b===btn?'true':'false'); });
+      const t = btn.dataset.type;
+      if (orderTypeEl) orderTypeEl.value = t;
+      if (t === 'limit') { if(priceField) priceField.hidden = false; if(stopField) stopField.hidden = true; if(placeOfferBtn){ placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; } }
+      if (t === 'market'){ if(priceField) priceField.hidden = true;  if(stopField) stopField.hidden = true; if(placeOfferBtn){ placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; } }
+      if (t === 'stop')  { if(priceField) priceField.hidden = false; if(stopField) stopField.hidden = false; if(placeOfferBtn){ placeOfferBtn.disabled = true;  placeOfferBtn.textContent = 'Stop Orders (Preview)'; } }
+      recalcTotals();
+    }));
+  })();
+
+  // Side toggles
+  (() => {
+    const apply = () => {
+      if (!tradeCard) return;
+      tradeCard.classList.toggle('buy', buyTab?.classList.contains('active'));
+      tradeCard.classList.toggle('sell', sellTab?.classList.contains('active'));
+    };
+    if (buyTab)  buyTab.addEventListener('click', () => { setSide('buy');  apply(); });
+    if (sellTab) sellTab.addEventListener('click', () => { setSide('sell'); apply(); });
+    setSide((sideEl && sideEl.value) || 'buy'); // init
+    apply();
+  })();
+
+  async function fillBestPrice() {
+    if (!sideEl || !amountEl || !priceEl) return;
+    const side = sideEl.value;
+    const amount = Number(amountEl.value);
+    if (!amount || amount <= 0) {
+      if (tradeMsg){ tradeMsg.textContent = "Enter a valid XRBC amount."; tradeMsg.classList.remove("ok","err","connecting"); }
+      return;
+    }
+    if (tradeMsg){ tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…"; tradeMsg.classList.remove("ok","err"); tradeMsg.classList.add("connecting"); }
+
+    try {
+      const data = await xrplRequest({
+        method: "amm_info",
+        params: [{ asset: { currency: "XRP" }, asset2: { currency: XRBC.currency, issuer: XRBC.issuer } }]
+      });
+      const amm = data.result?.amm;
+      if (!amm) throw new Error("No AMM found for XRBC/XRP");
+
+      const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
+      const reserveXrbc = parseFloat(amm.amount2.value);
+      const feeRate     = amm.trading_fee / 1_000_000;
+      const k           = reserveXrp * reserveXrbc;
+
+      let effectivePrice;
+      if (side === "buy") {
+        const newY = reserveXrbc - amount;
+        const newX = k / newY;
+        let xrpIn = newX - reserveXrp;
+        xrpIn += xrpIn * feeRate;
+        effectivePrice = xrpIn / amount;
+      } else {
+        const newY = reserveXrbc + amount;
+        const newX = k / newY;
+        let xrpOut = reserveXrp - newX;
+        xrpOut -= xrpOut * feeRate;
+        effectivePrice = xrpOut / amount;
       }
 
-      try {
-        const account = window.__xrbcWallet;
-        if (!account) throw new Error("Connect your wallet first.");
-        const side   = sideEl.value;
-        const amt    = Number(amountEl.value);
-        let priceVal = Number(priceEl.value);
+      priceEl.value = Number(effectivePrice).toFixed(6);
+      recalcTotals();
+      if (tradeMsg){ tradeMsg.textContent = `Best price calculated from AMM pool (${side}).`; tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("ok"); }
+    } catch {
+      if (tradeMsg){ tradeMsg.textContent = "🔐 Still connecting securely to XRPL…"; tradeMsg.classList.add("connecting"); }
+    }
+  }
+  if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice); // <- FIXED
 
-        // For market orders, compute on-the-fly from AMM
-        if (orderType === 'market') {
-          if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
-          await fillBestPrice();
-          priceVal = Number(priceEl.value);
-          if (!priceVal || priceVal <= 0) throw new Error("Unable to fetch market estimate.");
-        } else {
-          if (!amt || !priceVal || amt <= 0 || priceVal <= 0) throw new Error("Enter valid Amount & Price.");
-        }
+  // Auto-refresh AMM estimate if amount > 0
+  setInterval(() => {
+    const amt = Number(amountEl?.value);
+    if (amt > 0) fillBestPrice().catch(()=>{});
+  }, 10000);
 
-        const xrpTotal = priceVal * amt;
-        let txjson;
+  // Place Offer
+  if (placeOfferBtn) placeOfferBtn.addEventListener("click", async () => {
+    const orderType = orderTypeEl?.value;
+    if (orderType === 'stop') {
+      if (tradeMsg) tradeMsg.textContent = "Stop orders are UI-only for now.";
+      return;
+    }
 
-        const TF_SELL = 0x00080000;
-        const TF_IOC  = 0x00020000; // ImmediateOrCancel
+    try {
+      const account = window.__xrbcWallet;
+      if (!account) throw new Error("Connect your wallet first.");
+      const side   = sideEl?.value;
+      const amt    = Number(amountEl?.value);
+      let priceVal = Number(priceEl?.value);
 
-        if (side === "sell") {
-          txjson = {
-            TransactionType: "OfferCreate",
-            Account: account,
-            TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-            TakerPays: toDrops(xrpTotal),
-            Flags: (orderType === 'market') ? (TF_SELL | TF_IOC) : TF_SELL
-          };
-        } else {
-          txjson = {
-            TransactionType: "OfferCreate",
-            Account: account,
-            TakerGets: toDrops(xrpTotal),
-            TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-            Flags: (orderType === 'market') ? TF_IOC : 0
-          };
-        }
-
-        tradeMsg.textContent = "Open Xaman to review & sign…";
-        const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-          if (ev?.opened) tradeMsg.textContent = "Payload opened in Xaman…";
-          if (ev?.signed === false) tradeMsg.textContent = "Order rejected.";
-        });
-
-        const result = await resolved;
-        if (!result.signed) { tradeMsg.textContent = "Order not signed."; return; }
-
-        tradeMsg.textContent = "Order submitted. Refreshing order book…";
-        const html = await getXrbcOrderBook();
-        document.getElementById("priceOutput").innerHTML = html;
-
-      } catch (err) {
-        tradeMsg.textContent = "Error: " + err.message;
+      if (orderType === 'market') {
+        if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
+        await fillBestPrice();
+        priceVal = Number(priceEl?.value);
+        if (!priceVal || priceVal <= 0) throw new Error("Unable to fetch market estimate.");
+      } else {
+        if (!amt || !priceVal || amt <= 0 || priceVal <= 0) throw new Error("Enter valid Amount & Price.");
       }
-    });
 
-    // Trustline (desktop shows QR automatically via Xaman SDK)
-    document.getElementById("setTrustlineBtn").addEventListener("click", async () => {
-      trustlineMsg.textContent = "Preparing trustline request…";
-      try {
-        const account = window.__xrbcWallet;
-        if (!account) throw new Error("Connect your wallet first.");
-        const txjson = {
-          TransactionType: "TrustSet",
+      const xrpTotal = priceVal * amt;
+      const TF_SELL = 0x00080000;
+      const TF_IOC  = 0x00020000;
+
+      let txjson;
+      if (side === "sell") {
+        txjson = {
+          TransactionType: "OfferCreate",
           Account: account,
-          LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+          TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          TakerPays: toDrops(xrpTotal),
+          Flags: (orderType === 'market') ? (TF_SELL | TF_IOC) : TF_SELL
         };
-
-        const { created, resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-          if (ev?.opened) trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
-          if (ev?.signed === false) trustlineMsg.textContent = "Trustline rejected.";
-        });
-
-        // Optional: show QR inline (useful on desktop)
-        if (created?.refs?.qr_png) {
-          const qr = document.createElement("img");
-          qr.src = created.refs.qr_png;
-          qr.alt = "Scan with Xaman to set XRBC trustline";
-          qr.style.maxWidth = "240px";
-          qr.style.marginTop = "12px";
-          trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-          trustlineMsg.appendChild(qr);
-        }
-
-        const result = await resolved;
-        if (!result.signed) { trustlineMsg.textContent = "Trustline not signed."; return; }
-        trustlineMsg.textContent = "✅ Trustline set successfully!";
-      } catch (err) {
-        trustlineMsg.textContent = "Error: " + err.message;
+      } else {
+        txjson = {
+          TransactionType: "OfferCreate",
+          Account: account,
+          TakerGets: toDrops(xrpTotal),
+          TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          Flags: (orderType === 'market') ? TF_IOC : 0
+        };
       }
-    });
 
-  <!-- === END of main XRPL logic block (safe closure) === -->
-<script>
-  // ===== AMM Pool updater =====
+      if (tradeMsg) tradeMsg.textContent = "Open Xaman to review & sign…";
+      const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+        if (ev?.opened && tradeMsg) tradeMsg.textContent = "Payload opened in Xaman…";
+        if (ev?.signed === false && tradeMsg) tradeMsg.textContent = "Order rejected.";
+      });
+
+      const result = await resolved;
+      if (!result.signed) { if (tradeMsg) tradeMsg.textContent = "Order not signed."; return; }
+
+      if (tradeMsg) tradeMsg.textContent = "Order submitted. Refreshing order book…";
+      const html = await getXrbcOrderBook();
+      const priceOut = document.getElementById("priceOutput");
+      if (priceOut) priceOut.innerHTML = html;
+
+    } catch (err) {
+      if (tradeMsg) tradeMsg.textContent = "Error: " + err.message;
+    }
+  });
+
+  /* ========= AMM Pool updater ========= */
   async function updateAmmPool() {
     try {
       const data = await xrplRequest({
@@ -1221,7 +1334,7 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       });
 
       const out = document.getElementById("ammPoolOutput");
-      if (!out) return; // guard if element is missing
+      if (!out) return;
 
       const amm = data.result?.amm;
       if (!amm) {
@@ -1243,44 +1356,34 @@ body.light-mode .pill-whitepaper::after{ opacity:.75; }
       if (out) out.textContent = "Error fetching AMM pool: " + err.message;
     }
   }
-
-  // kick off + refresh timer
   updateAmmPool();
-  const _ammTimer = setInterval(updateAmmPool, 15000);
+  setInterval(updateAmmPool, 15000);
 
-})(); // <— closes your big (async function () { ... }) IIFE safely
-</script>
-
-<!-- === Download Xaman button logic (separate, self-contained) === -->
-<script>
-  (function(){
-    const btn = document.getElementById('downloadXamanBtn');
-    if (!btn) return;
-
+  /* ========= Download Xaman button: QR on desktop, deep-link on mobile ========= */
+  const downloadBtn = document.getElementById('downloadXamanBtn');
+  if (downloadBtn){
     const IOS_URL      = 'https://apps.apple.com/us/app/xaman-wallet/id1492302343';
     const ANDROID_URL  = 'https://play.google.com/store/apps/details?id=com.xrpllabs.xumm';
-    const DOWNLOAD_URL = 'https://xaman.app/download';
+    const DOWNLOAD_URL = 'https://xaman.app/download'; // universal page
 
-    function getOS(){
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      if (/android/i.test(ua)) return 'android';
-      if (/iPad|iPhone|iPod/.test(ua)) return 'ios';
-      return 'other';
-    }
-
-    btn.addEventListener('click', () => {
-      const os = getOS();
-      if (os === 'android') { window.location.href = ANDROID_URL; return; }
-      if (os === 'ios')     { window.location.href = IOS_URL;     return; }
-      window.open(DOWNLOAD_URL, '_blank', 'noopener');
+    downloadBtn.addEventListener('click', () => {
+      if (isMobile){
+        // Go straight to the best universal page; store handles the rest
+        window.location.href = DOWNLOAD_URL;
+      } else {
+        // Show QR that opens the universal download page on phone
+        openMobileModal({
+          title: 'Download Xaman Wallet',
+          html: 'Scan this QR with your phone to open the official <strong>Xaman</strong> download page.',
+          url: DOWNLOAD_URL
+        });
+      }
     });
+  }
 
-    // Optional: reflect saved session in the status line, if present
-    const statusEl = document.getElementById('walletStatus');
-    const savedAcct = localStorage.getItem('xrbcWallet');
-    if (savedAcct && statusEl) statusEl.textContent = 'Connected: ' + savedAcct;
-  })();
+})(); // end IIFE
 </script>
+
 
   <!-- ===== XRBC Footer ===== -->
   <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
