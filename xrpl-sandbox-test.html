@@ -669,19 +669,57 @@ body.light-mode .otype{
 </div>
 
 
-      <!-- Buy/Sell -->
-      <div class="tabset" role="tablist" aria-label="Choose buy or sell">
-        <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
-        <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
-      </div>
 
-      <!-- Best Price ABOVE Amount -->
-    <div class="best-price-strip">
+      
+      
+      
+      <!-- Buy/Sell -->
+<div class="tabset" role="tablist" aria-label="Choose buy or sell">
+  <button id="buyTab" class="tab buy active" type="button" role="tab" aria-selected="true">Buy XRBC</button>
+  <button id="sellTab" class="tab sell" type="button" role="tab" aria-selected="false">Sell XRBC</button>
+</div>
+
+<!-- NEW: Explanation under the Buy/Sell buttons -->
+<div class="side-explain" id="sideExplain" aria-live="polite">
+  <!-- BUY: trade XRP -> receive XRBC -->
+  <div class="note buy active" data-side="buy">
+    <span class="pair-visual">
+      <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" />
+      <span class="arrow">→</span>
+      <img src="/xrbc-nft.png" alt="XRBC" />
+    </span>
+    <span class="copy">
+      <strong>Buying XRBC:</strong>
+      You’re trading <span class="nowrap">XRP</span> to receive <span class="nowrap">XRBC</span>.
+    </span>
+  </div>
+
+  <!-- SELL: trade XRBC -> receive XRP -->
+  <div class="note sell" data-side="sell" hidden>
+    <span class="pair-visual">
+      <img src="/xrbc-nft.png" alt="XRBC" />
+      <span class="arrow">→</span>
+      <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" />
+    </span>
+    <span class="copy">
+      <strong>Selling XRBC:</strong>
+      You’re trading <span class="nowrap">XRBC</span> to receive <span class="nowrap">XRP</span>.
+    </span>
+  </div>
+</div>
+
+<!-- Best Price ABOVE Amount (unchanged) -->
+<div class="best-price-strip">
   <button class="btn best-price-btn" id="suggestPriceBtn" type="button">Best Price (AMM)</button>
   <div class="hint">Auto-updates every 10s after you enter an <strong>Amount</strong>.</div>
 </div>
 
 
+  
+      
+      
+      
+      
       <!-- Amount -->
       <div class="field">
         <label for="amount">Amount (XRBC)</label>
