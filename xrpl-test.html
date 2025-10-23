@@ -861,23 +861,68 @@ body.light-mode .side-explain .note{
       <input id="orderType" type="hidden" value="limit">
     </section>
 
-    <!-- ===== Stacked cards ===== -->
-    <div class="card" style="margin:20px 0 14px;">
-      <h2 style="margin-top:0;">XRBC/XRP AMM Pool</h2>
-      <div id="ammPoolOutput">Loading pool info…</div>
+  <!-- ===== XRBC DEX — Hero Metrics Card (drop-in) ===== -->
+<section class="card" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics" style="margin:20px 0 24px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;display:flex;align-items:center;gap:10px">
+      <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
+      XRBC DEX — Live Metrics
+    </h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="dexRefreshBtn" class="btn">Refresh now</button>
+      <button id="dexShowOrderBookBtn" class="btn">Update Order Book</button>
+      <button id="dexShowLedgerBtn" class="btn">Update Ledger</button>
+    </div>
+  </div>
+
+  <!-- quick status line -->
+  <p id="dexStatus" class="status-text" style="margin:8px 0 12px">Loading…</p>
+
+  <!-- KPI grid -->
+  <div class="kpi-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px">
+    <div class="kpi card" style="padding:10px">
+      <div class="label" style="color:var(--muted);font-size:12px;">Live Price (XRP/XRBC)</div>
+      <div id="kpiPrice" class="value" style="font-weight:800;font-size:1.25rem">—</div>
+      <div class="sub" style="color:var(--muted);font-size:12px">Mid from best bid/ask</div>
+    </div>
+    <div class="kpi card" style="padding:10px">
+      <div class="label" style="color:var(--muted);font-size:12px;">Spread</div>
+      <div id="kpiSpread" class="value" style="font-weight:800;font-size:1.25rem">—</div>
+      <div id="kpiTopOfBook" class="sub" style="color:var(--muted);font-size:12px">Bid: — · Ask: —</div>
     </div>
 
-    <div class="card" style="margin:0 0 14px;">
-      <h2 style="margin-top:0;">Ledger Info</h2>
-      <button id="fetchLedgerBtn" class="btn" style="margin-bottom:12px;">Fetch Ledger Info</button>
-      <pre id="ledgerOutput" style="text-align:left;max-height:320px;overflow:auto;">—</pre>
+    <div class="kpi card" style="padding:10px">
+      <div class="label" style="color:var(--muted);font-size:12px;">AMM Reserves</div>
+      <div id="kpiReserves" class="value" style="font-weight:800;font-size:1.05rem">—</div>
+      <div id="kpiFee" class="sub" style="color:var(--muted);font-size:12px">Fee: —</div>
     </div>
+    <div class="kpi card" style="padding:10px">
+      <div class="label" style="color:var(--muted);font-size:12px;">24h Activity (experimental)</div>
+      <div id="kpiVol" class="value" style="font-weight:800;font-size:1.05rem">—</div>
+      <div id="kpiTrades" class="sub" style="color:var(--muted);font-size:12px">Trades: —</div>
+    </div>
+  </div>
 
-    <div class="card" style="margin:0 0 24px;">
-      <h2 style="margin-top:0;">XRBC/XRP Order Book</h2>
-      <button id="fetchPriceBtn" class="btn" style="margin-bottom:12px;">Get Order Book</button>
-      <div id="priceOutput" style="max-height:360px; overflow:auto;">—</div>
+  <!-- mini price chart -->
+  <div class="chart-wrap" style="border:1px dashed var(--line);border-radius:10px;padding:8px;background:linear-gradient(180deg,#0b1119,#0a0f15)">
+    <canvas id="dexMiniChart" width="900" height="200" aria-label="XRBC/XRP mini chart"></canvas>
+    <div class="inline-hint" style="margin-top:6px">
+      <span id="chartNote">Data source: on-ledger (AMM/order book). If public candles are available, we load 24h.</span>
     </div>
+  </div>
+
+  <!-- Legacy outputs (kept, now updated by the new buttons) -->
+  <div style="display:grid;gap:12px;margin-top:14px">
+    <div>
+      <h3 style="margin:0 0 6px">Ledger (validated)</h3>
+      <pre id="ledgerOutput" style="text-align:left;max-height:220px;overflow:auto;margin:0">—</pre>
+    </div>
+    <div>
+      <h3 style="margin:10px 0 6px">XRBC/XRP Order Book (top 5)</h3>
+      <div id="priceOutput" style="max-height:260px;overflow:auto;border:1px dashed var(--line);border-radius:10px;padding:8px">—</div>
+    </div>
+  </div>
+</section>
 
   </main>
 
