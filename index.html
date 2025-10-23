@@ -89,30 +89,30 @@
 
   <!-- ===== Header (unchanged positions) ===== -->
 <header class="site-header">
-  <div class="brand" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:0">
-    <img id="brand-logo" src="/xrbc-nft.png" alt="XRBitcoinCash (XRBC) logo" />
-    <h1
-      style="
-        margin:6px 0 6px;
-        line-height:1.06;
-        filter:
-          drop-shadow(0 0 8px rgba(16,185,129,.28))
-          drop-shadow(0 0 16px rgba(34,211,238,.14));
-        animation: emberFlicker 3.8s ease-in-out infinite;
-      "
-    >XRBitcoinCash</h1>
+ <nav class="header-center" role="navigation" aria-label="Primary">
+  <div class="header-nav">
+    <!-- Ecosystem (white glow) -->
+    <a
+      class="nav-pill pill-ecosys"
+      href="/xrbc-ecosystem.html"
+      title="XRBC Ecosystem · DEX/AMM"
+      <!-- aria-current="page" on /xrbc-ecosystem.html -->
+    >
+      XRBC Ecosystem · DEX/AMM
+    </a>
 
-    <!-- Action row -->
-    <nav class="header-actions" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:6px">
-
-
-      
-      <a class="btn" href="/xrbc-ecosystem.html" title="XRBC Ecosystem & Information">
-        XRBC Ecosystem
-        <small>DEX · AMM · resources</small>
-      </a>
-    </nav>
+    <!-- White Paper (black glow) -->
+    <a
+      class="nav-pill pill-whitepaper"
+      href="/whitepaper.html"
+      title="XRBC White Paper"
+      <!-- aria-current="page" on /whitepaper.html -->
+    >
+      White Paper
+    </a>
   </div>
+</nav>
+
 </header>
 
 
@@ -939,16 +939,7 @@
           Code/license: see the repository’s <a href="/LICENSE" class="muted">LICENSE</a> file.
         </p>
 
-        <!-- NEW: Whitepaper button -->
-        <a class="cta-whitepaper" href="/whitepaper.html" aria-label="Open the XRBitcoinCash Whitepaper">
-          <!-- simple doc icon -->
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#0b0f14" d="M6 2h7l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path>
-            <path fill="#ffffff" d="M13 2v5h5"></path>
-          </svg>
-          Whitepaper
-        </a>
-
+    
         <a class="cta-chatgpt" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" aria-label="Talk to ChatGPT">
           <img src="/assets/chatgpt-mark.svg" alt="" onerror="this.remove()">
           <span>Built with assistance from ChatGPT</span>
@@ -972,7 +963,7 @@
   </script>
 </footer>
 
-  <!-- ===== /XRBC Footer ===== -->
+
 
 </body>
 </html>
