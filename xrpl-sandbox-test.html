@@ -8,8 +8,7 @@
   <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm, GemWallet, Crossmark supported." />
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b0f14" />
-
-  <!-- Host-level security headers strongly recommended (not via <meta>): 
+  <!-- Host-level security headers strongly recommended (not via <meta>):
        Content-Security-Policy:
          default-src 'none'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; block-all-mixed-content; upgrade-insecure-requests;
          img-src 'self' data:; font-src 'self';
@@ -65,6 +64,11 @@
   a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
   .pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
   </style>
+
+  <!-- Xumm SDK (needed for Xumm) -->
+  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+  <!-- If Crossmark UMD is needed in some browsers:
+  <script src="https://cdn.jsdelivr.net/npm/@crossmarkio/sdk/dist/browser/crossmark.min.js" crossorigin="anonymous"></script> -->
 </head>
 <body>
   <main class="container" aria-live="polite">
@@ -84,6 +88,8 @@
 
     <section class="card" aria-labelledby="wlt">
       <h2 id="wlt">Wallet</h2>
+
+      <!-- Per-wallet quick buttons -->
       <div class="grid cols-3">
         <div>
           <h3 style="margin:0 0 6px">Xaman (Xumm)</h3>
@@ -108,12 +114,23 @@
         </div>
       </div>
 
+      <!-- Unified selector -->
+      <div class="row" style="gap:8px;margin:12px 0 0">
+        <label class="hint" for="walletSelect">Wallet</label>
+        <select id="walletSelect" aria-label="Wallet">
+          <option value="xumm">Xumm (Xaman)</option>
+          <option value="gem">GemWallet</option>
+          <option value="cross">Crossmark</option>
+        </select>
+        <button id="btnConnect"  class="btn glow-green" type="button">Connect</button>
+        <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+      </div>
+
       <div class="panel-note">
         <p class="hint" style="margin:0">Raw secret signing is disabled. Use a wallet. No keys stored.</p>
       </div>
 
       <div class="row" style="margin:10px 0 4px">
-        <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
         <button id="btnRefresh" class="btn glow-yellow" type="button">Refresh Orders</button>
         <button id="btnCancelAll" class="btn glow-blue" type="button" title="Cancel all visible open offers">Cancel All Visible Orders</button>
       </div>
@@ -176,23 +193,18 @@
   }
   </script>
 
-  <!-- Wallet SDKs -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
-  <!-- If Crossmark UMD is needed in some browsers:
-  <script src="https://cdn.jsdelivr.net/npm/@crossmarkio/sdk/dist/browser/crossmark.min.js" crossorigin="anonymous"></script> -->
-
   <script>
   (function(){
     'use strict';
 
-    // Config
+    // ===== CONFIG =====
     const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-    const PROXY_BASE = cfg.proxyUrl || '';
+    const PROXY_BASE   = cfg.proxyUrl || '';
     const XUMM_API_KEY = cfg.xummApiKey || '';
-    const XRBC = cfg.xrbc || {};
+    const XRBC         = cfg.xrbc || {};
     const XRP_TO_DROPS = 1_000_000;
 
-    // State
+    // ===== STATE =====
     const state = {
       network: 'mainnet',
       account: null,
@@ -201,26 +213,36 @@
       lastAccountInfo: null
     };
 
-    // Elements
-    const $ = (id)=>document.getElementById(id);
+    // ===== DOM =====
+    const $ = id => document.getElementById(id);
     const $walletStatus = $('walletStatus');
     const $offersStatus = $('offersStatus');
-    const $offersWrap = $('offersWrap');
-    const $resultBox = $('resultBox');
-    const $log = $('log');
-    const $btnXumm = $('btnXumm');
-    const $btnGem = $('btnGem');
-    const $btnCross = $('btnCross');
-    const $btnDisconnect = $('btnDisconnect');
-    const $btnRefresh = $('btnRefresh');
-    const $btnCancelAll = $('btnCancelAll');
-    const $networkSel = $('network');
-    const $netBadge = $('netBadge');
-    const $progress = $('progressBar');
-    const $btnTrust = $('btnTrustXRBC');
-    const $buyStatus = $('buyStatus');
+    const $offersWrap   = $('offersWrap');
+    const $resultBox    = $('resultBox');
+    const $log          = $('log');
 
-    // Utils
+    // old per-wallet buttons
+    const $btnXumm      = $('btnXumm');
+    const $btnGem       = $('btnGem');
+    const $btnCross     = $('btnCross');
+
+    // unified selector buttons
+    const $walletSelect = $('walletSelect');
+    const $btnConnect   = $('btnConnect');
+    const $btnDisconnect= $('btnDisconnect');
+
+    // page controls
+    const $btnRefresh   = $('btnRefresh');
+    const $btnCancelAll = $('btnCancelAll');
+    const $networkSel   = $('network');
+    const $netBadge     = $('netBadge');
+    const $progress     = $('progressBar');
+
+    // quick buy
+    const $btnTrust     = $('btnTrustXRBC');
+    const $buyStatus    = $('buyStatus');
+
+    // ===== UTILS =====
     function log(s){ if ($log) { $log.textContent += (s + '\n'); $log.scrollTop = $log.scrollHeight; } }
     function setStatus(node, text, cls){
       if (!node) return;
@@ -243,16 +265,14 @@
     function setProgress(pct){ if ($progress) $progress.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
     function updateNetBadge(){
       const s = state.network==='testnet'?'testnet':'mainnet';
-      $netBadge.textContent = s==='testnet'?'Testnet':'Mainnet';
-      $netBadge.className = 'badge ' + s;
+      if ($netBadge){ $netBadge.textContent = s==='testnet'?'Testnet':'Mainnet'; $netBadge.className = 'badge ' + s; }
     }
     function proxyUrl(){
-      // Keep compatibility with your existing proxy. Append ?network=testnet for switching if your proxy supports it.
       return PROXY_BASE + (state.network === 'testnet' ? '?network=testnet' : '');
     }
 
-    // XRPL proxied call (raw rippled JSON passthrough: { method, params:[{...}] })
-    async function xrplRequest(payload, {timeoutMs=10000}={}){
+    // ===== XRPL PROXY CALLS =====
+    async function xrplRequest(payload, {timeoutMs=12000}={}){
       if (!PROXY_BASE) throw new Error('Proxy URL missing');
       const ctrl = new AbortController();
       const t = setTimeout(()=>ctrl.abort(), timeoutMs);
@@ -277,11 +297,11 @@
       return r?.result;
     }
 
+    // ===== DATA LOAD =====
     async function getAccountInfo(acct){
       const r = await call('account_info', { account: acct });
       return r?.account_data || {};
     }
-
     async function fetchOffers(acct){
       setStatus($offersStatus, 'Loading open orders…');
       try{
@@ -295,7 +315,6 @@
         setStatus($offersStatus, 'Error loading offers: '+(e.message||e), 'err');
       }
     }
-
     function renderOffers(){
       $offersWrap.innerHTML = '';
       if (!state.offers.length){
@@ -330,7 +349,6 @@
       wrap.appendChild(table);
       $offersWrap.appendChild(wrap);
     }
-
     async function beforeAfterReserveReport(acct, prevInfo){
       try{
         const now = await getAccountInfo(acct);
@@ -338,20 +356,15 @@
         const nowBal  = N(now?.Balance)/XRP_TO_DROPS;
         const prevOwn = N(prevInfo?.OwnerCount);
         const nowOwn  = N(now?.OwnerCount);
-        const RESERVE_INC_XRP = 2; // protocol default per-owner-object (subject to amendment)
+        const RESERVE_INC_XRP = 2;
         const freed = Math.max(0, prevOwn - nowOwn) * RESERVE_INC_XRP;
         const delta = (nowBal - prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong> (includes fees and released funds).</div>`;
+        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
       }catch{}
     }
 
-    // Wallet adapters
-    class WalletAdapter {
-      name = 'Base';
-      async connect(){ throw new Error('not implemented'); }
-      async signAndSubmit(_tx){ throw new Error('not implemented'); }
-      async disconnect(){}
-    }
+    // ===== ADAPTERS =====
+    class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
 
     class XummAdapter extends WalletAdapter {
       constructor(){ super(); this.name='Xumm'; this.xumm=null; }
@@ -368,8 +381,8 @@
         const { resolved } = await this.xumm.payload.createAndSubscribe(
           { txjson, options:{ submit:true, expire:300 } },
           ev => {
-            if (ev?.opened) setStatus($offersStatus,'Open Xaman to review & sign…');
-            if (ev?.signed === false) setStatus($offersStatus,'Canceled in wallet.','err');
+            if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
+            if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
           }
         );
         const res = await resolved;
@@ -380,28 +393,26 @@
     }
 
     class GemWalletAdapter extends WalletAdapter {
-      constructor(){ super(); this.name='GemWallet'; this.addr=null; }
+      constructor(){ super(); this.name='GemWallet'; this.api=null; this.addr=null; }
       _api(){ return (window.gemWallet || window.GemWalletApi || null); }
       async connect(){
         const api = this._api();
-        if (!api) throw new Error('GemWallet not detected');
+        if (!api) throw new Error('GemWallet extension not detected');
         let addr = null;
         if (api.getAddress) addr = await api.getAddress();
         else if (api.request){ const r = await api.request({ method:'getAddress' }); addr = r?.address; }
         if (!addr) throw new Error('Address not granted');
-        this.addr = addr.address || addr;
+        this.api  = api; this.addr = addr.address || addr;
         return { address: this.addr };
       }
       async signAndSubmit(tx){
-        const api = this._api();
-        if (!api) throw new Error('GemWallet not detected');
-        if (api.signAndSubmitTransaction){
-          const r = await api.signAndSubmitTransaction(tx);
+        if (this.api?.signAndSubmitTransaction){
+          const r = await this.api.signAndSubmitTransaction(tx);
           if (r?.error) throw new Error(r.error);
           return { hash: r?.hash || '(pending)', result: r?.engine_result || 'submitted' };
         }
-        if (api.request){
-          const r = await api.request({ method:'signAndSubmit', params: tx });
+        if (this.api?.request){
+          const r = await this.api.request({ method:'signAndSubmit', params: tx });
           if (r?.error) throw new Error(r.error);
           return { hash: r?.hash || '(pending)', result: r?.engine_result || 'submitted' };
         }
@@ -410,26 +421,27 @@
     }
 
     class CrossmarkAdapter extends WalletAdapter {
-      constructor(){ super(); this.name='Crossmark'; this.addr=null; }
+      constructor(){ super(); this.name='Crossmark'; this.sdk=null; this.addr=null; }
       _sdk(){ return (window.crossmark || window.CROSSMARK || null); }
       async connect(){
         const sdk = this._sdk();
-        if (!sdk) throw new Error('Crossmark not detected');
-        if (sdk.connect){ const r = await sdk.connect(); this.addr = r?.address || r?.account; }
-        if (!this.addr && sdk.getAddress){ const r = await sdk.getAddress(); this.addr = r?.address; }
-        if (!this.addr) throw new Error('Address not granted');
-        return { address: this.addr };
+        if (!sdk) throw new Error('Crossmark extension not detected');
+        let r = null;
+        if (sdk.connect) r = await sdk.connect();
+        if (!r && sdk.getAddress) r = await sdk.getAddress();
+        const address = r?.address || r?.account;
+        if (!address) throw new Error('Address not granted');
+        this.sdk = sdk; this.addr = address;
+        return { address };
       }
       async signAndSubmit(tx){
-        const sdk = this._sdk();
-        if (!sdk) throw new Error('Crossmark not detected');
-        if (sdk.signAndSubmitAndWait){
-          const r = await sdk.signAndSubmitAndWait(tx);
+        if (this.sdk?.signAndSubmitAndWait){
+          const r = await this.sdk.signAndSubmitAndWait(tx);
           if (r?.error) throw new Error(r.error);
           return { hash: r?.hash || r?.id || '(pending)', result: r?.engine_result || 'submitted' };
         }
-        if (sdk.signAndSubmit){
-          const r = await sdk.signAndSubmit(tx);
+        if (this.sdk?.signAndSubmit){
+          const r = await this.sdk.signAndSubmit(tx);
           if (r?.error) throw new Error(r.error);
           return { hash: r?.hash || r?.id || '(pending)', result: r?.engine_result || 'submitted' };
         }
@@ -437,8 +449,14 @@
       }
     }
 
-    // Connect helpers
+    // ===== CONNECT HELPERS =====
     function setAdapter(ad){ state.adapter = ad; }
+    function buildAdapter(kind){
+      if (kind === 'xumm')  return new XummAdapter();
+      if (kind === 'gem')   return new GemWalletAdapter();
+      if (kind === 'cross') return new CrossmarkAdapter();
+      throw new Error('Unknown wallet');
+    }
     async function connectWith(AdapterClass){
       try{
         setStatus($walletStatus, 'Connecting…');
@@ -447,7 +465,7 @@
         state.account = address;
         setAdapter(ad);
         setStatus($walletStatus, ad.name+': '+address, 'ok');
-        $btnDisconnect.disabled = false;
+        if ($btnDisconnect) $btnDisconnect.disabled = false;
         state.lastAccountInfo = await getAccountInfo(address);
         await fetchOffers(address);
       }catch(e){
@@ -461,10 +479,10 @@
       setStatus($walletStatus, 'Status: Not connected');
       setStatus($offersStatus, '');
       setStatus($buyStatus, '');
-      $btnDisconnect.disabled = true;
+      if ($btnDisconnect) $btnDisconnect.disabled = true;
     }
 
-    // Cancel
+    // ===== CANCEL =====
     async function cancelOne(seq){
       if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
       setStatus($offersStatus, 'Preparing cancel '+seq+'…');
@@ -480,7 +498,6 @@
         throw e;
       }
     }
-
     async function cancelAll(){
       if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
       if (!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
@@ -496,14 +513,9 @@
       setStatus($offersStatus, 'Done.', 'ok');
     }
 
-    // Trust line helpers (XRBC)
-    function hexToAscii(hex){
-      try{
-        let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); }
-        return out || 'XRBC';
-      }catch{ return 'XRBC'; }
-    }
-    const XRBC_HEX = (XRBC.currencyHex || '').toUpperCase();
+    // ===== XRBC TRUST + BUY =====
+    const XRBC_HEX  = (XRBC.currencyHex || '').toUpperCase();
+    function hexToAscii(hex){ try{ let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); } return out || 'XRBC'; }catch{ return 'XRBC'; } }
     const XRBC_CODE = hexToAscii(XRBC_HEX);
 
     async function hasXRBCTrustLine(acct){
@@ -511,14 +523,12 @@
       const lines = r?.lines || [];
       return lines.some(l => ((l.currency||'').toUpperCase() === XRBC_CODE.toUpperCase()) || ((l.currency||'').toUpperCase() === XRBC_HEX));
     }
-
     async function addXRBCTrustLine(){
       if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
       setStatus($buyStatus, 'Checking trust line…');
       try{
         const exists = await hasXRBCTrustLine(state.account);
         if (exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
-        // Use 160-bit currency code for non-standard code
         const tx = {
           TransactionType: 'TrustSet',
           Account: state.account,
@@ -530,10 +540,8 @@
         setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err');
       }
     }
-
-    // Pathfinding and buy XRBC with XRP
     async function pathFindBuy(acct, valueStr){
-      const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr }; // IOU amount as hex currency
+      const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr };
       const pfWrap = await xrplRequest({
         method: 'ripple_path_find',
         params: [{
@@ -546,8 +554,6 @@
       const pf = pfWrap?.result || {};
       const alts = pf?.alternatives || [];
       if (!alts.length) throw new Error('No path found for requested amount');
-
-      // Choose cheapest in XRP
       let best = null;
       for (const a of alts){
         const sa = a.source_amount;
@@ -558,8 +564,7 @@
         if (!best || drops < best.drops) best = { alt:a, drops };
       }
       if (!best) throw new Error('No XRP route available');
-      const headroom = Math.ceil(best.drops * 1.005); // +0.5%
-
+      const headroom = Math.ceil(best.drops * 1.005);
       return {
         TransactionType: "Payment",
         Account: acct,
@@ -569,14 +574,12 @@
         Paths: best.alt.paths_computed || []
       };
     }
-
     async function buyXRBC(units){
       if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
       try{
         setStatus($buyStatus, `Preparing to buy ${units} ${XRBC_CODE}…`);
         const exists = await hasXRBCTrustLine(state.account);
         if (!exists){ setStatus($buyStatus,'No XRBC trust line. Click "Add XRBC Trust Line" first.','err'); return; }
-
         const tx = await pathFindBuy(state.account, String(units));
         const res = await state.adapter.signAndSubmit(tx);
         setStatus($buyStatus, `Buy submitted. Hash: ${(res && res.hash) ? res.hash : '(pending)'}`, 'ok');
@@ -585,18 +588,29 @@
       }
     }
 
-    // Wire UI
+    // ===== WIRE UI (per-wallet buttons + selector) =====
     $btnXumm?.addEventListener('click', ()=>connectWith(XummAdapter));
-    $btnGem?.addEventListener('click', ()=>connectWith(GemWalletAdapter));
-    $btnCross?.addEventListener('click', ()=>connectWith(CrossmarkAdapter));
+    $btnGem?.addEventListener('click',  ()=>connectWith(GemWalletAdapter));
+    $btnCross?.addEventListener('click',()=>connectWith(CrossmarkAdapter));
+
+    $btnConnect?.addEventListener('click', async ()=>{
+      try{
+        $btnConnect.disabled = true;
+        const kind = ($walletSelect?.value || 'xumm');
+        await connectWith( kind === 'xumm' ? XummAdapter : kind === 'gem' ? GemWalletAdapter : CrossmarkAdapter );
+      } finally { $btnConnect.disabled = false; }
+    });
     $btnDisconnect?.addEventListener('click', ()=>disconnect());
+
     $btnRefresh?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
     $btnCancelAll?.addEventListener('click', ()=>cancelAll());
+
     $networkSel?.addEventListener('change', ()=>{ state.network = $networkSel.value; updateNetBadge(); if (state.account) fetchOffers(state.account); });
+
     $btnTrust?.addEventListener('click', ()=>addXRBCTrustLine());
-    $('buy1')?.addEventListener('click', ()=>buyXRBC(1));
-    $('buy25')?.addEventListener('click', ()=>buyXRBC(25));
-    $('buy50')?.addEventListener('click', ()=>buyXRBC(50));
+    $('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
+    $('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
+    $('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
     $('buy100')?.addEventListener('click', ()=>buyXRBC(100));
 
     // Boot
