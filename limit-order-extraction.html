@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>XRBC · Limit Order Extraction (XRPL)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="canonical" href="https://xrbitcoincash.com/extract-orders.html" />
+  <meta name="description" content="Connect your Xaman wallet to find and cancel open XRPL limit orders (OfferCancel). Release locked XRP or XRBC back to your account." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0b0f14" />
+
+  <style>
+  :root{--wrap:980px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;--ok:#22c55e;--err:#ef4444;--accent:#60a5fa}
+  *{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .container{max-width:var(--wrap);margin:16px auto;padding:0 16px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  h1,h2{margin:.2em 0}
+  .btn{appearance:none;border:1px solid var(--line);border-radius:10px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap}
+  .status{font-size:13px;color:var(--muted)}
+  .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+  th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .hint{color:var(--muted);font-size:12px}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
+  .pill-xrp{color:#22c55e} .pill-xrbc{color:#60a5fa}
+  .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+  .footer{margin-top:20px;color:#9fb0c5;font-size:12px}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>XRBC · Limit Order Extraction</h1>
+    <p class="hint" role="note">
+      Connect your wallet to locate open XRPL offers and cancel them with <strong>OfferCancel</strong>. Funds locked in those offers are released back to your account after the transaction validates.
+    </p>
+
+    <section class="card" style="margin-top:12px">
+      <h2>Wallet</h2>
+      <div class="btn-row" style="margin:8px 0 10px">
+        <button id="btnConnect" class="btn">Connect Xaman</button>
+        <button id="btnDisconnect" class="btn" disabled>Disconnect</button>
+        <button id="btnRefresh" class="btn">Refresh Offers</button>
+        <button id="btnCancelAll" class="btn" title="Cancel all visible open offers">Cancel All Visible</button>
+      </div>
+      <p id="walletStatus" class="status" role="status" aria-live="polite">Status: Not connected</p>
+      <p class="hint">No keys ever requested. All actions are signed in Xaman.</p>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <h2>Open Offers</h2>
+      <div id="offersWrap" class="hint">No data yet.</div>
+      <p id="offersStatus" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <h2>Important</h2>
+      <div class="warn">
+        This utility cancels offers on the XRP Ledger. If an offer cannot be canceled, the ledger will reject the transaction. Always verify the account address and offer details in Xaman before signing.
+      </div>
+      <p class="footer">
+        XRBC issuer: <span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span> · Currency code: <span class="mono">5852626974636F696E6361736800000000000000</span>.
+      </p>
+    </section>
+  </main>
+
+  <!-- Config -->
+  <script type="application/json" id="app-config">
+  {
+    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+  }
+  </script>
+  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+
+  <script>
+  (function(){
+    const cfg = JSON.parse(document.getElementById("app-config").textContent || "{}");
+    const PROXY_URL = cfg.proxyUrl || "";
+    const XRP_TO_DROPS = 1_000_000;
+
+    const XRBC = {
+      currency: "5852626974636F696E6361736800000000000000",
+      issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+    };
+    const isXRP = a => typeof a === 'string'; // drops string
+    const fmtXRP = drops => (Number(drops)/XRP_TO_DROPS).toFixed(6) + " XRP";
+    const fmtIOU = o => Number(o.value).toFixed(6) + " " + (o.currency === XRBC.currency ? "XRBC" : o.currency);
+
+    async function xrplRequest(payload, {timeoutMs=10000} = {}){
+      if (!PROXY_URL) throw new Error("Proxy URL missing");
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeoutMs);
+      try{
+        const res = await fetch(PROXY_URL, {
+          method:"POST", headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload), signal: ctrl.signal
+        });
+        if (!res.ok) throw new Error("Proxy HTTP " + res.status);
+        const data = await res.json();
+        if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
+        return data;
+      } finally { clearTimeout(t); }
+    }
+
+    let xumm = null;
+    const btnConnect = document.getElementById('btnConnect');
+    const btnDisconnect = document.getElementById('btnDisconnect');
+    const btnRefresh = document.getElementById('btnRefresh');
+    const btnCancelAll = document.getElementById('btnCancelAll');
+    const walletStatus = document.getElementById('walletStatus');
+    const offersWrap = document.getElementById('offersWrap');
+    const offersStatus = document.getElementById('offersStatus');
+
+    function setStatus(el, txt, cls){
+      if (!el) return;
+      el.textContent = txt;
+      el.classList.remove('ok','err');
+      if (cls) el.classList.add(cls);
+    }
+
+    function priceFrom(gets, pays){
+      const getsNum = isXRP(gets) ? (Number(gets)/XRP_TO_DROPS) : Number(gets.value);
+      const paysNum = isXRP(pays) ? (Number(pays)/XRP_TO_DROPS) : Number(pays.value);
+      if (!isFinite(getsNum) || getsNum <= 0) return "—";
+      return (paysNum/getsNum).toFixed(6);
+    }
+
+    function renderOffers(list){
+      if (!list || !list.length){
+        offersWrap.innerHTML = '<div class="hint">No open offers found.</div>';
+        return;
+      }
+      const rows = list.map(o => {
+        const getsStr = isXRP(o.taker_gets) ? fmtXRP(o.taker_gets) : fmtIOU(o.taker_gets);
+        const paysStr = isXRP(o.taker_pays) ? fmtXRP(o.taker_pays) : fmtIOU(o.taker_pays);
+        const px = priceFrom(o.taker_gets, o.taker_pays);
+        const seq = o.seq;
+        return `
+          <tr>
+            <td><span class="mono">${seq}</span></td>
+            <td>${getsStr}</td>
+            <td>${paysStr}</td>
+            <td>${px}</td>
+            <td><button class="btn btn-cancel" data-seq="${seq}">Cancel</button></td>
+          </tr>
+        `;
+      }).join('');
+      offersWrap.innerHTML = `
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Offer Seq</th>
+                <th>Owner gets</th>
+                <th>Owner pays</th>
+                <th>Price (pays/gets)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+      offersWrap.querySelectorAll('.btn-cancel').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const seq = Number(btn.getAttribute('data-seq'));
+          await cancelOne(seq);
+        });
+      });
+    }
+
+    async function fetchOffers(acct){
+      setStatus(offersStatus, "Loading open offers…");
+      try{
+        const r = await xrplRequest({ method:"account_offers", params:[{ account: acct, ledger_index:"validated", limit:400 }] });
+        const offers = r?.result?.offers || [];
+        renderOffers(offers);
+        setStatus(offersStatus, `Found ${offers.length} open offer(s).`, "ok");
+      } catch(e){
+        renderOffers([]);
+        setStatus(offersStatus, "Error loading offers: " + (e?.message || e), "err");
+      }
+    }
+
+    async function cancelOne(seq){
+      const acct = window.__acct;
+      if (!acct){ setStatus(offersStatus, "Connect wallet first.", "err"); return; }
+      try{
+        setStatus(offersStatus, `Canceling offer ${seq}…`);
+        const txjson = { TransactionType:"OfferCancel", Account:acct, OfferSequence: seq };
+        const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+          if (ev?.opened) setStatus(offersStatus, "Open Xaman to review & sign…");
+          if (ev?.signed === false) setStatus(offersStatus, "Canceled in wallet.", "err");
+        });
+        const res = await resolved;
+        if (!res?.signed){ setStatus(offersStatus, "Offer not canceled.", "err"); return; }
+        setStatus(offersStatus, `✅ Offer ${seq} cancel submitted. Refreshing…`, "ok");
+        await fetchOffers(acct);
+      } catch(e){
+        setStatus(offersStatus, "Error: " + (e?.message || e), "err");
+      }
+    }
+
+    async function cancelAllVisible(){
+      const acct = window.__acct;
+      if (!acct){ setStatus(offersStatus, "Connect wallet first.", "err"); return; }
+      const rows = offersWrap.querySelectorAll('button.btn-cancel');
+      if (!rows.length){ setStatus(offersStatus, "No visible offers to cancel.", "err"); return; }
+      if (!confirm(`Cancel ${rows.length} visible offer(s)? You will sign each transaction in Xaman.`)) return;
+      for (const btn of Array.from(rows)){
+        const seq = Number(btn.getAttribute('data-seq'));
+        await cancelOne(seq);
+      }
+      setStatus(offersStatus, "Done.", "ok");
+    }
+
+    // Xumm init
+    if (typeof Xumm !== 'undefined'){
+      xumm = new Xumm(cfg.xummApiKey);
+      btnConnect.addEventListener('click', async () => {
+        try{
+          setStatus(walletStatus, "Waiting for Xaman…");
+          await xumm.authorize();
+          const acct = await xumm.user.account;
+          if (acct){
+            window.__acct = acct;
+            setStatus(walletStatus, "Connected: " + acct, "ok");
+            btnDisconnect.disabled = false;
+            await fetchOffers(acct);
+          } else {
+            setStatus(walletStatus, "Still waiting for Xaman…");
+          }
+        } catch {
+          setStatus(walletStatus, "Connect canceled or timed out. Ensure Xaman is installed.", "err");
+        }
+      });
+      btnDisconnect.addEventListener('click', () => {
+        window.__acct = null;
+        try{ xumm.logout(); }catch{}
+        btnDisconnect.disabled = true;
+        offersWrap.innerHTML = '<div class="hint">No data yet.</div>';
+        setStatus(walletStatus, "Status: Not connected");
+      });
+    } else {
+      btnConnect.disabled = true;
+      setStatus(walletStatus, "Xaman SDK not loaded.", "err");
+    }
+
+    btnRefresh.addEventListener('click', async () => {
+      if (!window.__acct){ setStatus(walletStatus, "Connect first.", "err"); return; }
+      await fetchOffers(window.__acct);
+    });
+    btnCancelAll.addEventListener('click', cancelAllVisible);
+  })();
+  </script>
+</body>
+</html>
