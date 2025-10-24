@@ -876,53 +876,94 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
       try { xumm.logout(); } catch {}
     });
 
-  if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
-  try {
-    // Require an active wallet connection
-    const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
-    if (!acct) {
-      if (trustlineMsg) {
-        trustlineMsg.textContent =
-          "Please connect your wallet first (use the “Connect Wallet” button above), then try again.";
+  
+    
+    
+    
+if (setTrustBtn) {
+  setTrustBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    try {
+      const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
+      if (!acct) {
+        trustlineMsg && (trustlineMsg.textContent = "Please connect your wallet first.");
+        connectBtn && connectBtn.focus();
+        return;
       }
-      if (connectBtn) connectBtn.focus();
-      return;
-    }
 
-    if (trustlineMsg) {
-      trustlineMsg.textContent =
-        "Preparing trustline request… Make sure your wallet stays connected.";
-    }
-    setTrustBtn.disabled = true;
+      setTrustBtn.disabled = true;
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    const txjson = {
-      TransactionType: "TrustSet",
-      Account: acct,
-      LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
-    };
+      // TrustSet payload
+      const txjson = {
+        TransactionType: "TrustSet",
+        Account: acct,
+        LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+      };
 
-    // If it takes a moment, give the user a nudge
-    const waitingTimer = setTimeout(() => {
-      if (trustlineMsg) {
-        trustlineMsg.textContent =
-          "Waiting for Xaman… open the app or scan the QR to review and sign.";
+      if (isMobile) {
+        // Mobile: open in Xaman (no QR)
+        trustlineMsg && (trustlineMsg.textContent = "Preparing trustline request… (sign in Xaman)");
+        const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
+          if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Review in Xaman…";
+          if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected.";
+        });
+        const result = await resolved;
+        trustlineMsg && (trustlineMsg.textContent = result?.signed ? "✅ Trustline set!" : "Trustline not signed.");
+        return;
       }
-    }, 4000);
 
-    const { created, resolved } = await xumm.payload.createAndSubscribe(
-      { txjson },
-      (ev) => {
-        if (ev?.opened && trustlineMsg) {
-          trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+      // Desktop: generate a NEW payload & show a NEW QR every click
+      trustlineMsg && (trustlineMsg.textContent = "Preparing trustline request…");
+      const { created, resolved } = await xumm.payload.createAndSubscribe(
+        { txjson },
+        (ev) => {
+          if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+          if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected. You can try again.";
         }
-        if (ev?.signed === false && trustlineMsg) {
-          trustlineMsg.textContent = "Trustline rejected. You can try again.";
-        }
+      );
+
+      // Replace any previous content and inject a cache-busted QR
+      if (created?.refs?.qr_png && trustlineMsg) {
+        const url = created.refs.qr_png;
+        trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+        const qr = document.createElement("img");
+        qr.alt = "Scan with Xaman to set XRBC trustline";
+        qr.style.maxWidth = "240px";
+        qr.style.marginTop = "12px";
+        qr.decoding = "async";
+        // IMPORTANT: cache-buster so the browser never reuses an old QR
+        qr.src = url + (url.includes("?") ? "&" : "?") + "cb=" + Date.now();
+        trustlineMsg.appendChild(qr);
       }
-    );
 
-    clearTimeout(waitingTimer);
+      // (Optional) gentle timeout message if user leaves it sitting
+      const regenTimer = setTimeout(() => {
+        if (trustlineMsg) trustlineMsg.textContent = "QR likely expired. Click the button again to generate a new one.";
+      }, 60_000);
 
+      const result = await resolved;
+      clearTimeout(regenTimer);
+
+      if (!result?.signed) {
+        trustlineMsg && (trustlineMsg.textContent = "Trustline not signed.");
+        return;
+      }
+
+      trustlineMsg && (trustlineMsg.textContent = "✅ Trustline set successfully!");
+    } catch (err) {
+      trustlineMsg && (trustlineMsg.textContent = "Error: " + (err?.message || err));
+    } finally {
+      setTrustBtn.disabled = false;
+    }
+  });
+}
+
+ 
+    
+    
+    
+    
     // Show QR if available (clean slate to avoid stacking)
     if (created?.refs?.qr_png && trustlineMsg) {
       trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
