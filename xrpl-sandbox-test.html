@@ -567,12 +567,14 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
             </div>
             <div class="label">Scan to download Xaman Wallet</div>
           </div>
-        </div>
+       </div>
 
-        <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button">Set XRBC Trustline</button>
-        <button id="connectWalletBtn" class="btn glow glow-green" type="button">Connect Wallet</button>
-        <button id="disconnectWalletBtn" class="btn glow glow-red" type="button" disabled>Disconnect</button>
-      </div>
+  <!-- Buttons in correct workflow order -->
+  <button id="connectWalletBtn" class="btn glow glow-green" type="button">Connect Wallet</button>
+  <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button">Set XRBC Trustline</button>
+  <button id="disconnectWalletBtn" class="btn glow glow-red" type="button" disabled>Disconnect</button>
+</div>
+
 
       <p id="walletStatus" class="status-text">Status: Not connected</p>
       <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
@@ -874,43 +876,83 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
       try { xumm.logout(); } catch {}
     });
 
-    if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
-      if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request…";
-      try {
-        const acct = window.__xrbcWallet;
-        const txjson = {
-          TransactionType: "TrustSet",
-          LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
-        };
-        if (acct) txjson.Account = acct;
-
-        const { created, resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-          if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
-          if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected.";
-        });
-
-        if (created?.refs?.qr_png && trustlineMsg) {
-          const qr = document.createElement("img");
-          qr.src = created.refs.qr_png;
-          qr.alt = "Scan with Xaman to set XRBC trustline";
-          qr.style.maxWidth = "240px";
-          qr.style.marginTop = "12px";
-          trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-          trustlineMsg.appendChild(qr);
-        }
-
-        const result = await resolved;
-        if (!result.signed) { if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed."; return; }
-        if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
-      } catch (err) {
-        if (trustlineMsg) trustlineMsg.textContent = "Error: " + (err?.message || err);
+  if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
+  try {
+    // Require an active wallet connection
+    const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
+    if (!acct) {
+      if (trustlineMsg) {
+        trustlineMsg.textContent =
+          "Please connect your wallet first (use the “Connect Wallet” button above), then try again.";
       }
-    });
-  } else {
-    console.warn("Xumm SDK not loaded — wallet actions disabled.");
-    if (connectBtn) connectBtn.disabled = true;
-    if (setTrustBtn) setTrustBtn.disabled = true;
+      if (connectBtn) connectBtn.focus();
+      return;
+    }
+
+    if (trustlineMsg) {
+      trustlineMsg.textContent =
+        "Preparing trustline request… Make sure your wallet stays connected.";
+    }
+    setTrustBtn.disabled = true;
+
+    const txjson = {
+      TransactionType: "TrustSet",
+      Account: acct,
+      LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+    };
+
+    // If it takes a moment, give the user a nudge
+    const waitingTimer = setTimeout(() => {
+      if (trustlineMsg) {
+        trustlineMsg.textContent =
+          "Waiting for Xaman… open the app or scan the QR to review and sign.";
+      }
+    }, 4000);
+
+    const { created, resolved } = await xumm.payload.createAndSubscribe(
+      { txjson },
+      (ev) => {
+        if (ev?.opened && trustlineMsg) {
+          trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+        }
+        if (ev?.signed === false && trustlineMsg) {
+          trustlineMsg.textContent = "Trustline rejected. You can try again.";
+        }
+      }
+    );
+
+    clearTimeout(waitingTimer);
+
+    // Show QR if available (clean slate to avoid stacking)
+    if (created?.refs?.qr_png && trustlineMsg) {
+      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+      const qr = document.createElement("img");
+      qr.src = created.refs.qr_png;
+      qr.alt = "Scan with Xaman to set XRBC trustline";
+      qr.style.maxWidth = "240px";
+      qr.style.marginTop = "12px";
+      trustlineMsg.appendChild(qr);
+    }
+
+    const result = await resolved;
+    if (!result?.signed) {
+      if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed.";
+      return;
+    }
+    if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
+  } catch (err) {
+    if (trustlineMsg) trustlineMsg.textContent = "Error: " + (err?.message || err);
+  } finally {
+    setTrustBtn.disabled = false;
   }
+});
+} else {
+  console.warn("Xumm SDK not loaded — wallet actions disabled.");
+  if (connectBtn) connectBtn.disabled = true;
+  if (setTrustBtn) setTrustBtn.disabled = true;
+  if (trustlineMsg) trustlineMsg.textContent = "Wallet features unavailable: Xaman SDK not loaded.";
+}
+
 
   /* ===== Trading UI ===== */
   const sideEl      = document.getElementById("side");
