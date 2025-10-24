@@ -98,6 +98,8 @@ img{max-width:100%;height:auto;display:block}.mono{font-family:ui-monospace,SFMo
 body.light-mode{--bg:#ffffff;--panel:#ffffff;--panel-2:#ffffff;--ink:#0b0f14;--muted:#4b5565;--line:#000;background:#fff;color:var(--ink)}
 body.light-mode .card,body.light-mode .trade-card,body.light-mode .btn,body.light-mode .nav-pill{background:#ffffff!important;color:var(--ink)!important;border-color:var(--line)!important;box-shadow:none!important}
 body.light-mode .asset-chip{background:#fff;border-color:#000;box-shadow:none}
+.pill-home::after{background:radial-gradient(closest-side, rgba(255,255,255,.45), transparent 70%);}
+
   </style>
 </head>
 <body>
@@ -111,7 +113,8 @@ body.light-mode .asset-chip{background:#fff;border-color:#000;box-shadow:none}
       <nav class="header-center" aria-label="Primary">
         <div class="header-nav">
           <a class="nav-pill" href="/trade.html">Trade</a>
-          <a class="nav-pill" href="/xrbc-ecosystem.html">Ecosystem</a>
+          <a class="nav-pill pill-home" href="/" title="Home" aria-label="Home">Home</a>
+
           <a class="nav-pill" href="/whitepaper.html">White Paper</a>
         </div>
       </nav>
