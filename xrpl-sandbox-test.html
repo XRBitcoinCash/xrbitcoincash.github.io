@@ -480,6 +480,86 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
 @media (prefers-reduced-motion:reduce){
   *{ transition:none !important; animation:none !important; }
 }
+
+
+
+
+
+    
+/* =============================
+   XRBC DEX light-mode fixes
+   (append at end of CSS)
+   ============================= */
+
+/* Make the trade card itself a light/transparent panel */
+body.light-mode #tradeCard{
+  background: transparent !important;
+  color: var(--ink) !important;            /* dark text */
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+
+/* Inputs, tabs, chips, helper strips become transparent with dark text */
+body.light-mode #tradeCard .field input,
+body.light-mode #tradeCard .tab,
+body.light-mode #tradeCard .qa,
+body.light-mode #tradeCard .best-price-btn,
+body.light-mode #tradeCard .best-price-strip,
+body.light-mode #tradeCard .total-line,
+body.light-mode #tradeCard .btn-primary {
+  background: transparent !important;
+  color: var(--ink) !important;            /* dark text */
+  border-color: var(--line) !important;
+  box-shadow: none !important;
+}
+
+/* Input placeholder & label legibility */
+body.light-mode #tradeCard .field input::placeholder { color: var(--muted) !important; }
+body.light-mode #tradeCard .field label { color: var(--muted) !important; }
+
+/* Inline hints and helper text */
+body.light-mode #tradeCard .inline-hint,
+body.light-mode #tradeCard .best-price-strip .hint,
+body.light-mode #tradeCard .status-text { color: var(--muted) !important; }
+
+/* Status color variants remain readable on light */
+body.light-mode #tradeCard .status-text.ok  { color: #16a34a !important; }  /* green-600 */
+body.light-mode #tradeCard .status-text.err { color: #dc2626 !important; }  /* red-600 */
+body.light-mode #tradeCard .status-text.connecting {
+  color: #0ea5e9 !important;               /* sky-600 */
+}
+
+/* Table in the order book: light header & dark text */
+body.light-mode #tradeCard .table thead th{
+  background: #f3f4f6 !important;          /* light gray */
+  color: #111827 !important;               /* near-black */
+  border-bottom-color: var(--line) !important;
+}
+body.light-mode #tradeCard .table td{
+  color: var(--ink) !important;
+  border-bottom-color: #e5e7eb !important; /* light row separators */
+}
+
+/* Side-explain blocks are already handled for light mode, just ensure text */
+body.light-mode #tradeCard .side-explain .note { color: #2c3644 !important; }
+
+/* Ensure the buy/sell active states keep their accent borders without filling */
+body.light-mode #tradeCard .tab.buy.active,
+body.light-mode #tradeCard .tab.sell.active {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Make asset chips keep dark text in light mode within the trade card */
+body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var(--ink) !important; }
+
+
+
+
+
+    
+  
+  
   </style>
 </head>
 <body>
