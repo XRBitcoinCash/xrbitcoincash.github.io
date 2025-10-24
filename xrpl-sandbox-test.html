@@ -8,7 +8,8 @@
   <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm, GemWallet, Crossmark supported." />
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b0f14" />
-  <!-- Strongly recommend setting these headers at the origin, not as <meta http-equiv>:
+
+  <!-- Host-level security headers strongly recommended (not via <meta>): 
        Content-Security-Policy:
          default-src 'none'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; block-all-mixed-content; upgrade-insecure-requests;
          img-src 'self' data:; font-src 'self';
@@ -31,7 +32,7 @@
   <style>
   :root{
     --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
-    --ok:#22c55e;--err:#ef4444;--accent:#60a5fa;--blue:#2563eb;--yellow:#f59e0b;--red:#ef4444;--green:#22c55e
+    --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
   }
   *{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
   body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
@@ -39,12 +40,12 @@
   .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:12px}
   h1,h2,h3{margin:.2em 0}
   .row{display:flex;gap:12px;flex-wrap:wrap}
-  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;position:relative}
+  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px}
   .btn:disabled{opacity:.6;cursor:not-allowed}
-  .btn.glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
-  .btn.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
-  .btn.glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
-  .btn.glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+  .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+  .glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+  .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
+  .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
   .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
   table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
   th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
@@ -86,7 +87,7 @@
       <div class="grid cols-3">
         <div>
           <h3 style="margin:0 0 6px">Xaman (Xumm)</h3>
-          <p class="hint">Mobile-first. Desktop shows QR. Signing happens in-app.</p>
+          <p class="hint">Mobile-first. Desktop QR. Signing happens in-app.</p>
           <div class="row">
             <button id="btnXumm" class="btn glow-green" type="button">Connect Xumm</button>
           </div>
@@ -108,9 +109,7 @@
       </div>
 
       <div class="panel-note">
-        <p class="hint" style="margin:0">
-          Advanced signer with raw secrets is disabled for safety. Use a wallet. No keys stored.
-        </p>
+        <p class="hint" style="margin:0">Raw secret signing is disabled. Use a wallet. No keys stored.</p>
       </div>
 
       <div class="row" style="margin:10px 0 4px">
@@ -139,7 +138,7 @@
 
     <section class="card" aria-labelledby="buyxrbc">
       <h2 id="buyxrbc">Quick Buy · XR Bitcoin Cash (XRBC)</h2>
-      <p class="hint">Requires XRBC trust line. We can add it for you. Buys use XRPL pathfinding and may route through AMM pools or order books.</p>
+      <p class="hint">Requires XRBC trust line. Buys use XRPL pathfinding and may route through AMM pools or order books.</p>
       <div class="row">
         <button id="btnTrustXRBC" class="btn" type="button" title="Add XRBC trust line">Add XRBC Trust Line</button>
         <span class="pill">Issuer: <span class="mono" id="xrbcIssuerPill">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></span>
@@ -156,7 +155,7 @@
     <section class="card" aria-labelledby="important">
       <h2 id="important">Important</h2>
       <div class="warn">
-        One click cancels one, many, or all open orders. Verify every transaction in your wallet before approving. Transactions are irreversible. Fees apply. Ensure your wallet and this page use the same network.
+        Verify every transaction in your wallet before approving. Transactions are final. Fees apply. Ensure the same network in wallet and page.
       </div>
       <p class="footer">
         Disclaimer: Not a broker or custodian. You sign in your wallet. Canceling releases reserves and returns any remaining locked assets to your balance. Use at your own risk. Verify on an explorer if in doubt.
@@ -168,12 +167,11 @@
   <script type="application/json" id="app-config">
   {
     "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "REPLACE_WITH_XUMM_API_KEY",
+    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
     "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
     "xrbc": {
       "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-      "currencyHex": "5852626974636F696E6361736800000000000000"  // XRBitcoinCash in 160-bit hex
-      /* NOTE: A trust line to this issuer/currency is required to hold XRBC. */
+      "currencyHex": "5852626974636F696E6361736800000000000000"
     }
   }
   </script>
@@ -189,7 +187,7 @@
 
     // Config
     const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-    const PROXY_URL = cfg.proxyUrl || '';
+    const PROXY_BASE = cfg.proxyUrl || '';
     const XUMM_API_KEY = cfg.xummApiKey || '';
     const XRBC = cfg.xrbc || {};
     const XRP_TO_DROPS = 1_000_000;
@@ -248,17 +246,21 @@
       $netBadge.textContent = s==='testnet'?'Testnet':'Mainnet';
       $netBadge.className = 'badge ' + s;
     }
+    function proxyUrl(){
+      // Keep compatibility with your existing proxy. Append ?network=testnet for switching if your proxy supports it.
+      return PROXY_BASE + (state.network === 'testnet' ? '?network=testnet' : '');
+    }
 
-    // Proxyed XRPL call
-    async function xrplRequest(method, params, {timeoutMs=10000}={}){
-      if (!PROXY_URL) throw new Error('Proxy URL missing');
+    // XRPL proxied call (raw rippled JSON passthrough: { method, params:[{...}] })
+    async function xrplRequest(payload, {timeoutMs=10000}={}){
+      if (!PROXY_BASE) throw new Error('Proxy URL missing');
       const ctrl = new AbortController();
       const t = setTimeout(()=>ctrl.abort(), timeoutMs);
       try{
-        const res = await fetch(PROXY_URL, {
+        const res = await fetch(proxyUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ method, params:[{...params, ledger_index:'validated'}], network: state.network }),
+          body: JSON.stringify(payload),
           signal: ctrl.signal,
           redirect: 'error',
           cache: 'no-store',
@@ -267,19 +269,23 @@
         if (!res.ok) throw new Error('Proxy HTTP '+res.status);
         const data = await res.json();
         if (data && data.error) throw new Error('XRPL '+(data.error?.message||'error'));
-        return data?.result || data;
+        return data; // keep original shape { result: {...} }
       } finally { clearTimeout(t); }
+    }
+    async function call(method, params){
+      const r = await xrplRequest({ method, params:[{...params, ledger_index:'validated'}] });
+      return r?.result;
     }
 
     async function getAccountInfo(acct){
-      const r = await xrplRequest('account_info', { account: acct });
+      const r = await call('account_info', { account: acct });
       return r?.account_data || {};
     }
 
     async function fetchOffers(acct){
       setStatus($offersStatus, 'Loading open orders…');
       try{
-        const r = await xrplRequest('account_offers', { account: acct, limit: 500 });
+        const r = await call('account_offers', { account: acct, limit: 500 });
         state.offers = r?.offers || [];
         renderOffers();
         setStatus($offersStatus, `Found ${state.offers.length} open offer(s).`, 'ok');
@@ -332,10 +338,10 @@
         const nowBal  = N(now?.Balance)/XRP_TO_DROPS;
         const prevOwn = N(prevInfo?.OwnerCount);
         const nowOwn  = N(now?.OwnerCount);
-        const RESERVE_INC_XRP = 2; // owner reserve per object (subject to protocol changes)
+        const RESERVE_INC_XRP = 2; // protocol default per-owner-object (subject to amendment)
         const freed = Math.max(0, prevOwn - nowOwn) * RESERVE_INC_XRP;
         const delta = (nowBal - prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong> (includes fees and any released funds).</div>`;
+        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong> (includes fees and released funds).</div>`;
       }catch{}
     }
 
@@ -351,6 +357,7 @@
       constructor(){ super(); this.name='Xumm'; this.xumm=null; }
       async connect(){
         if (typeof Xumm === 'undefined') throw new Error('Xumm SDK not loaded');
+        if (!XUMM_API_KEY) throw new Error('Xumm API key missing');
         this.xumm = new Xumm(XUMM_API_KEY);
         await this.xumm.authorize();
         const acct = await this.xumm.user.account;
@@ -359,7 +366,7 @@
       }
       async signAndSubmit(txjson){
         const { resolved } = await this.xumm.payload.createAndSubscribe(
-          { txjson, options:{ submit:true, expire:300 } }, // submit by Xumm for safety
+          { txjson, options:{ submit:true, expire:300 } },
           ev => {
             if (ev?.opened) setStatus($offersStatus,'Open Xaman to review & sign…');
             if (ev?.signed === false) setStatus($offersStatus,'Canceled in wallet.','err');
@@ -380,7 +387,7 @@
         if (!api) throw new Error('GemWallet not detected');
         let addr = null;
         if (api.getAddress) addr = await api.getAddress();
-        else if (api.request) { const r = await api.request({ method:'getAddress' }); addr = r?.address; }
+        else if (api.request){ const r = await api.request({ method:'getAddress' }); addr = r?.address; }
         if (!addr) throw new Error('Address not granted');
         this.addr = addr.address || addr;
         return { address: this.addr };
@@ -454,6 +461,7 @@
       setStatus($walletStatus, 'Status: Not connected');
       setStatus($offersStatus, '');
       setStatus($buyStatus, '');
+      $btnDisconnect.disabled = true;
     }
 
     // Cancel
@@ -489,19 +497,19 @@
     }
 
     // Trust line helpers (XRBC)
-    function hexCurrencyToCode(hex){
-      // 160-bit hex to ASCII, stop at first null
+    function hexToAscii(hex){
       try{
         let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); }
         return out || 'XRBC';
       }catch{ return 'XRBC'; }
     }
-    const XRBC_CODE = hexCurrencyToCode(XRBC.currencyHex||'');
+    const XRBC_HEX = (XRBC.currencyHex || '').toUpperCase();
+    const XRBC_CODE = hexToAscii(XRBC_HEX);
 
     async function hasXRBCTrustLine(acct){
-      const r = await xrplRequest('account_lines', { account: acct, peer: XRBC.issuer, limit: 400 });
+      const r = await call('account_lines', { account: acct, peer: XRBC.issuer, limit: 400 });
       const lines = r?.lines || [];
-      return lines.some(l => (l.currency||'').toUpperCase() === XRBC_CODE.toUpperCase());
+      return lines.some(l => ((l.currency||'').toUpperCase() === XRBC_CODE.toUpperCase()) || ((l.currency||'').toUpperCase() === XRBC_HEX));
     }
 
     async function addXRBCTrustLine(){
@@ -510,10 +518,11 @@
       try{
         const exists = await hasXRBCTrustLine(state.account);
         if (exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
+        // Use 160-bit currency code for non-standard code
         const tx = {
           TransactionType: 'TrustSet',
           Account: state.account,
-          LimitAmount: { currency: XRBC_CODE, issuer: XRBC.issuer, value: "1000000000" } // large cap
+          LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }
         };
         await state.adapter.signAndSubmit(tx);
         setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
@@ -524,42 +533,41 @@
 
     // Pathfinding and buy XRBC with XRP
     async function pathFindBuy(acct, valueStr){
-      // Destination = self. Amount = IOU we want. Paths and SendMax come from ripple_path_find. No tfPartialPayment => full delivery or fail.
-      const AMOUNT = { currency: XRBC_CODE, issuer: XRBC.issuer, value: valueStr };
-      const pf = await xrplRequest('ripple_path_find', {
-        source_account: acct,
-        destination_account: acct,
-        destination_amount: AMOUNT,
-        source_currencies: [ { currency: "XRP" } ]
-      }, {timeoutMs: 12000});
-
+      const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr }; // IOU amount as hex currency
+      const pfWrap = await xrplRequest({
+        method: 'ripple_path_find',
+        params: [{
+          source_account: acct,
+          destination_account: acct,
+          destination_amount: AMOUNT,
+          source_currencies: [ { currency: "XRP" } ]
+        }]
+      }, {timeoutMs: 15000});
+      const pf = pfWrap?.result || {};
       const alts = pf?.alternatives || [];
       if (!alts.length) throw new Error('No path found for requested amount');
 
-      // Pick cheapest source_amount in XRP:
+      // Choose cheapest in XRP
       let best = null;
       for (const a of alts){
-        // source_amount may be string (drops) or object
-        const drops = typeof a.source_amount === 'string'
-          ? N(a.source_amount)
-          : (a.source_amount.currency === 'XRP' ? Math.round(N(a.source_amount.value) * XRP_TO_DROPS) : Infinity);
+        const sa = a.source_amount;
+        const drops = typeof sa === 'string'
+          ? N(sa)
+          : (sa && sa.currency === 'XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
         if (!isFinite(drops)) continue;
-        if (!best || drops < best._drops){ best = { alt:a, _drops:drops }; }
+        if (!best || drops < best.drops) best = { alt:a, drops };
       }
       if (!best) throw new Error('No XRP route available');
+      const headroom = Math.ceil(best.drops * 1.005); // +0.5%
 
-      // Add a small headroom to SendMax (e.g. +0.5%) to reduce race failures:
-      const headroom = Math.ceil(best._drops * 1.005);
-
-      const paymentTx = {
+      return {
         TransactionType: "Payment",
         Account: acct,
         Destination: acct,
         Amount: AMOUNT,
-        SendMax: String(headroom), // in drops
+        SendMax: String(headroom),
         Paths: best.alt.paths_computed || []
       };
-      return paymentTx;
     }
 
     async function buyXRBC(units){
