@@ -651,7 +651,39 @@ body.light-mode .side-explain .note{
   .book-compact .table{ font-size:.85rem; }
   .ledger-compact{ font-size:11px; }
 }
+/* Theme toggle — keep label white in all themes */
+#themeToggle{
+  appearance:none;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:linear-gradient(180deg,#0e1520,#0c131c);
+  /* force white label */
+  color:#ffffff !important;
+  text-shadow:
+    0 0 8px rgba(255,255,255,.65),
+    0 0 16px rgba(96,165,250,.35);
+  font-weight:800;
+  line-height:1;
+  padding:8px 12px;
+  box-shadow:0 0 18px rgba(0,182,255,.35), var(--shadow);
+  cursor:pointer;
+  transition:filter .2s ease, border-color .2s ease, box-shadow .2s ease, transform .06s ease;
+}
+#themeToggle:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.05);
+  border-color:#324355;
+}
 
+/* Explicit light-mode override (defensive): keep white label + dark gradient */
+body.light-mode #themeToggle{
+  color:#ffffff !important;
+  background:linear-gradient(180deg,#0e1520,#0c131c) !important;
+  border-color:#000000; /* reads clean on light header */
+  text-shadow:
+    0 0 8px rgba(255,255,255,.65),
+    0 0 16px rgba(96,165,250,.35);
+}
   </style>
 
 
