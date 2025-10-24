@@ -820,6 +820,12 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
     });
   })();
 
+
+  
+  
+  
+  
+  
   /* ===== Xumm SDK: connect / disconnect / trustline ===== */
   let xumm = null;
   const walletStatus  = document.getElementById("walletStatus");
@@ -889,16 +895,23 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
       return;
     }
 
+
+    
+    
     if (trustlineMsg) {
       trustlineMsg.textContent =
         "Preparing trustline request… Make sure your wallet stays connected.";
     }
     setTrustBtn.disabled = true;
 
+  
+    
+    
+    
     const txjson = {
       TransactionType: "TrustSet",
       Account: acct,
-      LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+      LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "21000000" }
     };
 
     // If it takes a moment, give the user a nudge
@@ -923,17 +936,7 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
 
     clearTimeout(waitingTimer);
 
-    // Show QR if available (clean slate to avoid stacking)
-    if (created?.refs?.qr_png && trustlineMsg) {
-      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
-      const qr = document.createElement("img");
-      qr.src = created.refs.qr_png;
-      qr.alt = "Scan with Xaman to set XRBC trustline";
-      qr.style.maxWidth = "240px";
-      qr.style.marginTop = "12px";
-      trustlineMsg.appendChild(qr);
-    }
-
+   
     const result = await resolved;
     if (!result?.signed) {
       if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed.";
