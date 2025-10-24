@@ -127,68 +127,10 @@ body.light-mode .warn-banner{
 
 /* Light-mode + trade card overrides (unchanged) */
 /* … (omitted for brevity) … */
- 
-  
-  /* Code-gated page lock */
-.lock-overlay{position:fixed;inset:0;background:rgba(8,12,18,.78);backdrop-filter:blur(4px) saturate(120%);display:none;align-items:center;justify-content:center;z-index:9999}
-.lock-overlay.open{display:flex}
-.lock-panel{background:#0e1520;border:1px solid var(--line);border-radius:12px;padding:20px;max-width:420px;width:92%;box-shadow:var(--shadow);text-align:center}
-.lock-panel h3{margin:0 0 6px}
-.lock-panel .row{display:flex;gap:8px;margin-top:10px}
-.lock-panel input{flex:1;min-height:42px;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#0c131c;color:var(--ink)}
-.lock-panel button{min-height:42px}
-
-/* Disable page interactions while locked, but allow inside lock panel */
-body.demo-lock :is(button,.btn,[role="button"],a[href],input,select,textarea){pointer-events:none !important}
-body.demo-lock .lock-panel :is(button,.btn,[role="button"],a[href],input,select,textarea){pointer-events:auto !important}
-body.demo-lock{user-select:none}
-body.demo-lock main{filter:saturate(.2) brightness(.85)}
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   </style>
 </head>
 <body>
 
-  
-  
-  
-  
-  <button id="adminLockBtn" type="button" title="Lock/Unlock">🔒</button>
-
-
-  
-  
   <!-- ===== Header ===== -->
   <header class="site-header">
     <div class="header-wrap">
@@ -432,24 +374,6 @@ body.demo-lock main{filter:saturate(.2) brightness(.85)}
     </section>
   </main>
 
-<div id="lockOverlay" class="lock-overlay" aria-modal="true" role="dialog" aria-labelledby="lockTitle" hidden>
-  <div class="lock-panel">
-    <h3 id="lockTitle">Admin access</h3>
-    <p id="lockModeText">Enter code to lock or unlock this page.</p>
-    <form id="unlockForm">
-      <div class="row">
-        <input id="unlockCode" type="password" inputmode="numeric" pattern="[0-9]*"
-               autocomplete="one-time-code" placeholder="Access code" aria-label="Access code">
-        <button type="submit" class="btn glow glow-yellow">Submit</button>
-      </div>
-    </form>
-    <div id="lockMsg" class="status-text" style="min-height:1em;margin-top:6px"></div>
-    <button id="closeLock" type="button" class="btn glow glow-white" style="margin-top:10px">Close</button>
-  </div>
-</div>
-
-
-  
   <!-- ===== Config (must be before scripts use it) ===== -->
   <script type="application/json" id="app-config">
   {
@@ -1021,129 +945,9 @@ body.demo-lock main{filter:saturate(.2) brightness(.85)}
   document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll().catch(()=>{}); });
   window.addEventListener("focus", () => refreshAll().catch(()=>{}));
   setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
-
-
-/* Code-gated page lock */
-.lock-overlay{position:fixed;inset:0;background:rgba(8,12,18,.78);backdrop-filter:blur(4px) saturate(120%);display:none;align-items:center;justify-content:center;z-index:9999}
-.lock-overlay.open{display:flex}
-.lock-panel{background:#0e1520;border:1px solid var(--line);border-radius:12px;padding:20px;max-width:420px;width:92%;box-shadow:var(--shadow);text-align:center}
-.lock-panel h3{margin:0 0 6px}
-.lock-panel .row{display:flex;gap:8px;margin-top:10px}
-.lock-panel input{flex:1;min-height:42px;font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#0c131c;color:var(--ink)}
-.lock-panel button{min-height:42px}
-
-/* Disable page interactions while locked, but allow inside lock panel */
-body.demo-lock :is(button,.btn,[role="button"],a[href],input,select,textarea){pointer-events:none !important}
-body.demo-lock .lock-panel :is(button,.btn,[role="button"],a[href],input,select,textarea){pointer-events:auto !important}
-body.demo-lock{user-select:none}
-body.demo-lock main{filter:saturate(.2) brightness(.85)}
-Add this button in the header controls (e.g., inside .header-right):
-
-html
-Copy code
-<button id="adminLockBtn" type="button" title="Lock/Unlock">🔒</button>
-Add this overlay near the end of <body>:
-
-html
-Copy code
-<div id="lockOverlay" class="lock-overlay" aria-modal="true" role="dialog" aria-labelledby="lockTitle" hidden>
-  <div class="lock-panel">
-    <h3 id="lockTitle">Admin access</h3>
-    <p id="lockModeText">Enter code to lock or unlock this page.</p>
-    <form id="unlockForm">
-      <div class="row">
-        <input id="unlockCode" type="password" inputmode="numeric" pattern="[0-9]*"
-               autocomplete="one-time-code" placeholder="Access code" aria-label="Access code">
-        <button type="submit" class="btn glow glow-yellow">Submit</button>
-      </div>
-    </form>
-    <div id="lockMsg" class="status-text" style="min-height:1em;margin-top:6px"></div>
-    <button id="closeLock" type="button" class="btn glow glow-white" style="margin-top:10px">Close</button>
-  </div>
-</div>
-Add this JS inside your existing IIFE (anywhere after the DOM is present):
-
-js
-Copy code
-/* ===== Admin lock (code = 1101) ===== */
-(function lockInit(){
-  const LOCK_CODE = '1101';
-  const overlay   = document.getElementById('lockOverlay');
-  const lockBtn   = document.getElementById('adminLockBtn');
-  const form      = document.getElementById('unlockForm');
-  const codeInput = document.getElementById('unlockCode');
-  const lockMsg   = document.getElementById('lockMsg');
-  const modeTxt   = document.getElementById('lockModeText');
-  const closeBtn  = document.getElementById('closeLock');
-
-  const isLocked = () => document.body.classList.contains('demo-lock');
-
-  function openOverlay(){
-    overlay.hidden = false;
-    overlay.classList.add('open');
-    codeInput.value = '';
-    lockMsg.textContent = '';
-    requestAnimationFrame(() => codeInput.focus());
-    renderMode();
-  }
-  function closeOverlay(){
-    overlay.classList.remove('open');
-    setTimeout(() => { if (!overlay.classList.contains('open')) overlay.hidden = true; }, 150);
-  }
-  function setLocked(on){
-    document.body.classList.toggle('demo-lock', !!on);
-    localStorage.setItem('xrbc-locked', on ? '1' : '0');
-    if (on){ overlay.hidden = false; overlay.classList.add('open'); }
-    renderMode();
-    if (!on) closeOverlay();
-  }
-  function renderMode(){
-    const locked = isLocked();
-    modeTxt.textContent = locked ? 'Page is locked. Enter code to unlock.' : 'Enter code to lock this page.';
-    closeBtn.style.display = locked ? 'none' : 'inline-block';
-    closeBtn.disabled = locked;
-  }
-
-  // Restore saved state
-  if (localStorage.getItem('xrbc-locked') === '1') setLocked(true);
-
-  // Open admin prompt
-  lockBtn?.addEventListener('click', openOverlay);
-
-  // Submit handler
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const ok = codeInput.value === LOCK_CODE;
-    if (!ok){ lockMsg.textContent = 'Wrong code.'; return; }
-    setLocked(!isLocked());
-  });
-
-  closeBtn?.addEventListener('click', closeOverlay);
-
-  // Small safeguard: keep focus in overlay while locked
-  document.addEventListener('keydown', (e) => {
-    if (!isLocked()) return;
-    if (!overlay.contains(document.activeElement)) { codeInput.focus(); e.preventDefault(); }
-  }, true);
-
-  // Optional console helpers
-  window.XRBC_LOCK = () => setLocked(true);
-  window.XRBC_UNLOCK = () => setLocked(false);
-
-
 })();
   </script>
 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
   <!-- ===== XRBC Footer ===== -->
   <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
     <div class="wrap">
