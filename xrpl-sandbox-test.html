@@ -548,66 +548,37 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
       </div>
     </div>
 
-<!-- Wallet card (with desktop pop-down QRs; mobile opens Xaman directly) -->
-<div class="card wallet-card" style="margin:16px 0 20px;">
-  <h2 class="wallet-title">
-    <img src="/xrbc-nft.png" alt="XRBC logo" width="22" height="22">
-    <span>Connect wallet to the XRBC decentralized exchange</span>
-  </h2>
+    <!-- Wallet card (single, with in-flow QR popover) -->
+    <div class="card wallet-card" style="margin:16px 0 20px;">
+      <h2 class="wallet-title">
+        <img src="/xrbc-nft.png" alt="XRBC logo" width="22" height="22">
+        <span>Connect wallet to the XRBC decentralized exchange</span>
+      </h2>
 
-  <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
-    <!-- Download (always QR on desktop, direct link on mobile) -->
-    <div class="dl-wrap">
-      <button id="btnDownloadXaman" class="btn glow glow-white" aria-expanded="false" type="button">
-        Download Xaman
-      </button>
-      <div id="downloadPopover" class="qr-popover collapse" role="region"
-           aria-label="Download Xaman QR" aria-hidden="true" hidden>
-        <div class="qr">
-          <img id="downloadQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
-        </div>
-        <div class="label">Scan to download Xaman Wallet</div>
-      </div>
-    </div>
+      <div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
+        <div class="dl-wrap">
+          <button id="btnDownloadXaman" class="btn glow glow-white" aria-expanded="false" type="button">
+            Download Xaman
+          </button>
+          <div id="downloadPopover" class="qr-popover collapse" role="region"
+               aria-label="Download Xaman QR" aria-hidden="true" hidden>
+            <div class="qr">
+              <img id="downloadQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
+            </div>
+            <div class="label">Scan to download Xaman Wallet</div>
+          </div>
+       </div>
 
-    <!-- Connect (QR on desktop; deep-link/sign on mobile) -->
-    <div class="dl-wrap">
-      <button id="connectWalletBtn" class="btn glow glow-green" type="button" aria-expanded="false" aria-controls="connectPopover">
-        Connect Wallet
-      </button>
-      <div id="connectPopover" class="qr-popover collapse" role="region" aria-label="Connect Wallet" aria-hidden="true" hidden>
-        <div class="qr"><img id="connectQr" alt="Scan with Xaman to connect" width="180" height="180" decoding="async" loading="eager"></div>
-        <div class="label" id="connectLabel">Scan with Xaman to connect</div>
-      </div>
-    </div>
-
-    <!-- Trustline (QR on desktop; sign in-app on mobile) -->
-    <div class="dl-wrap">
-      <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button" aria-expanded="false" aria-controls="trustPopover">
-        Set XRBC Trustline
-      </button>
-      <div id="trustPopover" class="qr-popover collapse" role="region" aria-label="Set XRBC Trustline" aria-hidden="true" hidden>
-        <div class="qr"><img id="trustQr" alt="Scan with Xaman to set trustline" width="180" height="180" decoding="async" loading="eager"></div>
-        <div class="label" id="trustLabel">Preparing trustline request…</div>
-      </div>
-    </div>
-
-    <!-- Disconnect (confirmation pop-down) -->
-    <div class="dl-wrap">
-      <button id="disconnectWalletBtn" class="btn glow glow-red" type="button" aria-expanded="false" aria-controls="disconnectPopover" disabled>
-        Disconnect
-      </button>
-      <div id="disconnectPopover" class="qr-popover collapse" role="region" aria-label="Disconnect status" aria-hidden="true" hidden>
-        <div class="qr"><img id="disconnectQr" alt="Status" width="180" height="180" decoding="async" loading="eager"></div>
-        <div class="label" id="disconnectLabel">Your wallet has been disconnected.</div>
-      </div>
-    </div>
-  </div>
-
-  <p id="walletStatus" class="status-text">Status: Not connected</p>
-  <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+  <!-- Buttons in correct workflow order -->
+  <button id="connectWalletBtn" class="btn glow glow-green" type="button">Connect Wallet</button>
+  <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button">Set XRBC Trustline</button>
+  <button id="disconnectWalletBtn" class="btn glow glow-red" type="button" disabled>Disconnect</button>
 </div>
 
+
+      <p id="walletStatus" class="status-text">Status: Not connected</p>
+      <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+    </div>
 
     <!-- ===== Trading UI (exchange style) ===== -->
     <section class="trade-card" id="tradeCard" aria-label="XRBC Trading">
@@ -761,319 +732,267 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
 
   <!-- ===== Page Script (consolidated & repaired) ===== -->
   <script>
-<script>
-/* ========= Xaman SDK: connect / disconnect / trustline (desktop=QR, mobile=direct) ========= */
-(() => {
+(function(){
+  /* ===== Utilities / Config ===== */
   const cfgNode = document.getElementById("app-config");
-  if (!cfgNode) return;
-  const cfg = JSON.parse(cfgNode.textContent || "{}");
+  const cfg = cfgNode ? JSON.parse(cfgNode.textContent || "{}") : {};
+  const PROXY_URL = cfg.proxyUrl || "";
+  const XRP_TO_DROPS = 1_000_000;
 
-  // Elements
-  const statusEl       = document.getElementById("walletStatus");
-  const trustlineMsg   = document.getElementById("trustlineMsg");
-
-  const downloadBtn    = document.getElementById("btnDownloadXaman");
-  const dlPopover      = document.getElementById("downloadPopover");
-  const dlQr           = document.getElementById("downloadQr");
-
-  const connectBtn     = document.getElementById("connectWalletBtn");
-  const connectPop     = document.getElementById("connectPopover");
-  const connectQr      = document.getElementById("connectQr");
-  const connectLabel   = document.getElementById("connectLabel");
-
-  const setTrustBtn    = document.getElementById("setTrustlineBtn");
-  const trustPop       = document.getElementById("trustPopover");
-  const trustQr        = document.getElementById("trustQr");
-  const trustLabel     = document.getElementById("trustLabel");
-
-  const disconnectBtn  = document.getElementById("disconnectWalletBtn");
-  const discPop        = document.getElementById("disconnectPopover");
-  const discQr         = document.getElementById("disconnectQr");
-  const discLabel      = document.getElementById("disconnectLabel");
-
-  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-  // Pop-down helpers
-  function openPopover(btn, pop) {
-    if (!btn || !pop) return;
-    pop.hidden = false;
-    pop.classList.add("open");
-    pop.setAttribute("aria-hidden", "false");
-    btn.setAttribute("aria-expanded", "true");
-  }
-  function closePopover(btn, pop) {
-    if (!btn || !pop) return;
-    pop.classList.remove("open");
-    pop.setAttribute("aria-hidden", "true");
-    btn.setAttribute("aria-expanded", "false");
-    setTimeout(() => { if (!pop.classList.contains("open")) pop.hidden = true; }, 300);
-  }
-  function setQr(imgEl, url) { if (imgEl) imgEl.src = url || ""; }
-
-  // Download: QR on desktop, direct on mobile
-  if (downloadBtn && dlPopover && dlQr) {
-    const DOWNLOAD_URL = "https://xaman.app/download";
-    if (!dlQr.src) setQr(dlQr, "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encodeURIComponent(DOWNLOAD_URL));
-    downloadBtn.addEventListener("click", (e) => {
-      if (isMobile) { window.location.href = DOWNLOAD_URL; return; }
-      e.preventDefault();
-      (dlPopover.classList.contains("open") ? closePopover : openPopover)(downloadBtn, dlPopover);
-    });
-    document.addEventListener("click", (ev) => {
-      if (!dlPopover.hidden && !downloadBtn.closest(".dl-wrap").contains(ev.target)) closePopover(downloadBtn, dlPopover);
-    });
-    document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !dlPopover.hidden) closePopover(downloadBtn, dlPopover); });
-  }
-
-  // Xaman SDK
-  let xumm = null;
-  if (typeof Xumm !== "undefined") {
-    xumm = new Xumm(cfg.xummApiKey);
-  } else {
-    console.warn("Xumm SDK not loaded — wallet actions disabled.");
-    [connectBtn, setTrustBtn, disconnectBtn].forEach(b => b && (b.disabled = true));
-    if (statusEl) statusEl.textContent = "Wallet features unavailable: Xaman SDK not loaded.";
-    return;
-  }
-
-  // UI state
-  function setConnectedUI(acct) {
-    if (statusEl) statusEl.textContent = "Connected: " + acct;
-    window.__xrbcWallet = acct;
-    localStorage.setItem("xrbcWallet", acct);
-    if (disconnectBtn) disconnectBtn.disabled = false;
-    if (connectBtn)    connectBtn.disabled = true;
-  }
-  function setDisconnectedUI() {
-    if (statusEl) statusEl.textContent = "Status: Not connected";
-    window.__xrbcWallet = null;
-    localStorage.removeItem("xrbcWallet");
-    if (disconnectBtn) disconnectBtn.disabled = true;
-    if (connectBtn)    connectBtn.disabled = false;
-  }
-
-  // Restore session if possible
-  const savedAcct = localStorage.getItem("xrbcWallet");
-  if (savedAcct) setConnectedUI(savedAcct);
-
-  xumm.on("ready", async () => {
-    try {
-      const acct = await xumm.user.account;
-      if (acct) setConnectedUI(acct);
-    } catch {}
-  });
-  window.addEventListener("visibilitychange", () => { if (!document.hidden) xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}); });
-  window.addEventListener("focus", () => xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}));
-
-  // XRBC constants for trustline
   const XRBC = {
     currency: "5852626974636F696E6361736800000000000000",
     issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
 
-  /* ========== CONNECT ========== */
-  if (connectBtn) {
-    connectBtn.addEventListener("click", async (e) => {
+  async function xrplRequest(payload){
+    if (!PROXY_URL) throw new Error("Proxy URL missing");
+    const res = await fetch(PROXY_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Proxy HTTP " + res.status);
+    const data = await res.json();
+    if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
+    return data;
+  }
+  const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
+
+  /* ===== Theme toggle ===== */
+  (function themeInit(){
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('xrbc-theme');
+    if (saved === 'light') document.body.classList.add('light-mode');
+    const sync = () => btn && btn.setAttribute('aria-pressed', document.body.classList.contains('light-mode') ? 'true' : 'false');
+    sync();
+    if (btn){
+      btn.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('xrbc-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        sync();
+      });
+    }
+  })();
+
+  /* ===== Download Xaman popover (single instance, no duplicate IDs) ===== */
+  (function initDownloadPopover(){
+    const wrap = document.querySelector(".dl-wrap");
+    if (!wrap) return;
+
+    const DOWNLOAD_URL = "https://xaman.app/download";
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    const downloadBtn = document.getElementById("btnDownloadXaman");
+    const pop = document.getElementById("downloadPopover");
+    const qrImg = document.getElementById("downloadQr");
+
+    if (!downloadBtn || !pop) return;
+
+    if (qrImg && !qrImg.src){
+      qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encodeURIComponent(DOWNLOAD_URL);
+    }
+
+    function openPopover(){
+      pop.hidden = false;
+      pop.classList.add("open");
+      pop.setAttribute("aria-hidden","false");
+      downloadBtn.setAttribute("aria-expanded","true");
+    }
+    function closePopover(){
+      pop.classList.remove("open");
+      pop.setAttribute("aria-hidden","true");
+      downloadBtn.setAttribute("aria-expanded","false");
+      setTimeout(() => { if (!pop.classList.contains("open")) pop.hidden = true; }, 300);
+    }
+
+    downloadBtn.addEventListener("click", (e) => {
+      if (isMobile) { window.location.href = DOWNLOAD_URL; return; }
       e.preventDefault();
-      try {
-        connectBtn.disabled = true;
-
-        if (isMobile) {
-          // Mobile: open Xaman directly (no QR pop-down)
-          if (statusEl) statusEl.textContent = "Opening Xaman to connect…";
-          await xumm.authorize();
-          const acct = await xumm.user.account;
-          if (acct) setConnectedUI(acct);
-          else if (statusEl) statusEl.textContent = "Still waiting for Xaman…";
-        } else {
-          // Desktop: show QR pop-down using SignIn payload
-          if (connectLabel) connectLabel.textContent = "Preparing secure sign-in…";
-          openPopover(connectBtn, connectPop);
-
-          const { created, resolved } = await xumm.payload.createAndSubscribe(
-            { txjson: { TransactionType: "SignIn" } },
-            (ev) => {
-              if (ev?.opened && connectLabel) connectLabel.textContent = "Open Xaman (or scan QR) to connect…";
-              if (ev?.signed === false && connectLabel) connectLabel.textContent = "Connection was rejected.";
-            }
-          );
-
-          if (created?.refs?.qr_png) setQr(connectQr, created.refs.qr_png);
-
-          const result = await resolved;
-          if (result?.signed) {
-            const acct = await xumm.user.account;
-            if (acct) {
-              setConnectedUI(acct);
-              if (connectLabel) connectLabel.textContent = "✅ Connected!";
-              setTimeout(() => closePopover(connectBtn, connectPop), 900);
-            }
-          } else {
-            if (connectLabel) connectLabel.textContent = "Connection not signed.";
-          }
-        }
-      } catch (err) {
-        if (connectLabel) connectLabel.textContent = "Error: " + (err?.message || err);
-        if (statusEl) statusEl.textContent = "Failed to connect wallet";
-      } finally {
-        if (!window.__xrbcWallet) connectBtn.disabled = false;
-      }
+      (pop.classList.contains("open") ? closePopover : openPopover)();
     });
 
-    // Close desktop pop-down if clicking away
-    document.addEventListener("click", (ev) => {
-      if (connectPop && !connectPop.hidden && !connectBtn.closest(".dl-wrap").contains(ev.target)) {
-        closePopover(connectBtn, connectPop);
-      }
+    document.addEventListener("click", (e) => {
+      if (pop.hidden) return;
+      if (!wrap.contains(e.target)) closePopover();
     });
-    document.addEventListener("keydown", (ev) => {
-      if (connectPop && ev.key === "Escape" && !connectPop.hidden) closePopover(connectBtn, connectPop);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !pop.hidden) closePopover();
     });
+  })();
+
+  /* ===== Xumm SDK: connect / disconnect / trustline ===== */
+  let xumm = null;
+  const walletStatus  = document.getElementById("walletStatus");
+  const trustlineMsg  = document.getElementById("trustlineMsg");
+  const connectBtn    = document.getElementById("connectWalletBtn");
+  const disconnectBtn = document.getElementById("disconnectWalletBtn");
+  const setTrustBtn   = document.getElementById("setTrustlineBtn");
+
+  function setConnectedUI(acct){
+    if (walletStatus) walletStatus.textContent = "Connected: " + acct;
+    window.__xrbcWallet = acct;
+    localStorage.setItem("xrbcWallet", acct);
+    if (disconnectBtn) disconnectBtn.disabled = false;
+    if (connectBtn) connectBtn.disabled = true;
+  }
+  function setDisconnectedUI(){
+    if (walletStatus) walletStatus.textContent = "Status: Not connected";
+    window.__xrbcWallet = null;
+    localStorage.removeItem("xrbcWallet");
+    if (disconnectBtn) disconnectBtn.disabled = true;
+    if (connectBtn) connectBtn.disabled = false;
   }
 
-  /* ========== TRUSTLINE ========== */
-  if (setTrustBtn) {
-    setTrustBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
+  if (typeof Xumm !== 'undefined'){
+    xumm = new Xumm(cfg.xummApiKey);
+
+    const savedAcct = localStorage.getItem("xrbcWallet");
+    if (savedAcct) setConnectedUI(savedAcct);
+
+    xumm.on("ready", async () => {
+      try{
+        const acct = await xumm.user.account;
+        if (acct) setConnectedUI(acct);
+      } catch {}
+    });
+
+    window.addEventListener("visibilitychange", () => { if (!document.hidden) { xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}); } });
+    window.addEventListener("focus", () => { xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}); });
+
+    if (connectBtn) connectBtn.addEventListener("click", async () => {
       try {
-        const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
-        if (!acct) {
-          if (trustlineMsg) trustlineMsg.textContent = "Please connect your wallet first (use “Connect Wallet”), then try again.";
-          if (connectBtn) connectBtn.focus();
-          return;
-        }
-
-        setTrustBtn.disabled = true;
-
-        const txjson = {
-          TransactionType: "TrustSet",
-          Account: acct,
-          LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
-        };
-
-        if (isMobile) {
-          // Mobile: create payload and hand control to Xaman; no QR pop-down
-          if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request… (sign in Xaman)";
-          const { resolved } = await xumm.payload.createAndSubscribe({ txjson }, (ev) => {
-            if (ev?.opened && trustlineMsg) trustlineMsg.textContent = "Review in Xaman…";
-            if (ev?.signed === false && trustlineMsg) trustlineMsg.textContent = "Trustline rejected. You can try again.";
-          });
-          const result = await resolved;
-          if (!result?.signed) { if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed."; return; }
-          if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
-        } else {
-          // Desktop: show QR pop-down
-          if (trustLabel) trustLabel.textContent = "Preparing trustline request… Make sure your wallet stays connected.";
-          openPopover(setTrustBtn, trustPop);
-
-          const { created, resolved } = await xumm.payload.createAndSubscribe(
-            { txjson },
-            (ev) => {
-              if (ev?.opened && trustLabel) trustLabel.textContent = "Open Xaman (or scan QR) to review…";
-              if (ev?.signed === false && trustLabel) trustLabel.textContent = "Trustline rejected. You can try again.";
-            }
-          );
-
-          if (created?.refs?.qr_png) setQr(trustQr, created.refs.qr_png);
-
-          const result = await resolved;
-          if (!result?.signed) { if (trustLabel) trustLabel.textContent = "Trustline not signed."; return; }
-
-          if (trustLabel) trustLabel.textContent = "✅ Trustline set successfully!";
-          if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
-          setTimeout(() => closePopover(setTrustBtn, trustPop), 1200);
-        }
-      } catch (err) {
-        if (trustLabel) trustLabel.textContent = "Error: " + (err?.message || err);
-        if (trustlineMsg && !isMobile) trustlineMsg.textContent = "Error: " + (err?.message || err);
-      } finally {
-        setTrustBtn.disabled = false;
+        if (walletStatus) walletStatus.textContent = "Waiting for Xaman… (scan QR if shown)";
+        await xumm.authorize();
+        const acct = await xumm.user.account;
+        if (acct) setConnectedUI(acct);
+        else if (walletStatus) walletStatus.textContent = "Still waiting for Xaman…";
+      } catch {
+        if (walletStatus) walletStatus.textContent = "Failed to connect wallet";
       }
     });
 
-    // Close desktop pop-down if clicking away
-    document.addEventListener("click", (ev) => {
-      if (trustPop && !trustPop.hidden && !setTrustBtn.closest(".dl-wrap").contains(ev.target)) {
-        closePopover(setTrustBtn, trustPop);
+    if (disconnectBtn) disconnectBtn.addEventListener("click", () => {
+      setDisconnectedUI();
+      try { xumm.logout(); } catch {}
+    });
+
+  if (setTrustBtn) setTrustBtn.addEventListener("click", async () => {
+  try {
+    // Require an active wallet connection
+    const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
+    if (!acct) {
+      if (trustlineMsg) {
+        trustlineMsg.textContent =
+          "Please connect your wallet first (use the “Connect Wallet” button above), then try again.";
       }
-    });
-    document.addEventListener("keydown", (ev) => {
-      if (trustPop && ev.key === "Escape" && !trustPop.hidden) closePopover(setTrustBtn, trustPop);
-    });
-  }
+      if (connectBtn) connectBtn.focus();
+      return;
+    }
 
-  /* ========== DISCONNECT ========== */
-  if (disconnectBtn) {
-    disconnectBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      try {
-        disconnectBtn.disabled = true;
-        await xumm.logout();
-        setDisconnectedUI();
+    if (trustlineMsg) {
+      trustlineMsg.textContent =
+        "Preparing trustline request… Make sure your wallet stays connected.";
+    }
+    setTrustBtn.disabled = true;
 
-    // SAFETY: outside-click + Escape handlers for disconnect popover (guard nulls)
-document.addEventListener("click", (ev) => {
-  if (!discPop || discPop.hidden) return;
-  // If disconnectBtn is missing on this page/state, fall back to using the popover node
-  const anchor = (disconnectBtn && disconnectBtn.closest?.(".dl-wrap")) || discPop;
-  if (!anchor.contains(ev.target)) {
-    closePopover(disconnectBtn, discPop);
+    const txjson = {
+      TransactionType: "TrustSet",
+      Account: acct,
+      LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "1000000" }
+    };
+
+    // If it takes a moment, give the user a nudge
+    const waitingTimer = setTimeout(() => {
+      if (trustlineMsg) {
+        trustlineMsg.textContent =
+          "Waiting for Xaman… open the app or scan the QR to review and sign.";
+      }
+    }, 4000);
+
+    const { created, resolved } = await xumm.payload.createAndSubscribe(
+      { txjson },
+      (ev) => {
+        if (ev?.opened && trustlineMsg) {
+          trustlineMsg.textContent = "Open Xaman (or scan QR) to review…";
+        }
+        if (ev?.signed === false && trustlineMsg) {
+          trustlineMsg.textContent = "Trustline rejected. You can try again.";
+        }
+      }
+    );
+
+    clearTimeout(waitingTimer);
+
+    // Show QR if available (clean slate to avoid stacking)
+    if (created?.refs?.qr_png && trustlineMsg) {
+      trustlineMsg.innerHTML = "Scan to sign trustline:<br/>";
+      const qr = document.createElement("img");
+      qr.src = created.refs.qr_png;
+      qr.alt = "Scan with Xaman to set XRBC trustline";
+      qr.style.maxWidth = "240px";
+      qr.style.marginTop = "12px";
+      trustlineMsg.appendChild(qr);
+    }
+
+    const result = await resolved;
+    if (!result?.signed) {
+      if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed.";
+      return;
+    }
+    if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
+  } catch (err) {
+    if (trustlineMsg) trustlineMsg.textContent = "Error: " + (err?.message || err);
+  } finally {
+    setTrustBtn.disabled = false;
   }
 });
-
-document.addEventListener("keydown", (ev) => {
-  if (ev.key === "Escape" && discPop && !discPop.hidden) {
-    closePopover(disconnectBtn, discPop);
-  }
-});
-
-/* ===== Trading UI ===== */
-const sideEl        = document.getElementById("side");
-const tradeCard     = document.getElementById("tradeCard");
-const buyTab        = document.getElementById("buyTab");
-const sellTab       = document.getElementById("sellTab");
-const amountEl      = document.getElementById("amount");
-const priceEl       = document.getElementById("price");
-const priceField    = document.getElementById("priceField");
-const totalXrpEl    = document.getElementById("totalXrp");
-const suggestBtn    = document.getElementById("suggestPriceBtn");
-const orderTypeEl   = document.getElementById("orderType");
-const placeOfferBtn = document.getElementById("placeOfferBtn");
-const tradeMsg      = document.getElementById("tradeMsg");
-
-function updateExplainer(side){
-  const wrap = document.getElementById("sideExplain");
-  if (!wrap) return;
-
-  const buyNote  = wrap.querySelector('.note.buy');
-  const sellNote = wrap.querySelector('.note.sell');
-  const showBuy = (side === 'buy');
-
-  if (buyNote){
-    buyNote.hidden = !showBuy;
-    buyNote.classList.toggle('active', showBuy);
-    buyNote.setAttribute('aria-hidden', (!showBuy).toString());
-  }
-  if (sellNote){
-    sellNote.hidden = showBuy;
-    sellNote.classList.toggle('active', !showBuy);
-    sellNote.setAttribute('aria-hidden', (showBuy).toString());
-  }
-
-  const hint  = document.getElementById('amountHint');
-  const label = document.getElementById('amountLabel');
-  if (label) label.textContent = 'Amount (XRBC)';
-
-  if (hint){
-    // FIX: correct XRP icon path (was assetsxrp.svg.svg)
-    const xrpIcon  = 'https://xrbitcoincash.github.io/assets/xrp.svg';
-    const xrbcIcon = '/xrbc-nft.png';
-
-    hint.innerHTML = (side === 'buy')
-      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${xrpIcon}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="${xrbcIcon}" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="${xrbcIcon}" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${xrpIcon}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
-  }
+} else {
+  console.warn("Xumm SDK not loaded — wallet actions disabled.");
+  if (connectBtn) connectBtn.disabled = true;
+  if (setTrustBtn) setTrustBtn.disabled = true;
+  if (trustlineMsg) trustlineMsg.textContent = "Wallet features unavailable: Xaman SDK not loaded.";
 }
+
+
+  /* ===== Trading UI ===== */
+  const sideEl      = document.getElementById("side");
+  const tradeCard   = document.getElementById("tradeCard");
+  const buyTab      = document.getElementById("buyTab");
+  const sellTab     = document.getElementById("sellTab");
+  const amountEl    = document.getElementById("amount");
+  const priceEl     = document.getElementById("price");
+  const priceField  = document.getElementById("priceField");
+  const totalXrpEl  = document.getElementById("totalXrp");
+  const suggestBtn  = document.getElementById("suggestPriceBtn");
+  const orderTypeEl = document.getElementById("orderType");
+  const placeOfferBtn = document.getElementById("placeOfferBtn");
+  const tradeMsg    = document.getElementById("tradeMsg");
+
+  function updateExplainer(side){
+    const wrap = document.getElementById("sideExplain");
+    if (!wrap) return;
+    const buyNote  = wrap.querySelector('.note.buy');
+    const sellNote = wrap.querySelector('.note.sell');
+    const showBuy = (side === 'buy');
+    if (buyNote){
+      buyNote.hidden = !showBuy;
+      buyNote.classList.toggle('active', showBuy);
+      buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+    }
+    if (sellNote){
+      sellNote.hidden = showBuy;
+      sellNote.classList.toggle('active', !showBuy);
+      sellNote.setAttribute('aria-hidden', (showBuy).toString());
+    }
+    const hint = document.getElementById('amountHint');
+    const label = document.getElementById('amountLabel');
+    if (label) label.textContent = 'Amount (XRBC)';
+    if (hint){
+      hint.innerHTML = (side === 'buy')
+        ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
+        : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width-auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+    }
+  }
 
   function setSide(side){
     if (sideEl) sideEl.value = side;
