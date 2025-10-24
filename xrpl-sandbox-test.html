@@ -1011,67 +1011,69 @@ body:not(.light-mode) .qr-popover{ background:#0e1520; color:#e7edf5; border:1px
         await xumm.logout();
         setDisconnectedUI();
 
-        // Show pop-down confirmation (status QR so it "looks like" a QR)
-        const msg = "XRBC: Wallet disconnected";
-        if (discQr) setQr(discQr, "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encodeURIComponent(msg));
-        if (discLabel) discLabel.textContent = "Your wallet has successfully been disconnected from the XRBC decentralized exchange.";
-        openPopover(disconnectBtn, discPop);
-      } catch (err) {
-        if (discLabel) discLabel.textContent = "Error: " + (err?.message || err);
-      } finally {
-        disconnectBtn.disabled = false;
-      }
-    });
+    // SAFETY: outside-click + Escape handlers for disconnect popover (guard nulls)
+document.addEventListener("click", (ev) => {
+  if (!discPop || discPop.hidden) return;
+  // If disconnectBtn is missing on this page/state, fall back to using the popover node
+  const anchor = (disconnectBtn && disconnectBtn.closest?.(".dl-wrap")) || discPop;
+  if (!anchor.contains(ev.target)) {
+    closePopover(disconnectBtn, discPop);
+  }
+});
 
-    document.addEventListener("click", (ev) => {
-      if (discPop && !discPop.hidden && !disconnectBtn.closest(".dl-wrap").contains(ev.target)) {
-        closePopover(disconnectBtn, discPop);
-      }
-    });
-    document.addEventListener("keydown", (ev) => {
-      if (discPop && ev.key === "Escape" && !discPop.hidden) closePopover(disconnectBtn, discPop);
-    });
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape" && discPop && !discPop.hidden) {
+    closePopover(disconnectBtn, discPop);
+  }
+});
+
+/* ===== Trading UI ===== */
+const sideEl        = document.getElementById("side");
+const tradeCard     = document.getElementById("tradeCard");
+const buyTab        = document.getElementById("buyTab");
+const sellTab       = document.getElementById("sellTab");
+const amountEl      = document.getElementById("amount");
+const priceEl       = document.getElementById("price");
+const priceField    = document.getElementById("priceField");
+const totalXrpEl    = document.getElementById("totalXrp");
+const suggestBtn    = document.getElementById("suggestPriceBtn");
+const orderTypeEl   = document.getElementById("orderType");
+const placeOfferBtn = document.getElementById("placeOfferBtn");
+const tradeMsg      = document.getElementById("tradeMsg");
+
+function updateExplainer(side){
+  const wrap = document.getElementById("sideExplain");
+  if (!wrap) return;
+
+  const buyNote  = wrap.querySelector('.note.buy');
+  const sellNote = wrap.querySelector('.note.sell');
+  const showBuy = (side === 'buy');
+
+  if (buyNote){
+    buyNote.hidden = !showBuy;
+    buyNote.classList.toggle('active', showBuy);
+    buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+  }
+  if (sellNote){
+    sellNote.hidden = showBuy;
+    sellNote.classList.toggle('active', !showBuy);
+    sellNote.setAttribute('aria-hidden', (showBuy).toString());
   }
 
-  /* ===== Trading UI ===== */
-  const sideEl      = document.getElementById("side");
-  const tradeCard   = document.getElementById("tradeCard");
-  const buyTab      = document.getElementById("buyTab");
-  const sellTab     = document.getElementById("sellTab");
-  const amountEl    = document.getElementById("amount");
-  const priceEl     = document.getElementById("price");
-  const priceField  = document.getElementById("priceField");
-  const totalXrpEl  = document.getElementById("totalXrp");
-  const suggestBtn  = document.getElementById("suggestPriceBtn");
-  const orderTypeEl = document.getElementById("orderType");
-  const placeOfferBtn = document.getElementById("placeOfferBtn");
-  const tradeMsg    = document.getElementById("tradeMsg");
+  const hint  = document.getElementById('amountHint');
+  const label = document.getElementById('amountLabel');
+  if (label) label.textContent = 'Amount (XRBC)';
 
-  function updateExplainer(side){
-    const wrap = document.getElementById("sideExplain");
-    if (!wrap) return;
-    const buyNote  = wrap.querySelector('.note.buy');
-    const sellNote = wrap.querySelector('.note.sell');
-    const showBuy = (side === 'buy');
-    if (buyNote){
-      buyNote.hidden = !showBuy;
-      buyNote.classList.toggle('active', showBuy);
-      buyNote.setAttribute('aria-hidden', (!showBuy).toString());
-    }
-    if (sellNote){
-      sellNote.hidden = showBuy;
-      sellNote.classList.toggle('active', !showBuy);
-      sellNote.setAttribute('aria-hidden', (showBuy).toString());
-    }
-    const hint = document.getElementById('amountHint');
-    const label = document.getElementById('amountLabel');
-    if (label) label.textContent = 'Amount (XRBC)';
-    if (hint){
-      hint.innerHTML = (side === 'buy')
-        ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-        : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width-auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
-    }
+  if (hint){
+    // FIX: correct XRP icon path (was assetsxrp.svg.svg)
+    const xrpIcon  = 'https://xrbitcoincash.github.io/assets/xrp.svg';
+    const xrbcIcon = '/xrbc-nft.png';
+
+    hint.innerHTML = (side === 'buy')
+      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${xrpIcon}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="${xrbcIcon}" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
+      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="${xrbcIcon}" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${xrpIcon}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
   }
+}
 
   function setSide(side){
     if (sideEl) sideEl.value = side;
