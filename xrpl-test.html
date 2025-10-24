@@ -784,23 +784,11 @@ body.light-mode .side-explain .note{
 
 
 <div class="otype-tabs" role="tablist" aria-label="Order type">
-  <button class="otype otype-limit glow glow-yellow active" data-type="limit"  role="tab" aria-selected="true">Limit (Advanced)</button>
-  <button class="otype otype-market glow glow-green"        data-type="market" role="tab" aria-selected="false">Market (Beginner)</button>
+  <button class="otype otype-limit glow glow-yellow active"
+          data-type="limit"
+          role="tab"
+          aria-selected="true">Limit order for best trading value</button>
 </div>
-
-<!-- NEW: concise explanation that “surrounds” the mode with detail -->
-<div class="otype-notes" id="otypeNotes" aria-live="polite">
-  <div data-note="limit">
-    <span class="note-tag tag-advanced">Advanced</span>
-    <strong>Limit:</strong> Place an order at <em>your</em> price. It only executes if the market reaches that price. Nothing is sent until you tap <strong>Place Limit Order</strong> and sign in Xaman.
-  </div>
-  <div data-note="market" hidden>
-    <span class="note-tag tag-beginner">Beginner</span>
-    <strong>Market:</strong> Quick & easy. Executes now at the best available price (uses <span class="mono">IOC</span>). You’ll still review and sign in Xaman.
-  </div>
-</div>
-
-
 
       
       
@@ -1594,43 +1582,24 @@ body.light-mode .side-explain .note{
     }));
   })();
 
-  // Order type tabs + notes (stop-free) — fixed stray "}))" paren
-  (function initOrderTypeTabs(){
-    const typeTabs  = document.querySelectorAll('.otype-tabs .otype');
-    const notesWrap = document.getElementById('otypeNotes');
+// Order type = limit only (single button)
+(function initOrderTypeTabs(){
+  const orderTypeEl   = document.getElementById('orderType');
+  const placeOfferBtn = document.getElementById('placeOfferBtn');
+  const priceField    = document.getElementById('priceField');
 
-    const showNote = (t) => {
-      if (!notesWrap) return;
-      notesWrap.querySelectorAll('[data-note]').forEach(n => {
-        n.hidden = n.getAttribute('data-note') !== t;
-      });
-    };
+  if (orderTypeEl) orderTypeEl.value = 'limit';
+  if (priceField)  priceField.hidden = false;
+  if (placeOfferBtn){
+    placeOfferBtn.disabled = false;
+    placeOfferBtn.textContent = 'Place Limit Order';
+  }
 
-    typeTabs.forEach(btn => btn.addEventListener('click', () => {
-      typeTabs.forEach(b => {
-        b.classList.toggle('active', b === btn);
-        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-      });
-
-      const t = btn.dataset.type; // 'limit' or 'market'
-      if (orderTypeEl) orderTypeEl.value = t;
-
-      if (t === 'limit') {
-        if (priceField) priceField.hidden = false;
-        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Limit Order'; }
-      }
-
-      if (t === 'market') {
-        if (priceField) priceField.hidden = true;
-        if (placeOfferBtn) { placeOfferBtn.disabled = false; placeOfferBtn.textContent = 'Place Market Order'; }
-      }
-
-      showNote(t);
-      recalcTotals();
-    }));
-
-    showNote(orderTypeEl?.value || 'limit');
-  })();
+  // If the single ".otype" button exists, make it inert (no toggling).
+  document.querySelectorAll('.otype-tabs .otype').forEach(btn => {
+    btn.addEventListener('click', (e) => e.preventDefault());
+  });
+})();
 
   // Side toggles (attach to ALL duplicate tabs)
   (function initSideToggles(){
