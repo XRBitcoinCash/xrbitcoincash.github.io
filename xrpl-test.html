@@ -684,66 +684,6 @@ body.light-mode #themeToggle{
     0 0 8px rgba(255,255,255,.65),
     0 0 16px rgba(96,165,250,.35);
 }
-/* --- Download popover: in-flow, directly under the button --- */
-.dl-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;   /* center popover under its button */
-}
-
-/* Kill the old absolute style + make it a card that occupies space */
-.qr-popover{
-  position:static !important;
-  display:block;
-  width:100%;
-  max-width:260px;
-  margin-top:10px;
-  border-radius:12px;
-  background:#ffffff;
-  color:#0b0f14;
-  border:1px solid #000;
-  box-shadow:0 10px 30px rgba(0,0,0,.22);
-  padding:10px;
-}
-
-/* Keep label strong */
-.qr-popover .label{
-  font-weight:800;
-  font-size:12px;
-  text-align:center;
-  margin-top:8px;
-}
-
-/* Collapsible behavior (smooth open/close, pushes layout) */
-.qr-popover.collapse{
-  overflow:hidden;
-  max-height:0;
-  opacity:0;
-  margin-top:0;
-  transition:max-height .28s ease, opacity .28s ease, margin-top .28s ease;
-}
-
-/* Open state */
-.qr-popover.collapse.open{
-  max-height:360px;    /* enough for 180x180 QR + label + padding */
-  opacity:1;
-  margin-top:10px;
-}
-
-/* Respect light/dark backgrounds while keeping contrast high */
-body:not(.light-mode) .qr-popover{
-  background:#0e1520;
-  color:#e7edf5;
-  border:1px solid #2b3a4b;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-
-/* If you still have the old arrow triangle, hide it for the in-flow card */
-.qr-popover::after{ display:none !important; }
-
-/* Accessibility: ensure hidden attribute truly hides it from layout if JS sets it */
-.qr-popover[hidden]{ display:none !important; }
-
   </style>
 
 
@@ -851,28 +791,11 @@ body:not(.light-mode) .qr-popover{
 </div>
 
 <!-- ▼ Add this right after the Download button -->
-<div class="wallet-actions" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:10px 0 12px;">
-  <div class="dl-wrap">
-    <button id="downloadXamanBtn" class="btn glow glow-white" aria-expanded="false">
-      Download Xaman
-    </button>
-
-    <!-- Inline, in-flow popover under the button -->
-    <div id="dlPopover" class="qr-popover collapse" role="region"
-         aria-label="Download Xaman QR"
-         aria-hidden="true"
-         hidden>
-      <div class="qr">
-        <img id="dlQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
-      </div>
-      <div class="label">Scan to download Xaman Wallet</div>
-    </div>
+<div id="dlPopover" class="qr-popover" role="dialog" aria-label="Download Xaman QR" aria-hidden="true">
+  <div class="qr">
+    <img id="dlQr" alt="Scan to download Xaman" width="180" height="180" decoding="async" loading="eager">
   </div>
-
-  <!-- (your other buttons can stay as-is) -->
-  <button id="setTrustlineBtn" class="btn glow glow-yellow">Set XRBC Trustline</button>
-  <button id="connectWalletBtn" class="btn glow glow-green">Connect Wallet</button>
-  <button id="disconnectWalletBtn" class="btn glow glow-red" disabled>Disconnect</button>
+  <div class="label">Scan to download Xaman</div>
 </div>
 
 
@@ -889,6 +812,14 @@ body:not(.light-mode) .qr-popover{
   <span class="asset-chip asset-xrp">
     <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
   </span>
+</div>
+
+
+<div class="otype-tabs" role="tablist" aria-label="Order type">
+  <button class="otype otype-limit glow glow-yellow active"
+          data-type="limit"
+          role="tab"
+          aria-selected="true">Limit order for best trading value</button>
 </div>
 
       
@@ -2027,69 +1958,66 @@ body:not(.light-mode) .qr-popover{
     refreshAll().catch(()=>{});
   })();
 
-
-  
-  
-  
-  
-  
   /* ========= Download Xaman button (popover) ========= */
-
-(function(){
-  const DOWNLOAD_URL = 'https://xaman.app/download';
-  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
   const downloadBtn = document.getElementById('downloadXamanBtn');
-  const pop         = document.getElementById('dlPopover');
-  const qrImg       = document.getElementById('dlQr');
+  if (downloadBtn){
+    const DOWNLOAD_URL = 'https://xaman.app/download';
+    const pop = document.getElementById('dlPopover');
+    const qrImg = document.getElementById('dlQr');
+    const actions = downloadBtn.closest('.wallet-actions');
 
-  if (!downloadBtn || !pop) return;
-
-  // Preload QR once
-  if (qrImg && !qrImg.src){
-    qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
-  }
-
-  function openPopover(){
-    pop.hidden = false;                 // participate in layout
-    pop.classList.add('open');          // animate open
-    pop.setAttribute('aria-hidden','false');
-    downloadBtn.setAttribute('aria-expanded','true');
-  }
-
-  function closePopover(){
-    pop.classList.remove('open');       // animate close
-    pop.setAttribute('aria-hidden','true');
-    downloadBtn.setAttribute('aria-expanded','false');
-    // defer hidden until after transition so height collapses smoothly
-    setTimeout(()=>{ if (!pop.classList.contains('open')) pop.hidden = true; }, 300);
-  }
-
-  downloadBtn.addEventListener('click', (e) => {
-    // On mobile, go straight to store
-    if (isMobile) {
-      window.location.href = DOWNLOAD_URL;
-      return;
+    if (qrImg && !qrImg.src){
+      qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(DOWNLOAD_URL);
     }
-    e.preventDefault();
-    const isOpen = pop.classList.contains('open');
-    if (isOpen) closePopover(); else openPopover();
-  });
 
-  // Optional: close if user clicks anywhere outside the dl-wrap
-  document.addEventListener('click', (e) => {
-    if (!pop || pop.hidden) return;
-    const wrap = downloadBtn.closest('.dl-wrap');
-    if (wrap && !wrap.contains(e.target)) closePopover();
-  });
+    function hidePopover(){
+      if (!pop) return;
+      pop.classList.remove('show');
+      document.body.classList.remove('dl-popover-open');
+      pop.setAttribute('aria-hidden','true');
+    }
 
-  // Close on Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && pop && !pop.hidden) closePopover();
-  });
-})();
+    function showPopover(){
+      if (!pop || !actions) return;
+      pop.style.visibility = 'hidden';
+      pop.classList.add('show');
 
+      const br = downloadBtn.getBoundingClientRect();
+      const ar = actions.getBoundingClientRect();
+      const pw = pop.offsetWidth;
+      const ph = pop.offsetHeight;
 
+      const top = (br.top - ar.top) + (br.height/2) - (ph/2);
+      const left = (br.left - ar.left) - pw - 12;
+
+      pop.style.top = `${Math.max(0, top)}px`;
+      pop.style.left = `${Math.max(0, left)}px`;
+
+      pop.style.visibility = '';
+      document.body.classList.add('dl-popover-open');
+      pop.setAttribute('aria-hidden','false');
+    }
+
+    downloadBtn.addEventListener('click', (e) => {
+      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.location.href = DOWNLOAD_URL;
+        return;
+      }
+      e.preventDefault();
+      if (pop.classList.contains('show')) hidePopover();
+      else showPopover();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!pop.classList.contains('show')) return;
+      if (e.target === downloadBtn || pop.contains(e.target)) return;
+      hidePopover();
+    });
+    window.addEventListener('resize', hidePopover);
+    window.addEventListener('scroll', hidePopover, { passive:true });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hidePopover(); });
+  }
+})(); // end IIFE
 </script>
 
 
