@@ -1,31 +1,16 @@
-<!DOCTYPE html>
+
+     <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Instant Limit Order Extraction · XRPL · XRBC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="canonical" href="https://xrbitcoincash.com/extract-orders.html" />
-  <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm, GemWallet, Crossmark supported." />
+  <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported." />
   <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#0b0f14" />
-  <!-- Host-level security headers strongly recommended (not via <meta>):
-       Content-Security-Policy:
-         default-src 'none'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; block-all-mixed-content; upgrade-insecure-requests;
-         img-src 'self' data:; font-src 'self';
-         connect-src 'self' https://xaman.app https://xumm.app https://cdn.jsdelivr.net https://xrbitcoincash-github-io.onrender.com;
-         script-src 'self' https://xaman.app https://cdn.jsdelivr.net;
-         style-src 'self';
-         form-action 'self'
-       Referrer-Policy: no-referrer
-       Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-       X-Content-Type-Options: nosniff
-       Cross-Origin-Opener-Policy: same-origin
-       Cross-Origin-Embedder-Policy: require-corp
-       Permissions-Policy: geolocation=(), camera=(), microphone=(), usb=(), payment=()
-  -->
 
   <link rel="preconnect" href="https://xaman.app" crossorigin>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
   <style>
@@ -65,10 +50,8 @@
   .pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
   </style>
 
-  <!-- Xumm SDK (needed for Xumm) -->
+  <!-- Xumm SDK -->
   <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
-  <!-- If Crossmark UMD is needed in some browsers:
-  <script src="https://cdn.jsdelivr.net/npm/@crossmarkio/sdk/dist/browser/crossmark.min.js" crossorigin="anonymous"></script> -->
 </head>
 <body>
   <main class="container" aria-live="polite">
@@ -89,7 +72,7 @@
     <section class="card" aria-labelledby="wlt">
       <h2 id="wlt">Wallet</h2>
 
-      <!-- Per-wallet quick buttons -->
+      <!-- Xumm only -->
       <div class="grid cols-3">
         <div>
           <h3 style="margin:0 0 6px">Xaman (Xumm)</h3>
@@ -98,29 +81,13 @@
             <button id="btnXumm" class="btn glow-green" type="button">Connect Xumm</button>
           </div>
         </div>
-        <div>
-          <h3 style="margin:0 0 6px">GemWallet</h3>
-          <p class="hint">Browser extension. Signs and submits.</p>
-          <div class="row">
-            <button id="btnGem" class="btn glow-green" type="button">Connect GemWallet</button>
-          </div>
-        </div>
-        <div>
-          <h3 style="margin:0 0 6px">Crossmark</h3>
-          <p class="hint">Browser extension. Sign-and-submit API.</p>
-          <div class="row">
-            <button id="btnCross" class="btn glow-green" type="button">Connect Crossmark</button>
-          </div>
-        </div>
       </div>
 
-      <!-- Unified selector -->
+      <!-- Unified selector (Xumm only) -->
       <div class="row" style="gap:8px;margin:12px 0 0">
         <label class="hint" for="walletSelect">Wallet</label>
         <select id="walletSelect" aria-label="Wallet">
           <option value="xumm">Xumm (Xaman)</option>
-          <option value="gem">GemWallet</option>
-          <option value="cross">Crossmark</option>
         </select>
         <button id="btnConnect"  class="btn glow-green" type="button">Connect</button>
         <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
@@ -221,10 +188,8 @@
     const $resultBox    = $('resultBox');
     const $log          = $('log');
 
-    // old per-wallet buttons
+    // Xumm quick button
     const $btnXumm      = $('btnXumm');
-    const $btnGem       = $('btnGem');
-    const $btnCross     = $('btnCross');
 
     // unified selector buttons
     const $walletSelect = $('walletSelect');
@@ -289,7 +254,7 @@
         if (!res.ok) throw new Error('Proxy HTTP '+res.status);
         const data = await res.json();
         if (data && data.error) throw new Error('XRPL '+(data.error?.message||'error'));
-        return data; // keep original shape { result: {...} }
+        return data;
       } finally { clearTimeout(t); }
     }
     async function call(method, params){
@@ -378,7 +343,7 @@
         return { address: acct };
       }
       async signAndSubmit(txjson){
-        const { resolved } = await this.xumm.payload.createAndSubscribe(
+        const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
           { txjson, options:{ submit:true, expire:300 } },
           ev => {
             if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
@@ -386,77 +351,16 @@
           }
         );
         const res = await resolved;
+        try{ websocket?.close(); }catch{}
+        try{ typeof unsubscribe === 'function' && unsubscribe(); }catch{}
         if (!res?.signed) throw new Error('User rejected');
         return { hash: res?.txid || res?.id || '(pending)', result: 'submitted' };
       }
       async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
     }
 
-    class GemWalletAdapter extends WalletAdapter {
-      constructor(){ super(); this.name='GemWallet'; this.api=null; this.addr=null; }
-      _api(){ return (window.gemWallet || window.GemWalletApi || null); }
-      async connect(){
-        const api = this._api();
-        if (!api) throw new Error('GemWallet extension not detected');
-        let addr = null;
-        if (api.getAddress) addr = await api.getAddress();
-        else if (api.request){ const r = await api.request({ method:'getAddress' }); addr = r?.address; }
-        if (!addr) throw new Error('Address not granted');
-        this.api  = api; this.addr = addr.address || addr;
-        return { address: this.addr };
-      }
-      async signAndSubmit(tx){
-        if (this.api?.signAndSubmitTransaction){
-          const r = await this.api.signAndSubmitTransaction(tx);
-          if (r?.error) throw new Error(r.error);
-          return { hash: r?.hash || '(pending)', result: r?.engine_result || 'submitted' };
-        }
-        if (this.api?.request){
-          const r = await this.api.request({ method:'signAndSubmit', params: tx });
-          if (r?.error) throw new Error(r.error);
-          return { hash: r?.hash || '(pending)', result: r?.engine_result || 'submitted' };
-        }
-        throw new Error('Unsupported GemWallet API');
-      }
-    }
-
-    class CrossmarkAdapter extends WalletAdapter {
-      constructor(){ super(); this.name='Crossmark'; this.sdk=null; this.addr=null; }
-      _sdk(){ return (window.crossmark || window.CROSSMARK || null); }
-      async connect(){
-        const sdk = this._sdk();
-        if (!sdk) throw new Error('Crossmark extension not detected');
-        let r = null;
-        if (sdk.connect) r = await sdk.connect();
-        if (!r && sdk.getAddress) r = await sdk.getAddress();
-        const address = r?.address || r?.account;
-        if (!address) throw new Error('Address not granted');
-        this.sdk = sdk; this.addr = address;
-        return { address };
-      }
-      async signAndSubmit(tx){
-        if (this.sdk?.signAndSubmitAndWait){
-          const r = await this.sdk.signAndSubmitAndWait(tx);
-          if (r?.error) throw new Error(r.error);
-          return { hash: r?.hash || r?.id || '(pending)', result: r?.engine_result || 'submitted' };
-        }
-        if (this.sdk?.signAndSubmit){
-          const r = await this.sdk.signAndSubmit(tx);
-          if (r?.error) throw new Error(r.error);
-          return { hash: r?.hash || r?.id || '(pending)', result: r?.engine_result || 'submitted' };
-        }
-        throw new Error('Unsupported Crossmark API');
-      }
-    }
-
     // ===== CONNECT HELPERS =====
     function setAdapter(ad){ state.adapter = ad; }
-    function buildAdapter(kind){
-      if (kind === 'xumm')  return new XummAdapter();
-      if (kind === 'gem')   return new GemWalletAdapter();
-      if (kind === 'cross') return new CrossmarkAdapter();
-      throw new Error('Unknown wallet');
-    }
     async function connectWith(AdapterClass){
       try{
         setStatus($walletStatus, 'Connecting…');
@@ -588,16 +492,12 @@
       }
     }
 
-    // ===== WIRE UI (per-wallet buttons + selector) =====
+    // ===== WIRE UI =====
     $btnXumm?.addEventListener('click', ()=>connectWith(XummAdapter));
-    $btnGem?.addEventListener('click',  ()=>connectWith(GemWalletAdapter));
-    $btnCross?.addEventListener('click',()=>connectWith(CrossmarkAdapter));
-
     $btnConnect?.addEventListener('click', async ()=>{
       try{
         $btnConnect.disabled = true;
-        const kind = ($walletSelect?.value || 'xumm');
-        await connectWith( kind === 'xumm' ? XummAdapter : kind === 'gem' ? GemWalletAdapter : CrossmarkAdapter );
+        await connectWith(XummAdapter);
       } finally { $btnConnect.disabled = false; }
     });
     $btnDisconnect?.addEventListener('click', ()=>disconnect());
