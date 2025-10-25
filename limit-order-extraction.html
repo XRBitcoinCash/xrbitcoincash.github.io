@@ -1,7 +1,11 @@
-
-     <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+  <!--
+    Instant Limit Order Extraction (XRPL)
+    Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+    Licensed under the Proprietary License included below in the page footer.
+  -->
   <meta charset="utf-8" />
   <title>Instant Limit Order Extraction · XRPL · XRBC</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,8 +27,8 @@
   .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
   .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:12px}
   h1,h2,h3{margin:.2em 0}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center}
   .btn:disabled{opacity:.6;cursor:not-allowed}
   .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
   .glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
@@ -48,6 +52,8 @@
   .log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
   a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
   .pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
+  .site-footer{margin:24px auto;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
+  .site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
   </style>
 
   <!-- Xumm SDK -->
@@ -61,12 +67,15 @@
         <h1 style="margin:0">Instant Limit Order Extraction</h1>
         <span id="netBadge" class="badge mainnet">Mainnet</span>
       </a>
-      <label class="hint" for="network">Network
-        <select id="network" aria-label="Network">
-          <option value="mainnet" selected>Mainnet</option>
-          <option value="testnet">Testnet</option>
-        </select>
-      </label>
+      <div class="row" style="gap:8px">
+        <a class="btn glow-blue" href="/index.html" id="btnHome" title="Go to Home">Home</a>
+        <label class="hint" for="network">Network
+          <select id="network" aria-label="Network">
+            <option value="mainnet" selected>Mainnet</option>
+            <option value="testnet">Testnet</option>
+          </select>
+        </label>
+      </div>
     </header>
 
     <section class="card" aria-labelledby="wlt">
@@ -146,6 +155,34 @@
       </p>
     </section>
   </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="license">
+<strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong>
+Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+
+This software and its contents are proprietary to XRBitcoinCash (the “Licensor”).
+Except as expressly permitted by the Licensor in a separate written agreement, you may not copy,
+modify, merge, publish, distribute, sublicense, sell, lease, or otherwise use any portion of this
+software or its associated assets.
+
+You are granted permission only to access and view the publicly hosted website for personal use
+through a standard web browser. No other rights are granted, whether by implication, estoppel,
+or otherwise.
+
+ANY USE OF THIS SOFTWARE NOT EXPRESSLY PERMITTED ABOVE IS STRICTLY PROHIBITED.
+
+DISCLAIMER OF WARRANTY. THE SOFTWARE IS PROVIDED “AS IS” AND WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+LIMITATION OF LIABILITY. IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES,
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Contact: legal@xrbitcoincash.com
+    </div>
+  </footer>
 
   <!-- App configuration -->
   <script type="application/json" id="app-config">
