@@ -337,10 +337,11 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
 
 
   <!-- App configuration -->
+  <!-- Replace lines ~540–555 in your file with this exact block -->
   <script type="application/json" id="app-config">
   {
     "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "2abde023-0df1-49a2-a4dc-86d776f6318d",
+    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
     "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
     "xrbc": {
       "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
@@ -707,25 +708,29 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     }
 
     // ===== WIRE UI =====
-    $btnXumm?.addEventListener('click', ()=>connectWith(XummAdapter));
-    $btnConnect?.addEventListener('click', async ()=>{
+    document.getElementById('btnXumm')?.addEventListener('click', ()=>connectWith(XummAdapter));
+    document.getElementById('btnConnect')?.addEventListener('click', async ()=>{
       try{
-        $btnConnect.disabled = true;
+        document.getElementById('btnConnect').disabled = true;
         await connectWith(XummAdapter);
-      } finally { $btnConnect.disabled = false; }
+      } finally { document.getElementById('btnConnect').disabled = false; }
     });
-    $btnDisconnect?.addEventListener('click', ()=>disconnect());
+    document.getElementById('btnDisconnect')?.addEventListener('click', ()=>disconnect());
 
-    $btnRefresh?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-    $btnCancelAll?.addEventListener('click', ()=>cancelAll());
+    document.getElementById('btnRefresh')?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+    document.getElementById('btnCancelAll')?.addEventListener('click', ()=>cancelAll());
 
-    $networkSel?.addEventListener('change', ()=>{ state.network = $networkSel.value; updateNetBadge(); if (state.account) fetchOffers(state.account); });
+    document.getElementById('network')?.addEventListener('change', ()=>{
+      state.network = document.getElementById('network').value;
+      updateNetBadge();
+      if (state.account) fetchOffers(state.account);
+    });
 
-    $btnTrust?.addEventListener('click', ()=>addXRBCTrustLine());
-    $('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
-    $('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
-    $('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
-    $('buy100')?.addEventListener('click', ()=>buyXRBC(100));
+    document.getElementById('btnTrustXRBC')?.addEventListener('click', ()=>addXRBCTrustLine());
+    document.getElementById('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
+    document.getElementById('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
+    document.getElementById('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
+    document.getElementById('buy100')?.addEventListener('click', ()=>buyXRBC(100));
 
     // Boot
     updateNetBadge();
