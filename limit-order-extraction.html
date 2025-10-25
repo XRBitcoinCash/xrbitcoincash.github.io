@@ -1,21 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!--
-    Instant Limit Order Extraction (XRPL)
-    Copyright (c) 2025 XRBitcoinCash. All rights reserved.
-    Licensed under the Proprietary License included below in the page footer.
-  -->
-  <meta charset="utf-8" />
-  <title>Instant Limit Order Extraction · XRPL · XRBC</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="canonical" href="https://xrbitcoincash.com/extract-orders.html" />
-  <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported." />
-  <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" content="#0b0f14" />
+<!-- ===== XRBitcoinCash · Instant Limit Order Extraction · Meta ===== -->
+<meta charset="utf-8" />
+<title>Instant Limit Order Extraction · XRPL · XRBC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="preconnect" href="https://xaman.app" crossorigin>
-  <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
+<!-- Canonical -->
+<link rel="canonical" href="https://xrbitcoincash.com/extract-orders.html" />
+<link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/extract-orders.html" />
+
+<!-- Primary SEO -->
+<meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported. Secure, non-custodial, on-ledger." />
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+<meta name="theme-color" content="#0b0f14" />
+
+<!-- Favicons / App Icons (safe fallbacks if some sizes are missing) -->
+<link rel="icon" href="/favicon.ico?v=1" sizes="any">
+<link rel="icon" type="image/png" href="/xrbc-nft.png">
+<link rel="apple-touch-icon" href="/xrbc-nft.png">
+<link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=1" color="#0b0f14">
+<meta name="msapplication-TileColor" content="#0b0f14">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="XRBitcoinCash">
+<meta property="og:title" content="Instant Limit Order Extraction · XRPL · XRBC">
+<meta property="og:description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported.">
+<meta property="og:url" content="https://xrbitcoincash.com/extract-orders.html">
+<meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
+<meta property="og:image:secure_url" content="https://xrbitcoincash.com/xrbc-nft.png">
+<meta property="og:image:alt" content="XRBitcoinCash — XRBC logo">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Instant Limit Order Extraction · XRPL · XRBC">
+<meta name="twitter:description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported.">
+<meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
+<meta name="twitter:image:alt" content="XRBitcoinCash — XRBC logo">
+<!-- Optional if you have it:
+<meta name="twitter:site" content="@YourHandle">
+<meta name="twitter:creator" content="@YourHandle">
+-->
+
+<!-- Performance hints for wallet/proxy -->
+<link rel="preconnect" href="https://xaman.app" crossorigin>
+<link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
+
+<!-- JSON-LD (WebPage + SoftwareApplication + Organization logo for crawlers) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "name": "Instant Limit Order Extraction · XRPL · XRBC",
+      "url": "https://xrbitcoincash.com/extract-orders.html",
+      "description": "Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "XRBitcoinCash",
+        "url": "https://xrbitcoincash.com/"
+      },
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "url": "https://xrbitcoincash.com/xrbc-nft.png",
+        "width": 1200,
+        "height": 630
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Instant Limit Order Extraction",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "url": "https://xrbitcoincash.com/extract-orders.html",
+      "image": "https://xrbitcoincash.com/xrbc-nft.png",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": { "@type": "Organization", "name": "XRBitcoinCash" }
+    },
+    {
+      "@type": "Organization",
+      "name": "XRBitcoinCash",
+      "url": "https://xrbitcoincash.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://xrbitcoincash.com/xrbc-nft.png",
+        "width": 512,
+        "height": 512
+      }
+    }
+  ]
+}
+</script>
+<!-- ===== /Meta ===== -->
 
   <style>
   :root{
