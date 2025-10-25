@@ -139,6 +139,53 @@ a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:
 body.embed .container{max-width:none}
 body.embed header.card, body.embed footer.site-footer{display:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
+
+
+
+/* ===== Mobile layout fixes for extract-orders ===== */
+.container, .card, .row, .btn { min-width: 0; } /* prevent flex overflow */
+
+.card .row { justify-content: center; }         /* center control rows */
+.btn { justify-content: center; text-align: center; white-space: normal; max-width: 100%; }
+
+/* Issuer pill: wrap long address at ~half width */
+.pill { display: inline-block; text-align: center; max-width: 100%; }
+#xrbcIssuerPill {
+  display: inline-block;
+  max-width: 18ch;           /* ~half of a classic XRPL address */
+  overflow-wrap: anywhere;   /* allow wrap between any characters */
+  word-break: break-all;
+  white-space: normal;
+  line-height: 1.25;
+  vertical-align: top;
+}
+
+/* Center the “Xaman (Xumm)” card text and its buttons */
+.grid.cols-3 > div { text-align: center; }
+.grid.cols-3 > div .row { justify-content: center; }
+
+/* Header controls align on small screens */
+@media (max-width: 720px) {
+  header.card { flex-direction: column; align-items: center; text-align: center; }
+  .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
+
+  .card .row { width: 100%; gap: 10px; }
+  label.hint { width: 100%; text-align: center; }
+
+  /* keep the order table usable */
+  #offersWrap { overflow-x: auto; }
+  #offersWrap table { min-width: 520px; }
+}
+
+/* Tighter button spacing on narrow viewports */
+@media (max-width: 420px) {
+  .btn { padding: 10px 12px; }
+}
+
+
+
+
+
 </style>
 
 <!-- Xumm SDK -->
