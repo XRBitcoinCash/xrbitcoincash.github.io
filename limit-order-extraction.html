@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- ===== XRBitcoinCash · Instant Limit Order Extraction · Meta ===== -->
+
+  
+<!-- keep this in <head> -->
+<link rel="license" href="#license-proprietary">
+  
+  <!-- ===== XRBitcoinCash · Instant Limit Order Extraction · Meta ===== -->
 <meta charset="utf-8" />
 <title>Instant Limit Order Extraction · XRPL · XRBC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -15,7 +20,7 @@
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
 <meta name="theme-color" content="#0b0f14" />
 
-<!-- Favicons / App Icons (safe fallbacks if some sizes are missing) -->
+<!-- Favicons / App Icons -->
 <link rel="icon" href="/favicon.ico?v=1" sizes="any">
 <link rel="icon" type="image/png" href="/xrbc-nft.png">
 <link rel="apple-touch-icon" href="/xrbc-nft.png">
@@ -40,16 +45,12 @@
 <meta name="twitter:description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported.">
 <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
 <meta name="twitter:image:alt" content="XRBitcoinCash — XRBC logo">
-<!-- Optional if you have it:
-<meta name="twitter:site" content="@YourHandle">
-<meta name="twitter:creator" content="@YourHandle">
--->
 
-<!-- Performance hints for wallet/proxy -->
+<!-- Performance hints -->
 <link rel="preconnect" href="https://xaman.app" crossorigin>
 <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
-<!-- JSON-LD (WebPage + SoftwareApplication + Organization logo for crawlers) -->
+<!-- JSON-LD -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -95,49 +96,100 @@
   ]
 }
 </script>
-<!-- ===== /Meta ===== -->
 
-  <style>
-  :root{
-    --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
-    --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
-  }
-  *{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
-  body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
-  .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
-  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:12px}
-  h1,h2,h3{margin:.2em 0}
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-  .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
-  .glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
-  .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
-  .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
-  .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-  th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .hint{color:var(--muted);font-size:12px}
-  .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
-  .footer{margin-top:20px;color:#9fb0c5;font-size:12px}
-  .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
-  .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
-  .progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
-  .progress>span{display:block;height:100%;background:var(--blue);width:0%}
-  .grid{display:grid;gap:12px}
-  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-  @media (max-width:960px){ .grid.cols-3{grid-template-columns:1fr} }
-  .panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
-  .log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
-  a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
-  .pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
-  .site-footer{margin:24px auto;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
-  .site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
-  </style>
+<style>
+:root{
+  --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+  --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
+}
+*{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+.container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:12px}
+h1,h2,h3{margin:.2em 0}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+.glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
+.glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.hint{color:var(--muted);font-size:12px}
+.warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+.footer{margin-top:20px;color:#9fb0c5;font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
+.badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
+.progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
+.progress>span{display:block;height:100%;background:var(--blue);width:0%}
+.grid{display:grid;gap:12px}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:960px){ .grid.cols-3{grid-template-columns:1fr} }
+.panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
+a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
+.site-footer{margin:24px auto;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
+.site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
 
-  <!-- Xumm SDK -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+/* Embed mode clean-up */
+body.embed .container{max-width:none}
+body.embed header.card, body.embed footer.site-footer{display:none}
+body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
+
+
+
+/* ===== Mobile layout fixes for extract-orders ===== */
+.container, .card, .row, .btn { min-width: 0; } /* prevent flex overflow */
+
+.card .row { justify-content: center; }         /* center control rows */
+.btn { justify-content: center; text-align: center; white-space: normal; max-width: 100%; }
+
+/* Issuer pill: wrap long address at ~half width */
+.pill { display: inline-block; text-align: center; max-width: 100%; }
+#xrbcIssuerPill {
+  display: inline-block;
+  max-width: 18ch;           /* ~half of a classic XRPL address */
+  overflow-wrap: anywhere;   /* allow wrap between any characters */
+  word-break: break-all;
+  white-space: normal;
+  line-height: 1.25;
+  vertical-align: top;
+}
+
+/* Center the “Xaman (Xumm)” card text and its buttons */
+.grid.cols-3 > div { text-align: center; }
+.grid.cols-3 > div .row { justify-content: center; }
+
+/* Header controls align on small screens */
+@media (max-width: 720px) {
+  header.card { flex-direction: column; align-items: center; text-align: center; }
+  .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
+
+  .card .row { width: 100%; gap: 10px; }
+  label.hint { width: 100%; text-align: center; }
+
+  /* keep the order table usable */
+  #offersWrap { overflow-x: auto; }
+  #offersWrap table { min-width: 520px; }
+}
+
+/* Tighter button spacing on narrow viewports */
+@media (max-width: 420px) {
+  .btn { padding: 10px 12px; }
+}
+
+
+
+
+
+</style>
+
+<!-- Xumm SDK -->
+<script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <main class="container" aria-live="polite">
@@ -160,8 +212,6 @@
 
     <section class="card" aria-labelledby="wlt">
       <h2 id="wlt">Wallet</h2>
-
-      <!-- Xumm only -->
       <div class="grid cols-3">
         <div>
           <h3 style="margin:0 0 6px">Xaman (Xumm)</h3>
@@ -172,7 +222,6 @@
         </div>
       </div>
 
-      <!-- Unified selector (Xumm only) -->
       <div class="row" style="gap:8px;margin:12px 0 0">
         <label class="hint" for="walletSelect">Wallet</label>
         <select id="walletSelect" aria-label="Wallet">
@@ -225,6 +274,25 @@
       <p id="buyStatus" class="status"></p>
     </section>
 
+    <!-- ===== Embed widget: copy-paste for other sites ===== -->
+    <section class="card" aria-labelledby="embed">
+      <h2 id="embed">Embed this tool on your site</h2>
+      <p class="hint">Copy the snippet below. It renders an iframe that loads this page in “embed mode.” You can change <code>network=</code> and <code>minHeight</code>.</p>
+      <div class="panel-note">
+        <div class="row" style="gap:8px">
+          <button id="btnCopyIframe" class="btn glow-blue" type="button">Copy embed code</button>
+          <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/extract-orders.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
+        </div>
+        <pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
+&lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
+var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
+})(window,document,'xrbc-widget','https://xrbitcoincash.com/extract-orders.html?embed=1&amp;network=mainnet','860px');&lt;/script&gt;</pre>
+        <p class="hint" style="margin:8px 0 0">
+          Prefer a script loader API? Serve a small JS that calls <code>XRBCWidget.mount({...})</code> and points to the same URL.
+        </p>
+      </div>
+    </section>
+
     <section class="card" aria-labelledby="important">
       <h2 id="important">Important</h2>
       <div class="warn">
@@ -237,7 +305,7 @@
   </main>
 
   <footer class="site-footer" role="contentinfo">
-    <div class="license">
+  <div id="license-proprietary" class="license">
 <strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong>
 Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 
@@ -250,6 +318,13 @@ You are granted permission only to access and view the publicly hosted website f
 through a standard web browser. No other rights are granted, whether by implication, estoppel,
 or otherwise.
 
+<strong>Widget and Embed Access.</strong> Any embed, widget, API key, or hosted script provided by the
+Licensor is licensed for revocable, non-transferable use. The Licensor may, at its sole discretion,
+suspend, limit, or disable access to any embed, widget, API key, or hosted script at any time and
+without notice, including removal from third-party sites, unless a separate written agreement
+signed by an authorized officer of the Licensor expressly provides otherwise. You must not
+circumvent or attempt to circumvent any access controls or technical measures.
+
 ANY USE OF THIS SOFTWARE NOT EXPRESSLY PERMITTED ABOVE IS STRICTLY PROHIBITED.
 
 DISCLAIMER OF WARRANTY. THE SOFTWARE IS PROVIDED “AS IS” AND WITHOUT WARRANTY OF ANY KIND,
@@ -261,8 +336,10 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISIN
 OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Contact: legal@xrbitcoincash.com
-    </div>
-  </footer>
+  </div>
+</footer>
+
+
 
   <!-- App configuration -->
   <script type="application/json" id="app-config">
@@ -280,6 +357,36 @@ Contact: legal@xrbitcoincash.com
   <script>
   (function(){
     'use strict';
+
+    // ===== Embed mode toggle =====
+    (function initEmbedMode(){
+      try {
+        const q = new URLSearchParams(location.search);
+        if (q.get('embed') === '1') document.body.classList.add('embed');
+      } catch {}
+    })();
+
+    // ===== Copy embed code =====
+    (function initCopy(){
+      const btn = document.getElementById('btnCopyIframe');
+      const pre = document.getElementById('embedCode');
+      if (!btn || !pre) return;
+      btn.addEventListener('click', async () => {
+        try{
+          const txt = pre.textContent;
+          await navigator.clipboard.writeText(txt);
+          btn.textContent = 'Copied';
+          setTimeout(()=>btn.textContent='Copy embed code', 1200);
+        }catch{
+          // fallback
+          const r = document.createRange(); r.selectNode(pre);
+          const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          document.execCommand('copy'); sel.removeAllRanges();
+          btn.textContent = 'Copied';
+          setTimeout(()=>btn.textContent='Copy embed code', 1200);
+        }
+      });
+    })();
 
     // ===== CONFIG =====
     const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
@@ -305,22 +412,17 @@ Contact: legal@xrbitcoincash.com
     const $resultBox    = $('resultBox');
     const $log          = $('log');
 
-    // Xumm quick button
     const $btnXumm      = $('btnXumm');
-
-    // unified selector buttons
     const $walletSelect = $('walletSelect');
     const $btnConnect   = $('btnConnect');
     const $btnDisconnect= $('btnDisconnect');
 
-    // page controls
     const $btnRefresh   = $('btnRefresh');
     const $btnCancelAll = $('btnCancelAll');
     const $networkSel   = $('network');
     const $netBadge     = $('netBadge');
     const $progress     = $('progressBar');
 
-    // quick buy
     const $btnTrust     = $('btnTrustXRBC');
     const $buyStatus    = $('buyStatus');
 
@@ -441,7 +543,8 @@ Contact: legal@xrbitcoincash.com
         const RESERVE_INC_XRP = 2;
         const freed = Math.max(0, prevOwn - nowOwn) * RESERVE_INC_XRP;
         const delta = (nowBal - prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
+        document.getElementById('resultBox').innerHTML =
+          `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
       }catch{}
     }
 
