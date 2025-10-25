@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  
 <!-- keep this in <head> -->
 <link rel="license" href="#license-proprietary">
-  
-  <!-- ===== XRBitcoinCash · Instant Limit Order Extraction · Meta ===== -->
+
+<!-- ===== XRBitcoinCash · Instant Limit Order Extraction · Meta ===== -->
 <meta charset="utf-8" />
 <title>Instant Limit Order Extraction · XRPL · XRBC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <!-- Canonical -->
-<link rel="canonical" href="https://xrbitcoincash.com/extract-orders.html" />
-<link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/extract-orders.html" />
+<link rel="canonical" href="https://xrbitcoincash.com/limit-order-extraction.html" />
+<link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/limit-order-extraction.html" />
 
 <!-- Primary SEO -->
 <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported. Secure, non-custodial, on-ledger." />
@@ -32,7 +30,7 @@
 <meta property="og:site_name" content="XRBitcoinCash">
 <meta property="og:title" content="Instant Limit Order Extraction · XRPL · XRBC">
 <meta property="og:description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported.">
-<meta property="og:url" content="https://xrbitcoincash.com/extract-orders.html">
+<meta property="og:url" content="https://xrbitcoincash.com/limit-order-extraction.html">
 <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
 <meta property="og:image:secure_url" content="https://xrbitcoincash.com/xrbc-nft.png">
 <meta property="og:image:alt" content="XRBitcoinCash — XRBC logo">
@@ -58,7 +56,7 @@
     {
       "@type": "WebPage",
       "name": "Instant Limit Order Extraction · XRPL · XRBC",
-      "url": "https://xrbitcoincash.com/extract-orders.html",
+      "url": "https://xrbitcoincash.com/limit-order-extraction.html",
       "description": "Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported.",
       "isPartOf": {
         "@type": "WebSite",
@@ -77,7 +75,7 @@
       "name": "Instant Limit Order Extraction",
       "applicationCategory": "FinanceApplication",
       "operatingSystem": "Web",
-      "url": "https://xrbitcoincash.com/extract-orders.html",
+      "url": "https://xrbitcoincash.com/limit-order-extraction.html",
       "image": "https://xrbitcoincash.com/xrbc-nft.png",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "publisher": { "@type": "Organization", "name": "XRBitcoinCash" }
@@ -140,12 +138,9 @@ body.embed .container{max-width:none}
 body.embed header.card, body.embed footer.site-footer{display:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 
-
-
-/* ===== Mobile layout fixes for extract-orders ===== */
-.container, .card, .row, .btn { min-width: 0; } /* prevent flex overflow */
-
-.card .row { justify-content: center; }         /* center control rows */
+/* ===== Mobile layout fixes ===== */
+.container, .card, .row, .btn { min-width: 0; }          /* prevent flex overflow */
+.card .row { justify-content: center; }                   /* center control rows */
 .btn { justify-content: center; text-align: center; white-space: normal; max-width: 100%; }
 
 /* Issuer pill: wrap long address at ~half width */
@@ -153,7 +148,7 @@ body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 #xrbcIssuerPill {
   display: inline-block;
   max-width: 18ch;           /* ~half of a classic XRPL address */
-  overflow-wrap: anywhere;   /* allow wrap between any characters */
+  overflow-wrap: anywhere;
   word-break: break-all;
   white-space: normal;
   line-height: 1.25;
@@ -181,11 +176,6 @@ body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 @media (max-width: 420px) {
   .btn { padding: 10px 12px; }
 }
-
-
-
-
-
 </style>
 
 <!-- Xumm SDK -->
@@ -281,12 +271,12 @@ body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
       <div class="panel-note">
         <div class="row" style="gap:8px">
           <button id="btnCopyIframe" class="btn glow-blue" type="button">Copy embed code</button>
-          <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/extract-orders.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
+          <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/limit-order-extraction.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
         </div>
         <pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
 &lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
 var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
-})(window,document,'xrbc-widget','https://xrbitcoincash.com/extract-orders.html?embed=1&amp;network=mainnet','860px');&lt;/script&gt;</pre>
+})(window,document,'xrbc-widget','https://xrbitcoincash.com/limit-order-extraction.html?embed=1&amp;network=mainnet','860px');&lt;/script&gt;</pre>
         <p class="hint" style="margin:8px 0 0">
           Prefer a script loader API? Serve a small JS that calls <code>XRBCWidget.mount({...})</code> and points to the same URL.
         </p>
@@ -305,7 +295,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   </main>
 
   <footer class="site-footer" role="contentinfo">
-  <div id="license-proprietary" class="license">
+    <div id="license-proprietary" class="license">
 <strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong>
 Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 
@@ -336,10 +326,8 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISIN
 OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Contact: legal@xrbitcoincash.com
-  </div>
-</footer>
-
-
+    </div>
+  </footer>
 
   <!-- App configuration -->
   <script type="application/json" id="app-config">
@@ -378,7 +366,6 @@ Contact: legal@xrbitcoincash.com
           btn.textContent = 'Copied';
           setTimeout(()=>btn.textContent='Copy embed code', 1200);
         }catch{
-          // fallback
           const r = document.createRange(); r.selectNode(pre);
           const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
           document.execCommand('copy'); sel.removeAllRanges();
