@@ -342,6 +342,52 @@ body.light-mode #tradeCard .table td{ color: var(--ink) !important; border-botto
 body.light-mode #tradeCard .side-explain .note { color: #2c3644 !important; }
 body.light-mode #tradeCard .tab.buy.active, body.light-mode #tradeCard .tab.sell.active { background: transparent !important; box-shadow: none !important; }
 body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var(--ink) !important; }
+
+  
+  
+ /* Beefed-up Amount control */
+.amount-ctrl{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 10px; border-radius:12px;
+  border:2px solid var(--line);
+  background:linear-gradient(180deg,#0e1520,#0c131c);
+  box-shadow:var(--shadow);
+}
+.amount-ctrl input{
+  flex:1; height:48px; padding:0 10px; border:0; outline:0;
+  background:transparent; color:var(--ink);
+  font-size:1.15rem; font-weight:800; letter-spacing:.2px;
+}
+.amount-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:9999px; border:1px solid var(--line);
+  background:linear-gradient(180deg,#0b1119,#0a0f15); font-weight:800;
+}
+.amount-chip img{
+  width:16px; height:16px; border-radius:3px; border:1px solid var(--line); background:#fff;
+}
+
+/* Green when buying, red when selling */
+#tradeCard.buy .amount-ctrl{
+  border-color:rgba(34,197,94,.55);
+  box-shadow:0 0 0 2px rgba(34,197,94,.18) inset, 0 0 22px rgba(34,197,94,.22);
+}
+#tradeCard.buy .amount-ctrl input{ color:#22c55e; }
+#tradeCard.sell .amount-ctrl{
+  border-color:rgba(239,68,68,.55);
+  box-shadow:0 0 0 2px rgba(239,68,68,.18) inset, 0 0 22px rgba(239,68,68,.22);
+}
+#tradeCard.sell .amount-ctrl input{ color:#ef4444; }
+
+/* Light mode */
+body.light-mode .amount-ctrl{ background:#fff; border-color:var(--line); box-shadow:none; }
+body.light-mode .amount-chip{ background:#fff; border-color:#000; }
+body.light-mode #tradeCard.buy .amount-ctrl input{ color:#15803d; }
+body.light-mode #tradeCard.sell .amount-ctrl input{ color:#b91c1c; }
+ 
+  
+  
+  
   </style>
 </head>
 <body>
@@ -492,15 +538,30 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </div>
       </div>
 
+   
+      
+      
       <!-- AMOUNT -->
-      <div class="field">
-        <label for="amount" id="amountLabel">Amount (XRBC)</label>
-        <div class="amount-row">
-          <img src="/xrbc-nft.png" alt="XRBC logo">
-          <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
-        </div>
+  <label for="amount" id="amountLabel">
+  Amount
+  <span class="asset-chip asset-xrbc">
+    <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+  </span>
+</label>
 
-        <div class="quick-amounts" role="group" aria-label="Quick amount">
+<div class="amount-row amount-ctrl">
+  <span class="amount-chip">
+    <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+  </span>
+ <input id="amount" type="number" step="0.000001" inputmode="decimal" value="0.000001" placeholder="0.000000">
+
+</div>
+
+
+      
+      
+      
+      <div class="quick-amounts" role="group" aria-label="Quick amount">
           <button class="qa" data-q="25" type="button">25%</button>
           <button class="qa" data-q="50" type="button">50%</button>
           <button class="qa" data-q="75" type="button">75%</button>
@@ -597,6 +658,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
   <!-- ===== Page Script ===== -->
   <script>
+<script>
 (function(){
   /* ===== Utilities / Config ===== */
   const cfgNode = document.getElementById("app-config");
@@ -810,8 +872,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       sellNote.setAttribute('aria-hidden', (showBuy).toString());
     }
     const hint = document.getElementById('amountHint');
-    const label = document.getElementById('amountLabel');
-    if (label) label.textContent = 'Amount (XRBC)';
     if (hint){
       hint.innerHTML = (side === 'buy')
         ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
@@ -930,8 +990,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       return pays / gets; // XRP per XRBC
     };
     return {
-      bestAsk: priceFrom(askRes?.result?.offers?.[0]) || null, // price you pay to buy XRBC
-      bestBid: priceFrom(bidRes?.result?.offers?.[0]) || null  // price you receive when selling XRBC
+      bestAsk: priceFrom(askRes?.result?.offers?.[0]) || null,
+      bestBid: priceFrom(bidRes?.result?.offers?.[0]) || null
     };
   }
 
@@ -996,6 +1056,14 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     }
   }
   if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
+
+  // init default amount once, then price
+  if (amountEl && (!amountEl.value || Number(amountEl.value) <= 0)) {
+    amountEl.value = "0.000001";
+    amountEl.dispatchEvent(new Event("input"));
+    setTimeout(() => { fillBestPrice().catch(()=>{}); }, 0);
+  }
+
   setInterval(() => {
     const amt = Number(amountEl?.value);
     if (amt > 0) fillBestPrice().catch(()=>{});
@@ -1082,13 +1150,12 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         return alts;
       }
       function pickCheapestXrp(alts){
-        // Choose alternative with lowest XRP cost
         let best = null, bestCostDrops = Infinity;
         for (const alt of alts){
           const sa = alt.source_amount;
           let costDrops = Infinity;
           if (typeof sa === "string"){
-            costDrops = Number(sa); // XRP drops
+            costDrops = Number(sa);
           } else if (sa && sa.currency === "XRP"){
             costDrops = Number(ceilDrops(sa.value));
           }
@@ -1100,7 +1167,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         return { best, costDrops: bestCostDrops.toString() };
       }
       function pickCheapestIou(alts, iouCurrencyHex, iouIssuer){
-        // Choose alternative with lowest IOU cost (for selling XRBC)
         let best = null, bestCost = Infinity;
         for (const alt of alts){
           const sa = alt.source_amount;
@@ -1120,7 +1186,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       let txjson;
 
       if (side === "buy"){
-        // Buy XRBC using XRP → set Amount in XRBC, cap SendMax in XRP, allow partial with DeliverMin
         const destAmt = { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) };
         const alts = await ripplePathFind({
           source_account: account,
@@ -1136,17 +1201,15 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           Account: account,
           Destination: account,
           Amount: destAmt,
-          SendMax: maxSpendDrops, // XRP in drops
+          SendMax: maxSpendDrops,
           Flags: TF_PARTIAL,
           DeliverMin: { currency: XRBC.currency, issuer: XRBC.issuer, value: (amt * (1 - slip)).toFixed(6) },
           Paths: best.paths_computed || best.paths_canonical || []
         };
       } else {
-        // Sell XRBC to receive XRP → set Amount in XRP, cap SendMax in XRBC, require DeliverMin
         const estXrp = amt * basePx;
         const minXrpDrops = floorDrops(estXrp * (1 - slip));
 
-        // Guard against 0-drop rounding
         let _min = Number(minXrpDrops);
         if (_min < 1) throw new Error("Amount too small after slippage. Increase amount.");
         const minDrops = String(_min);
@@ -1154,7 +1217,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         const alts = await ripplePathFind({
           source_account: account,
           destination_account: account,
-          destination_amount: minDrops, // XRP drops as target
+          destination_amount: minDrops,
           source_currencies: [{ currency: XRBC.currency, issuer: XRBC.issuer }]
         });
         const { best, cost } = pickCheapestIou(alts, XRBC.currency, XRBC.issuer);
@@ -1164,7 +1227,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           TransactionType: "Payment",
           Account: account,
           Destination: account,
-          Amount: minDrops, // XRP in drops
+          Amount: minDrops,
           SendMax: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
           Flags: TF_PARTIAL,
           DeliverMin: minDrops,
@@ -1267,6 +1330,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   window.addEventListener("focus", () => refreshAll().catch(()=>{}));
   setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
 })();
+</script>
+
 
   </script>
 
@@ -1327,4 +1392,3 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   </footer>
 </body>
 </html>
-```
