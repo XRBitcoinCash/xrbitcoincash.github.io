@@ -342,6 +342,52 @@ body.light-mode #tradeCard .table td{ color: var(--ink) !important; border-botto
 body.light-mode #tradeCard .side-explain .note { color: #2c3644 !important; }
 body.light-mode #tradeCard .tab.buy.active, body.light-mode #tradeCard .tab.sell.active { background: transparent !important; box-shadow: none !important; }
 body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var(--ink) !important; }
+
+  
+  
+ /* Beefed-up Amount control */
+.amount-ctrl{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 10px; border-radius:12px;
+  border:2px solid var(--line);
+  background:linear-gradient(180deg,#0e1520,#0c131c);
+  box-shadow:var(--shadow);
+}
+.amount-ctrl input{
+  flex:1; height:48px; padding:0 10px; border:0; outline:0;
+  background:transparent; color:var(--ink);
+  font-size:1.15rem; font-weight:800; letter-spacing:.2px;
+}
+.amount-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 10px; border-radius:9999px; border:1px solid var(--line);
+  background:linear-gradient(180deg,#0b1119,#0a0f15); font-weight:800;
+}
+.amount-chip img{
+  width:16px; height:16px; border-radius:3px; border:1px solid var(--line); background:#fff;
+}
+
+/* Green when buying, red when selling */
+#tradeCard.buy .amount-ctrl{
+  border-color:rgba(34,197,94,.55);
+  box-shadow:0 0 0 2px rgba(34,197,94,.18) inset, 0 0 22px rgba(34,197,94,.22);
+}
+#tradeCard.buy .amount-ctrl input{ color:#22c55e; }
+#tradeCard.sell .amount-ctrl{
+  border-color:rgba(239,68,68,.55);
+  box-shadow:0 0 0 2px rgba(239,68,68,.18) inset, 0 0 22px rgba(239,68,68,.22);
+}
+#tradeCard.sell .amount-ctrl input{ color:#ef4444; }
+
+/* Light mode */
+body.light-mode .amount-ctrl{ background:#fff; border-color:var(--line); box-shadow:none; }
+body.light-mode .amount-chip{ background:#fff; border-color:#000; }
+body.light-mode #tradeCard.buy .amount-ctrl input{ color:#15803d; }
+body.light-mode #tradeCard.sell .amount-ctrl input{ color:#b91c1c; }
+ 
+  
+  
+  
   </style>
 </head>
 <body>
@@ -492,15 +538,29 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </div>
       </div>
 
+   
+      
+      
       <!-- AMOUNT -->
-      <div class="field">
-        <label for="amount" id="amountLabel">Amount (XRBC)</label>
-        <div class="amount-row">
-          <img src="/xrbc-nft.png" alt="XRBC logo">
-          <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
-        </div>
+  <label for="amount" id="amountLabel">
+  Amount
+  <span class="asset-chip asset-xrbc">
+    <img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC
+  </span>
+</label>
 
-        <div class="quick-amounts" role="group" aria-label="Quick amount">
+<div class="amount-row amount-ctrl">
+  <span class="amount-chip">
+    <img src="/xrbc-nft.png" alt="XRBC"> XRBC
+  </span>
+  <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
+</div>
+
+
+      
+      
+      
+      <div class="quick-amounts" role="group" aria-label="Quick amount">
           <button class="qa" data-q="25" type="button">25%</button>
           <button class="qa" data-q="50" type="button">50%</button>
           <button class="qa" data-q="75" type="button">75%</button>
