@@ -1,10 +1,23 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Safely trade XRBC · XRBitcoinCash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Security headers (meta fallbacks; prefer real headers at CDN/proxy) -->
+  <meta http-equiv="Content-Security-Policy" content="
+default-src 'self';
+connect-src 'self' https://xaman.app https://xumm.app https://xrbitcoincash-github-io.onrender.com https://s1.ripple.com https://s2.ripple.com;
+img-src 'self' data: https://api.qrserver.com https://xrbitcoincash.github.io;
+script-src 'self' https://xaman.app 'unsafe-inline';
+style-src 'self' 'unsafe-inline';
+frame-ancestors 'none';
+base-uri 'self';
+form-action 'self';
+upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://xrbitcoincash.com/trade.html" />
@@ -361,7 +374,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     animation-range: 0 160px;
   }
 }
-
   </style>
 </head>
 <body>
@@ -370,14 +382,14 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 <header class="site-header">
   <div class="header-wrap">
     <div class="brand">
-      <img src="/xrbc-nft.png" alt="XRBitcoinCash (XRBC) logo">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash (XRBC) logo" decoding="async" loading="eager" fetchpriority="high">
       <h1>XRBitcoinCash</h1>
     </div>
 
     <nav class="header-center" role="navigation" aria-label="Primary">
       <div class="header-nav">
         <a class="nav-pill pill-ecosys" href="/xrbc-ecosystem.html" title="XRBC Ecosystem · DEX/AMM">XRBC Ecosystem · DEX/AMM</a>
-        <a class="nav-pill pill-extract" href="https://xrbitcoincash.com/limit-order-extraction.html" title="Instant Limit Order Extraction">Limit Order Extraction</a>
+        <a class="nav-pill pill-extract" href="https://xrbitcoincash.com/limit-order-extraction.html" title="Instant Limit Order Extraction" rel="noopener">Limit Order Extraction</a>
         <a class="nav-pill pill-whitepaper" href="/whitepaper.html" title="XRBC White Paper">White Paper</a>
       </div>
     </nav>
@@ -406,23 +418,23 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
       <a href="https://xumm.app/detect/xapp:xumm.dex" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #10b981;">
-        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
+        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" decoding="async" loading="lazy" />
         <span>Open in Xaman — Trade XRBC ↔ XRP (DEX)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" decoding="async" loading="lazy" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:anodos.swap" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #38bdf8;">
-        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
+        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" decoding="async" loading="lazy" />
         <span>Open in Xaman — ANODOS Swap (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" decoding="async" loading="lazy" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:magnetic.dex" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #1e3a8a;">
-        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
+        <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" decoding="async" loading="lazy" />
         <span>Open in Xaman — Magnetic (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" decoding="async" loading="lazy" />
       </a>
 
       <div class="fine" style="margin-top:8px;color:#93a3af;font-size:12px;line-height:1.4;">
@@ -434,7 +446,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     <!-- Wallet card -->
     <div class="card wallet-card" style="margin:16px 0 20px;">
       <h2 class="wallet-title">
-        <img src="/xrbc-nft.png" alt="XRBC logo" width="22" height="22">
+        <img src="/xrbc-nft.png" alt="XRBC logo" width="22" height="22" decoding="async" loading="lazy">
         <span>Connect wallet to the XRBC decentralized exchange</span>
       </h2>
 
@@ -516,7 +528,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       <div class="field">
         <label for="amount" id="amountLabel">Amount (XRBC)</label>
         <div class="amount-row">
-          <img src="/xrbc-nft.png" alt="XRBC logo">
+          <img src="/xrbc-nft.png" alt="XRBC logo" decoding="async" loading="lazy">
           <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
         </div>
 
@@ -570,7 +582,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </div>
 
         <!-- New market trade button (IOC) -->
-      <button id="marketTradeBtn" class="btn btn-primary" type="button">Market Swap (AMM)</button>
+        <button id="marketTradeBtn" class="btn btn-primary" type="button">Market Swap (AMM)</button>
       </div>
 
       <p id="tradeMsg" class="status-text">—</p>
@@ -586,7 +598,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     <section class="card compact-metrics" id="xrbcDexHero" aria-label="XRBC DEX — Live Metrics">
       <div class="metrics-header">
         <h2>
-          <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
+          <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)" decoding="async" loading="lazy">
           XRBC DEX — Live Metrics
         </h2>
       </div>
@@ -613,7 +625,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   </script>
 
   <!-- Xaman SDK -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js"></script>
+  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 
   <!-- ===== Page Script ===== -->
   <script>
@@ -629,6 +641,46 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
 
+  // Safe string HTML escaper for UI injection points
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // Integer-safe XRP->drops converters
+  function toDropsExact(xrpStr){
+    const s = String(xrpStr ?? "").trim();
+    const m = s.match(/^(\d+)(?:\.(\d{1,6}))?$/);
+    if(!m) throw new Error("Invalid XRP amount");
+    const whole = BigInt(m[1]);
+    const frac  = BigInt((m[2]||"").padEnd(6,"0"));
+    return (whole*1000000n + frac).toString();
+  }
+  function floorDropsFromXrp(xrpStr){
+    const s = String(xrpStr ?? "").trim();
+    const m = s.match(/^(\d+)(?:\.(\d+))?$/);
+    if(!m) throw new Error("Invalid XRP amount");
+    const head = (m[2]||"").slice(0,6).padEnd(6,"0");
+    return (BigInt(m[1])*1000000n + BigInt(head)).toString();
+  }
+  function ceilDropsFromXrp(xrpStr){
+    const s = String(xrpStr ?? "").trim();
+    const m = s.match(/^(\d+)(?:\.(\d+))?$/);
+    if(!m) throw new Error("Invalid XRP amount");
+    const head = (m[2]||"");
+    if(head.length <= 6) return toDropsExact(s);
+    const keep = head.slice(0,6);
+    const rest = head.slice(6);
+    let drops = BigInt(m[1])*1000000n + BigInt(keep);
+    if(/[1-9]/.test(rest)) drops += 1n;
+    return drops.toString();
+  }
+  // Clamp number-like to 6dp string
+  const clamp6 = v => {
+    const n = Math.max(0, Number(v||0));
+    if(!isFinite(n)) return "0.000000";
+    return (Math.floor(n*1e6)/1e6).toFixed(6);
+  };
+
   async function xrplRequest(payload){
     if (!PROXY_URL) throw new Error("Proxy URL missing");
     const res = await fetch(PROXY_URL, {
@@ -641,7 +693,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
     return data;
   }
-  const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
   /* ===== Theme toggle ===== */
   (function themeInit(){
@@ -864,6 +915,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   }
   if (amountEl) amountEl.addEventListener("input", recalcTotals);
   if (priceEl)  priceEl.addEventListener("input", recalcTotals);
+  amountEl && amountEl.addEventListener("blur", ()=>{ amountEl.value = clamp6(amountEl.value); recalcTotals(); });
+  priceEl  && priceEl.addEventListener("blur",  ()=>{ priceEl.value  = clamp6(priceEl.value);  recalcTotals(); });
 
   /* Wallet-aware balances for % chips */
   const BAL = { xrp: 0, xrbc: 0 };
@@ -994,8 +1047,12 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     return side === "buy" ? bestAsk : bestBid;
   }
 
+  // Prevent overlapping best-price calls
+  let pricingInFlight = false;
+
   /* AMM-based price helper for the visible Price field */
   async function fillBestPrice() {
+    if (pricingInFlight) return;
     if (!sideEl || !amountEl || !priceEl) return;
     const side = sideEl.value;
     const amount = Number(amountEl.value);
@@ -1005,6 +1062,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     }
     if (tradeMsg){ tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…"; tradeMsg.classList.remove("ok","err"); tradeMsg.classList.add("connecting"); }
 
+    pricingInFlight = true;
     try {
       const px = await getMarketPrice(side);
       if (!px || px <= 0) throw new Error("No price available");
@@ -1013,12 +1071,14 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       if (tradeMsg){ tradeMsg.textContent = `Best price calculated from AMM/top-of-book (${side}).`; tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("ok"); }
     } catch (err) {
       if (tradeMsg){ tradeMsg.textContent = "Price helper error: " + (err?.message || err); tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("err"); }
+    } finally {
+      pricingInFlight = false;
     }
   }
   if (suggestBtn) suggestBtn.addEventListener("click", fillBestPrice);
   setInterval(() => {
     const amt = Number(amountEl?.value);
-    if (amt > 0) fillBestPrice().catch(()=>{});
+    if (!pricingInFlight && amt > 0) fillBestPrice().catch(()=>{});
   }, 10000);
 
   /* Place Limit Order (existing) */
@@ -1029,12 +1089,15 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       if (!account) throw new Error("Connect your wallet first.");
 
       const side   = sideEl?.value;
-      const amt    = Number(amountEl?.value);
+      const amtStr = clamp6(amountEl?.value);
       const priceV = Number(priceEl?.value);
 
+      const amt = Number(amtStr);
       if (!amt || !priceV || amt <= 0 || priceV <= 0) throw new Error("Enter valid Amount & Price.");
 
-      const xrpTotal = priceV * amt;
+      const xrpTotal = priceV * amt; // XRP
+      const xrpTotalDrops = toDropsExact((Math.floor(xrpTotal*1e6)/1e6).toFixed(6)); // exact to 6dp
+
       const TF_SELL = 0x00080000;
 
       let txjson;
@@ -1042,16 +1105,16 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         txjson = {
           TransactionType: "OfferCreate",
           Account: account,
-          TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-          TakerPays: toDrops(xrpTotal),
+          TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amtStr) },
+          TakerPays: xrpTotalDrops,
           Flags: TF_SELL
         };
       } else {
         txjson = {
           TransactionType: "OfferCreate",
           Account: account,
-          TakerGets: toDrops(xrpTotal),
-          TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          TakerGets: xrpTotalDrops,
+          TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amtStr) },
           Flags: 0
         };
       }
@@ -1081,7 +1144,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       if (!account) throw new Error("Connect your wallet first.");
 
       const side = sideEl?.value || "buy";
-      const amt  = Number(amountEl?.value);
+      const amtStr = clamp6(amountEl?.value);
+      const amt  = Number(amtStr);
       if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
 
       // Get a reference price to compute slippage bounds
@@ -1091,8 +1155,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
       // Helpers
       const TF_PARTIAL = 0x00020000; // tfPartialPayment
-      const ceilDrops  = (xrp) => Math.ceil(Number(xrp) * XRP_TO_DROPS).toString();
-      const floorDrops = (xrp) => Math.floor(Number(xrp) * XRP_TO_DROPS).toString();
 
       // === Path-find ===
       async function ripplePathFind(params){
@@ -1110,14 +1172,14 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           if (typeof sa === "string"){
             costDrops = Number(sa); // XRP drops
           } else if (sa && sa.currency === "XRP"){
-            costDrops = Number(ceilDrops(sa.value));
+            costDrops = Number(ceilDropsFromXrp(sa.value));
           }
           if (Number.isFinite(costDrops) && costDrops < bestCostDrops){
             best = alt; bestCostDrops = costDrops;
           }
         }
         if (!best) throw new Error("Could not price a path with XRP.");
-        return { best, costDrops: bestCostDrops.toString() };
+        return { best, costDrops: String(bestCostDrops) };
       }
       function pickCheapestIou(alts, iouCurrencyHex, iouIssuer){
         // Choose alternative with lowest IOU cost (for selling XRBC)
@@ -1141,7 +1203,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
       if (side === "buy"){
         // Buy XRBC using XRP → set Amount in XRBC, cap SendMax in XRP, allow partial with DeliverMin
-        const destAmt = { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) };
+        const destAmt = { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amtStr) };
         const alts = await ripplePathFind({
           source_account: account,
           destination_account: account,
@@ -1149,7 +1211,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           source_currencies: [{ currency: "XRP" }]
         });
         const { best, costDrops } = pickCheapestXrp(alts);
-        const maxSpendDrops = Math.ceil(Number(costDrops) * (1 + slip)).toString();
+        const maxSpendDrops = (BigInt(costDrops) + (BigInt(costDrops) * BigInt(Math.round(slip*1e6)) / 1000000n)).toString();
 
         txjson = {
           TransactionType: "Payment",
@@ -1164,17 +1226,15 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       } else {
         // Sell XRBC to receive XRP → set Amount in XRP, cap SendMax in XRBC, require DeliverMin
         const estXrp = amt * basePx;
-        const minXrpDrops = floorDrops(estXrp * (1 - slip));
+        const minXrpDrops = floorDropsFromXrp((Math.floor(estXrp*(1-slip)*1e6)/1e6).toFixed(6));
 
         // Guard against 0-drop rounding
-        let _min = Number(minXrpDrops);
-        if (_min < 1) throw new Error("Amount too small after slippage. Increase amount.");
-        const minDrops = String(_min);
+        if (BigInt(minXrpDrops) < 1n) throw new Error("Amount too small after slippage. Increase amount.");
 
         const alts = await ripplePathFind({
           source_account: account,
           destination_account: account,
-          destination_amount: minDrops, // XRP drops as target
+          destination_amount: minXrpDrops, // XRP drops as target
           source_currencies: [{ currency: XRBC.currency, issuer: XRBC.issuer }]
         });
         const { best, cost } = pickCheapestIou(alts, XRBC.currency, XRBC.issuer);
@@ -1184,10 +1244,10 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           TransactionType: "Payment",
           Account: account,
           Destination: account,
-          Amount: minDrops, // XRP in drops
-          SendMax: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
+          Amount: minXrpDrops, // XRP in drops
+          SendMax: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amtStr) },
           Flags: TF_PARTIAL,
-          DeliverMin: minDrops,
+          DeliverMin: minXrpDrops,
           Paths: best.paths_computed || best.paths_canonical || []
         };
       }
@@ -1245,7 +1305,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           }
         }
       } catch (e){
-        rows.push(`<tr><td>${label}</td><td>Error</td><td>${(e && e.message) || e}</td></tr>`);
+        rows.push(`<tr><td>${label}</td><td>Error</td><td>${esc((e && e.message) || e)}</td></tr>`);
       }
       return rows.join("");
     }
@@ -1287,7 +1347,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   window.addEventListener("focus", () => refreshAll().catch(()=>{}));
   setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
 })();
-
   </script>
 
   <!-- ===== XRBC Footer ===== -->
@@ -1330,7 +1389,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
             Whitepaper
           </a>
           <a class="eco-link" href="https://chat.openai.com/" target="_blank" rel="noopener noreferrer" aria-label="Talk to ChatGPT" style="min-width:200px;">
-            <img src="/assets/chatgpt-mark.svg" alt="" onerror="this.remove()">
+            <img src="/assets/chatgpt-mark.svg" alt="" onerror="this.remove()" decoding="async" loading="lazy">
             <span>Built with ChatGPT</span>
           </a>
           <p class="small" style="margin-top:4px;opacity:.9">
@@ -1347,4 +1406,3 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   </footer>
 </body>
 </html>
-```
