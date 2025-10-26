@@ -268,382 +268,378 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     </div>
   </footer>
 
-  <!-- App configuration -->
-  <script type="application/json" id="app-config">
-  {
-    "xrplProxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
-    "xummServerProxy": "https://xrbitcoincash-github-io.onrender.com/xumm", 
-    "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
-    "xrbc": {
-      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-      "currencyHex": "5852626974636F696E6361736800000000000000"
+ <script>
+(function(){
+  'use strict';
+
+  // ===== CONFIG =====
+  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  const XRPL_PROXY     = cfg.xrplProxyUrl || cfg.proxyUrl || '';
+  const XUMM_API_KEY   = cfg.xummApiKey || '';
+  const XUMM_SRV_PROXY = cfg.xummServerProxy || ''; // optional server you control. Never put App Secret in client.
+  const XRBC           = cfg.xrbc || {};
+  const XRP_TO_DROPS   = 1_000_000;
+
+  // ===== STATE =====
+  const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
+  let connectInFlight = false;
+
+  // ===== DOM =====
+  const $ = id => document.getElementById(id);
+  const $walletStatus = $('walletStatus'), $offersStatus = $('offersStatus'), $offersWrap = $('offersWrap'),
+        $resultBox = $('resultBox'), $log = $('log'), $progress = $('progressBar'),
+        $btnXumm = $('btnXumm'), $btnConnect = $('btnConnect'), $btnDisconnect = $('btnDisconnect'),
+        $btnRefresh = $('btnRefresh'), $btnCancelAll = $('btnCancelAll'), $netBadge = $('netBadge'),
+        $btnTrust = $('btnTrustXRBC'), $buyStatus = $('buyStatus'),
+        $qrConnect = $('qrConnect'), $qrConnectImg = $('qrConnectImg'),
+        $qrTrust = $('qrTrust'), $qrTrustImg = $('qrTrustImg');
+
+  // Ensure a link element exists under the QR box for mobile deep link
+  function ensureQRLinkEl(wrapEl, linkId){
+    if (!wrapEl) return null;
+    let a = wrapEl.querySelector('#'+linkId);
+    if (!a){
+      a = document.createElement('a');
+      a.id = linkId;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'btn';
+      a.style.display = 'block';
+      a.style.margin = '10px auto 0';
+      a.textContent = 'Open in Xaman';
+      wrapEl.querySelector('.qr-box')?.appendChild(a);
+    }
+    return a;
+  }
+
+  // ===== UTILS =====
+  function log(s){ if ($log) { $log.textContent += (s + '\n'); $log.scrollTop = $log.scrollHeight; } }
+  function setStatus(node, text, cls){
+    if (!node) return;
+    node.textContent = text; node.classList.remove('ok','err'); if (cls) node.classList.add(cls);
+    if (node === $offersStatus) log('[offers] ' + text);
+    else if (node === $walletStatus) log('[wallet] ' + text);
+    else if (node === $buyStatus) log('[buy] ' + text);
+  }
+  const N = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+  const isXRP = a => typeof a === 'string' || (a && a.currency === 'XRP');
+  const fmtDrops = d => (N(d)/XRP_TO_DROPS).toFixed(6) + ' XRP';
+  const amtStr = a => isXRP(a) ? fmtDrops(a) : (Number(a.value).toFixed(6) + ' ' + (a.currency || 'IOU'));
+  const price = (gets, pays) => {
+    const g = isXRP(gets) ? N(gets)/XRP_TO_DROPS : N(gets.value);
+    const p = isXRP(pays) ? N(pays)/XRP_TO_DROPS : N(pays.value);
+    return g > 0 ? (p/g).toFixed(6) : '—';
+  };
+  function setProgress(pct){ if ($progress) $progress.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
+  function updateNetBadge(){
+    const s = state.network==='testnet'?'testnet':'mainnet';
+    if ($netBadge){ $netBadge.textContent = s==='testnet'?'Testnet':'Mainnet'; $netBadge.className = 'badge ' + s; }
+  }
+  function xrplUrl(){ return XRPL_PROXY + (state.network === 'testnet' ? '?network=testnet' : ''); }
+  function isMobile(){ return /iphone|ipad|ipod|android|windows phone/i.test(navigator.userAgent || ''); }
+
+  // ===== QR helpers
+  function showQR(kind, pngUrl, deeplink){
+    const map = { connect: [$qrConnect,$qrConnectImg,'qrConnectLink'], trust: [$qrTrust,$qrTrustImg,'qrTrustLink'] };
+    const entry = map[kind]; if (!entry) return;
+    const [wrap,img,linkId] = entry;
+    if (!wrap) return;
+    if (img) img.src = pngUrl || '';
+    const linkEl = ensureQRLinkEl(wrap, linkId);
+    if (linkEl){
+      linkEl.href = deeplink || '#';
+      linkEl.style.display = deeplink ? 'block' : 'none';
+    }
+    wrap.classList.add('open');
+    if (deeplink && isMobile()){
+      // Mobile: jump straight into Xaman
+      try{ location.href = deeplink; }catch{}
     }
   }
-  </script>
+  function hideQR(kind){
+    const map = { connect: $qrConnect, trust: $qrTrust };
+    const wrap = map[kind]; if (!wrap) return;
+    wrap.classList.remove('open');
+    const img = wrap.querySelector('img'); if (img) img.src = '';
+    const a = wrap.querySelector('a.btn'); if (a) a.style.display = 'none';
+  }
 
-  <script>
-  (function(){
-    'use strict';
-
-    // ===== Embed mode toggle =====
-    try {
-      const q = new URLSearchParams(location.search);
-      if (q.get('embed') === '1') document.body.classList.add('embed');
-    } catch {}
-
-    // ===== CONFIG =====
-    const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-    const XRPL_PROXY     = cfg.xrplProxyUrl || '';
-    const XUMM_API_KEY   = cfg.xummApiKey || '';
-    const XUMM_SRV_PROXY = cfg.xummServerProxy || ''; // server you control. holds API Secret. exposes payload endpoints.
-    const XRBC           = cfg.xrbc || {};
-    const XRP_TO_DROPS   = 1_000_000;
-
-    // ===== STATE =====
-    const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
-    let connectInFlight = false;
-
-    // ===== DOM =====
-    const $ = id => document.getElementById(id);
-    const $walletStatus = $('walletStatus'), $offersStatus = $('offersStatus'), $offersWrap = $('offersWrap'),
-          $resultBox = $('resultBox'), $log = $('log'), $progress = $('progressBar'),
-          $btnXumm = $('btnXumm'), $btnConnect = $('btnConnect'), $btnDisconnect = $('btnDisconnect'),
-          $btnRefresh = $('btnRefresh'), $btnCancelAll = $('btnCancelAll'), $netBadge = $('netBadge'),
-          $btnTrust = $('btnTrustXRBC'), $buyStatus = $('buyStatus'),
-          $qrConnect = $('qrConnect'), $qrConnectImg = $('qrConnectImg'), $qrTrust = $('qrTrust'), $qrTrustImg = $('qrTrustImg');
-
-    // ===== UTILS =====
-    function log(s){ if ($log) { $log.textContent += (s + '\n'); $log.scrollTop = $log.scrollHeight; } }
-    function setStatus(node, text, cls){
-      if (!node) return;
-      node.textContent = text; node.classList.remove('ok','err'); if (cls) node.classList.add(cls);
-      if (node === $offersStatus) log('[offers] ' + text);
-      else if (node === $walletStatus) log('[wallet] ' + text);
-      else if (node === $buyStatus) log('[buy] ' + text);
-    }
-    const N = v => Number.isFinite(Number(v)) ? Number(v) : 0;
-    const isXRP = a => typeof a === 'string' || (a && a.currency === 'XRP');
-    const fmtDrops = d => (N(d)/XRP_TO_DROPS).toFixed(6) + ' XRP';
-    const amtStr = a => isXRP(a) ? fmtDrops(a) : (Number(a.value).toFixed(6) + ' ' + (a.currency || 'IOU'));
-    const price = (gets, pays) => {
-      const g = isXRP(gets) ? N(gets)/XRP_TO_DROPS : N(gets.value);
-      const p = isXRP(pays) ? N(pays)/XRP_TO_DROPS : N(pays.value);
-      return g > 0 ? (p/g).toFixed(6) : '—';
-    };
-    function setProgress(pct){ if ($progress) $progress.style.width = Math.max(0, Math.min(100, pct)) + '%'; }
-    function updateNetBadge(){
-      const s = state.network==='testnet'?'testnet':'mainnet';
-      if ($netBadge){ $netBadge.textContent = s==='testnet'?'Testnet':'Mainnet'; $netBadge.className = 'badge ' + s; }
-    }
-    function xrplUrl(){ return XRPL_PROXY + (state.network === 'testnet' ? '?network=testnet' : ''); }
-
-    // ===== XUMM QR HELPERS via your server (uses API Secret server-side)
-    async function serverCreatePayload(txjson){
-      if (!XUMM_SRV_PROXY) return null;
-      // Expected server endpoint: POST { txjson } -> { uuid, refs:{ qr_png } }
-      const res = await fetch(XUMM_SRV_PROXY + '/payload', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ txjson, network: state.network })
+  // ===== XRPL PROXY CALLS =====
+  async function xrplRequest(payload, {timeoutMs=12000}={}){
+    if (!XRPL_PROXY) throw new Error('XRPL proxy missing');
+    const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+    try{
+      const res = await fetch(xrplUrl(), {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload),
+        signal: ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit'
       });
-      if (!res.ok) throw new Error('Xumm server proxy HTTP '+res.status);
-      return res.json();
-    }
-    function showQR(kind, pngUrl){
-      const map = { connect: [$qrConnect,$qrConnectImg], trust: [$qrTrust,$qrTrustImg] };
-      const [wrap,img] = map[kind] || [];
-      if (!wrap || !img) return;
-      img.src = pngUrl || '';
-      wrap.classList.add('open');
-    }
-    function hideQR(kind){
-      const map = { connect: $qrConnect, trust: $qrTrust };
-      const wrap = map[kind];
-      if (!wrap) return;
-      wrap.classList.remove('open');
-      const img = wrap.querySelector('img'); if (img) img.src = '';
-    }
+      if (!res.ok) throw new Error('Proxy HTTP '+res.status);
+      const data = await res.json();
+      if (data && data.error) throw new Error('XRPL '+(data.error?.message||'error'));
+      return data;
+    } finally { clearTimeout(t); }
+  }
+  async function call(method, params){
+    const r = await xrplRequest({ method, params:[{...params, ledger_index:'validated'}] });
+    return r?.result;
+  }
 
-    // ===== XRPL PROXY CALLS =====
-    async function xrplRequest(payload, {timeoutMs=12000}={}){
-      if (!XRPL_PROXY) throw new Error('XRPL proxy missing');
-      const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeoutMs);
-      try{
-        const res = await fetch(xrplUrl(), {
-          method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload),
-          signal: ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit'
-        });
-        if (!res.ok) throw new Error('Proxy HTTP '+res.status);
-        const data = await res.json();
-        if (data && data.error) throw new Error('XRPL '+(data.error?.message||'error'));
-        return data;
-      } finally { clearTimeout(t); }
+  // ===== DATA LOAD =====
+  async function getAccountInfo(acct){
+    const r = await call('account_info', { account: acct });
+    return r?.account_data || {};
+  }
+  async function fetchOffers(acct){
+    setStatus($offersStatus, 'Loading open orders…');
+    try{
+      const r = await call('account_offers', { account: acct, limit: 500 });
+      state.offers = r?.offers || [];
+      renderOffers();
+      setStatus($offersStatus, `Found ${state.offers.length} open offer(s).`, 'ok');
+    }catch(e){
+      state.offers = []; renderOffers();
+      setStatus($offersStatus, 'Error loading offers: '+(e.message||e), 'err');
     }
-    async function call(method, params){
-      const r = await xrplRequest({ method, params:[{...params, ledger_index:'validated'}] });
-      return r?.result;
+  }
+  function renderOffers(){
+    $offersWrap.innerHTML = '';
+    if (!state.offers.length){
+      const d = document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
     }
-
-    // ===== DATA LOAD =====
-    async function getAccountInfo(acct){
-      const r = await call('account_info', { account: acct });
-      return r?.account_data || {};
-    }
-    async function fetchOffers(acct){
-      setStatus($offersStatus, 'Loading open orders…');
-      try{
-        const r = await call('account_offers', { account: acct, limit: 500 });
-        state.offers = r?.offers || [];
-        renderOffers();
-        setStatus($offersStatus, `Found ${state.offers.length} open offer(s).`, 'ok');
-      }catch(e){
-        state.offers = []; renderOffers();
-        setStatus($offersStatus, 'Error loading offers: '+(e.message||e), 'err');
-      }
-    }
-    function renderOffers(){
-      $offersWrap.innerHTML = '';
-      if (!state.offers.length){
-        const d = document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
-      }
-      const wrap = document.createElement('div'); wrap.style.overflow='auto';
-      const table = document.createElement('table');
-      const thead = document.createElement('thead'); const trh = document.createElement('tr');
-      ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
-      thead.appendChild(trh); table.appendChild(thead);
-      const tbody = document.createElement('tbody');
-      state.offers.forEach(o=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td class="mono">${o.seq}</td><td>${amtStr(o.taker_gets)}</td><td>${amtStr(o.taker_pays)}</td><td>${price(o.taker_gets,o.taker_pays)}</td>`;
-        const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
-        b.addEventListener('click', ()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct); tbody.appendChild(tr);
-      });
-      table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
-    }
-    async function beforeAfterReserveReport(acct, prevInfo){
-      try{
-        const now = await getAccountInfo(acct);
-        const prevBal = N(prevInfo?.Balance)/XRP_TO_DROPS, nowBal = N(now?.Balance)/XRP_TO_DROPS;
-        const freed = Math.max(0, N(prevInfo?.OwnerCount) - N(now?.OwnerCount)) * 2;
-        const delta = (nowBal - prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div class="gridish"><div class="chip">Freed: <strong>${freed.toFixed(6)} XRP</strong></div><div class="chip">Δ Balance: <strong>${delta} XRP</strong></div></div>`;
-      }catch{}
-    }
-
-    // ===== ADAPTERS =====
-    class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
-
-    class XummAdapter extends WalletAdapter {
-      constructor(){ super(); this.name='Xumm'; this.xumm=null; }
-      async connect(){
-        if (state.account) return { address: state.account }; // already connected
-        if (typeof Xumm === 'undefined') throw new Error('Xumm SDK not loaded');
-        if (!XUMM_API_KEY) throw new Error('Xumm API key missing');
-
-        this.xumm = this.xumm || new Xumm(XUMM_API_KEY);
-
-        // Try to resume a session
-        try{
-          const existing = await this.xumm.user.account;
-          if (existing) return { address: existing };
-        }catch{}
-
-        // Desktop: create a SignIn payload and show QR below Connect
-        try{
-          const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
-            { txjson: { TransactionType:'SignIn' }, options:{ submit:false, expire:300 } },
-            ev => { if (ev?.opened) setStatus($walletStatus,'Open Xumm or scan QR…'); if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err'); }
-          );
-          if (created?.refs?.qr_png) showQR('connect', created.refs.qr_png);
-          const res = await resolved;
-          try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-          hideQR('connect');
-          if (!res?.signed) throw new Error('User rejected');
-          // account can be returned in response or via user.account
-          const acct = (res?.response && (res.response.account || res.response.accountaddress)) || await this.xumm.user.account;
-          if (!acct) throw new Error('No account returned');
-          return { address: acct };
-        } catch (e){
-          hideQR('connect');
-          throw e;
-        }
-      }
-      async signAndSubmit(txjson, { qrKind=null }={}){
-        const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
-          { txjson, options:{ submit:true, expire:300 } },
-          ev => { if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…'); if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err'); }
-        );
-        try{
-          if (qrKind && created?.refs?.qr_png) showQR(qrKind, created.refs.qr_png);
-        }catch{}
-        const res = await resolved;
-        try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-        if (qrKind) hideQR(qrKind);
-        if (!res?.signed) throw new Error('User rejected');
-        return { hash: res?.txid || res?.id || '(pending)', result: 'submitted' };
-      }
-      async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
-    }
-
-    // ===== CONNECT HELPERS =====
-    function setAdapter(ad){ state.adapter = ad; }
-    async function connectWith(AdapterClass){
-      if (connectInFlight) return;
-      connectInFlight = true;
-      try{
-        if (state.account){ setStatus($walletStatus,'Already connected: '+state.account,'ok'); return; }
-        setStatus($walletStatus,'Connecting…');
-        if ($btnConnect) $btnConnect.disabled = true; if ($btnXumm) $btnXumm.disabled = true;
-        const ad = new AdapterClass();
-        const { address } = await ad.connect();
-        state.account = address; setAdapter(ad);
-        setStatus($walletStatus, ad.name+': '+address, 'ok');
-        if ($btnDisconnect) $btnDisconnect.disabled = false;
-        state.lastAccountInfo = await getAccountInfo(address);
-        await fetchOffers(address);
-      }catch(e){
-        const msg = (e && e.message) || 'Connect failed';
-        setStatus($walletStatus, msg, 'err');
-      }finally{
-        connectInFlight = false;
-        if ($btnConnect) $btnConnect.disabled = false; if ($btnXumm) $btnXumm.disabled = false;
-      }
-    }
-    async function disconnect(){
-      try{ await state.adapter?.disconnect?.(); }catch{}
-      state.account = null; state.adapter = null; state.offers = []; setProgress(0);
-      $offersWrap.innerHTML = '<div class="hint">No data yet.</div>';
-      setStatus($walletStatus, 'Status: Not connected');
-      setStatus($offersStatus, ''); setStatus($buyStatus, '');
-      if ($btnDisconnect) $btnDisconnect.disabled = true;
-      hideQR('connect'); hideQR('trust');
-    }
-
-    // ===== CANCEL =====
-    async function cancelOne(seq){
-      if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      setStatus($offersStatus, 'Preparing cancel '+seq+'…');
-      try{
-        const tx = { TransactionType:'OfferCancel', Account: state.account, OfferSequence: Number(seq) };
-        const res = await state.adapter.signAndSubmit(tx);
-        setStatus($offersStatus, `Submitted cancel ${seq}.`, 'ok');
-        await fetchOffers(state.account);
-        log(`tx hash: ${res.hash || '(unknown)'}`);
-        return res;
-      }catch(e){
-        setStatus($offersStatus, 'Error: '+(e.message||e), 'err');
-        throw e;
-      }
-    }
-    async function cancelAll(){
-      if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      if (!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
-      if (!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
-      const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
-      let i = 0; const total = state.offers.length;
-      for (const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
-      setProgress(100); await beforeAfterReserveReport(state.account, beforeInfo);
-      setStatus($offersStatus, 'Done.', 'ok');
-    }
-
-    // ===== XRBC TRUST + BUY =====
-    const XRBC_HEX  = (XRBC.currencyHex || '').toUpperCase();
-    function hexToAscii(hex){ try{ let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); } return out || 'XRBC'; }catch{ return 'XRBC'; } }
-    const XRBC_CODE = hexToAscii(XRBC_HEX);
-
-    async function hasXRBCTrustLine(acct){
-      const r = await call('account_lines', { account: acct, peer: XRBC.issuer, limit: 400 });
-      const lines = r?.lines || [];
-      return lines.some(l => ((l.currency||'').toUpperCase() === XRBC_CODE.toUpperCase()) || ((l.currency||'').toUpperCase() === XRBC_HEX));
-    }
-    async function addXRBCTrustLine(){
-      if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      setStatus($buyStatus, 'Checking trust line…');
-      try{
-        const exists = await hasXRBCTrustLine(state.account);
-        if (exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); hideQR('trust'); return; }
-        const tx = {
-          TransactionType: 'TrustSet',
-          Account: state.account,
-          LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }
-        };
-        // force QR to render under the trust button
-        await state.adapter.signAndSubmit(tx, { qrKind:'trust' });
-        setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
-      }catch(e){
-        hideQR('trust');
-        setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err');
-      }
-    }
-
-    async function pathFindBuy(acct, valueStr){
-      const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr };
-      const pfWrap = await xrplRequest({
-        method: 'ripple_path_find',
-        params: [{ source_account: acct, destination_account: acct, destination_amount: AMOUNT, source_currencies: [ { currency: "XRP" } ] }]
-      }, {timeoutMs: 15000});
-      const pf = pfWrap?.result || {}; const alts = pf?.alternatives || [];
-      if (!alts.length) throw new Error('No path found for requested amount');
-      let best = null;
-      for (const a of alts){
-        const sa = a.source_amount;
-        const drops = typeof sa === 'string' ? N(sa) : (sa && sa.currency === 'XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
-        if (!isFinite(drops)) continue;
-        if (!best || drops < best.drops) best = { alt:a, drops };
-      }
-      if (!best) throw new Error('No XRP route available');
-      const headroom = Math.ceil(best.drops * 1.005);
-      return { TransactionType:"Payment", Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths: best.alt.paths_computed || [] };
-    }
-    async function buyXRBC(units){
-      if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      try{
-        setStatus($buyStatus, `Preparing to buy ${units} ${XRBC_CODE}…`);
-        const exists = await hasXRBCTrustLine(state.account);
-        if (!exists){ setStatus($buyStatus,'No XRBC trust line. Click "Add XRBC Trust Line" first.','err'); return; }
-        const tx = await pathFindBuy(state.account, String(units));
-        const res = await state.adapter.signAndSubmit(tx);
-        setStatus($buyStatus, `Buy submitted. Hash: ${(res && res.hash) ? res.hash : '(pending)'}`, 'ok');
-      }catch(e){
-        setStatus($buyStatus, (e && e.message) || 'Buy failed', 'err');
-      }
-    }
-
-    // ===== EVENTS =====
-    document.getElementById('btnXumm')?.addEventListener('click', ()=>connectWith(XummAdapter));
-    document.getElementById('btnConnect')?.addEventListener('click', ()=>connectWith(XummAdapter));
-    document.getElementById('btnDisconnect')?.addEventListener('click', ()=>disconnect());
-
-    document.getElementById('btnRefresh')?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-    document.getElementById('btnCancelAll')?.addEventListener('click', ()=>cancelAll());
-
-    document.getElementById('network')?.addEventListener('change', ()=>{
-      state.network = document.getElementById('network').value;
-      updateNetBadge(); if (state.account) fetchOffers(state.account);
+    const wrap = document.createElement('div'); wrap.style.overflow='auto';
+    const table = document.createElement('table');
+    const thead = document.createElement('thead'); const trh = document.createElement('tr');
+    ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+    thead.appendChild(trh); table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    state.offers.forEach(o=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `<td class="mono">${o.seq}</td><td>${amtStr(o.taker_gets)}</td><td>${amtStr(o.taker_pays)}</td><td>${price(o.taker_gets,o.taker_pays)}</td>`;
+      const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
+      b.addEventListener('click', ()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct); tbody.appendChild(tr);
     });
+    table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
+  }
+  async function beforeAfterReserveReport(acct, prevInfo){
+    try{
+      const now = await getAccountInfo(acct);
+      const prevBal = N(prevInfo?.Balance)/XRP_TO_DROPS, nowBal = N(now?.Balance)/XRP_TO_DROPS;
+      const freed = Math.max(0, N(prevInfo?.OwnerCount) - N(now?.OwnerCount)) * 2;
+      const delta = (nowBal - prevBal).toFixed(6);
+      $resultBox.innerHTML = `<div class="gridish"><div class="chip">Freed: <strong>${freed.toFixed(6)} XRP</strong></div><div class="chip">Δ Balance: <strong>${delta} XRP</strong></div></div>`;
+    }catch{}
+  }
 
-    document.getElementById('btnTrustXRBC')?.addEventListener('click', ()=>addXRBCTrustLine());
-    document.getElementById('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
-    document.getElementById('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
-    document.getElementById('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
-    document.getElementById('buy100')?.addEventListener('click', ()=>buyXRBC(100));
+  // ===== ADAPTERS =====
+  class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
 
-    // Copy embed
-    (function initCopy(){
-      const btn = document.getElementById('btnCopyIframe'); const pre = document.getElementById('embedCode');
-      if (!btn || !pre) return;
-      btn.addEventListener('click', async () => {
-        try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200); }
-        catch{
-          const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
-          document.execCommand('copy'); sel.removeAllRanges(); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
+  class XummAdapter extends WalletAdapter {
+    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
+    async connect(){
+      if (state.account) return { address: state.account }; // already connected
+      if (typeof Xumm === 'undefined') throw new Error('Xumm SDK not loaded');
+      if (!XUMM_API_KEY) throw new Error('Xumm API key missing');
+
+      this.xumm = this.xumm || new Xumm(XUMM_API_KEY);
+
+      // Try to resume
+      try{
+        const existing = await this.xumm.user.account;
+        if (existing) return { address: existing };
+      }catch{}
+
+      // Desktop & mobile: create SignIn payload and expose both QR + universal deeplink
+      const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+        { txjson: { TransactionType:'SignIn' }, options:{ submit:false, expire:300 } },
+        ev => {
+          if (ev?.opened) setStatus($walletStatus,'Open Xaman or scan QR…');
+          if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
         }
-      });
-    })();
+      );
 
-    // Boot
-    updateNetBadge();
-  })();
-  </script>
+      const qrPng   = created?.refs?.qr_png || null;
+      const deeplink= created?.next?.always || created?.refs?.open || null;
+      if (qrPng || deeplink) showQR('connect', qrPng, deeplink);
+
+      const res = await resolved;
+      try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      hideQR('connect');
+
+      if (!res?.signed) throw new Error('User rejected');
+      // account may be present, else fetch from SDK
+      const acct = (res?.response && (res.response.account || res.response.accountaddress)) || await this.xumm.user.account;
+      if (!acct) throw new Error('No account returned');
+      return { address: acct };
+    }
+    async signAndSubmit(txjson, { qrKind=null }={}){
+      const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+        { txjson, options:{ submit:true, expire:300 } },
+        ev => { if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…'); if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err'); }
+      );
+      try{
+        const qrPng = created?.refs?.qr_png || null;
+        const link  = created?.next?.always || created?.refs?.open || null;
+        if (qrKind && (qrPng || link)) showQR(qrKind, qrPng, link);
+      }catch{}
+      const res = await resolved;
+      try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      if (qrKind) hideQR(qrKind);
+      if (!res?.signed) throw new Error('User rejected');
+      return { hash: res?.txid || res?.id || '(pending)', result: 'submitted' };
+    }
+    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+  }
+
+  // ===== CONNECT HELPERS =====
+  function setAdapter(ad){ state.adapter = ad; }
+  async function connectWith(AdapterClass){
+    if (connectInFlight) return;
+    connectInFlight = true;
+    try{
+      if (state.account){ setStatus($walletStatus,'Already connected: '+state.account,'ok'); return; }
+      setStatus($walletStatus,'Connecting…');
+      if ($btnConnect) $btnConnect.disabled = true; if ($btnXumm) $btnXumm.disabled = true;
+      const ad = new AdapterClass();
+      const { address } = await ad.connect();
+      state.account = address; setAdapter(ad);
+      setStatus($walletStatus, ad.name+': '+address, 'ok');
+      if ($btnDisconnect) $btnDisconnect.disabled = false;
+      state.lastAccountInfo = await getAccountInfo(address);
+      await fetchOffers(address);
+    }catch(e){
+      const msg = (e && e.message) || 'Connect failed';
+      setStatus($walletStatus, msg, 'err');
+    }finally{
+      connectInFlight = false;
+      if ($btnConnect) $btnConnect.disabled = false; if ($btnXumm) $btnXumm.disabled = false;
+    }
+  }
+  async function disconnect(){
+    try{ await state.adapter?.disconnect?.(); }catch{}
+    state.account = null; state.adapter = null; state.offers = []; setProgress(0);
+    $offersWrap.innerHTML = '<div class="hint">No data yet.</div>';
+    setStatus($walletStatus, 'Status: Not connected');
+    setStatus($offersStatus, ''); setStatus($buyStatus, '');
+    if ($btnDisconnect) $btnDisconnect.disabled = true;
+    hideQR('connect'); hideQR('trust');
+  }
+
+  // ===== CANCEL =====
+  async function cancelOne(seq){
+    if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    setStatus($offersStatus, 'Preparing cancel '+seq+'…');
+    try{
+      const tx = { TransactionType:'OfferCancel', Account: state.account, OfferSequence: Number(seq) };
+      const res = await state.adapter.signAndSubmit(tx);
+      setStatus($offersStatus, `Submitted cancel ${seq}.`, 'ok');
+      await fetchOffers(state.account);
+      log(`tx hash: ${res.hash || '(unknown)'}`);
+      return res;
+    }catch(e){
+      setStatus($offersStatus, 'Error: '+(e.message||e), 'err');
+      throw e;
+    }
+  }
+  async function cancelAll(){
+    if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    if (!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
+    if (!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
+    const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
+    let i = 0; const total = state.offers.length;
+    for (const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
+    setProgress(100); await beforeAfterReserveReport(state.account, beforeInfo);
+    setStatus($offersStatus, 'Done.', 'ok');
+  }
+
+  // ===== XRBC TRUST + BUY =====
+  const XRBC_HEX  = (XRBC.currencyHex || '').toUpperCase();
+  function hexToAscii(hex){ try{ let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); } return out || 'XRBC'; }catch{ return 'XRBC'; } }
+  const XRBC_CODE = hexToAscii(XRBC_HEX);
+
+  async function hasXRBCTrustLine(acct){
+    const r = await call('account_lines', { account: acct, peer: XRBC.issuer, limit: 400 });
+    const lines = r?.lines || [];
+    return lines.some(l => ((l.currency||'').toUpperCase() === XRBC_CODE.toUpperCase()) || ((l.currency||'').toUpperCase() === XRBC_HEX));
+  }
+  async function addXRBCTrustLine(){
+    if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    setStatus($buyStatus, 'Checking trust line…');
+    try{
+      const exists = await hasXRBCTrustLine(state.account);
+      if (exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); hideQR('trust'); return; }
+      const tx = {
+        TransactionType: 'TrustSet',
+        Account: state.account,
+        LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }
+      };
+      await state.adapter.signAndSubmit(tx, { qrKind:'trust' }); // shows QR and deeplink under Trust button
+      setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
+    }catch(e){
+      hideQR('trust');
+      setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err');
+    }
+  }
+
+  async function pathFindBuy(acct, valueStr){
+    const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr };
+    const pfWrap = await xrplRequest({
+      method: 'ripple_path_find',
+      params: [{ source_account: acct, destination_account: acct, destination_amount: AMOUNT, source_currencies: [ { currency: "XRP" } ] }]
+    }, {timeoutMs: 15000});
+    const pf = pfWrap?.result || {}; const alts = pf?.alternatives || [];
+    if (!alts.length) throw new Error('No path found for requested amount');
+    let best = null;
+    for (const a of alts){
+      const sa = a.source_amount;
+      const drops = typeof sa === 'string' ? N(sa) : (sa && sa.currency === 'XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
+      if (!isFinite(drops)) continue;
+      if (!best || drops < best.drops) best = { alt:a, drops };
+    }
+    if (!best) throw new Error('No XRP route available');
+    const headroom = Math.ceil(best.drops * 1.005);
+    return { TransactionType:"Payment", Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths: best.alt.paths_computed || [] };
+  }
+  async function buyXRBC(units){
+    if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    try{
+      setStatus($buyStatus, `Preparing to buy ${units} ${XRBC_CODE}…`);
+      const exists = await hasXRBCTrustLine(state.account);
+      if (!exists){ setStatus($buyStatus,'No XRBC trust line. Click "Add XRBC Trust Line" first.','err'); return; }
+      const tx = await pathFindBuy(state.account, String(units));
+      const res = await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus, `Buy submitted. Hash: ${(res && res.hash) ? res.hash : '(pending)'}`, 'ok');
+    }catch(e){
+      setStatus($buyStatus, (e && e.message) || 'Buy failed', 'err');
+    }
+  }
+
+  // ===== EVENTS =====
+  document.getElementById('btnXumm')?.addEventListener('click', ()=>connectWith(XummAdapter));
+  document.getElementById('btnConnect')?.addEventListener('click', ()=>connectWith(XummAdapter));
+  document.getElementById('btnDisconnect')?.addEventListener('click', ()=>disconnect());
+
+  document.getElementById('btnRefresh')?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+  document.getElementById('btnCancelAll')?.addEventListener('click', ()=>cancelAll());
+
+  document.getElementById('network')?.addEventListener('change', ()=>{
+    state.network = document.getElementById('network').value;
+    updateNetBadge(); if (state.account) fetchOffers(state.account);
+  });
+
+  document.getElementById('btnTrustXRBC')?.addEventListener('click', ()=>addXRBCTrustLine());
+  document.getElementById('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
+  document.getElementById('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
+  document.getElementById('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
+  document.getElementById('buy100')?.addEventListener('click', ()=>buyXRBC(100));
+
+  // Boot
+  try {
+    const q = new URLSearchParams(location.search);
+    if (q.get('embed') === '1') document.body.classList.add('embed');
+  } catch {}
+  updateNetBadge();
+})();
+</script>
+
 </body>
 </html>
