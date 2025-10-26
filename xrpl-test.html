@@ -9,11 +9,11 @@
 <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/limit-order-extraction.html" />
 <meta name="description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported. Secure, non-custodial, on-ledger." />
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-<meta name="theme-color" content="#070b10" />
+<meta name="theme-color" content="#0b0f14" />
 <link rel="icon" href="/favicon.ico?v=1" sizes="any">
 <link rel="icon" type="image/png" href="/xrbc-nft.png">
 <link rel="apple-touch-icon" href="/xrbc-nft.png">
-<link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=1" color="#070b10">
+<link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=1" color="#0b0f14">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="XRBitcoinCash">
 <meta property="og:title" content="Instant Limit Order Extraction · XRPL · XRBC">
@@ -37,99 +37,65 @@
 
 <style>
 :root{
-  --wrap:1100px; --bg:#070b10; --panel:#0a1018; --panel-2:#090e14; --ink:#e7edf5; --muted:#9fb0c5; --line:#1a2533;
-  --ok:#22c55e; --err:#ef4444; --blue:#3b82f6; --yellow:#f59e0b; --neon:#56d8ff; --mag:#ff3bf6; --cy:#00ffd1; --gr:#9aff6b
+  --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+  --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b;--neon:#56d8ff
 }
-*{box-sizing:border-box} html,body{height:100%;max-width:100%;overflow-x:hidden}
+*{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
 body{margin:0;background:
   radial-gradient(1200px 600px at 80% -10%, rgba(86,216,255,.08), transparent),
   linear-gradient(180deg,var(--bg),#05080c 60%, #04070a);
   color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left));position:relative}
-.container::before{
-  content:"";position:fixed;inset:0;pointer-events:none;opacity:.065;
-  background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 2px, transparent 2px 4px),
-    radial-gradient(800px 400px at 10% 10%, rgba(0,255,209,.06), transparent 60%),
-    radial-gradient(900px 460px at 90% 0%, rgba(255,59,246,.05), transparent 60%);
-  mix-blend-mode:screen
-}
-.scanlines{position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0 2px, rgba(255,255,255,.02) 2px 3px);opacity:.15}
-
-.card{
-  position:relative;background:linear-gradient(180deg,var(--panel),var(--panel-2));
-  border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;
-  box-shadow:0 10px 40px rgba(0,0,0,.45), inset 0 0 0 1px rgba(86,216,255,.03)
-}
-h1,h2,h3{margin:.2em 0;font-weight:900;letter-spacing:.2px}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:12px}
+h1,h2,h3{margin:.2em 0}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.btn{appearance:none;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#0b1622,#0b131b);
-     color:var(--ink);padding:12px 16px;font-weight:900;cursor:pointer;min-height:46px;text-decoration:none;display:inline-flex;
-     align-items:center;justify-content:center}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .btn:disabled{opacity:.6;cursor:not-allowed}
-
-.badge{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:9999px;font-size:12px}
+.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
 .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4}
 .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
-
-.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;min-width:520px}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .hint{color:var(--muted);font-size:12px}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-weight:800}
 .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
 .footer{margin-top:20px;color:#9fb0c5;font-size:12px}
-.pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:4px 10px;font-weight:800}
-.progress{height:6px;background:#0d1a29;border-radius:9999px;overflow:hidden;margin-top:8px}
+.progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
 .progress>span{display:block;height:100%;background:var(--blue);width:0%}
+.grid{display:grid;gap:12px}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.log{max-height:220px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
 
-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-align:top}
-
-/* hero top-right policy badge (on Wallet card) */
-.policy-pill{position:absolute;top:10px;right:10px;font-size:12px;border:1px dashed #2a3b51;border-radius:9999px;padding:6px 10px;color:#bcd0e8}
-
-/* QR drop-down */
+/* QR dropdown */
 .qr-wrap{width:100%;display:none;margin-top:10px}
 .qr-wrap.open{display:block;animation:drop .25s ease-out}
 @keyframes drop{from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)}}
-.qr-box{border:1px solid #123; border-radius:14px; padding:10px; background:linear-gradient(180deg,#0a121b,#091018)}
-.qr-box img{width:180px;height:180px;display:block;margin:auto;border-radius:8px;border:1px solid #1a2a3a}
+.qr-box{border:1px solid #123;border-radius:14px;padding:12px;background:linear-gradient(180deg,#0a121b,#091018);text-align:center}
+.qr-box img{width:180px;height:180px;display:block;margin:8px auto;border-radius:8px;border:1px solid #1a2a3a}
 
-/* pulsating buy buttons */
-.pulse{position:relative;animation:pulse 1.8s infinite ease-in-out}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(86,216,255,.35)}70%{box-shadow:0 0 0 20px rgba(86,216,255,0)}100%{box-shadow:0 0 0 0 rgba(86,216,255,0)}}
-.pulse.mag{animation-name:pulseMag} @keyframes pulseMag{0%{box-shadow:0 0 0 0 rgba(255,59,246,.35)}70%{box-shadow:0 0 0 20px rgba(255,59,246,0)}100%{box-shadow:0 0 0 0 rgba(255,59,246,0)}}
-.pulse.cy{animation-name:pulseCy}   @keyframes pulseCy{0%{box-shadow:0 0 0 0 rgba(0,255,209,.35)}70%{box-shadow:0 0 0 20px rgba(0,255,209,0)}100%{box-shadow:0 0 0 0 rgba(0,255,209,0)}}
-.pulse.gr{animation-name:pulseGr}   @keyframes pulseGr{0%{box-shadow:0 0 0 0 rgba(154,255,107,.35)}70%{box-shadow:0 0 0 20px rgba(154,255,107,0)}100%{box-shadow:0 0 0 0 rgba(154,255,107,0)}}
+/* Embed mode */
+body.embed .container{max-width:none}
+body.embed header.card, body.embed footer.site-footer{display:none}
+body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 
-/* cryptic result panel */
-#resultBox{background:linear-gradient(180deg,#0a1119,#0b0f17);border:1px solid #112033;border-radius:14px;padding:12px;min-height:48px;
-           box-shadow:inset 0 0 0 1px rgba(0,255,209,.04)}
-#resultBox .gridish{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#resultBox .chip{border:1px solid #1a2a3a;border-radius:10px;padding:6px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-                 background:linear-gradient(180deg,#081018,#070d14)}
-
-.log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#070c12;font-size:12px;white-space:pre-wrap}
-
-/* layout polish for small screens */
-.grid{display:grid;gap:12px}
-.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+/* Mobile */
 @media (max-width:960px){ .grid.cols-3{grid-template-columns:1fr} }
 @media (max-width:720px){
   header.card{flex-direction:column;align-items:center;text-align:center}
-  .card .row{width:100%;gap:10px}
+  .card .row{width:100%;gap:10px;justify-content:center}
 }
 </style>
 
-<!-- Xumm SDK -->
 <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="scanlines" aria-hidden="true"></div>
   <main class="container" aria-live="polite">
-
-    <!-- HEADER -->
     <header class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <a class="logo-link" href="/index.html" title="XR Bitcoin Cash · Home" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit">
+      <a class="row" href="/index.html" title="XR Bitcoin Cash · Home" style="text-decoration:none;color:inherit">
         <img src="/xrbc-nft.png" alt="XRBC" width="32" height="32" style="border-radius:6px;border:1px solid var(--line)">
         <h1 style="margin:0">Instant Limit Order Extraction</h1>
         <span id="netBadge" class="badge mainnet">Mainnet</span>
@@ -145,27 +111,27 @@ th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-
       </div>
     </header>
 
-    <!-- WALLET / HERO -->
     <section class="card" aria-labelledby="wlt" style="position:relative">
-      <div class="policy-pill">Raw secret signing disabled. Use a wallet. No keys stored.</div>
+      <div class="hint" style="position:absolute;top:10px;right:10px">Raw secret signing disabled. Use a wallet. No keys stored.</div>
       <h2 id="wlt" style="margin-bottom:6px">Wallet</h2>
       <div class="grid cols-3">
         <div style="text-align:center">
           <h3 style="margin:0 0 6px">Xaman (Xumm)</h3>
-          <p class="hint">Mobile-first. Desktop QR. Signing happens in-app.</p>
+          <p class="hint">Desktop shows QR. Mobile opens Xaman directly.</p>
           <div class="row">
             <button id="btnXumm" class="btn" type="button">Connect Xumm</button>
           </div>
           <div id="qrConnect" class="qr-wrap" aria-live="polite">
             <div class="qr-box">
-              <div class="hint" style="text-align:center;margin-bottom:8px">Scan to connect</div>
+              <div class="hint">Scan to connect</div>
               <img id="qrConnectImg" alt="Xaman Connect QR" src="">
+              <!-- deep link button injected by script -->
             </div>
           </div>
         </div>
       </div>
 
-      <div class="row" style="gap:8px;margin:12px 0 0;justify-content:center">
+      <div class="row" style="gap:8px;margin:12px 0 0">
         <label class="hint" for="walletSelect">Wallet</label>
         <select id="walletSelect" aria-label="Wallet">
           <option value="xumm">Xumm (Xaman)</option>
@@ -174,35 +140,32 @@ th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-
         <button id="btnDisconnect" class="btn" type="button" disabled>Disconnect</button>
       </div>
 
-      <!-- Issuer above trust button -->
       <div class="row" style="justify-content:center;margin-top:14px">
         <span class="pill">Issuer: <span class="mono" id="xrbcIssuerPill">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></span>
       </div>
 
-      <!-- Trust line center + QR drop -->
       <div style="display:flex;justify-content:center;margin-top:10px">
         <button id="btnTrustXRBC" class="btn" type="button" title="Add XRBC trust line">Add XRBC Trust Line</button>
       </div>
       <div id="qrTrust" class="qr-wrap" aria-live="polite">
         <div class="qr-box">
-          <div class="hint" style="text-align:center;margin-bottom:8px">Scan to add XRBC trust line</div>
+          <div class="hint">Scan to add XRBC trust line</div>
           <img id="qrTrustImg" alt="XRBC TrustSet QR" src="">
+          <!-- deep link button injected by script -->
         </div>
       </div>
 
-      <!-- Buy buttons: bright and pulsating -->
       <div class="row" style="margin-top:14px;justify-content:center">
-        <button class="btn pulse"     id="buy1"   type="button" style="border-color:#0aa;box-shadow:inset 0 0 0 1px rgba(86,216,255,.2)">Buy 1 XRBC for XRP</button>
-        <button class="btn pulse.mag" id="buy25"  type="button" style="border-color:#a06;box-shadow:inset 0 0 0 1px rgba(255,59,246,.15)">Buy 25 XRBC for XRP</button>
-        <button class="btn pulse.cy"  id="buy50"  type="button" style="border-color:#0c8;box-shadow:inset 0 0 0 1px rgba(0,255,209,.15)">Buy 50 XRBC for XRP</button>
-        <button class="btn pulse.gr"  id="buy100" type="button" style="border-color:#5a4;box-shadow:inset 0 0 0 1px rgba(154,255,107,.15)">Buy 100 XRBC for XRP</button>
+        <button class="btn" id="buy1"   type="button">Buy 1 XRBC for XRP</button>
+        <button class="btn" id="buy25"  type="button">Buy 25 XRBC for XRP</button>
+        <button class="btn" id="buy50"  type="button">Buy 50 XRBC for XRP</button>
+        <button class="btn" id="buy100" type="button">Buy 100 XRBC for XRP</button>
       </div>
 
       <p id="walletStatus" class="status" style="text-align:center;margin-top:8px">Status: Not connected</p>
       <p id="buyStatus" class="status" style="text-align:center"></p>
     </section>
 
-    <!-- OPEN ORDERS -->
     <section class="card" aria-labelledby="orders">
       <h2 id="orders">Open Orders</h2>
       <div id="offersWrap" class="hint">No data yet.</div>
@@ -214,38 +177,32 @@ th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-
       <p id="offersStatus" class="status"></p>
     </section>
 
-    <!-- RESULTS -->
     <section class="card" aria-labelledby="res">
       <h2 id="res">Results</h2>
-      <div id="resultBox">
-        <div class="gridish">
-          <div class="chip">Freed: —</div>
-          <div class="chip">Δ Balance: —</div>
-        </div>
+      <div id="resultBox" class="panel-note">
+        <div class="hint">Freed reserve and balance delta will appear here.</div>
       </div>
-      <div class="panel-note" style="margin-top:10px;border:1px dashed var(--line);border-radius:10px;padding:8px 10px">
+      <div class="panel-note" style="margin-top:10px">
         <div class="hint">Activity log</div>
         <pre id="log" class="log" aria-live="polite"></pre>
       </div>
     </section>
 
-    <!-- EMBED -->
     <section class="card" aria-labelledby="embed">
       <h2 id="embed">Embed this tool on your site</h2>
       <p class="hint">Copy the snippet below. It renders an iframe that loads this page in “embed mode.”</p>
-      <div class="panel-note" style="border:1px dashed var(--line);border-radius:10px;padding:8px 10px">
+      <div class="panel-note">
         <div class="row" style="gap:8px">
           <button id="btnCopyIframe" class="btn" type="button">Copy embed code</button>
           <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/limit-order-extraction.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
         </div>
-        <pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
+<pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
 &lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
 var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
 })(window,document,'xrbc-widget','https://xrbitcoincash.com/limit-order-extraction.html?embed=1&amp;network=mainnet','860px');&lt;/script&gt;</pre>
       </div>
     </section>
 
-    <!-- IMPORTANT -->
     <section class="card" aria-labelledby="important">
       <h2 id="important">Important</h2>
       <div class="warn">Verify every transaction in your wallet before approving. Transactions are final. Fees apply. Ensure the same network in wallet and page.</div>
@@ -257,9 +214,9 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     <div id="license-proprietary" class="license">
       <strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong><br>
       Copyright (c) 2025 XRBitcoinCash. All rights reserved.
-      <p><strong>Ownership.</strong> The software and related materials are proprietary to XRBitcoinCash.</p>
-      <p><strong>Acceptance.</strong> By accessing, using, or embedding the Software, you accept these terms.</p>
-      <p><strong>License Grant.</strong> Limited, revocable, non-exclusive license to use the publicly hosted Software. Embeds must remain unmodified unless authorized.</p>
+      <p><strong>Ownership.</strong> Proprietary to XRBitcoinCash.</p>
+      <p><strong>Acceptance.</strong> Using or embedding accepts these terms.</p>
+      <p><strong>License Grant.</strong> Limited, revocable, non-exclusive use of the hosted Software. Embeds must remain unmodified unless authorized.</p>
       <p><strong>Prohibited Uses.</strong> No copying, modification, reverse engineering, or unlawful use.</p>
       <p><strong>Widget, Embed, and API Access.</strong> Access may be throttled or terminated without notice.</p>
       <p><strong>Attribution.</strong> Keep a working link to xrbitcoincash.com.</p>
@@ -269,7 +226,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     </div>
   </footer>
 
-  <!-- App configuration (keep secrets server-side only) -->
+  <!-- App configuration -->
   <script type="application/json" id="app-config">
   {
     "xrplProxyUrl": "https://xrbitcoincash-github-io.onrender.com",
@@ -287,14 +244,14 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
 (function(){
   'use strict';
 
-  // Embed mode toggle
-  try { const q=new URLSearchParams(location.search); if(q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
+  // ===== Embed mode =====
+  try{ const q=new URLSearchParams(location.search); if(q.get('embed')==='1') document.body.classList.add('embed'); }catch{}
 
   // ===== CONFIG =====
   const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
   const XRPL_PROXY     = cfg.xrplProxyUrl || cfg.proxyUrl || '';
   const XUMM_API_KEY   = cfg.xummApiKey || '';
-  const XUMM_SRV_PROXY = cfg.xummServerProxy || ''; // optional server you control. Never put App Secret in client.
+  const XUMM_SRV_PROXY = cfg.xummServerProxy || ''; // optional server you control
   const XRBC           = cfg.xrbc || {};
   const XRP_TO_DROPS   = 1_000_000;
 
@@ -312,25 +269,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
         $qrConnect = $('qrConnect'), $qrConnectImg = $('qrConnectImg'),
         $qrTrust = $('qrTrust'), $qrTrustImg = $('qrTrustImg');
 
-  // Ensure a link element exists under the QR box for mobile deep link
-  function ensureQRLinkEl(wrapEl, linkId){
-    if (!wrapEl) return null;
-    let a = wrapEl.querySelector('#'+linkId);
-    if (!a){
-      a = document.createElement('a');
-      a.id = linkId;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.className = 'btn';
-      a.style.display = 'block';
-      a.style.margin = '10px auto 0';
-      a.textContent = 'Open in Xaman';
-      wrapEl.querySelector('.qr-box')?.appendChild(a);
-    }
-    return a;
-  }
-
-  // ===== UTILS =====
+  // ===== Utilities =====
   function log(s){ if ($log) { $log.textContent += (s + '\n'); $log.scrollTop = $log.scrollHeight; } }
   function setStatus(node, text, cls){
     if (!node) return;
@@ -356,7 +295,23 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   function xrplUrl(){ return XRPL_PROXY + (state.network === 'testnet' ? '?network=testnet' : ''); }
   function isMobile(){ return /iphone|ipad|ipod|android|windows phone/i.test(navigator.userAgent || ''); }
 
-  // ===== QR helpers
+  // ===== QR helpers =====
+  function ensureQRLinkEl(wrapEl, linkId){
+    if (!wrapEl) return null;
+    let a = wrapEl.querySelector('#'+linkId);
+    if (!a){
+      a = document.createElement('a');
+      a.id = linkId;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'btn';
+      a.style.display = 'block';
+      a.style.margin = '6px auto 4px';
+      a.textContent = 'Open in Xaman';
+      wrapEl.querySelector('.qr-box')?.appendChild(a);
+    }
+    return a;
+  }
   function showQR(kind, pngUrl, deeplink){
     const map = { connect: [$qrConnect,$qrConnectImg,'qrConnectLink'], trust: [$qrTrust,$qrTrustImg,'qrTrustLink'] };
     const entry = map[kind]; if (!entry) return;
@@ -369,9 +324,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       linkEl.style.display = deeplink ? 'block' : 'none';
     }
     wrap.classList.add('open');
-    if (deeplink && isMobile()){
-      try{ location.href = deeplink; }catch{}
-    }
+    if (deeplink && isMobile()){ try{ location.href = deeplink; }catch{} }
   }
   function hideQR(kind){
     const map = { connect: $qrConnect, trust: $qrTrust };
@@ -381,7 +334,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     const a = wrap.querySelector('a.btn'); if (a) a.style.display = 'none';
   }
 
-  // ===== XRPL PROXY CALLS =====
+  // ===== XRPL proxy =====
   async function xrplRequest(payload, {timeoutMs=12000}={}){
     if (!XRPL_PROXY) throw new Error('XRPL proxy missing');
     const ctrl = new AbortController(); const t = setTimeout(()=>ctrl.abort(), timeoutMs);
@@ -401,7 +354,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     return r?.result;
   }
 
-  // ===== DATA LOAD =====
+  // ===== Data =====
   async function getAccountInfo(acct){
     const r = await call('account_info', { account: acct });
     return r?.account_data || {};
@@ -420,10 +373,8 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   }
   function renderOffers(){
     $offersWrap.innerHTML = '';
-    if (!state.offers.length){
-      const d = document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
-    }
-    const wrap = document.createElement('div'); wrap.style.overflow='auto';
+    if (!state.offers.length){ const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return; }
+    const wrap = document.createElement('div'); wrap.className='table-wrap';
     const table = document.createElement('table');
     const thead = document.createElement('thead'); const trh = document.createElement('tr');
     ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
@@ -443,11 +394,14 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       const prevBal = N(prevInfo?.Balance)/XRP_TO_DROPS, nowBal = N(now?.Balance)/XRP_TO_DROPS;
       const freed = Math.max(0, N(prevInfo?.OwnerCount) - N(now?.OwnerCount)) * 2;
       const delta = (nowBal - prevBal).toFixed(6);
-      $resultBox.innerHTML = `<div class="gridish"><div class="chip">Freed: <strong>${freed.toFixed(6)} XRP</strong></div><div class="chip">Δ Balance: <strong>${delta} XRP</strong></div></div>`;
+      $resultBox.innerHTML = `<div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">
+        <div class="pill">Freed: <strong class="mono">${freed.toFixed(6)} XRP</strong></div>
+        <div class="pill">Δ Balance: <strong class="mono">${delta} XRP</strong></div>
+      </div>`;
     }catch{}
   }
 
-  // ===== ADAPTERS =====
+  // ===== Wallet adapters =====
   class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
 
   class XummAdapter extends WalletAdapter {
@@ -459,11 +413,8 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
 
       this.xumm = this.xumm || new Xumm(XUMM_API_KEY);
 
-      // Try to resume
-      try{
-        const existing = await this.xumm.user.account;
-        if (existing) return { address: existing };
-      }catch{}
+      // Try resume
+      try{ const existing = await this.xumm.user.account; if (existing) return { address: existing }; }catch{}
 
       // SignIn payload with QR and universal deeplink
       const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
@@ -499,14 +450,14 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       }catch{}
       const res = await resolved;
       try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-      if (qrKind) hideQR('trust');
+      if (qrKind) hideQR(qrKind);
       if (!res?.signed) throw new Error('User rejected');
       return { hash: res?.txid || res?.id || '(pending)', result: 'submitted' };
     }
     async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
   }
 
-  // ===== CONNECT HELPERS =====
+  // ===== Connect helpers =====
   function setAdapter(ad){ state.adapter = ad; }
   async function connectWith(AdapterClass){
     if (connectInFlight) return;
@@ -540,7 +491,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     hideQR('connect'); hideQR('trust');
   }
 
-  // ===== CANCEL =====
+  // ===== Cancel flows =====
   async function cancelOne(seq){
     if (!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
     setStatus($offersStatus, 'Preparing cancel '+seq+'…');
@@ -567,7 +518,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     setStatus($offersStatus, 'Done.', 'ok');
   }
 
-  // ===== XRBC TRUST + BUY =====
+  // ===== XRBC trust + buy =====
   const XRBC_HEX  = (XRBC.currencyHex || '').toUpperCase();
   function hexToAscii(hex){ try{ let out=''; for (let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b); } return out || 'XRBC'; }catch{ return 'XRBC'; } }
   const XRBC_CODE = hexToAscii(XRBC_HEX);
@@ -588,7 +539,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
         Account: state.account,
         LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }
       };
-      await state.adapter.signAndSubmit(tx, { qrKind:'trust' }); // shows QR + deeplink under Trust button
+      await state.adapter.signAndSubmit(tx, { qrKind:'trust' }); // QR + deep link
       setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
     }catch(e){
       hideQR('trust');
@@ -629,28 +580,28 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     }
   }
 
-  // ===== EVENTS =====
-  document.getElementById('btnXumm')?.addEventListener('click', ()=>connectWith(XummAdapter));
-  document.getElementById('btnConnect')?.addEventListener('click', ()=>connectWith(XummAdapter));
-  document.getElementById('btnDisconnect')?.addEventListener('click', ()=>disconnect());
+  // ===== Events =====
+  $('btnXumm')?.addEventListener('click', ()=>connectWith(XummAdapter));
+  $('btnConnect')?.addEventListener('click', ()=>connectWith(XummAdapter));
+  $('btnDisconnect')?.addEventListener('click', ()=>disconnect());
 
-  document.getElementById('btnRefresh')?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-  document.getElementById('btnCancelAll')?.addEventListener('click', ()=>cancelAll());
+  $('btnRefresh')?.addEventListener('click', ()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+  $('btnCancelAll')?.addEventListener('click', ()=>cancelAll());
 
-  document.getElementById('network')?.addEventListener('change', ()=>{
-    state.network = document.getElementById('network').value;
+  $('network')?.addEventListener('change', ()=>{
+    state.network = $('network').value;
     updateNetBadge(); if (state.account) fetchOffers(state.account);
   });
 
-  document.getElementById('btnTrustXRBC')?.addEventListener('click', ()=>addXRBCTrustLine());
-  document.getElementById('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
-  document.getElementById('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
-  document.getElementById('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
-  document.getElementById('buy100')?.addEventListener('click', ()=>buyXRBC(100));
+  $('btnTrustXRBC')?.addEventListener('click', ()=>addXRBCTrustLine());
+  $('buy1')?.addEventListener('click',   ()=>buyXRBC(1));
+  $('buy25')?.addEventListener('click',  ()=>buyXRBC(25));
+  $('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
+  $('buy100')?.addEventListener('click', ()=>buyXRBC(100));
 
   // Copy embed
   (function initCopy(){
-    const btn = document.getElementById('btnCopyIframe'); const pre = document.getElementById('embedCode');
+    const btn = $('btnCopyIframe'); const pre = $('embedCode');
     if (!btn || !pre) return;
     btn.addEventListener('click', async () => {
       try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200); }
@@ -665,6 +616,6 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   updateNetBadge();
 })();
 </script>
-
 </body>
 </html>
+
