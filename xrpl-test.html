@@ -30,6 +30,7 @@
 <meta name="twitter:image:alt" content="XRBitcoinCash — XRBC logo">
 <link rel="preconnect" href="https://xaman.app" crossorigin>
 <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
+
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebPage","name":"Instant Limit Order Extraction · XRPL · XRBC","url":"https://xrbitcoincash.com/limit-order-extraction.html","description":"Cancel XRPL open orders and buy XRBC with one click. Xumm (Xaman) supported.","isPartOf":{"@type":"WebSite","name":"XRBitcoinCash","url":"https://xrbitcoincash.com/"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png","width":1200,"height":630}},{"@type":"SoftwareApplication","name":"Instant Limit Order Extraction","applicationCategory":"FinanceApplication","operatingSystem":"Web","url":"https://xrbitcoincash.com/limit-order-extraction.html","image":"https://xrbitcoincash.com/xrbc-nft.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"XRBitcoinCash"}},{"@type":"Organization","name":"XRBitcoinCash","url":"https://xrbitcoincash.com/","logo":{"@type":"ImageObject","url":"https://xrbitcoincash.com/xrbc-nft.png","width":512,"height":512}}]}
 </script>
@@ -40,11 +41,11 @@
   --ok:#22c55e; --err:#ef4444; --blue:#3b82f6; --yellow:#f59e0b; --neon:#56d8ff; --mag:#ff3bf6; --cy:#00ffd1; --gr:#9aff6b
 }
 *{box-sizing:border-box} html,body{height:100%;max-width:100%;overflow-x:hidden}
-body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, rgba(86,216,255,.08), transparent) ,linear-gradient(180deg,var(--bg),#05080c 60%, #04070a);
-     color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{margin:0;background:
+  radial-gradient(1200px 600px at 80% -10%, rgba(86,216,255,.08), transparent),
+  linear-gradient(180deg,var(--bg),#05080c 60%, #04070a);
+  color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left));position:relative}
-
-/* cryptic tech layers */
 .container::before{
   content:"";position:fixed;inset:0;pointer-events:none;opacity:.065;
   background:
@@ -83,7 +84,7 @@ h1,h2,h3{margin:.2em 0;font-weight:900;letter-spacing:.2px}
 table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
 th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-align:top}
 
-/* hero top-right policy badge */
+/* hero top-right policy badge (on Wallet card) */
 .policy-pill{position:absolute;top:10px;right:10px;font-size:12px;border:1px dashed #2a3b51;border-radius:9999px;padding:6px 10px;color:#bcd0e8}
 
 /* QR drop-down */
@@ -142,11 +143,11 @@ th,td{padding:8px 10px;border-bottom:1px solid #112033;text-align:left;vertical-
           </select>
         </label>
       </div>
-      <div class="policy-pill">Raw secret signing disabled. Use a wallet. No keys stored.</div>
     </header>
 
     <!-- WALLET / HERO -->
     <section class="card" aria-labelledby="wlt" style="position:relative">
+      <div class="policy-pill">Raw secret signing disabled. Use a wallet. No keys stored.</div>
       <h2 id="wlt" style="margin-bottom:6px">Wallet</h2>
       <div class="grid cols-3">
         <div style="text-align:center">
@@ -268,9 +269,26 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     </div>
   </footer>
 
- <script>
+  <!-- App configuration (keep secrets server-side only) -->
+  <script type="application/json" id="app-config">
+  {
+    "xrplProxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
+    "xummServerProxy": "https://xrbitcoincash-github-io.onrender.com/xumm",
+    "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
+    "xrbc": {
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+      "currencyHex": "5852626974636F696E6361736800000000000000"
+    }
+  }
+  </script>
+
+<script>
 (function(){
   'use strict';
+
+  // Embed mode toggle
+  try { const q=new URLSearchParams(location.search); if(q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
 
   // ===== CONFIG =====
   const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
@@ -352,7 +370,6 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     }
     wrap.classList.add('open');
     if (deeplink && isMobile()){
-      // Mobile: jump straight into Xaman
       try{ location.href = deeplink; }catch{}
     }
   }
@@ -436,7 +453,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   class XummAdapter extends WalletAdapter {
     constructor(){ super(); this.name='Xumm'; this.xumm=null; }
     async connect(){
-      if (state.account) return { address: state.account }; // already connected
+      if (state.account) return { address: state.account };
       if (typeof Xumm === 'undefined') throw new Error('Xumm SDK not loaded');
       if (!XUMM_API_KEY) throw new Error('Xumm API key missing');
 
@@ -448,7 +465,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
         if (existing) return { address: existing };
       }catch{}
 
-      // Desktop & mobile: create SignIn payload and expose both QR + universal deeplink
+      // SignIn payload with QR and universal deeplink
       const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
         { txjson: { TransactionType:'SignIn' }, options:{ submit:false, expire:300 } },
         ev => {
@@ -457,8 +474,8 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
         }
       );
 
-      const qrPng   = created?.refs?.qr_png || null;
-      const deeplink= created?.next?.always || created?.refs?.open || null;
+      const qrPng    = created?.refs?.qr_png || null;
+      const deeplink = created?.next?.always || created?.refs?.open || null;
       if (qrPng || deeplink) showQR('connect', qrPng, deeplink);
 
       const res = await resolved;
@@ -466,7 +483,6 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       hideQR('connect');
 
       if (!res?.signed) throw new Error('User rejected');
-      // account may be present, else fetch from SDK
       const acct = (res?.response && (res.response.account || res.response.accountaddress)) || await this.xumm.user.account;
       if (!acct) throw new Error('No account returned');
       return { address: acct };
@@ -483,7 +499,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       }catch{}
       const res = await resolved;
       try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-      if (qrKind) hideQR(qrKind);
+      if (qrKind) hideQR('trust');
       if (!res?.signed) throw new Error('User rejected');
       return { hash: res?.txid || res?.id || '(pending)', result: 'submitted' };
     }
@@ -572,7 +588,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
         Account: state.account,
         LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }
       };
-      await state.adapter.signAndSubmit(tx, { qrKind:'trust' }); // shows QR and deeplink under Trust button
+      await state.adapter.signAndSubmit(tx, { qrKind:'trust' }); // shows QR + deeplink under Trust button
       setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
     }catch(e){
       hideQR('trust');
@@ -632,11 +648,20 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   document.getElementById('buy50')?.addEventListener('click',  ()=>buyXRBC(50));
   document.getElementById('buy100')?.addEventListener('click', ()=>buyXRBC(100));
 
+  // Copy embed
+  (function initCopy(){
+    const btn = document.getElementById('btnCopyIframe'); const pre = document.getElementById('embedCode');
+    if (!btn || !pre) return;
+    btn.addEventListener('click', async () => {
+      try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200); }
+      catch{
+        const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        document.execCommand('copy'); sel.removeAllRanges(); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }
+    });
+  })();
+
   // Boot
-  try {
-    const q = new URLSearchParams(location.search);
-    if (q.get('embed') === '1') document.body.classList.add('embed');
-  } catch {}
   updateNetBadge();
 })();
 </script>
