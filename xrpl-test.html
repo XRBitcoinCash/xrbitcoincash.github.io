@@ -1,3 +1,6 @@
+Here’s the full drop-in file. Four sections are merged into one primary card in the required order. Quick Buy uses “XRBitcoinCash”. Connect is hidden when already connected. Results, Embed, and Important+full legal disclaimers are in their own cards.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +18,7 @@
   <link rel="apple-touch-icon" href="/xrbc-nft.png">
   <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg?v=1" color="#0b0f14">
   <meta name="msapplication-TileColor" content="#0b0f14">
+
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="XRBitcoinCash">
   <meta property="og:title" content="Instant Limit Order Extraction · XRPL · XRBC">
@@ -25,11 +29,13 @@
   <meta property="og:image:alt" content="XRBitcoinCash — XRBC logo">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Instant Limit Order Extraction · XRPL · XRBC">
   <meta name="twitter:description" content="Cancel XRPL open orders and buy XRBC with one click. Xumm supported.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
   <meta name="twitter:image:alt" content="XRBitcoinCash — XRBC logo">
+
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
@@ -67,16 +73,11 @@
   .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
   .progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
   .progress>span{display:block;height:100%;background:var(--blue);width:0%}
-  .grid{display:grid;gap:12px}
-  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-  @media (max-width:960px){ .grid.cols-3{grid-template-columns:1fr} }
   .panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
   .panel-note-green{border-color:#14532d;color:#22c55e}
   .log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
-  a.logo-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
   .logo{display:flex;align-items:center;gap:10px}
 
-  /* Quick Buy urgency colors */
   .btn-green{ border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510); }
   .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
   .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
@@ -85,12 +86,9 @@
   .site-footer{margin:20px auto 24px;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
   .site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
 
-  /* Embed mode */
   body.embed .container{max-width:none}
-  body.embed header.card, body.embed footer.site-footer{display:none}
   body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 
-  /* Mobile tweaks */
   .container, .card, .row, .btn { min-width: 0; }
   .card .row { justify-content: center; }
   @media (max-width: 720px) {
@@ -100,7 +98,6 @@
   }
   @media (max-width: 420px) { .btn { padding: 10px 12px; } }
 
-  /* Header hero layout */
   .hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
   .hero-top .left{justify-self:start}
   .hero-top .center{justify-self:center}
@@ -111,9 +108,10 @@
 </head>
 <body>
   <main class="container" aria-live="polite">
-    <!-- HERO / LIMIT ORDER EXTRACTION -->
-    <header class="card" aria-labelledby="hero-title">
-      <!-- top row: logo left, Home center, net badge + switch right -->
+
+    <!-- PRIMARY CARD: hero + connect + controls + open orders + quick buy -->
+    <section class="card" id="primary" aria-labelledby="hero-title">
+      <!-- top row: logo left, Home center, Mainnet badge + switch right -->
       <div class="hero-top">
         <div class="left logo">
           <img src="/xrbc-nft.png" alt="XRBC" width="32" height="32" style="border-radius:6px;border:1px solid var(--line)">
@@ -133,16 +131,37 @@
         </div>
       </div>
 
-      <!-- title and subtext -->
+      <!-- title + subtext -->
       <div class="col" style="margin-top:8px">
         <h1 id="hero-title" style="margin:0">Instant Limit Order Extraction</h1>
         <p class="hint" style="margin:0">Mobile-first. Desktop QR. Signing happens in-app.</p>
       </div>
-    </header>
 
-    <!-- QUICK BUY: stacked buttons centered -->
-    <section class="card" aria-labelledby="buyxrbc">
-      <h2 id="buyxrbc">Quick Buy · XR Bitcoin Cash (XRBC)</h2>
+      <!-- connect -->
+      <div class="row center" style="margin-top:10px">
+        <button id="btnXumm" class="btn glow-green" type="button" title="Connect with Xaman (Xumm) wallet">Connect Xumm</button>
+        <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+      </div>
+      <p id="walletStatus" class="status">Status: Not connected</p>
+
+      <div class="panel-note">
+        <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
+      </div>
+
+      <!-- controls -->
+      <div class="row center" style="margin:10px 0 4px">
+        <button id="btnRefresh" class="btn glow-yellow" type="button">Refresh Orders</button>
+        <button id="btnCancelAll" class="btn glow-blue" type="button" title="Cancel all visible open offers">Cancel All Visible Orders</button>
+      </div>
+
+      <!-- open orders + status -->
+      <div id="offersWrap" class="hint">No data yet.</div>
+      <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+      <p id="offersStatus" class="status"></p>
+
+      <!-- quick buy -->
+      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+      <h2 id="buyxrbc">Quick Buy · XRBitcoinCash (XRBC)</h2>
       <p class="hint">Uses XRPL pathfinding. May route via AMMs or books. Trust line required.</p>
 
       <div class="col" style="margin-top:8px">
@@ -166,35 +185,6 @@
       </div>
 
       <p id="buyStatus" class="status"></p>
-    </section>
-
-    <!-- WALLET -->
-    <section class="card" aria-labelledby="wlt">
-      <h2 id="wlt">Wallet</h2>
-
-      <div class="row center">
-        <button id="btnXumm" class="btn glow-green" type="button">Connect Xumm</button>
-        <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
-      </div>
-
-      <div class="panel-note">
-        <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
-      </div>
-
-      <div class="row center" style="margin:10px 0 4px">
-        <button id="btnRefresh" class="btn glow-yellow" type="button">Refresh Orders</button>
-        <button id="btnCancelAll" class="btn glow-blue" type="button" title="Cancel all visible open offers">Cancel All Visible Orders</button>
-      </div>
-
-      <p id="walletStatus" class="status">Status: Not connected</p>
-    </section>
-
-    <!-- OPEN ORDERS -->
-    <section class="card" aria-labelledby="orders">
-      <h2 id="orders">Open Orders</h2>
-      <div id="offersWrap" class="hint">No data yet.</div>
-      <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
-      <p id="offersStatus" class="status"></p>
     </section>
 
     <!-- RESULTS -->
@@ -223,7 +213,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       </div>
     </section>
 
-    <!-- IMPORTANT -->
+    <!-- IMPORTANT + FULL LEGAL -->
     <section class="card" aria-labelledby="important">
       <h2 id="important">Important</h2>
       <div class="warn">
@@ -232,28 +222,53 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       <p class="footer">
         Disclaimer: Not a broker or custodian. You sign in your wallet. Canceling releases reserves and returns any remaining locked assets to your balance. Use at your own risk. Verify on an explorer if in doubt.
       </p>
+
+      <!-- Full license embedded here per request -->
+      <div id="license-proprietary" class="license" style="color:var(--muted);font-size:12px;white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
+<strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong>
+Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+
+<strong>Ownership.</strong> The software, widgets, APIs, hosted scripts, designs, and all related materials (the “Software”) are proprietary to XRBitcoinCash (“Licensor”). The Software is protected by copyright and other laws. No rights are granted except as stated here.
+
+<strong>Acceptance.</strong> By accessing, using, or embedding the Software, you accept these terms.
+
+<strong>License Grant.</strong> Subject to strict compliance, Licensor grants a limited, revocable, non-exclusive, non-transferable, non-sublicensable license to access and use the publicly hosted Software for personal viewing, and—if expressly authorized in writing by Licensor—to embed the provided widget <em>as is</em> without modification.
+
+<strong>Prohibited Uses.</strong> You must not: (i) copy, modify, translate, adapt, or create derivative works; (ii) reverse engineer, decompile, or attempt to extract source code; (iii) remove or obscure proprietary notices or links; (iv) use the Software for unlawful, fraudulent, high-risk, or competitive benchmarking purposes; (v) interfere with or bypass rate limits, security, or access controls.
+
+<strong>Widget, Embed, and API Access.</strong> Any embed, widget, endpoint, or API key is provided for revocable, non-transferable use. Licensor may throttle, suspend, or terminate access at any time without notice, including removal from third-party sites, unless a separate written agreement signed by an authorized officer states otherwise. Do not cache or re-host the widget or API without written consent.
+
+<strong>Attribution.</strong> When embedded, you must display “XRBitcoinCash” and “Instant Limit Order Extraction” and keep a working link to https://xrbitcoincash.com/ or to this license anchor.
+
+<strong>Service Changes.</strong> Licensor may change, suspend, or discontinue the Software, endpoints, or limits at any time.
+
+<strong>Term and Termination.</strong> This license is effective on access and continues until terminated. It terminates automatically upon breach. On termination, you must stop using the Software and remove all embeds. Sections titled Ownership, Prohibited Uses, Disclaimer, Limitation of Liability, Indemnity, Governing Law, and Survival survive termination.
+
+<strong>Disclaimer of Warranty.</strong> THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE” WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+
+<strong>Limitation of Liability.</strong> TO THE MAXIMUM EXTENT PERMITTED BY LAW, LICENSOR WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, REVENUE, DATA, OR GOODWILL. LICENSOR’S TOTAL LIABILITY FOR ALL CLAIMS WILL NOT EXCEED THE GREATER OF <em>USD $100</em> OR THE AMOUNTS YOU PAID TO LICENSOR FOR THE SOFTWARE IN THE PRECEDING TWELVE (12) MONTHS.
+
+<strong>Indemnity.</strong> You will defend, indemnify, and hold harmless Licensor from and against claims arising out of your use, embedding, or violation of these terms.
+
+<strong>IP and Feedback.</strong> All rights not expressly granted are reserved. Suggestions or feedback may be used by Licensor without restriction or payment.
+
+<strong>Export and Sanctions.</strong> You will comply with applicable export control and sanctions laws.
+
+<strong>Governing Law; Venue.</strong> These terms are governed by the laws of <em>[choose jurisdiction, e.g., Delaware, USA]</em>, excluding conflict-of-laws rules. Exclusive venue lies in the state or federal courts located in <em>[county/state]</em>. You consent to personal jurisdiction there.
+
+<strong>Changes to Terms.</strong> Licensor may update these terms by posting an updated version. Continued use or embedding after the effective date constitutes acceptance.
+
+<strong>Miscellaneous.</strong> These terms are the entire agreement for use of the Software. If any provision is unenforceable, the rest remains in effect. No waiver is implied by delay or omission.
+
+<strong>Notices.</strong> legal@xrbitcoincash.com. Effective date: <em>[insert date]</em>.
+      </div>
     </section>
+
   </main>
 
   <footer class="site-footer" role="contentinfo">
-    <div id="license-proprietary" class="license">
-      <strong>Proprietary License — Instant Limit Order Extraction (XRPL)</strong><br>
-      Copyright (c) 2025 XRBitcoinCash. All rights reserved.
-      <p><strong>Ownership.</strong> The Software is proprietary to XRBitcoinCash. No rights are granted except as stated here.</p>
-      <p><strong>Acceptance.</strong> By accessing, using, or embedding the Software, you accept these terms.</p>
-      <p><strong>License Grant.</strong> Limited, revocable, non-exclusive, non-transferable, non-sublicensable license to access the publicly hosted Software, and to embed the widget as-is if expressly authorized in writing.</p>
-      <p><strong>Prohibited Uses.</strong> No copying, modification, reverse engineering, removal of notices, unlawful or high-risk use, or bypassing controls.</p>
-      <p><strong>Widget/API.</strong> Access may be throttled or revoked without notice unless a signed agreement states otherwise.</p>
-      <p><strong>Attribution.</strong> Keep “XRBitcoinCash” and page link visible when embedded.</p>
-      <p><strong>Changes.</strong> Service and limits may change at any time.</p>
-      <p><strong>Term.</strong> Terminates on breach. Core sections survive.</p>
-      <p><strong>Warranty.</strong> Provided “AS IS”.</p>
-      <p><strong>Liability.</strong> Capped at USD $100 or amounts paid in the prior 12 months.</p>
-      <p><strong>Indemnity.</strong> You will defend and indemnify XRBitcoinCash.</p>
-      <p><strong>Compliance.</strong> Follow export and sanctions laws.</p>
-      <p><strong>Governing Law.</strong> Select jurisdiction and venue.</p>
-      <p><strong>Updates.</strong> Continued use after posted changes is acceptance.</p>
-      <p><strong>Notices.</strong> legal@xrbitcoincash.com. Effective: [insert date].</p>
+    <div class="license">
+      For license terms, see the “Important” section above.
     </div>
   </footer>
 
@@ -274,12 +289,12 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   (function(){
     'use strict';
 
-    // ===== Embed mode =====
+    // Embed mode
     (function initEmbedMode(){
       try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
     })();
 
-    // ===== Copy embed code =====
+    // Copy embed code
     (function initCopy(){
       const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
       if(!btn||!pre) return;
@@ -294,17 +309,17 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       });
     })();
 
-    // ===== CONFIG =====
+    // CONFIG
     const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
     const PROXY_BASE   = cfg.proxyUrl || '';
     const XUMM_API_KEY = cfg.xummApiKey || '';
     const XRBC         = cfg.xrbc || {};
     const XRP_TO_DROPS = 1_000_000;
 
-    // ===== STATE =====
+    // STATE
     const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
 
-    // ===== DOM =====
+    // DOM
     const $ = id => document.getElementById(id);
     const $walletStatus = $('walletStatus');
     const $offersStatus = $('offersStatus');
@@ -320,7 +335,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     const $progress     = $('progressBar');
     const $buyStatus    = $('buyStatus');
 
-    // ===== UTILS =====
+    // UTILS
     function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
     function setStatus(node,text,cls){
       if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
@@ -343,7 +358,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
     }
 
-    // ===== XRPL PROXY =====
+    // XRPL PROXY
     async function xrplRequest(payload,{timeoutMs=12000}={}){
       if(!PROXY_BASE) throw new Error('Proxy URL missing');
       const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
@@ -355,7 +370,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     }
     async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
 
-    // ===== DATA =====
+    // DATA
     async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
     async function fetchOffers(acct){
       setStatus($offersStatus,'Loading open orders…');
@@ -369,7 +384,10 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       }
     }
     function renderOffers(){
-      $offersWrap.innerHTML=''; if(!state.offers.length){ const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return; }
+      $offersWrap.innerHTML='';
+      if(!state.offers.length){
+        const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
+      }
       const wrap=document.createElement('div'); wrap.style.overflow='auto';
       const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
       ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
@@ -397,14 +415,14 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       }catch{}
     }
 
-    // ===== ADAPTERS =====
+    // ADAPTERS
     class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
     class XummAdapter extends WalletAdapter{
       constructor(){ super(); this.name='Xumm'; this.xumm=null; }
       async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
       async resume(){
         await this.ensureSDK();
-        const acct = await this.xumm.user.account; // resolves if a session exists
+        const acct = await this.xumm.user.account;
         if(acct){ return { address: acct }; }
         return null;
       }
@@ -432,7 +450,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
     }
 
-    // ===== CONNECT HELPERS =====
+    // CONNECT HELPERS
     function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
     async function connectWith(AdapterClass){
       try{
@@ -461,12 +479,9 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
           await fetchOffers(resumed.address);
         } else {
           const cached = localStorage.getItem('xrbc.lastAccount');
-          if(cached){
-            // show cached connection state without active adapter
-            state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok');
-          }
+          if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
         }
-      } catch(e){ /* ignore */ }
+      } catch(e){}
       finally{ updateConnectButtons(); }
     }
     async function disconnect(){
@@ -479,7 +494,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       $btnDisconnect.disabled=true; updateConnectButtons();
     }
 
-    // ===== CANCEL =====
+    // CANCEL
     async function cancelOne(seq){
       if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
       setStatus($offersStatus,'Preparing cancel '+seq+'…');
@@ -501,7 +516,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       setStatus($offersStatus,'Done.','ok');
     }
 
-    // ===== XRBC TRUST + BUY =====
+    // XRBC TRUST + BUY
     const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
     function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
     const XRBC_CODE=hexToAscii(XRBC_HEX);
@@ -547,7 +562,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
       }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
     }
 
-    // ===== WIRE UI =====
+    // WIRE UI
     $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
     $btnDisconnect?.addEventListener('click',()=>disconnect());
     $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
@@ -570,3 +585,4 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   </script>
 </body>
 </html>
+```
