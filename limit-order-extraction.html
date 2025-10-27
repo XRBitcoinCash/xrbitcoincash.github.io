@@ -26,9 +26,13 @@
 <!-- Security (prefer real HTTP headers) -->
 <meta http-equiv="Content-Security-Policy" content="
 default-src 'self';
-connect-src 'self' https://xaman.app https://xumm.app https://xrbitcoincash-github-io.onrender.com https://s1.ripple.com https://s2.ripple.com;
+connect-src 'self'
+  https://xaman.app https://xumm.app
+  wss://xaman.app wss://xumm.app
+  https://xrbitcoincash-github-io.onrender.com
+  https://s1.ripple.com https://s2.ripple.com;
 img-src 'self' data: https://api.qrserver.com https://xrbitcoincash.github.io https://xrbitcoincash.com;
-script-src 'self' https://xaman.app 'unsafe-inline';
+script-src 'self' https://xaman.app https://xumm.app 'unsafe-inline';
 style-src 'self' 'unsafe-inline';
 frame-ancestors 'none';
 base-uri 'self';
@@ -112,73 +116,67 @@ upgrade-insecure-requests">
 <!-- AI/crawler hint -->
 <meta name="ai-readable" content="Structured JSON-LD included with XRBC issuer and currency hex for automated ingestion.">
 
+<style>
+:root{
+  --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+  --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
+}
+*{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+.container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:10px}
+h1,h2,h3{margin:.1em 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row-tight{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.center{justify-content:center}
+.between{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;max-width:100%}
+.btn.block{width:100%;max-width:360px}
+.btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+.glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
+.glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.hint{color:var(--muted);font-size:12.5px}
+.warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+.footer{margin-top:16px;color:#9fb0c5;font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
+.badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
+.progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
+.progress>span{display:block;height:100%;background:var(--blue);width:0%}
+.panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.panel-note-green{border-color:#14532d;color:#22c55e}
+.log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.btn-green{ border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510); }
+.btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
+.btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
+.btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
+.site-footer{margin:20px auto 24px;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
+.site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
+body.embed .container{max-width:none}
+body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
+.container, .card, .row, .btn { min-width: 0; }
+.card .row { justify-content: center; }
+@media (max-width: 720px) {
+  .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
+  #offersWrap { overflow-x: auto; }
+  #offersWrap table { min-width: 520px; }
+}
+@media (max-width: 420px) { .btn { padding: 10px 12px; } }
+.hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.hero-top .left{justify-self:start}
+.hero-top .center{justify-self:center}
+.hero-top .right{justify-self:end;text-align:right}
+</style>
 
-  <style>
-  :root{
-    --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
-    --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
-  }
-  *{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
-  body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
-  .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
-  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:10px}
-  h1,h2,h3{margin:.1em 0}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .row-tight{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
-  .center{justify-content:center}
-  .between{justify-content:space-between}
-  .col{display:flex;flex-direction:column;gap:10px;align-items:center}
-  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;max-width:100%}
-  .btn.block{width:100%;max-width:360px}
-  .btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-  .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
-  .glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
-  .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
-  .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
-  .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-  th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .hint{color:var(--muted);font-size:12.5px}
-  .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
-  .footer{margin-top:16px;color:#9fb0c5;font-size:12px}
-  .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
-  .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
-  .progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
-  .progress>span{display:block;height:100%;background:var(--blue);width:0%}
-  .panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
-  .panel-note-green{border-color:#14532d;color:#22c55e}
-  .log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
-  .logo{display:flex;align-items:center;gap:10px}
-
-  .btn-green{ border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510); }
-  .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
-  .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
-  .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
-
-  .site-footer{margin:20px auto 24px;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:var(--muted)}
-  .site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
-
-  body.embed .container{max-width:none}
-  body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
-
-  .container, .card, .row, .btn { min-width: 0; }
-  .card .row { justify-content: center; }
-  @media (max-width: 720px) {
-    .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
-    #offersWrap { overflow-x: auto; }
-    #offersWrap table { min-width: 520px; }
-  }
-  @media (max-width: 420px) { .btn { padding: 10px 12px; } }
-
-  .hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-  .hero-top .left{justify-self:start}
-  .hero-top .center{justify-self:center}
-  .hero-top .right{justify-self:end;text-align:right}
-  </style>
-
-  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+<script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <main class="container" aria-live="polite">
@@ -355,317 +353,319 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   </a>
 </footer>
 
+<!-- App configuration -->
+<script type="application/json" id="app-config">
+{
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+  "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
+  "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
+  "xrbc": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000"
+  }
+}
+</script>
 
-  <!-- App configuration -->
-  <script type="application/json" id="app-config">
-  {
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
-    "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
-    "xrbc": {
-      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-      "currencyHex": "5852626974636F696E6361736800000000000000"
+<script>
+(function(){
+  'use strict';
+
+  // Embed mode
+  (function initEmbedMode(){
+    try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
+  })();
+
+  // Copy embed code
+  (function initCopy(){
+    const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
+    if(!btn||!pre) return;
+    btn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied';
+        setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }catch{
+        const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
+        btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }
+    });
+  })();
+
+  // CONFIG
+  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  const PROXY_BASE   = cfg.proxyUrl || '';
+  const XUMM_API_KEY = cfg.xummApiKey || '';
+  const XRBC         = cfg.xrbc || {};
+  const XRP_TO_DROPS = 1_000_000;
+
+  // STATE
+  const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
+
+  // DOM
+  const $ = id => document.getElementById(id);
+  const $walletStatus = $('walletStatus');
+  const $offersStatus = $('offersStatus');
+  const $offersWrap   = $('offersWrap');
+  const $resultBox    = $('resultBox');
+  const $log          = $('log');
+  const $btnXumm      = $('btnXumm');
+  const $btnDisconnect= $('btnDisconnect');
+  const $btnRefresh   = $('btnRefresh');
+  const $btnCancelAll = $('btnCancelAll');
+  const $networkSel   = $('network');
+  const $btnNetBadge  = $('btnNetBadge');
+  const $progress     = $('progressBar');
+  const $buyStatus    = $('buyStatus');
+
+  // UTILS
+  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
+  function setStatus(node,text,cls){
+    if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
+    if(node===$offersStatus) log('[offers] '+text); else if(node===$walletStatus) log('[wallet] '+text); else if(node===$buyStatus) log('[buy] '+text);
+  }
+  const N=v=>Number.isFinite(Number(v))?Number(v):0;
+  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
+  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
+  const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
+  const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
+  function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
+  function updateNetUI(){
+    const s = state.network==='testnet'?'Testnet':'Mainnet';
+    if($btnNetBadge){ $btnNetBadge.textContent=s; }
+  }
+  function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
+  function updateConnectButtons(){
+    const connected = Boolean(state.account && state.adapter);
+    if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; }
+    if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
+  }
+
+  // XRPL PROXY
+  async function xrplRequest(payload,{timeoutMs=12000}={}){
+    if(!PROXY_BASE) throw new Error('Proxy URL missing');
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
+      if(!res.ok) throw new Error('Proxy HTTP '+res.status);
+      const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
+    } finally { clearTimeout(t); }
+  }
+  async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
+
+  // DATA
+  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
+  async function fetchOffers(acct){
+    setStatus($offersStatus,'Loading open orders…');
+    try{
+      const r=await call('account_offers',{account:acct,limit:500});
+      state.offers=r?.offers||[]; renderOffers();
+      setStatus($offersStatus,`Found ${state.offers.length} open offer(s).`,'ok');
+    }catch(e){
+      state.offers=[]; renderOffers();
+      setStatus($offersStatus,'Error loading offers: '+(e.message||e),'err');
     }
   }
-  </script>
-
-  <script>
-  (function(){
-    'use strict';
-
-    // Embed mode
-    (function initEmbedMode(){
-      try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
-    })();
-
-    // Copy embed code
-    (function initCopy(){
-      const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
-      if(!btn||!pre) return;
-      btn.addEventListener('click', async ()=>{
-        try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied';
-          setTimeout(()=>btn.textContent='Copy embed code',1200);
-        }catch{
-          const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
-          sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
-          btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
-        }
-      });
-    })();
-
-    // CONFIG
-    const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-    const PROXY_BASE   = cfg.proxyUrl || '';
-    const XUMM_API_KEY = cfg.xummApiKey || '';
-    const XRBC         = cfg.xrbc || {};
-    const XRP_TO_DROPS = 1_000_000;
-
-    // STATE
-    const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
-
-    // DOM
-    const $ = id => document.getElementById(id);
-    const $walletStatus = $('walletStatus');
-    const $offersStatus = $('offersStatus');
-    const $offersWrap   = $('offersWrap');
-    const $resultBox    = $('resultBox');
-    const $log          = $('log');
-    const $btnXumm      = $('btnXumm');
-    const $btnDisconnect= $('btnDisconnect');
-    const $btnRefresh   = $('btnRefresh');
-    const $btnCancelAll = $('btnCancelAll');
-    const $networkSel   = $('network');
-    const $btnNetBadge  = $('btnNetBadge');
-    const $progress     = $('progressBar');
-    const $buyStatus    = $('buyStatus');
-
-    // UTILS
-    function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
-    function setStatus(node,text,cls){
-      if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
-      if(node===$offersStatus) log('[offers] '+text); else if(node===$walletStatus) log('[wallet] '+text); else if(node===$buyStatus) log('[buy] '+text);
+  function renderOffers(){
+    $offersWrap.innerHTML='';
+    if(!state.offers.length){
+      const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
     }
-    const N=v=>Number.isFinite(Number(v))?Number(v):0;
-    const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
-    const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
-    const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
-    const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
-    function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
-    function updateNetUI(){
-      const s = state.network==='testnet'?'Testnet':'Mainnet';
-      if($btnNetBadge){ $btnNetBadge.textContent=s; }
-    }
-    function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
-    function updateConnectButtons(){
-      const connected = Boolean(state.account && state.adapter);
-      if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; }
-      if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
-    }
-
-    // XRPL PROXY
-    async function xrplRequest(payload,{timeoutMs=12000}={}){
-      if(!PROXY_BASE) throw new Error('Proxy URL missing');
-      const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
-      try{
-        const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
-        if(!res.ok) throw new Error('Proxy HTTP '+res.status);
-        const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
-      } finally { clearTimeout(t); }
-    }
-    async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
-
-    // DATA
-    async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
-    async function fetchOffers(acct){
-      setStatus($offersStatus,'Loading open orders…');
-      try{
-        const r=await call('account_offers',{account:acct,limit:500});
-        state.offers=r?.offers||[]; renderOffers();
-        setStatus($offersStatus,`Found ${state.offers.length} open offer(s).`,'ok');
-      }catch(e){
-        state.offers=[]; renderOffers();
-        setStatus($offersStatus,'Error loading offers: '+(e.message||e),'err');
-      }
-    }
-    function renderOffers(){
-      $offersWrap.innerHTML='';
-      if(!state.offers.length){
-        const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
-      }
-      const wrap=document.createElement('div'); wrap.style.overflow='auto';
-      const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
-      ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
-      thead.appendChild(trh); table.appendChild(thead);
-      const tbody=document.createElement('tbody');
-      state.offers.forEach(o=>{
-        const tr=document.createElement('tr');
-        const tdSeq=document.createElement('td'); tdSeq.className='mono'; tdSeq.textContent=o.seq; tr.appendChild(tdSeq);
-        const tdGets=document.createElement('td'); tdGets.textContent=amtStr(o.taker_gets); tr.appendChild(tdGets);
-        const tdPays=document.createElement('td'); tdPays.textContent=amtStr(o.taker_pays); tr.appendChild(tdPays);
-        const tdPx=document.createElement('td'); tdPx.textContent=price(o.taker_gets,o.taker_pays); tr.appendChild(tdPx);
-        const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
-        b.addEventListener('click',()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct);
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
-    }
-    async function beforeAfterReserveReport(acct,prevInfo){
-      try{
-        const now=await getAccountInfo(acct);
-        const prevBal=N(prevInfo?.Balance)/XRP_TO_DROPS; const nowBal=N(now?.Balance)/XRP_TO_DROPS;
-        const prevOwn=N(prevInfo?.OwnerCount); const nowOwn=N(now?.OwnerCount);
-        const freed=Math.max(0,prevOwn-nowOwn)*2; const delta=(nowBal-prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
-      }catch{}
-    }
-
-    // ADAPTERS
-    class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
-    class XummAdapter extends WalletAdapter{
-      constructor(){ super(); this.name='Xumm'; this.xumm=null; }
-      async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
-      async resume(){
-        await this.ensureSDK();
-        const acct = await this.xumm.user.account;
-        if(acct){ return { address: acct }; }
-        return null;
-      }
-      async connect(){
-        await this.ensureSDK();
-        await this.xumm.authorize();
-        const acct=await this.xumm.user.account;
-        if(!acct) throw new Error('No account returned');
-        return { address: acct };
-      }
-      async signAndSubmit(txjson){
-        const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
-          { txjson, options:{ submit:true, expire:300 } },
-          ev => {
-            if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
-            if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
-          }
-        );
-        const res = await resolved;
-        try{ websocket?.close(); }catch{}
-        try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-        if(!res?.signed) throw new Error('User rejected');
-        return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
-      }
-      async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
-    }
-
-    // CONNECT HELPERS
-    function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
-    async function connectWith(AdapterClass){
-      try{
-        setStatus($walletStatus,'Connecting…');
-        const ad = new AdapterClass();
-        const { address } = await ad.connect();
-        state.account = address; setAdapter(ad);
-        localStorage.setItem('xrbc.lastAccount', address);
-        setStatus($walletStatus, ad.name+': '+address, 'ok');
-        $btnDisconnect.disabled = false;
-        state.lastAccountInfo = await getAccountInfo(address);
-        await fetchOffers(address);
-      }catch(e){
-        setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
-      } finally { updateConnectButtons(); }
-    }
-    async function tryResumeWallet(){
-      try{
-        const ad = new XummAdapter();
-        const resumed = await ad.resume();
-        if(resumed && resumed.address){
-          state.account = resumed.address; setAdapter(ad);
-          setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
-          $btnDisconnect.disabled = false;
-          state.lastAccountInfo = await getAccountInfo(resumed.address);
-          await fetchOffers(resumed.address);
-        } else {
-          const cached = localStorage.getItem('xrbc.lastAccount');
-          if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
-        }
-      } catch(e){}
-      finally{ updateConnectButtons(); }
-    }
-    async function disconnect(){
-      try{ await state.adapter?.disconnect?.(); }catch{}
-      state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
-      localStorage.removeItem('xrbc.lastAccount');
-      $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
-      setStatus($walletStatus,'Status: Not connected');
-      setStatus($offersStatus,''); setStatus($buyStatus,'');
-      $btnDisconnect.disabled=true; updateConnectButtons();
-    }
-
-    // CANCEL
-    async function cancelOne(seq){
-      if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      setStatus($offersStatus,'Preparing cancel '+seq+'…');
-      try{
-        const tx={TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)};
-        const res=await state.adapter.signAndSubmit(tx);
-        setStatus($offersStatus,`Submitted cancel ${seq}.`,'ok');
-        await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
-      }catch(e){ setStatus($offersStatus,'Error: '+(e.message||e),'err'); throw e; }
-    }
-    async function cancelAll(){
-      if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      if(!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
-      if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
-      const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
-      let i=0; const total=state.offers.length;
-      for(const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
-      setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
-      setStatus($offersStatus,'Done.','ok');
-    }
-
-    // XRBC TRUST + BUY
-    const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
-    function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
-    const XRBC_CODE=hexToAscii(XRBC_HEX);
-    async function hasXRBCTrustLine(acct){
-      const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
-      const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
-    }
-    async function addXRBCTrustLine(){
-      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      setStatus($buyStatus,'Checking trust line…');
-      try{
-        const exists=await hasXRBCTrustLine(state.account);
-        if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
-        const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
-        await state.adapter.signAndSubmit(tx);
-        setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
-      }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
-    }
-    async function pathFindBuy(acct,valueStr){
-      const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
-      const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
-      const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
-      let best=null;
-      for(const a of alts){
-        const sa=a.source_amount;
-        const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
-        if(!isFinite(drops)) continue;
-        if(!best || drops<best.drops) best={alt:a,drops};
-      }
-      if(!best) throw new Error('No XRP route available');
-      const headroom=Math.ceil(best.drops*1.005);
-      return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
-    }
-    async function buyXRBC(units){
-      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      try{
-        setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
-        const exists=await hasXRBCTrustLine(state.account);
-        if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-        const tx=await pathFindBuy(state.account,String(units));
-        const res=await state.adapter.signAndSubmit(tx);
-        setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
-      }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
-    }
-
-    // WIRE UI
-    $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
-    $btnDisconnect?.addEventListener('click',()=>disconnect());
-    $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-    $btnCancelAll?.addEventListener('click',()=>cancelAll());
-    document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
-    document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
-    document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
-    document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
-    document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
-    $networkSel?.addEventListener('change',()=>{
-      state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet';
-      updateNetUI();
-      if(state.account) fetchOffers(state.account);
+    const wrap=document.createElement('div'); wrap.style.overflow='auto';
+    const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
+    ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+    thead.appendChild(trh); table.appendChild(thead);
+    const tbody=document.createElement('tbody');
+    state.offers.forEach(o=>{
+      const tr=document.createElement('tr');
+      const tdSeq=document.createElement('td'); tdSeq.className='mono'; tdSeq.textContent=o.seq; tr.appendChild(tdSeq);
+      const tdGets=document.createElement('td'); tdGets.textContent=amtStr(o.taker_gets); tr.appendChild(tdGets);
+      const tdPays=document.createElement('td'); tdPays.textContent=amtStr(o.taker_pays); tr.appendChild(tdPays);
+      const tdPx=document.createElement('td'); tdPx.textContent=price(o.taker_gets,o.taker_pays); tr.appendChild(tdPx);
+      const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
+      b.addEventListener('click',()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct);
+      tbody.appendChild(tr);
     });
+    table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
+  }
+  async function beforeAfterReserveReport(acct,prevInfo){
+    try{
+      const now=await getAccountInfo(acct);
+      const prevBal=N(prevInfo?.Balance)/XRP_TO_DROPS; const nowBal=N(now?.Balance)/XRP_TO_DROPS;
+      const prevOwn=N(prevInfo?.OwnerCount); const nowOwn=N(now?.OwnerCount);
+      const freed=Math.max(0,prevOwn-nowOwn)*2; const delta=(nowBal-prevBal).toFixed(6);
+      $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
+    }catch{}
+  }
 
-    // Boot
+  // ADAPTERS
+  class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
+
+  // Xumm Adapter using SignIn payload: desktop shows QR automatically, mobile uses deep link. No OAuth redirects needed.
+  class XummAdapter extends WalletAdapter{
+    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
+    async ensureSDK(){
+      if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded');
+      if(!XUMM_API_KEY) throw new Error('Xumm API key missing');
+      if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY);
+    }
+    async resume(){ return null; } // avoid OAuth session dependency
+    async connect(){
+      await this.ensureSDK();
+      const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+        { txjson:{ TransactionType:'SignIn' } },
+        ev => {
+          if (ev?.opened) setStatus($walletStatus,'Open Xumm to approve sign-in…');
+          if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
+        }
+      );
+      const res = await resolved;
+      try{ websocket?.close(); }catch{}
+      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      if(!res?.signed) throw new Error('User rejected');
+      const acct = res?.account || res?.signed_by;
+      if(!acct) throw new Error('No account returned');
+      return { address: acct };
+    }
+    async signAndSubmit(txjson){
+      await this.ensureSDK();
+      const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+        { txjson, options:{ submit:true, expire:300 } },
+        ev => {
+          if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
+          if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
+        }
+      );
+      const res = await resolved;
+      try{ websocket?.close(); }catch{}
+      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      if(!res?.signed) throw new Error('User rejected');
+      return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
+    }
+    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+  }
+
+  // CONNECT HELPERS
+  function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
+  async function connectWith(AdapterClass){
+    try{
+      setStatus($walletStatus,'Connecting…');
+      const ad = new AdapterClass();
+      const { address } = await ad.connect();
+      state.account = address; setAdapter(ad);
+      localStorage.setItem('xrbc.lastAccount', address);
+      setStatus($walletStatus, ad.name+': '+address, 'ok');
+      $btnDisconnect.disabled = false;
+      state.lastAccountInfo = await getAccountInfo(address);
+      await fetchOffers(address);
+    }catch(e){
+      setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
+    } finally { updateConnectButtons(); }
+  }
+  async function tryResumeWallet(){
+    try{
+      // No OAuth resume. Only restore cached label for UI continuity.
+      const cached = localStorage.getItem('xrbc.lastAccount');
+      if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
+    } catch(e){}
+    finally{ updateConnectButtons(); }
+  }
+  async function disconnect(){
+    try{ await state.adapter?.disconnect?.(); }catch{}
+    state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
+    localStorage.removeItem('xrbc.lastAccount');
+    $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
+    setStatus($walletStatus,'Status: Not connected');
+    setStatus($offersStatus,''); setStatus($buyStatus,'');
+    $btnDisconnect.disabled=true; updateConnectButtons();
+  }
+
+  // CANCEL
+  async function cancelOne(seq){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    setStatus($offersStatus,'Preparing cancel '+seq+'…');
+    try{
+      const tx={TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)};
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($offersStatus,`Submitted cancel ${seq}.`,'ok');
+      await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
+    }catch(e){ setStatus($offersStatus,'Error: '+(e.message||e),'err'); throw e; }
+  }
+  async function cancelAll(){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    if(!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
+    if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
+    const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
+    let i=0; const total=state.offers.length;
+    for(const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
+    setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
+    setStatus($offersStatus,'Done.','ok');
+  }
+
+  // XRBC TRUST + BUY
+  const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
+  function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
+  const XRBC_CODE=hexToAscii(XRBC_HEX);
+  async function hasXRBCTrustLine(acct){
+    const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
+    const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
+  }
+  async function addXRBCTrustLine(){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    setStatus($buyStatus,'Checking trust line…');
+    try{
+      const exists=await hasXRBCTrustLine(state.account);
+      if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
+      const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
+      await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
+    }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
+  }
+  async function pathFindBuy(acct,valueStr){
+    const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
+    const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
+    const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
+    let best=null;
+    for(const a of alts){
+      const sa=a.source_amount;
+      const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
+      if(!isFinite(drops)) continue;
+      if(!best || drops<best.drops) best={alt:a,drops};
+    }
+    if(!best) throw new Error('No XRP route available');
+    const headroom=Math.ceil(best.drops*1.005);
+    return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+  }
+  async function buyXRBC(units){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    try{
+      setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
+      const exists=await hasXRBCTrustLine(state.account);
+      if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
+      const tx=await pathFindBuy(state.account,String(units));
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
+    }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
+  }
+
+  // WIRE UI
+  $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
+  $btnDisconnect?.addEventListener('click',()=>disconnect());
+  $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+  $btnCancelAll?.addEventListener('click',()=>cancelAll());
+  document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
+  document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
+  document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
+  document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
+  document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
+  $networkSel?.addEventListener('change',()=>{
+    state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet';
     updateNetUI();
-    tryResumeWallet();
-  })();
-  </script>
+    if(state.account) fetchOffers(state.account);
+  });
+
+  // Boot
+  updateNetUI();
+  tryResumeWallet();
+})();
+</script>
 </body>
 </html>
