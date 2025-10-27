@@ -354,11 +354,10 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 </footer>
 
 <!-- App configuration -->
-<script type="application/json" id="app-config">
+<script id="app-config" type="application/json">
 {
   "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
   "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
-  "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
   "xrbc": {
     "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
     "currencyHex": "5852626974636F696E6361736800000000000000"
@@ -366,16 +365,15 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 }
 </script>
 
+
 <script>
 (function(){
   'use strict';
 
-  // Embed mode
-  (function initEmbedMode(){
-    try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
-  })();
+  // ===== Embed toggle =====
+  try{ const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); }catch{}
 
-  // Copy embed code
+  // ===== Copy embed code =====
   (function initCopy(){
     const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
     if(!btn||!pre) return;
@@ -390,33 +388,25 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     });
   })();
 
-  // CONFIG
+  // ===== CONFIG =====
   const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
   const PROXY_BASE   = cfg.proxyUrl || '';
-  const XUMM_API_KEY = cfg.xummApiKey || '';
+  const XUMM_API_KEY = cfg.xummApiKey || '';   // Key only. Never the Secret.
   const XRBC         = cfg.xrbc || {};
   const XRP_TO_DROPS = 1_000_000;
 
-  // STATE
+  // ===== STATE =====
   const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
 
-  // DOM
+  // ===== DOM =====
   const $ = id => document.getElementById(id);
-  const $walletStatus = $('walletStatus');
-  const $offersStatus = $('offersStatus');
-  const $offersWrap   = $('offersWrap');
-  const $resultBox    = $('resultBox');
-  const $log          = $('log');
-  const $btnXumm      = $('btnXumm');
-  const $btnDisconnect= $('btnDisconnect');
-  const $btnRefresh   = $('btnRefresh');
-  const $btnCancelAll = $('btnCancelAll');
-  const $networkSel   = $('network');
-  const $btnNetBadge  = $('btnNetBadge');
-  const $progress     = $('progressBar');
-  const $buyStatus    = $('buyStatus');
+  const $walletStatus=$('walletStatus'), $offersStatus=$('offersStatus'), $offersWrap=$('offersWrap'),
+        $resultBox=$('resultBox'), $log=$('log'), $btnXumm=$('btnXumm'), $btnDisconnect=$('btnDisconnect'),
+        $btnRefresh=$('btnRefresh'), $btnCancelAll=$('btnCancelAll'), $networkSel=$('network'),
+        $btnNetBadge=$('btnNetBadge'), $progress=$('progressBar'), $buyStatus=$('buyStatus');
 
-  // UTILS
+  // ===== UTILS =====
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
   function setStatus(node,text,cls){
     if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
@@ -428,10 +418,7 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
   const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
   function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
-  function updateNetUI(){
-    const s = state.network==='testnet'?'Testnet':'Mainnet';
-    if($btnNetBadge){ $btnNetBadge.textContent=s; }
-  }
+  function updateNetUI(){ if($btnNetBadge) $btnNetBadge.textContent = state.network==='testnet'?'Testnet':'Mainnet'; }
   function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
   function updateConnectButtons(){
     const connected = Boolean(state.account && state.adapter);
@@ -439,19 +426,20 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
   }
 
-  // XRPL PROXY
+  // ===== XRPL via proxy =====
   async function xrplRequest(payload,{timeoutMs=12000}={}){
     if(!PROXY_BASE) throw new Error('Proxy URL missing');
     const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
     try{
-      const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
+      const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
       if(!res.ok) throw new Error('Proxy HTTP '+res.status);
       const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
     } finally { clearTimeout(t); }
   }
   async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
 
-  // DATA
+  // ===== Data: account & offers =====
   async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
   async function fetchOffers(acct){
     setStatus($offersStatus,'Loading open orders…');
@@ -466,9 +454,7 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   }
   function renderOffers(){
     $offersWrap.innerHTML='';
-    if(!state.offers.length){
-      const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
-    }
+    if(!state.offers.length){ const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return; }
     const wrap=document.createElement('div'); wrap.style.overflow='auto';
     const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
     ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
@@ -496,54 +482,71 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     }catch{}
   }
 
-  // ADAPTERS
+  // ===== Adapters =====
   class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
 
-  // Xumm Adapter using SignIn payload: desktop shows QR automatically, mobile uses deep link. No OAuth redirects needed.
+  // ===== Xumm Adapter: mobile deep link, desktop QR popup =====
   class XummAdapter extends WalletAdapter{
-    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
+    constructor(){ super(); this.name='Xumm'; this.xumm=null; this._qrWin=null; }
     async ensureSDK(){
       if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded');
       if(!XUMM_API_KEY) throw new Error('Xumm API key missing');
       if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY);
     }
-    async resume(){ return null; } // avoid OAuth session dependency
+    _openQr(qrPng){
+      try{
+        if(this._qrWin && !this._qrWin.closed){ this._qrWin.location.replace(qrPng); return; }
+        this._qrWin = window.open(qrPng, 'xumm_qr', 'width=420,height=480,noopener,noreferrer');
+      }catch{}
+    }
+    _closeQr(){ try{ if(this._qrWin && !this._qrWin.closed) this._qrWin.close(); }catch{} this._qrWin=null; }
+
     async connect(){
       await this.ensureSDK();
-      const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+      const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
         { txjson:{ TransactionType:'SignIn' } },
         ev => {
-          if (ev?.opened) setStatus($walletStatus,'Open Xumm to approve sign-in…');
+          if (ev?.opened) setStatus($walletStatus,'Open Xaman to approve sign-in…');
           if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
         }
       );
+      // Mobile: open Xaman. Desktop: show QR.
+      if(isMobile && created?.next?.always){ location.href = created.next.always; }
+      else if(created?.refs?.qr_png){ this._openQr(created.refs.qr_png); }
+
       const res = await resolved;
-      try{ websocket?.close(); }catch{}
-      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      this._closeQr();
+      try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+
       if(!res?.signed) throw new Error('User rejected');
       const acct = res?.account || res?.signed_by;
       if(!acct) throw new Error('No account returned');
       return { address: acct };
     }
+
     async signAndSubmit(txjson){
       await this.ensureSDK();
-      const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+      const { created, resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
         { txjson, options:{ submit:true, expire:300 } },
         ev => {
-          if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
+          if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…');
           if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
         }
       );
+      if(isMobile && created?.next?.always){ location.href = created.next.always; }
+      else if(created?.refs?.qr_png){ this._openQr(created.refs.qr_png); }
+
       const res = await resolved;
-      try{ websocket?.close(); }catch{}
-      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      this._closeQr();
+      try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+
       if(!res?.signed) throw new Error('User rejected');
       return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
     }
-    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+    async disconnect(){ try{ await this.xumm?.logout?.(); }catch{} }
   }
 
-  // CONNECT HELPERS
+  // ===== Connect helpers =====
   function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
   async function connectWith(AdapterClass){
     try{
@@ -553,7 +556,7 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
       state.account = address; setAdapter(ad);
       localStorage.setItem('xrbc.lastAccount', address);
       setStatus($walletStatus, ad.name+': '+address, 'ok');
-      $btnDisconnect.disabled = false;
+      $btnDisconnect && ($btnDisconnect.disabled = false);
       state.lastAccountInfo = await getAccountInfo(address);
       await fetchOffers(address);
     }catch(e){
@@ -562,23 +565,20 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   }
   async function tryResumeWallet(){
     try{
-      // No OAuth resume. Only restore cached label for UI continuity.
       const cached = localStorage.getItem('xrbc.lastAccount');
       if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
-    } catch(e){}
-    finally{ updateConnectButtons(); }
+    }catch{} finally{ updateConnectButtons(); }
   }
   async function disconnect(){
     try{ await state.adapter?.disconnect?.(); }catch{}
     state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
     localStorage.removeItem('xrbc.lastAccount');
-    $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
-    setStatus($walletStatus,'Status: Not connected');
-    setStatus($offersStatus,''); setStatus($buyStatus,'');
-    $btnDisconnect.disabled=true; updateConnectButtons();
+    $offersWrap && ($offersWrap.innerHTML='<div class="hint">No data yet.</div>');
+    setStatus($walletStatus,'Status: Not connected'); setStatus($offersStatus,''); setStatus($buyStatus,'');
+    $btnDisconnect && ($btnDisconnect.disabled=true); updateConnectButtons();
   }
 
-  // CANCEL
+  // ===== Cancel =====
   async function cancelOne(seq){
     if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
     setStatus($offersStatus,'Preparing cancel '+seq+'…');
@@ -600,7 +600,7 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     setStatus($offersStatus,'Done.','ok');
   }
 
-  // XRBC TRUST + BUY
+  // ===== XRBC trust + simple buy =====
   const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
   function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
   const XRBC_CODE=hexToAscii(XRBC_HEX);
@@ -646,26 +646,23 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
   }
 
-  // WIRE UI
-  $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
-  $btnDisconnect?.addEventListener('click',()=>disconnect());
-  $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-  $btnCancelAll?.addEventListener('click',()=>cancelAll());
+  // ===== Wire UI =====
+  $btnXumm && $btnXumm.addEventListener('click',()=>connectWith(XummAdapter));
+  $btnDisconnect && $btnDisconnect.addEventListener('click',()=>disconnect());
+  $btnRefresh && $btnRefresh.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+  $btnCancelAll && $btnCancelAll.addEventListener('click',()=>cancelAll());
   document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
   document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
   document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
   document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
   document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
-  $networkSel?.addEventListener('change',()=>{
-    state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet';
-    updateNetUI();
-    if(state.account) fetchOffers(state.account);
-  });
+  $networkSel && $networkSel.addEventListener('change',()=>{ state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet'; updateNetUI(); if(state.account) fetchOffers(state.account); });
 
-  // Boot
+  // ===== Boot =====
   updateNetUI();
   tryResumeWallet();
 })();
 </script>
+
 </body>
 </html>
