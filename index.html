@@ -362,6 +362,19 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   }
 }
 
+.site-header{
+  position:static; top:auto; z-index:20;
+  background:linear-gradient(180deg,#0b0f14,#0b1017);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  backdrop-filter:saturate(140%) blur(6px);
+  transition:transform .2s ease-out, background-color .2s ease-out;
+  will-change:transform;
+}
+
+
+
+    
+    
   </style>
 </head>
 <body>
@@ -1339,12 +1352,29 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </section>
       </div>
 
-      <div class="legal small" style="border-top:1px dashed #1f2a37;padding-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between;align-items:center">
-        <span>XRBC · XRBC/XRP Trading &amp; Ledger Portal</span>
-        <span class="mono">Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
-      </div>
+     <div class="legal small" style="border-top:1px dashed #1f2a37;padding-top:10px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start">
+  <div style="display:flex;flex-direction:column;gap:6px;min-width:240px">
+    <strong>XRBC · XRBC/XRP Trading &amp; Ledger Portal</strong>
+    <span class="mono">Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
+    <span class="mono">Currency HEX: 5852626974636F696E6361736800000000000000</span>
+    <span class="mono">Domain: https://xrbitcoincash.com</span>
+  </div>
+
+  <div style="flex:1;min-width:300px">
+    <ul style="margin:0;padding-left:18px;line-height:1.45">
+      <li><strong>Not financial advice.</strong> Do your own research before trading.</li>
+      <li><strong>Non-custodial.</strong> You control your wallet. Signing occurs in Xaman.</li>
+      <li><strong>On-ledger risk.</strong> Transactions are irreversible. Slippage and fees may apply.</li>
+      <li><strong>Verify the URL.</strong> Beware phishing. Only use <span class="mono">https://xrbitcoincash.com</span>.</li>
+      <li><strong>No affiliation.</strong> “XRP” and the XRP logo are trademarks of Ripple Labs, Inc. “Xaman (Xumm)” is a product of XRPL Labs. No endorsement implied.</li>
+      <li><strong>Jurisdiction.</strong> You are responsible for compliance with your local laws.</li>
+    </ul>
+    <div style="margin-top:8px;font-size:12px;color:#9fb0c5">
+      See the <a href="/whitepaper.html" style="color:inherit;text-decoration:underline">Whitepaper</a> for project details.
     </div>
+  </div>
+</div>
+
   </footer>
 </body>
 </html>
-```
