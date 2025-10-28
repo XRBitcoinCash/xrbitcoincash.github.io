@@ -5,9 +5,9 @@
   <meta charset="utf-8" />
   <title>Instant Stop Loss · XRPL · XRBitcoinCash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="canonical" href="https://xrbitcoincash.com/stop-loss.html" />
-  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/stop-loss.html" />
-  <meta name="description" content="Automatic & manual stop-loss for XRPL tokens, plus Panic Sell (all tokens → XRP or stable). Xaman (Xumm) supported. Secure, non-custodial." />
+  <link rel="canonical" href="https://xrbitcoincash.com/stop-loss-legal.html" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/stop-loss-legal.html" />
+  <meta name="description" content="Automatic & manual stop-loss for XRPL tokens, Panic Sell (all tokens → XRP or stable), and XRBC Quick Buy. Xaman (Xumm) supported. Secure, non-custodial." />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
   <meta name="theme-color" content="#0b0f14" />
   <link rel="icon" href="/favicon.ico?v=1" sizes="any">
@@ -19,8 +19,8 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="XRBitcoinCash">
   <meta property="og:title" content="Instant Stop Loss · XRPL · XRBitcoinCash">
-  <meta property="og:description" content="Automatic & manual stop-loss for XRPL tokens, plus Panic Sell (all tokens → XRP or stable). Xaman supported.">
-  <meta property="og:url" content="https://xrbitcoincash.com/stop-loss.html">
+  <meta property="og:description" content="Automatic & manual stop-loss for XRPL tokens, Panic Sell, and XRBC Quick Buy. Xaman supported.">
+  <meta property="og:url" content="https://xrbitcoincash.com/stop-loss-legal.html">
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png">
   <meta property="og:image:secure_url" content="https://xrbitcoincash.com/xrbc-nft.png">
   <meta property="og:image:alt" content="XRBitcoinCash — XRBC logo">
@@ -29,7 +29,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Instant Stop Loss · XRPL · XRBitcoinCash">
-  <meta name="twitter:description" content="Automatic & manual stop-loss for XRPL tokens, plus Panic Sell (all tokens → XRP or stable). Xaman supported.">
+  <meta name="twitter:description" content="Automatic & manual stop-loss for XRPL tokens, Panic Sell, and XRBC Quick Buy. Xaman supported.">
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png">
   <meta name="twitter:image:alt" content="XRBitcoinCash — XRBC logo">
 
@@ -78,11 +78,9 @@ th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-
 .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
 .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
 .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
-.site-footer{margin:20px auto 24px;padding:16px;border-top:1px solid var(--line);max-width:var(--wrap);color:#9fb0c5}
-.site-footer .license{font-size:12px;white-space:pre-wrap;line-height:1.45}
 body.embed .container{max-width:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
-body.embed header, body.embed footer.site-footer{display:none}
+body.embed header{display:none}
 .container, .card, .row, .btn { min-width: 0; }
 .card .row { justify-content: center; }
 @media (max-width: 720px) {
@@ -103,7 +101,7 @@ body.embed header, body.embed footer.site-footer{display:none}
 <body>
 <main class="container" aria-live="polite">
 
-  <!-- PRIMARY CARD: hero + connect + controls + open orders -->
+  <!-- PRIMARY CARD -->
   <section class="card" id="primary" aria-labelledby="hero-title">
     <div class="hero-top">
       <div class="left logo">
@@ -126,7 +124,7 @@ body.embed header, body.embed footer.site-footer{display:none}
 
     <div class="col" style="margin-top:8px">
       <h1 id="hero-title" style="margin:0">Instant Stop Loss</h1>
-      <p class="hint" style="margin:0">Automatic & manual stop-loss for XRPL tokens + Panic Sell. Mobile-first. Desktop QR. Signing happens in-app.</p>
+      <p class="hint" style="margin:0">Automatic & manual stop-loss for XRPL tokens + Panic Sell. Mobile-first. Desktop QR. Signing in Xaman.</p>
     </div>
 
     <div class="row center" style="margin-top:10px">
@@ -189,8 +187,7 @@ body.embed header, body.embed footer.site-footer{display:none}
   <section class="card" aria-labelledby="panic">
     <h2 id="panic">Panic Sell — All Tokens → XRP or rUSLD</h2>
     <div class="warn" style="margin-bottom:10px">
-      <strong>Major disclaimer:</strong> This will attempt to sell <em>every token</em> in your wallet for the selected asset using XRPL pathfinding with a slippage cap.
-      Some tokens may not have routes or sufficient liquidity. Transactions are final. You are responsible for re-establishing positions later.
+      <strong>Major disclaimer:</strong> This attempts to sell <em>every token</em> in your wallet using XRPL pathfinding with a slippage cap. Some tokens may have no route or insufficient liquidity. Transactions are final.
     </div>
 
     <div class="row center">
@@ -220,6 +217,41 @@ body.embed header, body.embed footer.site-footer{display:none}
     <p id="panicStatus" class="status"></p>
   </section>
 
+  <!-- QUICK BUY (XRBC) -->
+  <section class="card" aria-labelledby="buyxrbc">
+    <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+    <h2 id="buyxrbc">Quick Buy · XRBitcoinCash (XRBC)</h2>
+
+    <div class="panel-note" style="margin-top:8px;border:1px solid var(--line);border-left:4px solid #60a5fa;border-radius:10px;padding:10px 12px;background:linear-gradient(180deg,#0e1520,#0c131c);">
+      <p class="hint" style="margin:0;color:#60a5fa;font-weight:700;">
+        Best available price at execution via XRPL pathfinding (AMM and/or order books) with a <strong>2% slippage cap</strong>.
+        Review &amp; sign <strong>inside Xaman</strong> (desktop shows a QR). <strong>Trustline required.</strong>
+      </p>
+    </div>
+
+    <div class="col" style="margin-top:8px">
+      <button class="btn btn-green glow-green block"  id="buy1"   type="button" title="Cheapest">Buy 1 XRBC for XRP</button>
+      <button class="btn btn-blue glow-blue block"    id="buy25"  type="button">Buy 25 XRBC for XRP</button>
+      <button class="btn btn-yellow glow-yellow block"id="buy50"  type="button">Buy 50 XRBC for XRP</button>
+      <button class="btn btn-red glow-red block"      id="buy100" type="button" title="Most expensive">Buy 100 XRBC for XRP</button>
+    </div>
+
+    <div class="col" style="margin-top:10px">
+      <button id="btnTrustXRBC" class="btn block" type="button" title="Add XRBC Trust Line">Add XRBC Trust Line</button>
+      <span class="hint">Issuer:
+        <span class="mono" id="xrbcIssuerPill" style="display:inline-block;max-width:18ch;overflow-wrap:anywhere;word-break:break-all;vertical-align:top">
+          rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw
+        </span>
+      </span>
+    </div>
+
+    <div class="panel-note panel-note-green" style="margin-top:10px">
+      <div class="hint" style="color:#22c55e">Tip: Start small. Verify each wallet prompt. Routes and slippage can change.</div>
+    </div>
+
+    <p id="buyStatus" class="status"></p>
+  </section>
+
   <!-- RESULTS -->
   <section class="card" aria-labelledby="res">
     <h2 id="res">Results</h2>
@@ -237,12 +269,12 @@ body.embed header, body.embed footer.site-footer{display:none}
     <div class="panel-note">
       <div class="row center" style="gap:8px">
         <button id="btnCopyIframe" class="btn glow-blue" type="button">Copy embed code</button>
-        <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/stop-loss.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
+        <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/stop-loss-legal.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
       </div>
 <pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
 &lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
 var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
-})(window,document,'xrbc-widget','https://xrbitcoincash.com/stop-loss.html?embed=1&amp;network=mainnet','980px');&lt;/script&gt;</pre>
+})(window,document,'xrbc-widget','https://xrbitcoincash.com/stop-loss-legal.html?embed=1&amp;network=mainnet','980px');&lt;/script&gt;</pre>
     </div>
   </section>
 
@@ -250,34 +282,24 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   <section class="card" aria-labelledby="important">
     <h2 id="important">Important</h2>
     <div class="warn">
-      Verify every transaction in your wallet before approving. Transactions are final. Fees apply. Ensure the same network in wallet and page.
+      <p><strong>No custody / no brokerage.</strong> XRBitcoinCash provides software that constructs XRPL transactions for you to review and sign <em>in your own wallet</em>. We do not take possession of funds, route orders on your behalf, execute trades, or provide brokerage, ATS, exchange, or advisory services.</p>
+      <p><strong>Finality and risk.</strong> XRPL transactions are irreversible once validated. You are solely responsible for verifying asset, network, amounts, slippage, destinations, fees, and all details in your wallet before approval. Market conditions and routes may change between preview and signing.</p>
+      <p><strong>“Panic Sell” function.</strong> Panic Sell attempts to liquidate multiple IOUs via XRPL pathfinding. Some assets may lack routes or adequate liquidity. Partial fills and materially worse execution than previews can occur. Use at your own risk.</p>
+      <p><strong>No guarantees / no warranties.</strong> The software is provided “AS IS” and “AS AVAILABLE” without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, non-infringement, uninterrupted availability, accuracy, or error-free operation.</p>
+      <p><strong>Compliance is your responsibility.</strong> You are solely responsible for complying with all applicable laws (including sanctions, export controls, tax, securities/commodities, and consumer protection laws) in your jurisdiction(s). Access may be restricted where prohibited.</p>
+      <p><strong>No investment advice / no solicitation.</strong> Nothing here constitutes investment, legal, accounting, or tax advice, or an offer or solicitation to buy or sell any asset. You should seek professional advice as needed.</p>
+      <p><strong>Limitation of liability.</strong> To the maximum extent permitted by law, XRBitcoinCash and its contributors shall not be liable for any direct, indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, data, goodwill, or other losses, arising from or related to your use of, or inability to use, the software, even if advised of the possibility of such damages.</p>
+      <p><strong>Assumption of risk.</strong> By using the software or embedding the widget, you acknowledge that digital assets are volatile and speculative, and you accept all risks associated with using XRPL and third-party wallets.</p>
     </div>
-    <p class="footer">
-      Disclaimer: Not a broker or custodian. You sign in your wallet. Canceling releases reserves and returns any remaining locked assets to your balance. Use at your own risk. Verify on an explorer if in doubt.
-    </p>
 
     <div id="license-proprietary" class="license" style="color:var(--muted);font-size:12px;white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
-      <strong>Proprietary License — Instant Stop Loss (XRPL)</strong>
-      Copyright (c) 2025 XRBitcoinCash. All rights reserved.
-      By using this site or embedding the widget, you accept this License and the terms in the “Important” section above. Access may be modified, throttled, or revoked at any time.
-      XRBitcoinCash is not affiliated with Ripple, XRPL Labs, or Xaman. “XRP” and “Xaman” are trademarks of their respective owners.
+<strong>Proprietary License — Instant Stop Loss (XRPL)</strong>
+Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+By accessing this page or embedding the widget, you accept the Important terms above and this License. You receive a limited, revocable, non-exclusive right to access the page and display the widget as provided, without modification of core functionality or removal of attribution. Access may be modified, throttled, or revoked at any time. No rights are granted to the trademarks “XRP” or “Xaman,” which are the property of their respective owners. XRBitcoinCash is not affiliated with Ripple, XRPL Labs, or Xaman.
     </div>
   </section>
 
 </main>
-
-<footer class="site-footer" role="contentinfo">
-  <div class="license">
-    <strong>Legal notice</strong><br>
-    © 2025 XRBitcoinCash. All rights reserved.
-    <br><br>
-    This site provides software that interacts with the XRP Ledger. XRBitcoinCash does not custody funds, execute trades, or provide brokerage, exchange, or advisory services. Transactions are created and signed in your wallet and are final once validated on-ledger. Digital assets are volatile. Use at your own risk.
-    <br><br>
-    Nothing here is investment, legal, accounting, or tax advice. You are responsible for your decisions and for complying with applicable laws, including sanctions and export controls.
-    <br><br>
-    Always verify the network selection, destination, and all transaction details in your wallet before approving. Fees and slippage may apply. If you do not agree with these terms, do not use the software.
-  </div>
-</footer>
 
   <!-- App configuration (keep immediately before main script) -->
   <script type="application/json" id="app-config">
@@ -296,11 +318,8 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   (function(){
     'use strict';
 
+    const FIRST_COMMIT_YEAR = 2025;
 
-const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
-
-
-    
     // ===== Embed mode
     (function initEmbedMode(){
       try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
@@ -345,24 +364,23 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
     const $networkSel   = $('network');
     const $btnNetBadge  = $('btnNetBadge');
     const $progress     = $('progressBar');
+    const $buyStatus    = $('buyStatus'); // quick buy status
 
     // Stop-loss & Panic DOM
-    const $slTokens = document.getElementById('slTokens');
-    const $slMode   = document.getElementById('slMode');
-    const $slValue  = document.getElementById('slValue');
-    const $slTarget = document.getElementById('slTarget');
-    const $slPlanOut= document.getElementById('slPlanOut');
-    const $slStatus = document.getElementById('slStatus');
-    const $btnPlanStops  = document.getElementById('btnPlanStops');
-    const $btnCreateStops= document.getElementById('btnCreateStops');
+    const $slTokens = $('slTokens');
+    const $slMode   = $('slMode');
+    const $slValue  = $('slValue');
+    const $slTarget = $('slTarget');
+    const $slPlanOut= $('slPlanOut');
+    const $slStatus = $('slStatus');
 
-    const $panicTarget    = document.getElementById('panicTarget');
-    const $panicSlip      = document.getElementById('panicSlip');
-    const $panicCancelFirst = document.getElementById('panicCancelFirst');
-    const $panicPlanOut   = document.getElementById('panicPlanOut');
-    const $panicStatus    = document.getElementById('panicStatus');
-    const $btnPanicPreview= document.getElementById('btnPanicPreview');
-    const $btnPanicSell   = document.getElementById('btnPanicSell');
+    const $panicTarget    = $('panicTarget');
+    const $panicSlip      = $('panicSlip');
+    const $panicCancelFirst = $('panicCancelFirst');
+    const $panicPlanOut   = $('panicPlanOut');
+    const $panicStatus    = $('panicStatus');
+    const $btnPanicPreview= $('btnPanicPreview');
+    const $btnPanicSell   = $('btnPanicSell');
 
     // ===== UTILS
     function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
@@ -550,8 +568,6 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       setStatus($offersStatus,'Done.','ok');
     }
 
-    // ===== XRBC helpers (for Quick Buy—removed here to keep page focused)
-
     // ===== Stop-loss & Panic constants
     const ST_DEFAULT_SLIPPAGE_PCT = 2;
     const TARGETS = {
@@ -581,25 +597,23 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       return out;
     }
 
-    // ===== Price helpers (AMM first, then book): IOU→XRP price (XRP per IOU)
+    // ===== Price helpers: IOU→XRP price (XRP per IOU)
     async function refPriceIOUtoXRP(currencyCode, issuer){
-      // AMM
       try{
         const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyCode, issuer} }] });
         const amm = a?.result?.amm;
         if (amm){
-          const rx = Number(amm.amount) / 1_000_000; // XRP
-          const ry = Number(amm.amount2?.value || 0); // IOU
+          const rx = Number(amm.amount) / 1_000_000;
+          const ry = Number(amm.amount2?.value || 0);
           if (rx > 0 && ry > 0) return rx / ry;
         }
       }catch{}
-      // Orderbook top
       try{
         const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:'XRP'}, taker_pays:{currency:currencyCode, issuer}, limit:1 }] });
         const of = r?.result?.offers?.[0];
         if (of){
-          const gets = Number(of.TakerGets) / 1_000_000; // XRP
-          const pays = Number(of.TakerPays?.value);      // IOU
+          const gets = Number(of.TakerGets) / 1_000_000;
+          const pays = Number(of.TakerPays?.value);
           if (pays > 0) return gets / pays;
         }
       }catch{}
@@ -613,8 +627,8 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       return {
         TransactionType: 'OfferCreate',
         Account: acct,
-        TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },      // IOU to sell
-        TakerPays: String(Math.ceil(xrpTotal * 1_000_000)),                           // XRP in drops to receive
+        TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },
+        TakerPays: String(Math.ceil(xrpTotal * 1_000_000)),
         Flags: TF_SELL
       };
     }
@@ -632,7 +646,7 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
         params:[{
           source_account: acct,
           destination_account: acct,
-          destination_amount: minDrops, // XRP in drops
+          destination_amount: minDrops,
           source_currencies: [{ currency: currencyCode, issuer }]
         }]
       });
@@ -645,7 +659,7 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
         Destination: acct,
         Amount: minDrops,
         SendMax: { currency: currencyCode, issuer, value: String(amountIOU) },
-        Flags: 0x00020000, // tfPartialPayment
+        Flags: 0x00020000,
         DeliverMin: minDrops,
         Paths: alt.paths_computed || alt.paths_canonical || []
       };
@@ -667,7 +681,7 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
           <td class="mono">${t.code}</td>
           <td class="mono" style="word-break:anywhere">${t.issuer}</td>
           <td>${t.balance.toFixed(6)}</td>
-          <td><input type="number" class="slAmt" step="0.000001" value="${Math.max(0, t.balance).toFixed(6)}"></td>`;
+          <td><input type="number" class="slAmt" step="0.000001" value="${Math.max(0, t.balance).toFixed(6)}">`;
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
@@ -675,7 +689,7 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
     }
 
     // ===== Stop-Loss plan
-    $btnPlanStops?.addEventListener('click', async ()=>{
+    document.getElementById('btnPlanStops')?.addEventListener('click', async ()=>{
       if (!state.account) return ($slStatus.textContent='Connect wallet first.');
       const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
       const picks = rows.map(row=>{
@@ -699,15 +713,15 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
         lines.push(`✅ ${p.code}: stop ${stopPx.toFixed(6)} XRP/IOU · amount ${p.amt.toFixed(6)} IOU`);
       }
       $slPlanOut.textContent = lines.join('\n');
-      $btnCreateStops.disabled = !lines.some(l=>l.startsWith('✅'));
+      document.getElementById('btnCreateStops').disabled = !lines.some(l=>l.startsWith('✅'));
     });
 
     // ===== Stop-Loss create (batch Offers)
-    $btnCreateStops?.addEventListener('click', async ()=>{
+    document.getElementById('btnCreateStops')?.addEventListener('click', async ()=>{
       if (!state.account || !state.adapter) return ($slStatus.textContent='Connect wallet first.');
       const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
       const mode = $slMode.value; const val = Number($slValue.value||0);
-      const tgt  = $slTarget.value; // for future: IOU→rUSLD stops (not enabled yet)
+      const tgt  = $slTarget.value;
       if (tgt==='rUSLD' && (!TARGETS.rUSLD.issuer || !TARGETS.rUSLD.currencyHex)) { $slStatus.textContent='Provide rUSLD issuer + hex first.'; return; }
 
       $slStatus.textContent='Building stop orders…';
@@ -770,7 +784,6 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
             ok++;
           } else {
             if (!TARGETS.rUSLD.issuer || !TARGETS.rUSLD.currencyHex) throw new Error('rUSLD not configured');
-            // NOTE: IOU→rUSLD pathfind (Payment) mirrors IOU→XRP; enable once TARGETS.rUSLD is set.
             throw new Error('rUSLD flow pending constants');
           }
         }catch(e){ fail++; }
@@ -778,8 +791,54 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}.`;
     });
 
+    // ===== XRBC TRUST + BUY
+    const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
+    function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
+    const XRBC_CODE=hexToAscii(XRBC_HEX);
+
+    async function hasXRBCTrustLine(acct){
+      const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
+      const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
+    }
+    async function addXRBCTrustLine(){
+      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+      setStatus($buyStatus,'Checking trust line…');
+      try{
+        const exists=await hasXRBCTrustLine(state.account);
+        if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
+        const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
+        await state.adapter.signAndSubmit(tx);
+        setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
+      }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
+    }
+    async function pathFindBuy(acct,valueStr){
+      const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
+      const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
+      const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
+      let best=null;
+      for(const a of alts){
+        const sa=a.source_amount;
+        const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
+        if(!isFinite(drops)) continue;
+        if(!best || drops<best.drops) best={alt:a,drops};
+      }
+      if(!best) throw new Error('No XRP route available');
+      const headroom=Math.ceil(best.drops*1.005); // execution headroom (see UI note)
+      return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+    }
+    async function buyXRBC(units){
+      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+      try{
+        setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
+        const exists=await hasXRBCTrustLine(state.account);
+        if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
+        const tx=await pathFindBuy(state.account,String(units));
+        const res=await state.adapter.signAndSubmit(tx);
+        setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
+      }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
+    }
+
     // ===== Wire base UI
-    function updateConnectUI(){ updateConnectButtons(); }
     $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
     $btnDisconnect?.addEventListener('click',()=>disconnect());
     $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
@@ -790,9 +849,13 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       if(state.account) { fetchOffers(state.account); refreshSLTokens(); }
     });
 
-  
-    
-    
+    // Quick Buy UI wires
+    document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
+    document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
+    document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
+    document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
+    document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
+
     // Boot
     updateNetUI();
     tryResumeWallet();
@@ -803,7 +866,7 @@ const FIRST_COMMIT_YEAR = 2025; // auto-copyright start year
       if (el) el.textContent = (y1 > y0) ? (y0 + '–' + y1) : String(y0);
     })();
 
-  })(); /* close outer IIFE */
+  })();
   </script>
 </body>
 </html>
