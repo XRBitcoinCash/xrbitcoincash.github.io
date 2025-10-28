@@ -170,7 +170,7 @@ body.embed header{display:none}
         Exit to:
         <select id="slTarget">
           <option value="XRP" selected>XRP</option>
-          <option value="rUSLD">rUSLD (stable)</option>
+          <option value="RLUSD">RLUSD (stable)</option>
         </select>
       </label>
     </div>
@@ -185,7 +185,7 @@ body.embed header{display:none}
 
   <!-- PANIC SELL -->
   <section class="card" aria-labelledby="panic">
-    <h2 id="panic">Panic Sell — All Tokens → XRP or rUSLD</h2>
+    <h2 id="panic">Panic Sell — All Tokens → XRP or RLUSD</h2>
     <div class="warn" style="margin-bottom:10px">
       <strong>Major disclaimer:</strong> This attempts to sell <em>every token</em> in your wallet using XRPL pathfinding with a slippage cap. Some tokens may have no route or insufficient liquidity. Transactions are final.
     </div>
@@ -195,7 +195,7 @@ body.embed header{display:none}
         Exit to:
         <select id="panicTarget">
           <option value="XRP" selected>XRP</option>
-          <option value="rUSLD">rUSLD (stable)</option>
+          <option value="RLUSD">RLUSD (stable)</option>
         </select>
       </label>
       <label class="hint" style="display:flex;gap:8px;align-items:center">
@@ -572,11 +572,10 @@ By accessing this page or embedding the widget, you accept the Important terms a
     const ST_DEFAULT_SLIPPAGE_PCT = 2;
     const TARGETS = {
       XRP:   { kind: 'XRP' },
-      rUSLD: {
+      RLUSD: {
         kind: 'IOU',
-        // TODO(one line): provide rUSLD issuer + 160-bit currency hex to enable rUSLD flows
-        issuer: null,
-        currencyHex: null
+        issuer: 'rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De',
+        currencyHex: '524C555344000000000000000000000000000000'
       }
     };
 
@@ -597,14 +596,15 @@ By accessing this page or embedding the widget, you accept the Important terms a
       return out;
     }
 
-    // ===== Price helpers: IOU→XRP price (XRP per IOU)
+    // ===== Price helpers (per target)
+    // IOU → XRP : returns XRP per IOU
     async function refPriceIOUtoXRP(currencyCode, issuer){
       try{
         const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyCode, issuer} }] });
         const amm = a?.result?.amm;
         if (amm){
-          const rx = Number(amm.amount) / 1_000_000;
-          const ry = Number(amm.amount2?.value || 0);
+          const rx = Number(amm.amount) / 1_000_000;            // XRP
+          const ry = Number(amm.amount2?.value || 0);           // IOU
           if (rx > 0 && ry > 0) return rx / ry;
         }
       }catch{}
@@ -612,28 +612,65 @@ By accessing this page or embedding the widget, you accept the Important terms a
         const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:'XRP'}, taker_pays:{currency:currencyCode, issuer}, limit:1 }] });
         const of = r?.result?.offers?.[0];
         if (of){
-          const gets = Number(of.TakerGets) / 1_000_000;
-          const pays = Number(of.TakerPays?.value);
+          const gets = Number(of.TakerGets) / 1_000_000;        // XRP
+          const pays = Number(of.TakerPays?.value);             // IOU
+          if (pays > 0) return gets / pays;
+        }
+      }catch{}
+      return null;
+    }
+    // IOU → RLUSD : returns RLUSD per IOU
+    async function refPriceIOUtoRLUSD(currencyCode, issuer){
+      const RL = TARGETS.RLUSD;
+      try{
+        const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:RL.currencyHex, issuer:RL.issuer}, asset2:{currency:currencyCode, issuer} }] });
+        const amm = a?.result?.amm;
+        if (amm){
+          const rL = Number(amm.amount?.value || 0);            // RLUSD
+          const rT = Number(amm.amount2?.value || 0);           // IOU
+          if (rL > 0 && rT > 0) return rL / rT;
+        }
+      }catch{}
+      try{
+        const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:RL.currencyHex, issuer:RL.issuer}, taker_pays:{currency:currencyCode, issuer}, limit:1 }] });
+        const of = r?.result?.offers?.[0];
+        if (of){
+          const gets = Number(of.TakerGets?.value);             // RLUSD
+          const pays = Number(of.TakerPays?.value);             // IOU
           if (pays > 0) return gets / pays;
         }
       }catch{}
       return null;
     }
 
-    // ===== Build OfferCreate (stop-limit sell)
-    function buildStopOffer({ acct, currencyCode, issuer, amountIOU, stopPriceXrpPerIOU }){
+    // ===== Build OfferCreate
+    // IOU → XRP stop sell
+    function buildStopOfferXRP({ acct, currencyCode, issuer, amountIOU, stopPriceXrpPerIOU }){
       const TF_SELL = 0x00080000;
       const xrpTotal = Math.max(0, Number(amountIOU) * Number(stopPriceXrpPerIOU));
       return {
         TransactionType: 'OfferCreate',
         Account: acct,
-        TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },
-        TakerPays: String(Math.ceil(xrpTotal * 1_000_000)),
+        TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },      // IOU to sell
+        TakerPays: String(Math.ceil(xrpTotal * 1_000_000)),                           // XRP drops to receive
         Flags: TF_SELL
       };
     }
+    // IOU → RLUSD stop sell
+    function buildStopOfferRLUSD({ acct, currencyCode, issuer, amountIOU, stopPriceRLUSDperIOU }){
+      const RL = TARGETS.RLUSD;
+      const rlTotal = Math.max(0, Number(amountIOU) * Number(stopPriceRLUSDperIOU));
+      return {
+        TransactionType: 'OfferCreate',
+        Account: acct,
+        TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },      // IOU to sell
+        TakerPays: { currency: RL.currencyHex, issuer: RL.issuer, value: String(rlTotal) }, // RLUSD to receive
+        Flags: 0x00080000
+      };
+    }
 
-    // ===== Pathfind Payment (panic, IOU→XRP)
+    // ===== Pathfind Payment
+    // IOU → XRP
     async function pathfindSellIOUtoXRP({ acct, currencyCode, issuer, amountIOU, slippagePct }){
       const estPx = (await refPriceIOUtoXRP(currencyCode, issuer)) || 0;
       if (!estPx) throw new Error('No price');
@@ -646,7 +683,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
         params:[{
           source_account: acct,
           destination_account: acct,
-          destination_amount: minDrops,
+          destination_amount: minDrops, // XRP in drops
           source_currencies: [{ currency: currencyCode, issuer }]
         }]
       });
@@ -659,8 +696,40 @@ By accessing this page or embedding the widget, you accept the Important terms a
         Destination: acct,
         Amount: minDrops,
         SendMax: { currency: currencyCode, issuer, value: String(amountIOU) },
-        Flags: 0x00020000,
+        Flags: 0x00020000, // tfPartialPayment
         DeliverMin: minDrops,
+        Paths: alt.paths_computed || alt.paths_canonical || []
+      };
+    }
+    // IOU → RLUSD
+    async function pathfindSellIOUtoRLUSD({ acct, currencyCode, issuer, amountIOU, slippagePct }){
+      const RL = TARGETS.RLUSD;
+      const estPx = (await refPriceIOUtoRLUSD(currencyCode, issuer)) || 0; // RLUSD per IOU
+      if (!estPx) throw new Error('No price');
+      const estRl = amountIOU * estPx;
+      const slip = Math.max(0, Number(slippagePct)/100);
+      const minObj = { currency: RL.currencyHex, issuer: RL.issuer, value: String(estRl * (1 - slip)) };
+
+      const pf = await xrplRequest({
+        method:'ripple_path_find',
+        params:[{
+          source_account: acct,
+          destination_account: acct,
+          destination_amount: minObj,
+          source_currencies: [{ currency: currencyCode, issuer }]
+        }]
+      });
+      const alt = (pf?.result?.alternatives || [])[0];
+      if (!alt) throw new Error('No path');
+
+      return {
+        TransactionType: 'Payment',
+        Account: acct,
+        Destination: acct,
+        Amount: minObj,
+        SendMax: { currency: currencyCode, issuer, value: String(amountIOU) },
+        Flags: 0x00020000, // tfPartialPayment
+        DeliverMin: minObj,
         Paths: alt.paths_computed || alt.paths_canonical || []
       };
     }
@@ -681,7 +750,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
           <td class="mono">${t.code}</td>
           <td class="mono" style="word-break:anywhere">${t.issuer}</td>
           <td>${t.balance.toFixed(6)}</td>
-          <td><input type="number" class="slAmt" step="0.000001" value="${Math.max(0, t.balance).toFixed(6)}">`;
+          <td><input type="number" class="slAmt" step="0.000001" value="${Math.max(0, t.balance).toFixed(6)}"></td>`;
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
@@ -704,13 +773,16 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
       const mode = $slMode.value; const val = Number($slValue.value||0);
       if (!val || val <= 0) return ($slStatus.textContent='Enter a % or price.');
+      const tgt = $slTarget.value;
 
       const lines = [];
       for (const p of picks){
-        const px = await refPriceIOUtoXRP(p.code, p.issuer);
-        if (!px){ lines.push(`❌ ${p.code}: no price`); continue; }
-        const stopPx = (mode==='pct') ? (px * (1 - val/100)) : val;
-        lines.push(`✅ ${p.code}: stop ${stopPx.toFixed(6)} XRP/IOU · amount ${p.amt.toFixed(6)} IOU`);
+        const basePx = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(p.code, p.issuer)
+                                         : await refPriceIOUtoXRP(p.code, p.issuer);
+        if (!basePx){ lines.push(`❌ ${p.code}: no price`); continue; }
+        const stopPx = (mode==='pct') ? (basePx * (1 - val/100)) : val;
+        const unit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
+        lines.push(`✅ ${p.code}: stop ${stopPx.toFixed(6)} ${unit} · amount ${p.amt.toFixed(6)} IOU`);
       }
       $slPlanOut.textContent = lines.join('\n');
       document.getElementById('btnCreateStops').disabled = !lines.some(l=>l.startsWith('✅'));
@@ -722,7 +794,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
       const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
       const mode = $slMode.value; const val = Number($slValue.value||0);
       const tgt  = $slTarget.value;
-      if (tgt==='rUSLD' && (!TARGETS.rUSLD.issuer || !TARGETS.rUSLD.currencyHex)) { $slStatus.textContent='Provide rUSLD issuer + hex first.'; return; }
 
       $slStatus.textContent='Building stop orders…';
       let ok=0, fail=0;
@@ -734,10 +805,15 @@ By accessing this page or embedding the widget, you accept the Important terms a
         if (!amt || amt<=0) { fail++; continue; }
 
         try{
-          const px = await refPriceIOUtoXRP(code, issuer);
-          if (!px) throw new Error('no price');
-          const stopPx = (mode==='pct') ? (px * (1 - val/100)) : val;
-          const tx = buildStopOffer({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceXrpPerIOU: stopPx });
+          const basePx = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(code, issuer)
+                                           : await refPriceIOUtoXRP(code, issuer);
+          if (!basePx) throw new Error('no price');
+          const stopPx = (mode==='pct') ? (basePx * (1 - val/100)) : val;
+
+          const tx = (tgt === 'RLUSD')
+            ? buildStopOfferRLUSD({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceRLUSDperIOU: stopPx })
+            : buildStopOfferXRP({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceXrpPerIOU: stopPx });
+
           await state.adapter.signAndSubmit(tx);
           ok++;
         }catch(e){ fail++; }
@@ -751,13 +827,18 @@ By accessing this page or embedding the widget, you accept the Important terms a
       const toks = await listUserTokens(state.account);
       if (!toks.length){ $panicPlanOut.textContent='No positive IOU balances.'; return; }
       const tgt = $panicTarget.value;
-      if (tgt==='rUSLD' && (!TARGETS.rUSLD.issuer || !TARGETS.rUSLD.currencyHex)) { $panicPlanOut.textContent='Provide rUSLD issuer + hex first.'; return; }
 
       const lines = [];
       for (const t of toks){
-        const px = await refPriceIOUtoXRP(t.code, t.issuer);
-        lines.push(px ? `✅ ${t.code}: est ${px.toFixed(6)} XRP/IOU × ${t.balance.toFixed(6)} = ${(px*t.balance).toFixed(6)} XRP`
-                      : `❌ ${t.code}: no route`);
+        const px = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(t.code, t.issuer)
+                                     : await refPriceIOUtoXRP(t.code, t.issuer);
+        if (px){
+          const unit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
+          const est  = px * t.balance;
+          lines.push(`✅ ${t.code}: est ${px.toFixed(6)} ${unit} × ${t.balance.toFixed(6)} = ${est.toFixed(6)} ${(tgt==='RLUSD')?'RLUSD':'XRP'}`);
+        } else {
+          lines.push(`❌ ${t.code}: no route`);
+        }
       }
       $panicPlanOut.textContent = lines.join('\n');
     });
@@ -778,14 +859,11 @@ By accessing this page or embedding the widget, you accept the Important terms a
       let ok=0, fail=0;
       for (const t of toks){
         try{
-          if (tgt === 'XRP'){
-            const tx = await pathfindSellIOUtoXRP({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip });
-            await state.adapter.signAndSubmit(tx);
-            ok++;
-          } else {
-            if (!TARGETS.rUSLD.issuer || !TARGETS.rUSLD.currencyHex) throw new Error('rUSLD not configured');
-            throw new Error('rUSLD flow pending constants');
-          }
+          const tx = (tgt === 'RLUSD')
+            ? await pathfindSellIOUtoRLUSD({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip })
+            : await pathfindSellIOUtoXRP  ({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip });
+          await state.adapter.signAndSubmit(tx);
+          ok++;
         }catch(e){ fail++; }
       }
       $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}.`;
@@ -823,7 +901,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
         if(!best || drops<best.drops) best={alt:a,drops};
       }
       if(!best) throw new Error('No XRP route available');
-      const headroom=Math.ceil(best.drops*1.005); // execution headroom (see UI note)
+      const headroom=Math.ceil(best.drops*1.005); // execution headroom
       return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
     }
     async function buyXRBC(units){
