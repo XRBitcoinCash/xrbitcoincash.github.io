@@ -609,6 +609,14 @@ By accessing this page or embedding the widget, you accept the Important terms a
     }
   };
 
+  // ---- Liquidity threshold for Panic Sell (skip/warn below this)
+  // Minimum estimated proceeds per token (units of the chosen exit asset)
+  const MIN_PANIC_VALUE = { XRP: 2, RLUSD: 2 };
+  function belowMin(estValue, tgt){
+    const min = tgt === 'RLUSD' ? MIN_PANIC_VALUE.RLUSD : MIN_PANIC_VALUE.XRP;
+    return Number(estValue) < Number(min);
+  }
+
   // ===== Token discovery (positive balances)
   async function listUserTokens(acct){
     const out = [];
@@ -857,7 +865,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     $slStatus.textContent = `Submitted ${ok} stop(s). Failed ${fail}.`;
   });
 
-  // ===== Panic preview: sort by largest estimated proceeds and flag no-route
+  // ===== Panic preview: sort by largest estimated proceeds; warn/skip low-liq
   $btnPanicPreview?.addEventListener('click', async ()=>{
     if (!state.account) return ($panicStatus.textContent='Connect wallet first.');
     const toks = await listUserTokens(state.account);
@@ -872,22 +880,24 @@ By accessing this page or embedding the widget, you accept the Important terms a
       if (px){
         const est  = px * t.balance;
         const unit = (tgt === 'RLUSD') ? 'RLUSD' : 'XRP';
-        rows.push({ ...t, disp, px, est, unit, route:true });
+        const low  = belowMin(est, tgt);
+        rows.push({ ...t, disp, px, est, unit, route: !low, low });
       } else {
-        rows.push({ ...t, disp, px:null, est:0, unit:(tgt==='RLUSD'?'RLUSD':'XRP'), route:false });
+        rows.push({ ...t, disp, px:null, est:0, unit:(tgt==='RLUSD'?'RLUSD':'XRP'), route:false, low:false });
       }
     }
     rows.sort((a,b)=>b.est-a.est);
 
     const lines = rows.map(r=>{
-      if(!r.route) return `❌ ${r.disp}: no route`;
+      if(!r.px) return `❌ ${r.disp}: no route`;
       const perUnit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
-      return `✅ ${r.disp}: est ${r.px.toFixed(6)} ${perUnit} × ${r.balance.toFixed(6)} = ${r.est.toFixed(6)} ${r.unit}`;
+      const base = `✅ ${r.disp}: est ${r.px.toFixed(6)} ${perUnit} × ${r.balance.toFixed(6)} = ${r.est.toFixed(6)} ${r.unit}`;
+      return r.low ? base + '  ⚠ low liquidity — will skip' : base;
     });
     $panicPlanOut.textContent = lines.join('\n');
   });
 
-  // ===== Panic sell (sequential; skip no-route)
+  // ===== Panic sell (sequential; skip no-route & low-liq)
   $btnPanicSell?.addEventListener('click', async ()=>{
     if (!state.account || !state.adapter) return ($panicStatus.textContent='Connect wallet first.');
     const slip = Number($panicSlip.value||ST_DEFAULT_SLIPPAGE_PCT);
@@ -909,8 +919,11 @@ By accessing this page or embedding the widget, you accept the Important terms a
     }
     scored.sort((a,b)=>b.est-a.est);
 
-    let ok=0, fail=0, skipped=0;
-    for (const t of scored){
+    // Skip low-liquidity items based on estimated proceeds
+    const filtered = scored.filter(s => !belowMin(s.est, tgt));
+
+    let ok=0, fail=0;
+    for (const t of filtered){
       try{
         const tx = (tgt === 'RLUSD')
           ? await pathfindSellIOUtoRLUSD({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip })
@@ -919,9 +932,8 @@ By accessing this page or embedding the widget, you accept the Important terms a
         ok++;
       }catch(e){ fail++; }
     }
-    // anything without price got skipped
-    skipped = toks.length - scored.length;
-    $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}. Skipped ${skipped} (no route).`;
+    const skipped = (toks.length - scored.length) + (scored.length - filtered.length); // no-route + low-liq
+    $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}. Skipped ${skipped} (no route/low liquidity).`;
   });
 
   // ===== XRBC TRUST + BUY
@@ -1011,5 +1023,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
 })();
 </script>
+
 </body>
 </html>
