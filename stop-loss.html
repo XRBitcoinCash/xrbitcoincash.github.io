@@ -78,6 +78,8 @@ th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-
 .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
 .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
 .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
+/* XL button for emergency action */
+.btn-xxl{font-size:20px;padding:16px 22px;min-height:56px;border-radius:14px;font-weight:900}
 body.embed .container{max-width:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 body.embed header{display:none}
@@ -150,6 +152,14 @@ body.embed header{display:none}
   <!-- STOP-LOSS PLANNER -->
   <section class="card" aria-labelledby="slp">
     <h2 id="slp">Stop-Loss Planner (per token)</h2>
+    <div class="panel-note" style="margin-top:8px">
+      <p class="hint" style="margin:0">
+        How it works: pick tokens and amounts to protect. Choose either
+        <strong>% below current</strong> or an <strong>exact stop price</strong>.
+        The tool builds XRPL <em>limit sell</em> orders that will execute when the market reaches your stop price.
+        You review and sign each order in Xaman. You can cancel them any time.
+      </p>
+    </div>
     <p class="hint">Create on-ledger stop-limit sells that trigger at your level. No bots or custody.</p>
 
     <div id="slTokens" class="hint">Loading your token balances…</div>
@@ -190,6 +200,15 @@ body.embed header{display:none}
       <strong>Major disclaimer:</strong> This attempts to sell <em>every token</em> in your wallet using XRPL pathfinding with a slippage cap. Some tokens may have no route or insufficient liquidity. Transactions are final.
     </div>
 
+    <div class="panel-note" style="margin-top:8px">
+      <p class="hint" style="margin:0">
+        Panic Sell steps: pick the asset to exit into (<strong>XRP</strong> or <strong>RLUSD</strong>), set a
+        <strong>slippage cap</strong>, optionally cancel your open orders first, then press the red button.
+        The app uses XRPL path-finding to swap each token you hold into your target asset. You will approve each
+        transaction inside Xaman.
+      </p>
+    </div>
+
     <div class="row center">
       <label class="hint" style="display:flex;gap:8px;align-items:center">
         Exit to:
@@ -210,7 +229,9 @@ body.embed header{display:none}
 
     <div class="row center" style="margin-top:10px">
       <button id="btnPanicPreview" class="btn glow-yellow" type="button">Preview Routes</button>
-      <button id="btnPanicSell" class="btn glow-red" type="button">Panic Sell All</button>
+      <button id="btnPanicSell" class="btn btn-red glow-red btn-xxl block" type="button" title="Emergency stop-loss">
+        Panic Sell All — Emergency Stop Loss
+      </button>
     </div>
 
     <div id="panicPlanOut" class="log" style="margin-top:10px"></div>
@@ -305,7 +326,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
   <script type="application/json" id="app-config">
   {
     "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
+    "xummApiKey": "2b433aaa-d2cc-4b75-a771-8a20433ac1c5",
     "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
     "xrbc": {
       "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
@@ -467,7 +488,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
     class XummAdapter extends WalletAdapter{
       constructor(){ super(); this.name='Xumm'; this.xumm=null; }
-      async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
+      async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY, { silent:true }); }
       async resume(){
         await this.ensureSDK();
         const acct = await this.xumm.user.account;
