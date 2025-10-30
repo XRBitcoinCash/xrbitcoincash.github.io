@@ -137,14 +137,16 @@ body.embed header{display:none}
   /* Prevent any horizontal bleed */
   #slTokens{overflow:hidden}
 
-  /* Reserve and position the checkmark column (col 1) */
+  /* Reserve space for the checkmark column (col 1) */
   #slTokens table thead th:first-child,
   #slTokens table tbody td:first-child{
-    width:7%;min-width:7%;max-width:7%;
-    text-align:left;             /* align left */
-    padding-right:10px;          /* gap from Hex */
-    padding-top:18px;            /* sit under "Token hex" */
-    vertical-align:top;
+    width:6%;
+    min-width:6%;
+    max-width:6%;
+    text-align:center;
+    padding-right:4px;
+    position:relative;
+    z-index:1;
   }
 
   /* Tighten padding */
@@ -159,18 +161,22 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* 5th header: single green label "amount to protect" */
+  /* 5th header: "AMT" (green) over "protect" (white) */
   #slTokens table thead th:nth-child(5){
     font-size:0;position:relative;white-space:normal
   }
+  #slTokens table thead th:nth-child(5)::before{
+    content:"AMT";
+    display:block;font-weight:800;font-size:12px;line-height:1.15;color:#b9f6ca
+  }
   #slTokens table thead th:nth-child(5)::after{
-    content:"amount to protect";
-    display:block;font-weight:800;font-size:12px;line-height:1.15;color:var(--ok)
+    content:"protect";
+    display:block;font-weight:700;font-size:11px;line-height:1.15;color:#fff
   }
 
-  /* Column widths (sum = 100% with 1st col = 7%) */
+  /* Column widths (sum = 100% with a 1st checkmark column) */
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){width:33%} /* Hex */
+  #slTokens table tbody td:nth-child(2){width:34%} /* Hex */
   #slTokens table thead th:nth-child(3),
   #slTokens table tbody td:nth-child(3){width:20%} /* Issuer */
   #slTokens table thead th:nth-child(4),
@@ -207,7 +213,7 @@ body.embed header{display:none}
 /* Extra-narrow safety */
 @media (max-width:380px){
   #slTokens table thead th:first-child,
-  #slTokens table tbody td:first-child{width:8%;min-width:8%;max-width:8%}
+  #slTokens table tbody td:first-child{width:7%;min-width:7%;max-width:7%}
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){font-size:10px}
   #slTokens table thead th:nth-child(3),
@@ -218,31 +224,22 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(5){font-size:11px}
 }
 
-/* Mobile landscape: labels left→right with controls under each */
+/* Mobile landscape: keep layout, fix orange labels alignment */
 @media (orientation:landscape) and (max-height:560px){
   #slTokens{overflow:hidden}
 
-  /* Two rows grid: row1=orange labels, row2=their controls */
-  #slTokens .row:has(.hint-yellow){
-    display:grid;
-    grid-template-rows:auto auto;
-    grid-auto-flow:column;      /* fill columns first */
-    grid-auto-columns:1fr;      /* 3 equal columns */
-    column-gap:10px;row-gap:6px;
-    align-items:start;justify-items:start;
-  }
-  #slTokens .row:has(.hint-yellow) .hint-yellow{
-    margin:0;white-space:nowrap;
-  }
+  /* Ensure label sits directly above its control */
+  .row{display:grid;grid-template-columns:1fr;row-gap:6px}
+  .row>.hint-yellow{order:0;margin-bottom:2px;text-align:left}
+  .row>input,.row>select,.row>textarea,.row>.btn,.row>button,.row>.controls,.row>.field{order:1}
 
-  /* Amount cell hard-capped */
+  /* Amount cell still hard-capped */
   #slTokens table tbody td:nth-child(5) > *,
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
     box-sizing:border-box;width:100%;max-width:100%;
   }
 }
-
 
 
   </style>
