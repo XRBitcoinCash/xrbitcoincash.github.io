@@ -432,21 +432,21 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #10b981;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Trade XRBC ↔ XRP (DEX)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:anodos.swap" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #38bdf8;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — ANODOS Swap (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:magnetic.dex" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #1e3a8a;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Magnetic (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <div class="fine" style="margin-top:8px;color:#93a3af;font-size:12px;line-height:1.4;">
@@ -495,7 +495,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </span>
         <span class="nowrap">/</span>
         <span class="asset-chip asset-xrp">
-          <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+          <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP"> XRP
         </span>
       </div>
 
@@ -512,7 +512,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
             <strong>Buying XRBC:</strong>
             You’re trading
             <span class="asset-chip asset-xrp">
-              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
             </span>
             to receive
             <span class="asset-chip asset-xrbc">
@@ -530,7 +530,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
             </span>
             to receive
             <span class="asset-chip asset-xrp">
-              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
             </span>.
           </span>
         </div>
@@ -893,12 +893,30 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   const marketBtn     = document.getElementById("marketTradeBtn");
   const tradeMsg      = document.getElementById("tradeMsg");
 
-function updateExplainer(side){
+
+  ;(() => {
+  // One-time sanity pass: fix any XRP icons that still use the bad ".svg.svg"
+  const GOOD = 'https://xrbitcoincash.github.io/assetsxrp.svg';
+  document.querySelectorAll('img[alt="XRP"]').forEach(img => {
+    const src = String(img.src || '');
+    if (src.endsWith('assetsxrp.svg.svg') || src.includes('assetsxrp.svg.svg')) {
+      img.src = GOOD;
+      img.decoding = 'async';
+      img.loading  = 'eager';
+    }
+  });
+})();
+
+  
+  
+  function updateExplainer(side){
   const wrap = document.getElementById("sideExplain");
   if (!wrap) return;
+
   const buyNote  = wrap.querySelector('.note.buy');
   const sellNote = wrap.querySelector('.note.sell');
   const showBuy = (side === 'buy');
+
   if (buyNote){
     buyNote.hidden = !showBuy;
     buyNote.classList.toggle('active', showBuy);
@@ -909,17 +927,27 @@ function updateExplainer(side){
     sellNote.classList.toggle('active', !showBuy);
     sellNote.setAttribute('aria-hidden', (showBuy).toString());
   }
-  const hint = document.getElementById('amountHint');
+
+  const hint  = document.getElementById('amountHint');
   const label = document.getElementById('amountLabel');
   if (label) label.textContent = 'Amount (XRBC)';
+
   if (hint){
+    // Use the single CORRECT XRP icon URL everywhere:
+    const XRP_ICON = 'https://xrbitcoincash.github.io/assetsxrp.svg';
+
     hint.innerHTML = (side === 'buy')
-      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
+      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
   }
 }
 
 
+
+
+
+
+  
   function setSide(side){
     if (sideEl) sideEl.value = side;
     if (buyTab)  { buyTab.classList.toggle("active", side==='buy');  buyTab.setAttribute('aria-selected', side==='buy' ? 'true':'false'); }
@@ -1429,4 +1457,3 @@ function updateExplainer(side){
     </div>
   </div>
 </footer>
-
