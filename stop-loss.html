@@ -149,14 +149,24 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* 5th header: single green label "AMT to protect" (no extra lines) */
+  /* 5th header: show only the real text; no pseudo label */
   #slTokens table thead th:nth-child(5){
-    font-size:0;position:relative;white-space:normal
+    font-size:12px;
+    line-height:1.15;
+    white-space:nowrap;
+    color:var(--ok);
+    font-weight:800;
   }
-  #slTokens table thead th:nth-child(5)::after{
-    content:"AMT to protect";
-    display:block;font-weight:800;font-size:12px;line-height:1.15;color:var(--ok)
+  #slTokens table thead th:nth-child(5)::after{ content:none }
+  
+  /* Align 4th and 5th headers consistently with left padding */
+  #slTokens table thead th:nth-child(4),
+  #slTokens table thead th:nth-child(5){
+    text-align:left;
+    padding-left:6px;
+    vertical-align:bottom;
   }
+
 
   /* Column widths (sum ≈ 100%) */
   #slTokens table thead th:nth-child(2),
