@@ -144,33 +144,18 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(3),
   #slTokens table tbody td:nth-child(3){text-align:left;padding-left:6px}
 
-  /* Put the select checkbox above ticker + token hex */
-  #slTokens table tbody td:nth-child(2){
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:4px;
-  }
-  #slTokens table tbody td:nth-child(2) input[type="checkbox"]{
-    order:-1;
-    align-self:flex-start;
-    position:static;
-    margin:0 0 6px 0;
-  }
-
   /* Compact headers */
   #slTokens thead th{white-space:nowrap}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* 5th header: ensure it fits the card; allow wrap */
+  /* 5th header: show only the real text; no pseudo label */
   #slTokens table thead th:nth-child(5){
     font-size:12px;
     line-height:1.15;
-    white-space:normal;   /* allow wrap: AMT | to protect */
+    white-space:nowrap;
     color:var(--ok);
     font-weight:800;
-    display:block;
   }
   #slTokens table thead th:nth-child(5)::after{ content:none }
   
@@ -181,6 +166,7 @@ body.embed header{display:none}
     padding-left:6px;
     vertical-align:bottom;
   }
+
 
   /* Column widths (sum ≈ 100%) */
   #slTokens table thead th:nth-child(2),
@@ -195,7 +181,7 @@ body.embed header{display:none}
   /* Amount box: fit cell, never overflow */
   #slTokens table tbody td:nth-child(5) > *{
     display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
-    min-width:8ch;padding:4px 8px;border:1px solid(var(--line));border-radius:8px;
+    min-width:8ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
     background:linear-gradient(180deg,#0e1520,#0c131c);overflow-wrap:anywhere;word-break:break-word;vertical-align:top
   }
   #slTokens table tbody td:nth-child(5) input,
@@ -228,7 +214,6 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(4),
   #slTokens table thead th:nth-child(5),
   #slTokens table tbody td:nth-child(5){font-size:11px}
-  #slTokens table thead th:nth-child(5){ line-height:1.1 }
 }
 
 /* Mobile landscape: orange labels side-by-side; each control directly beneath */
@@ -263,7 +248,6 @@ body.embed header{display:none}
     box-sizing:border-box;width:100%;max-width:100%;
   }
 }
-
 
 
   </style>
