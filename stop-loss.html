@@ -137,18 +137,6 @@ body.embed header{display:none}
   /* Prevent any horizontal bleed */
   #slTokens{overflow:hidden}
 
-  /* Reserve space for the checkmark column (col 1) */
-  #slTokens table thead th:first-child,
-  #slTokens table tbody td:first-child{
-    width:6%;
-    min-width:6%;
-    max-width:6%;
-    text-align:center;
-    padding-right:4px;
-    position:relative;
-    z-index:1;
-  }
-
   /* Tighten padding */
   #slTokens table th,#slTokens table td{padding:6px 8px}
   #slTokens table thead th:nth-child(2),
@@ -161,26 +149,22 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* 5th header: "AMT" (green) over "protect" (white) */
+  /* 5th header: single green label "AMT to protect" (no extra lines) */
   #slTokens table thead th:nth-child(5){
     font-size:0;position:relative;white-space:normal
   }
-  #slTokens table thead th:nth-child(5)::before{
-    content:"AMT";
-    display:block;font-weight:800;font-size:12px;line-height:1.15;color:#b9f6ca
-  }
   #slTokens table thead th:nth-child(5)::after{
-    content:"protect";
-    display:block;font-weight:700;font-size:11px;line-height:1.15;color:#fff
+    content:"AMT to protect";
+    display:block;font-weight:800;font-size:12px;line-height:1.15;color:var(--ok)
   }
 
-  /* Column widths (sum = 100% with a 1st checkmark column) */
+  /* Column widths (sum ≈ 100%) */
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){width:34%} /* Hex */
+  #slTokens table tbody td:nth-child(2){width:38%} /* Hex */
   #slTokens table thead th:nth-child(3),
   #slTokens table tbody td:nth-child(3){width:20%} /* Issuer */
   #slTokens table thead th:nth-child(4),
-  #slTokens table tbody td:nth-child(4){width:16%} /* Balance */
+  #slTokens table tbody td:nth-child(4){width:18%} /* Balance */
   #slTokens table thead th:nth-child(5),
   #slTokens table tbody td:nth-child(5){width:24%} /* Amount */
 
@@ -212,8 +196,6 @@ body.embed header{display:none}
 
 /* Extra-narrow safety */
 @media (max-width:380px){
-  #slTokens table thead th:first-child,
-  #slTokens table tbody td:first-child{width:7%;min-width:7%;max-width:7%}
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){font-size:10px}
   #slTokens table thead th:nth-child(3),
@@ -224,16 +206,32 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(5){font-size:11px}
 }
 
-/* Mobile landscape: keep layout, fix orange labels alignment */
+/* Mobile landscape: orange labels side-by-side; each control directly beneath */
 @media (orientation:landscape) and (max-height:560px){
   #slTokens{overflow:hidden}
 
-  /* Ensure label sits directly above its control */
-  .row{display:grid;grid-template-columns:1fr;row-gap:6px}
-  .row>.hint-yellow{order:0;margin-bottom:2px;text-align:left}
-  .row>input,.row>select,.row>textarea,.row>.btn,.row>button,.row>.controls,.row>.field{order:1}
+  /* Turn rows that include orange labels into a 3-col, 2-row grid */
+  #slTokens .row:has(.hint-yellow){
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:auto auto;   /* row1 = labels, row2 = controls */
+    column-gap:10px; row-gap:6px;
+    align-items:start; justify-items:start;
+  }
+  /* Place the 3 labels in row 1, columns 1..3 */
+  #slTokens .row:has(.hint-yellow) .hint-yellow{
+    margin:0; white-space:nowrap; grid-row:1;
+  }
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(1){grid-column:1}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(2){grid-column:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(3){grid-column:3}
 
-  /* Amount cell still hard-capped */
+  /* Put each control directly under its corresponding label */
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(1) + *{grid-column:1; grid-row:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(2) + *{grid-column:2; grid-row:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(3) + *{grid-column:3; grid-row:2}
+
+  /* Keep amount cell capped */
   #slTokens table tbody td:nth-child(5) > *,
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
