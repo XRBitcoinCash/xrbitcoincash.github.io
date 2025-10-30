@@ -123,114 +123,97 @@ body.embed header{display:none}
 
 /* Column color mapping (2=Hex, 3=Issuer, 4=Balance, 5=Amount) */
 #slTokens table thead th:nth-child(2),
-#slTokens table tbody td:nth-child(2){color:#fff;font-weight:700}     /* Hex → white */
+#slTokens table tbody td:nth-child(2){color:#fff;font-weight:700}
 #slTokens table thead th:nth-child(3),
-#slTokens table tbody td:nth-child(3){color:var(--blue);font-weight:700}/* Issuer → blue */
+#slTokens table tbody td:nth-child(3){color:var(--blue);font-weight:700}
 #slTokens table thead th:nth-child(4),
-#slTokens table tbody td:nth-child(4){color:var(--yellow);font-weight:700}/* Balance → orange */
+#slTokens table tbody td:nth-child(4){color:var(--yellow);font-weight:700}
 #slTokens table thead th:nth-child(5),
-#slTokens table tbody td:nth-child(5){color:var(--ok);font-weight:800} /* Amount → green */
+#slTokens table tbody td:nth-child(5){color:var(--ok);font-weight:800}
 
 /* ===== Mobile-only refinements (desktop unchanged) ===== */
 @media (max-width:560px){
 
-  /* keep card from showing any horizontal bleed */
+  /* Prevent any horizontal bleed */
   #slTokens{overflow:hidden}
 
-  /* Pull Hex & Issuer left; tighten */
+  /* Reserve space for the checkmark column (col 1) */
+  #slTokens table thead th:first-child,
+  #slTokens table tbody td:first-child{
+    width:6%;
+    min-width:6%;
+    max-width:6%;
+    text-align:center;
+    padding-right:4px;
+    position:relative;
+    z-index:1;
+  }
+
+  /* Tighten padding */
   #slTokens table th,#slTokens table td{padding:6px 8px}
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2),
   #slTokens table thead th:nth-child(3),
   #slTokens table tbody td:nth-child(3){text-align:left;padding-left:6px}
 
-  /* Keep 'Issuer' and 'Balance' on one line and compact */
+  /* Compact headers */
   #slTokens thead th{white-space:nowrap}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* 5th header: two-line label */
+  /* 5th header: "AMT" (green) over "protect" (white) */
   #slTokens table thead th:nth-child(5){
-    font-size:0;
-    position:relative;
-    white-space:normal;
+    font-size:0;position:relative;white-space:normal
   }
   #slTokens table thead th:nth-child(5)::before{
-    content:"AMT to";
-    display:block;
-    font-weight:800;
-    font-size:12px;
-    line-height:1.15;
-    color:#b9f6ca; /* lighter, whiter green */
+    content:"AMT";
+    display:block;font-weight:800;font-size:12px;line-height:1.15;color:#b9f6ca
   }
   #slTokens table thead th:nth-child(5)::after{
-    content:"amount";
-    display:block;
-    font-weight:700;
-    font-size:11px;
-    line-height:1.15;
-    color:#fff; /* white */
+    content:"protect";
+    display:block;font-weight:700;font-size:11px;line-height:1.15;color:#fff
   }
 
-  /* Phone widths sum to 100% so nothing spills past edges
-     2=Hex 38% | 3=Issuer 20% | 4=Balance 18% | 5=Amount 24% */
+  /* Column widths (sum = 100% with a 1st checkmark column) */
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){width:38%}
+  #slTokens table tbody td:nth-child(2){width:34%} /* Hex */
   #slTokens table thead th:nth-child(3),
-  #slTokens table tbody td:nth-child(3){width:20%}
+  #slTokens table tbody td:nth-child(3){width:20%} /* Issuer */
   #slTokens table thead th:nth-child(4),
-  #slTokens table tbody td:nth-child(4){width:18%}
+  #slTokens table tbody td:nth-child(4){width:16%} /* Balance */
   #slTokens table thead th:nth-child(5),
-  #slTokens table tbody td:nth-child(5){width:24%}
+  #slTokens table tbody td:nth-child(5){width:24%} /* Amount */
 
-  /* === AMT value box: never exceed card; inputs fill cell safely === */
+  /* Amount box: fit cell, never overflow */
   #slTokens table tbody td:nth-child(5) > *{
-    display:inline-block;
-    box-sizing:border-box;
-    max-width:100%;
-    width:100%;               /* fit inside the 24% cell */
-    min-width:8ch;
-    padding:4px 8px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    background:linear-gradient(180deg,#0e1520,#0c131c);
-    overflow-wrap:anywhere;word-break:break-word;vertical-align:top
+    display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
+    min-width:8ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
+    background:linear-gradient(180deg,#0e1520,#0c131c);overflow-wrap:anywhere;word-break:break-word;vertical-align:top
   }
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
-    display:inline-block;
-    box-sizing:border-box;
-    width:100%;               /* no overflow; fills cell */
-    max-width:100%;
-    min-width:8ch;
-    padding:6px 10px;
-    font:inherit;color:var(--ink);
-    background:linear-gradient(180deg,#0e1520,#0c131c);
-    border:1px solid var(--line);border-radius:10px
+    display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
+    min-width:8ch;padding:6px 10px;font:inherit;color:var(--ink);
+    background:linear-gradient(180deg,#0e1520,#0c131c);border:1px solid var(--line);border-radius:10px
   }
 
-  /* Tighter values in cols 3–5 */
+  /* Tighter data */
   #slTokens table tbody td:nth-child(3),
   #slTokens table tbody td:nth-child(4),
   #slTokens table tbody td:nth-child(5){font-size:12px;line-height:1.2;white-space:normal}
 
-  /* Form controls never exceed card */
-  .row input,.row select,.row textarea{max-width:100%;min-width:0}
-
-  /* Orange hints sit under their headings, above controls */
+  /* Generic mobile stacking and label→control pairing */
   .row{display:grid;grid-template-columns:1fr;align-items:start;row-gap:6px}
-  .row>h1,.row>h2,.row>h3,.row>h4,.row>label{order:0}
-  .row>.hint-yellow{order:1}
-  .row>.hint{order:1}
+  .row>.hint-yellow{order:0;margin-bottom:2px}
+  .row>.hint{order:0}
   .row>button,.row>.btn,.row>input,.row>select,.row>textarea,
-  .row>.controls,.row>.field,.row>.row{order:2}
-
-  /* Warnings beneath action buttons */
-  .row .warn{order:99;width:100%;margin-top:8px}
+  .row>.controls,.row>.field,.row>.row{order:1}
 }
 
 /* Extra-narrow safety */
 @media (max-width:380px){
+  #slTokens table thead th:first-child,
+  #slTokens table tbody td:first-child{width:7%;min-width:7%;max-width:7%}
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){font-size:10px}
   #slTokens table thead th:nth-child(3),
@@ -241,15 +224,20 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(5){font-size:11px}
 }
 
-/* Mobile landscape hard cap */
+/* Mobile landscape: keep layout, fix orange labels alignment */
 @media (orientation:landscape) and (max-height:560px){
   #slTokens{overflow:hidden}
+
+  /* Ensure label sits directly above its control */
+  .row{display:grid;grid-template-columns:1fr;row-gap:6px}
+  .row>.hint-yellow{order:0;margin-bottom:2px;text-align:left}
+  .row>input,.row>select,.row>textarea,.row>.btn,.row>button,.row>.controls,.row>.field{order:1}
+
+  /* Amount cell still hard-capped */
   #slTokens table tbody td:nth-child(5) > *,
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
-    box-sizing:border-box;
-    width:100%;
-    max-width:100%;
+    box-sizing:border-box;width:100%;max-width:100%;
   }
 }
 
