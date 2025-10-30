@@ -134,6 +134,9 @@ body.embed header{display:none}
 /* ===== Mobile-only refinements (desktop unchanged) ===== */
 @media (max-width:560px){
 
+  /* keep card from showing any horizontal bleed */
+  #slTokens{overflow:hidden}
+
   /* Pull Hex & Issuer left; tighten */
   #slTokens table th,#slTokens table td{padding:6px 8px}
   #slTokens table thead th:nth-child(2),
@@ -146,17 +149,28 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(3),
   #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* Make the 5th header 3-line on phones: AMT / 2 / Protect */
-  #slTokens table thead th:nth-child(5){font-size:0;position:relative;white-space:pre-line}
-  #slTokens table thead th:nth-child(5)::after{
-    content:"AMT\A2\AProtect";
-    font-weight:800;font-size:12px;line-height:1.15;color:var(--ok);white-space:pre-line
+  /* 5th header: two-line label */
+  #slTokens table thead th:nth-child(5){
+    font-size:0;
+    position:relative;
+    white-space:normal;
   }
-
-  /* Long code fonts (stay inside card) */
-  #slTokens .mono{font-size:12px;line-height:1.2}
-  #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){font-size:11px;line-height:1.15;word-break:break-all}
+  #slTokens table thead th:nth-child(5)::before{
+    content:"AMT to";
+    display:block;
+    font-weight:800;
+    font-size:12px;
+    line-height:1.15;
+    color:#b9f6ca; /* lighter, whiter green */
+  }
+  #slTokens table thead th:nth-child(5)::after{
+    content:"amount";
+    display:block;
+    font-weight:700;
+    font-size:11px;
+    line-height:1.15;
+    color:#fff; /* white */
+  }
 
   /* Phone widths sum to 100% so nothing spills past edges
      2=Hex 38% | 3=Issuer 20% | 4=Balance 18% | 5=Amount 24% */
@@ -169,15 +183,13 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(5),
   #slTokens table tbody td:nth-child(5){width:24%}
 
-  /* === AMT value box: auto-size to content, never overflow ===
-     Works for <span>/<div>; for <input>, modern browsers honor max-content. */
+  /* === AMT value box: never exceed card; inputs fill cell safely === */
   #slTokens table tbody td:nth-child(5) > *{
     display:inline-block;
+    box-sizing:border-box;
     max-width:100%;
-    width:-moz-fit-content;     /* Firefox */
-    width:fit-content;          /* Spec */
-    width:max-content;          /* WebKit/Blink fallback */
-    min-width:6ch;
+    width:100%;               /* fit inside the 24% cell */
+    min-width:8ch;
     padding:4px 8px;
     border:1px solid var(--line);
     border-radius:8px;
@@ -187,9 +199,10 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
     display:inline-block;
-    width:max-content;          /* grow with typed digits (modern engines) */
+    box-sizing:border-box;
+    width:100%;               /* no overflow; fills cell */
     max-width:100%;
-    min-width:6ch;
+    min-width:8ch;
     padding:6px 10px;
     font:inherit;color:var(--ink);
     background:linear-gradient(180deg,#0e1520,#0c131c);
@@ -226,6 +239,18 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(4),
   #slTokens table thead th:nth-child(5),
   #slTokens table tbody td:nth-child(5){font-size:11px}
+}
+
+/* Mobile landscape hard cap */
+@media (orientation:landscape) and (max-height:560px){
+  #slTokens{overflow:hidden}
+  #slTokens table tbody td:nth-child(5) > *,
+  #slTokens table tbody td:nth-child(5) input,
+  #slTokens table tbody td:nth-child(5) textarea{
+    box-sizing:border-box;
+    width:100%;
+    max-width:100%;
+  }
 }
 
 
