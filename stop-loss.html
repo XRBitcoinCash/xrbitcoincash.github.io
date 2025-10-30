@@ -104,152 +104,128 @@ body.embed header{display:none}
 .hero-top .right{justify-self:end;text-align:right}
 
 /* === Stop-Loss Planner emphasis & container === */
-.hint-yellow { color: var(--yellow); font-weight: 700; }
+.hint-yellow{color:var(--yellow);font-weight:700}
 
 #slTokens{
-  border: 1px solid var(--line);
-  border-left: 4px solid #60a5fa;
-  background: linear-gradient(180deg,#0e1520,#0c131c);
-  box-shadow: 0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18);
-  border-radius: 10px;
-  padding: 8px;
+  border:1px solid var(--line);
+  border-left:4px solid #60a5fa;
+  background:linear-gradient(180deg,#0e1520,#0c131c);
+  box-shadow:0 0 0 2px rgba(37,99,235,.25),0 0 20px rgba(37,99,235,.18);
+  border-radius:10px;
+  padding:8px;
 }
 
 /* Keep table stable & shrinkable */
-#slTokens table{ table-layout: fixed; width: 100%; }
-#slTokens table th, #slTokens table td{
-  min-width: 0;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+#slTokens table{table-layout:fixed;width:100%}
+#slTokens table th,#slTokens table td{
+  min-width:0;word-break:break-word;overflow-wrap:anywhere
 }
 
 /* Column color mapping (2=Hex, 3=Issuer, 4=Balance, 5=Amount) */
 #slTokens table thead th:nth-child(2),
-#slTokens table tbody td:nth-child(2){ color:#ffffff; font-weight:700; }   /* Token Hex → white */
+#slTokens table tbody td:nth-child(2){color:#fff;font-weight:700}     /* Hex → white */
 #slTokens table thead th:nth-child(3),
-#slTokens table tbody td:nth-child(3){ color:var(--blue); font-weight:700; } /* Issuer → blue */
+#slTokens table tbody td:nth-child(3){color:var(--blue);font-weight:700}/* Issuer → blue */
 #slTokens table thead th:nth-child(4),
-#slTokens table tbody td:nth-child(4){ color:var(--yellow); font-weight:700; } /* Balance → orange */
+#slTokens table tbody td:nth-child(4){color:var(--yellow);font-weight:700}/* Balance → orange */
 #slTokens table thead th:nth-child(5),
-#slTokens table tbody td:nth-child(5){ color:var(--ok); font-weight:800; } /* Amount → green */
+#slTokens table tbody td:nth-child(5){color:var(--ok);font-weight:800} /* Amount → green */
 
 /* ===== Mobile-only refinements (desktop unchanged) ===== */
-@media (max-width: 560px){
+@media (max-width:560px){
 
-  /* Pull Token Hex & Issuer closer to the left and tighten padding */
-  #slTokens table th, #slTokens table td{ padding:6px 8px; }
+  /* Pull Hex & Issuer left; tighten */
+  #slTokens table th,#slTokens table td{padding:6px 8px}
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2),
   #slTokens table thead th:nth-child(3),
-  #slTokens table tbody td:nth-child(3){
-    text-align:left;
-    padding-left:6px; /* “closer to the left side” */
-  }
+  #slTokens table tbody td:nth-child(3){text-align:left;padding-left:6px}
 
-  /* Fit labels on one line without wrapping */
-  #slTokens thead th{
-    white-space:nowrap;
-  }
-  /* Keep 'Issuer' and 'Balance' readable and unwrapped on phones */
+  /* Keep 'Issuer' and 'Balance' on one line and compact */
+  #slTokens thead th{white-space:nowrap}
   #slTokens table thead th:nth-child(3),
-  #slTokens table thead th:nth-child(4){
-    font-size:12px;
-    line-height:1.15;
-  }
+  #slTokens table thead th:nth-child(4){font-size:12px;line-height:1.15}
 
-  /* Rename the 'Amount to Protect' header (5th col) to AMT2 Protect on phones */
-  #slTokens table thead th:nth-child(5){
-    font-size:0; position:relative; white-space:nowrap;
-  }
+  /* Make the 5th header 3-line on phones: AMT / 2 / Protect */
+  #slTokens table thead th:nth-child(5){font-size:0;position:relative;white-space:pre-line}
   #slTokens table thead th:nth-child(5)::after{
-    content:"AMT2 Protect";
-    font-weight:800; font-size:12px; line-height:1.15; color:var(--ok);
+    content:"AMT\A2\AProtect";
+    font-weight:800;font-size:12px;line-height:1.15;color:var(--ok);white-space:pre-line
   }
 
-  /* Fonts for long codes so they stay inside the card */
-  #slTokens .mono{ font-size:12px; line-height:1.2; }
+  /* Long code fonts (stay inside card) */
+  #slTokens .mono{font-size:12px;line-height:1.2}
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){ /* Hex */
-    font-size:11px; line-height:1.15; word-break:break-all;
-  }
+  #slTokens table tbody td:nth-child(2){font-size:11px;line-height:1.15;word-break:break-all}
 
-  /* Phone widths that sum to 100% so nothing spills past card edges
+  /* Phone widths sum to 100% so nothing spills past edges
      2=Hex 38% | 3=Issuer 20% | 4=Balance 18% | 5=Amount 24% */
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){ width:38%; }
+  #slTokens table tbody td:nth-child(2){width:38%}
   #slTokens table thead th:nth-child(3),
-  #slTokens table tbody td:nth-child(3){ width:20%; }
+  #slTokens table tbody td:nth-child(3){width:20%}
   #slTokens table thead th:nth-child(4),
-  #slTokens table tbody td:nth-child(4){ width:18%; }
+  #slTokens table tbody td:nth-child(4){width:18%}
   #slTokens table thead th:nth-child(5),
-  #slTokens table tbody td:nth-child(5){ width:24%; }
+  #slTokens table tbody td:nth-child(5){width:24%}
 
-  /* === AMT2 value box: auto-size to content, never overflow ===
-     Works whether the value is a <span>/<div> or an <input>. */
-  /* Generic child in the AMT2 (5th) cell */
+  /* === AMT value box: auto-size to content, never overflow ===
+     Works for <span>/<div>; for <input>, modern browsers honor max-content. */
   #slTokens table tbody td:nth-child(5) > *{
     display:inline-block;
     max-width:100%;
-    width:-moz-fit-content;
-    width:fit-content;          /* expand with content */
-    min-width:6ch;              /* readable starting width */
+    width:-moz-fit-content;     /* Firefox */
+    width:fit-content;          /* Spec */
+    width:max-content;          /* WebKit/Blink fallback */
+    min-width:6ch;
     padding:4px 8px;
     border:1px solid var(--line);
     border-radius:8px;
     background:linear-gradient(180deg,#0e1520,#0c131c);
-    overflow-wrap:anywhere;
-    word-break:break-word;
-    vertical-align:top;
+    overflow-wrap:anywhere;word-break:break-word;vertical-align:top
   }
-  /* If it’s an input, make it content-based too */
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
     display:inline-block;
-    width:auto;                 /* let content size it */
+    width:max-content;          /* grow with typed digits (modern engines) */
     max-width:100%;
     min-width:6ch;
     padding:6px 10px;
-    font:inherit;
-    color:var(--ink);
+    font:inherit;color:var(--ink);
     background:linear-gradient(180deg,#0e1520,#0c131c);
-    border:1px solid var(--line);
-    border-radius:10px;
+    border:1px solid var(--line);border-radius:10px
   }
 
-  /* Slightly reduce body-cell fonts in cols 3–5 so values sit neatly */
+  /* Tighter values in cols 3–5 */
   #slTokens table tbody td:nth-child(3),
   #slTokens table tbody td:nth-child(4),
-  #slTokens table tbody td:nth-child(5){
-    font-size:12px;
-    line-height:1.2;
-    white-space:normal;
-  }
+  #slTokens table tbody td:nth-child(5){font-size:12px;line-height:1.2;white-space:normal}
 
-  /* Inputs/selects in rows never push outside the card */
-  .row input, .row select, .row textarea{ max-width:100%; min-width:0; }
+  /* Form controls never exceed card */
+  .row input,.row select,.row textarea{max-width:100%;min-width:0}
 
-  /* Orange hints (Mode / Value / Exit) go under headings, above controls */
-  .row{ display:grid; grid-template-columns:1fr; align-items:start; row-gap:6px; }
-  .row > h1, .row > h2, .row > h3, .row > h4, .row > label{ order:0; }
-  .row > .hint-yellow{ order:1; }  /* e.g., Mode / Value / Exit instructions */
-  .row > .hint{ order:1; }
-  .row > button, .row > .btn, .row > input, .row > select, .row > textarea,
-  .row > .controls, .row > .field, .row > .row{ order:2; }
+  /* Orange hints sit under their headings, above controls */
+  .row{display:grid;grid-template-columns:1fr;align-items:start;row-gap:6px}
+  .row>h1,.row>h2,.row>h3,.row>h4,.row>label{order:0}
+  .row>.hint-yellow{order:1}
+  .row>.hint{order:1}
+  .row>button,.row>.btn,.row>input,.row>select,.row>textarea,
+  .row>.controls,.row>.field,.row>.row{order:2}
 
-  /* Panic/Sequential card: warnings beneath buttons */
-  .row .warn{ order:99; width:100%; margin-top:8px; }
+  /* Warnings beneath action buttons */
+  .row .warn{order:99;width:100%;margin-top:8px}
 }
 
 /* Extra-narrow safety */
-@media (max-width: 380px){
+@media (max-width:380px){
   #slTokens table thead th:nth-child(2),
-  #slTokens table tbody td:nth-child(2){ font-size:10px; }
+  #slTokens table tbody td:nth-child(2){font-size:10px}
   #slTokens table thead th:nth-child(3),
   #slTokens table tbody td:nth-child(3),
   #slTokens table thead th:nth-child(4),
   #slTokens table tbody td:nth-child(4),
   #slTokens table thead th:nth-child(5),
-  #slTokens table tbody td:nth-child(5){ font-size:11px; }
+  #slTokens table tbody td:nth-child(5){font-size:11px}
 }
 
   </style>
