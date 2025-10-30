@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
-  <style>
+ <style>
 :root{
   --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
   --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
@@ -65,7 +65,7 @@ th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .hint{color:var(--muted);font-size:12.5px}
 .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
-.footer{margin-top:16px;color:#9fb0c5;font-size:12px}
+.footer{margin-top:16px;color:var(--muted);font-size:12px}
 .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
 .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
 .progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
@@ -78,6 +78,8 @@ th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-
 .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
 .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
 .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
+.text-red{ color: var(--err); font-weight: 800; }
+.text-green{ color: var(--ok); font-weight: 700; }
 body.embed .container{max-width:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 body.embed header{display:none}
@@ -93,10 +95,10 @@ body.embed header{display:none}
 .hero-top .left{justify-self:start}
 .hero-top .center{justify-self:center}
 .hero-top .right{justify-self:end;text-align:right}
-  </style>
+</style>
 
-  <!-- Xaman SDK (keep) -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+<!-- Xaman SDK (keep) -->
+<script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <main class="container" aria-live="polite">
@@ -124,7 +126,7 @@ body.embed header{display:none}
 
     <div class="col" style="margin-top:8px">
       <h1 id="hero-title" style="margin:0">Instant Stop Loss</h1>
-      <p class="hint" style="margin:0">Automatic & manual stop-loss for XRPL tokens + Sequential Panic Sell. Mobile-first. Desktop QR. Signing in Xaman.</p>
+      <p class="hint" style="margin:0">Automatic &amp; manual stop-loss for XRPL tokens + Sequential Panic Sell. Mobile-first. Desktop QR. Signing in Xaman.</p>
     </div>
 
     <div class="row center" style="margin-top:10px">
@@ -135,6 +137,18 @@ body.embed header{display:none}
 
     <div class="panel-note">
       <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
+    </div>
+
+    <!-- Hero: red/green disclaimers for instant recognition -->
+    <div class="panel-note" role="note" aria-live="polite">
+      <p class="text-red" style="margin:0 0 6px 0">
+        <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
+        <strong>automatically blocked</strong> (not submitted) — protecting liquidity during pool migrations, upgrades, or outages.
+      </p>
+      <p class="text-green" style="margin:0">
+        <strong>Safety measures:</strong> Auto-skip low-liquidity · sequential one-signature flow · clear preview flags · your funds never leave your wallet unless you approve.
+        Default threshold: <strong>2&nbsp;XRP</strong> (or <strong>2&nbsp;RLUSD</strong> when exiting to RLUSD).
+      </p>
     </div>
 
     <div class="row center" style="margin:10px 0 4px">
@@ -177,7 +191,7 @@ body.embed header{display:none}
 
     <div class="row center" style="margin-top:10px">
       <button id="btnPlanStops" class="btn glow-blue" type="button" title="Preview calculated stop prices and amounts">Preview Planned Stops</button>
-      <button id="btnCreateStops" class="btn glow-green" type="button" title="Create and sign stop orders in Xaman" disabled>Create & Sign Stops</button>
+      <button id="btnCreateStops" class="btn glow-green" type="button" title="Create and sign stop orders in Xaman" disabled>Create &amp; Sign Stops</button>
     </div>
     <div class="panel-note" style="margin-top:6px">
       <p class="hint" style="margin:0">Preview shows the stop price per token and amount to protect. “Create &amp; Sign” submits one Offer per selected token, signed sequentially in Xaman.</p>
@@ -190,7 +204,14 @@ body.embed header{display:none}
   <section class="card" aria-labelledby="panic">
     <h2 id="panic">Panic Sell — Sequential</h2>
     <div class="warn" style="margin-bottom:10px">
-      <strong>Major disclaimer:</strong> This attempts to sell selected IOUs using XRPL pathfinding with a slippage cap. Tokens without a viable route are skipped. Transactions are presented one at a time for signature in Xaman.
+      <p class="text-red" style="margin:0 0 6px 0">
+        <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
+        <strong>automatically blocked</strong> and will <strong>not</strong> be submitted for signing.
+      </p>
+      <p class="text-green" style="margin:0">
+        <strong>Safety measures:</strong> Auto-skip low-liquidity · sequential one-signature flow (no “sell-all” spam) · preview lists order &amp; flags.
+        Default threshold: <strong>2&nbsp;XRP</strong> (or <strong>2&nbsp;RLUSD</strong> when exiting to RLUSD). Transactions you do sign are final.
+      </p>
     </div>
 
     <div class="row center">
@@ -212,8 +233,8 @@ body.embed header{display:none}
     </div>
 
     <div class="row center" style="margin-top:10px">
-      <button id="btnPanicPreview" class="btn glow-yellow" type="button" title="Check routes and sort by estimated proceeds">Preview Routes & Order</button>
-      <button id="btnPanicSell" class="btn glow-red" type="button" title="Submit sequentially; tokens with no route are skipped">Sequential Panic Sell</button>
+      <button id="btnPanicPreview" class="btn glow-yellow" type="button" title="Check routes and sort by estimated proceeds">Preview Routes &amp; Order</button>
+      <button id="btnPanicSell" class="btn glow-red" type="button" title="Submit sequentially; tokens with no route or below threshold are skipped">Sequential Panic Sell</button>
     </div>
 
     <div id="panicPlanOut" class="log" style="margin-top:10px"></div>
@@ -287,7 +308,7 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     <div class="warn">
       <p><strong>No custody / no brokerage.</strong> XRBitcoinCash provides software that constructs XRPL transactions for you to review and sign <em>in your own wallet</em>. We do not take possession of funds, route orders on your behalf, execute trades, or provide brokerage, ATS, exchange, or advisory services.</p>
       <p><strong>Finality and risk.</strong> XRPL transactions are irreversible once validated. You are solely responsible for verifying asset, network, amounts, slippage, destinations, fees, and all details in your wallet before approval. Market conditions and routes may change between preview and signing.</p>
-      <p><strong>“Panic Sell” function.</strong> Panic Sell attempts to liquidate multiple IOUs via XRPL pathfinding. Some assets may lack routes or adequate liquidity. Partial fills and materially worse execution than previews can occur. Use at your own risk.</p>
+      <p><strong>“Panic Sell” function.</strong> Panic Sell attempts to liquidate multiple IOUs via XRPL pathfinding. Assets with no viable route or that fall below the minimum-liquidity threshold are <strong>automatically skipped</strong> and not submitted. For submitted transactions, partial fills and materially worse execution than previews can occur. Use at your own risk.</p>
       <p><strong>No guarantees / no warranties.</strong> The software is provided “AS IS” and “AS AVAILABLE” without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, non-infringement, uninterrupted availability, accuracy, or error-free operation.</p>
       <p><strong>Compliance is your responsibility.</strong> You are solely responsible for complying with all applicable laws (including sanctions, export controls, tax, securities/commodities, and consumer protection laws) in your jurisdiction(s). Access may be restricted where prohibited.</p>
       <p><strong>No investment advice / no solicitation.</strong> Nothing here constitutes investment, legal, accounting, or tax advice, or an offer or solicitation to buy or sell any asset. You should seek professional advice as needed.</p>
@@ -303,6 +324,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
   </section>
 
 </main>
+
 
 <!-- App configuration (keep immediately before main script) -->
 <script type="application/json" id="app-config">
@@ -598,8 +620,16 @@ By accessing this page or embedding the widget, you accept the Important terms a
     setStatus($offersStatus,'Done.','ok');
   }
 
-  // ===== Stop-loss & Panic constants
-  const ST_DEFAULT_SLIPPAGE_PCT = 2;
+
+
+  
+  // Slippage caps
+const ST_DEFAULT_SLIPPAGE_PCT = 2;          // Panic Sell default (%)
+const QUICK_BUY_SLIPPAGE_PCT   = 2;          // Quick Buy slippage cap (%)
+
+  
+  
+  
   const TARGETS = {
     XRP:   { kind: 'XRP' },
     RLUSD: {
@@ -772,30 +802,77 @@ By accessing this page or embedding the widget, you accept the Important terms a
     };
   }
 
-  // ===== Stop-Loss UI: render token table with ticker + hex
-  async function refreshSLTokens(){
-    if (!state.account){ $slTokens.textContent='Connect wallet first.'; return; }
-    const toks = await listUserTokens(state.account);
-    if (!toks.length){ $slTokens.textContent='No positive IOU balances found.'; return; }
 
-    const tbl = document.createElement('table');
-    tbl.innerHTML = '<thead><tr><th></th><th>Token / Hex</th><th>Issuer</th><th>Balance</th><th>Amt to protect</th></tr></thead>';
-    const tb = document.createElement('tbody');
-    toks.forEach((t)=>{
-      const label = tokenDisplay(t.code).label;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input type="checkbox" class="slPick"></td>
-        <td class="mono">${label}</td>
-        <td class="mono" style="word-break:anywhere">${t.issuer}</td>
-        <td>${t.balance.toFixed(6)}</td>
-        <td><input type="number" class="slAmt" step="0.000001" value="${Math.max(0, t.balance).toFixed(6)}"></td>`;
-      tb.appendChild(tr);
-    });
-    tbl.appendChild(tb);
-    $slTokens.replaceChildren(tbl);
+  
+  
+  
+  
+ async function refreshSLTokens(){
+  if (!state.account){ $slTokens.textContent='Connect wallet first.'; return; }
+  const toks = await listUserTokens(state.account);
+  if (!toks.length){ $slTokens.textContent='No positive IOU balances found.'; return; }
+
+  const tbl = document.createElement('table');
+
+  // Static header (safe to use innerHTML here as it's static)
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th></th><th>Token / Hex</th><th>Issuer</th><th>Balance</th><th>Amt to protect</th></tr>';
+  tbl.appendChild(thead);
+
+  const tb = document.createElement('tbody');
+
+  for (const t of toks){
+    const tr = document.createElement('tr');
+
+    // Checkbox
+    const tdPick = document.createElement('td');
+    const pick = document.createElement('input');
+    pick.type = 'checkbox';
+    pick.className = 'slPick';
+    tdPick.appendChild(pick);
+    tr.appendChild(tdPick);
+
+    // Token / Hex label (use textContent for safety)
+    const tdLabel = document.createElement('td');
+    tdLabel.className = 'mono';
+    tdLabel.textContent = tokenDisplay(t.code).label;
+    tr.appendChild(tdLabel);
+
+    // Issuer
+    const tdIssuer = document.createElement('td');
+    tdIssuer.className = 'mono';
+    tdIssuer.style.wordBreak = 'anywhere';
+    tdIssuer.textContent = t.issuer;
+    tr.appendChild(tdIssuer);
+
+    // Balance
+    const tdBal = document.createElement('td');
+    tdBal.textContent = t.balance.toFixed(6);
+    tr.appendChild(tdBal);
+
+    // Amount to protect
+    const tdAmt = document.createElement('td');
+    const amtInput = document.createElement('input');
+    amtInput.type = 'number';
+    amtInput.className = 'slAmt';
+    amtInput.step = '0.000001';
+    amtInput.value = String(Math.max(0, t.balance).toFixed(6));
+    tdAmt.appendChild(amtInput);
+    tr.appendChild(tdAmt);
+
+    tb.appendChild(tr);
   }
 
+  tbl.appendChild(tb);
+  $slTokens.replaceChildren(tbl);
+}
+
+
+  
+  
+  
+  
+  
   // ===== Stop-Loss plan
   document.getElementById('btnPlanStops')?.addEventListener('click', async ()=>{
     if (!state.account) return ($slStatus.textContent='Connect wallet first.');
@@ -968,7 +1045,12 @@ By accessing this page or embedding the widget, you accept the Important terms a
       if(!best || drops<best.drops) best={alt:a,drops};
     }
     if(!best) throw new Error('No XRP route available');
-    const headroom=Math.ceil(best.drops*1.005); // execution headroom
+  
+    
+  const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100)); // execution headroom (UI promises 2%)
+
+  
+    
     return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
   }
   async function buyXRBC(units){
