@@ -121,6 +121,53 @@ body.embed header{display:none}
 #slTokens table tbody td:nth-child(2){
   color: var(--ok);
   font-weight: 700;
+  /* NEW: allow long HEX to wrap on all screens without shifting layout */
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* NEW: keep the planner table from forcing horizontal scroll */
+#slTokens table{
+  table-layout: fixed;
+  width: 100%;
+}
+#slTokens table th,
+#slTokens table td{
+  min-width: 0;              /* let cells shrink */
+  word-break: break-word;    /* general safety */
+  overflow-wrap: anywhere;
+}
+
+/* ===== Mobile-only refinements (desktop unchanged) ===== */
+@media (max-width: 560px){
+  /* Smaller HEX text in column 2 on phones */
+  #slTokens table thead th:nth-child(2),
+  #slTokens table tbody td:nth-child(2){
+    font-size: 11px;
+    line-height: 1.15;
+  }
+
+  /* Put the orange explanations ABOVE their related controls in row layouts */
+  .row .hint-yellow,
+  .row .hint{
+    order: -1;          /* move before buttons/inputs within the same .row */
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  /* Panic/Sequential card: ensure warnings show UNDER the action buttons */
+  .row .warn{          /* works when warnings & buttons share a .row */
+    order: 99;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Slightly tighter monospace on mobile (only inside planner) */
+  #slTokens .mono{
+    font-size: 12px;
+    line-height: 1.2;
+  }
 }
   </style>
 
