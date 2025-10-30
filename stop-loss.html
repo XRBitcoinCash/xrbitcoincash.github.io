@@ -116,59 +116,94 @@ body.embed header{display:none}
   padding: 8px;
 }
 
-/* Make the Token/Hex “tickers” green (2nd column in the planner table) */
-#slTokens table thead th:nth-child(2),
-#slTokens table tbody td:nth-child(2){
-  color: var(--ok);
-  font-weight: 700;
-  /* NEW: allow long HEX to wrap on all screens without shifting layout */
-  word-break: break-all;
+/* Keep table stable & shrinkable */
+#slTokens table{ table-layout: fixed; width: 100%; }
+#slTokens table th, #slTokens table td{
+  min-width: 0;
+  word-break: break-word;
   overflow-wrap: anywhere;
-  white-space: normal;
 }
 
-/* NEW: keep the planner table from forcing horizontal scroll */
-#slTokens table{
-  table-layout: fixed;
-  width: 100%;
+/* --- Column color mapping (assumes: 2=Hex, 3=Issuer, 4=Balance, 5=Amount) --- */
+/* Token Hex → white */
+#slTokens table thead th:nth-child(2),
+#slTokens table tbody td:nth-child(2){
+  color:#ffffff;
+  font-weight:700;
 }
-#slTokens table th,
-#slTokens table td{
-  min-width: 0;              /* let cells shrink */
-  word-break: break-word;    /* general safety */
-  overflow-wrap: anywhere;
+/* Issuer → blue */
+#slTokens table thead th:nth-child(3),
+#slTokens table tbody td:nth-child(3){
+  color:var(--blue);
+  font-weight:700;
 }
+/* Balance → orange */
+#slTokens table thead th:nth-child(4),
+#slTokens table tbody td:nth-child(4){
+  color:var(--yellow);
+  font-weight:700;
+}
+/* Amount to protect → green (emphasis) */
+#slTokens table thead th:nth-child(5),
+#slTokens table tbody td:nth-child(5){
+  color:var(--ok);
+  font-weight:800;
+}
+
+/* Subtle widths to avoid overflow on phones (approximate) */
+#slTokens table thead th:nth-child(2),
+#slTokens table tbody td:nth-child(2){ width:34%; }
+#slTokens table thead th:nth-child(3),
+#slTokens table tbody td:nth-child(3){ width:22%; }
+#slTokens table thead th:nth-child(4),
+#slTokens table tbody td:nth-child(4){ width:22%; }
+#slTokens table thead th:nth-child(5),
+#slTokens table tbody td:nth-child(5){ width:22%; }
 
 /* ===== Mobile-only refinements (desktop unchanged) ===== */
 @media (max-width: 560px){
-  /* Smaller HEX text in column 2 on phones */
+  /* Tighter monospace for long codes (Hex/Issuer lines) */
+  #slTokens .mono{ font-size:12px; line-height:1.2; }
+
+  /* Even smaller Hex on phones so it stays inside the hero card */
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){
-    font-size: 11px;
-    line-height: 1.15;
+    font-size:11px;
+    line-height:1.15;
   }
 
-  /* Put the orange explanations ABOVE their related controls in row layouts */
-  .row .hint-yellow,
-  .row .hint{
-    order: -1;          /* move before buttons/inputs within the same .row */
-    width: 100%;
-    margin-bottom: 6px;
+  /* Ensure inputs/selects never push outside card */
+  .row input, .row select, .row textarea{
+    max-width:100%;
+    min-width:0;
   }
 
-  /* Panic/Sequential card: ensure warnings show UNDER the action buttons */
-  .row .warn{          /* works when warnings & buttons share a .row */
-    order: 99;
-    width: 100%;
-    margin-top: 8px;
-  }
+  /* Re-order “orange explanations” to sit under headings, above controls */
+  .row{ display:grid; grid-template-columns:1fr; align-items:start; row-gap:6px; }
+  /* Headings first */
+  .row > h1, .row > h2, .row > h3, .row > h4, .row > label{ order:0; }
+  /* Then orange hint (Mode / Value / Exit instructions) */
+  .row > .hint-yellow{ order:1; }
+  /* Generic hint can also appear under title if present */
+  .row > .hint{ order:1; }
+  /* Controls/buttons after the hint */
+  .row > button,
+  .row > .btn,
+  .row > input,
+  .row > select,
+  .row > textarea,
+  .row > .controls,
+  .row > .field,
+  .row > .row{ order:2; }
 
-  /* Slightly tighter monospace on mobile (only inside planner) */
-  #slTokens .mono{
-    font-size: 12px;
-    line-height: 1.2;
+  /* Panic/Sequential card: warnings should appear UNDER the action buttons */
+  .row .warn{
+    order:99;
+    width:100%;
+    margin-top:8px;
   }
 }
+
   </style>
 
   <!-- Xaman SDK (keep) -->
