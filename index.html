@@ -234,7 +234,7 @@ img,svg{ max-width:100%; height:auto; display:block; }
 
 /* % chips */
 .quick-amounts{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
-.qa{ height:34px; border:1px dashed var(--line); border-radius:8px; background:#0b1119; color:var(--ink); font-weight:700; font-size:12px; cursor:pointer; }
+.qa{ height:34px; border:1px dashed var(--line); border-radius:8px; background:#0b1119; color:#var(--ink); font-weight:700; font-size:12px; cursor:pointer; }
 
 /* Total + submit row */
 .total-line{ display:flex;align-items:center;justify-content:space-between;padding:10px 12px; border:1px dashed var(--line);border-radius:10px; background:linear-gradient(180deg,#0b1119,#0a0f15) }
@@ -370,7 +370,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
 /* CSS-only header auto-hide via scroll-driven animation (progressive) */
 @keyframes headerHide { to { transform:translateY(-100%); } }
-@supports (animation-timeline: scroll()) {
+@supports (animation-timeline: scroll()){
   .site-header{
     animation: headerHide linear both;
     animation-timeline: scroll(root);
@@ -432,6 +432,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #10b981;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Trade XRBC ↔ XRP (DEX)</span>
+        <!-- XRP icon (fixed) -->
         <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
@@ -439,6 +440,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #38bdf8;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — ANODOS Swap (XRBC ↔ XRP)</span>
+        <!-- XRP icon (fixed) -->
         <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
@@ -446,6 +448,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #1e3a8a;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Magnetic (XRBC ↔ XRP)</span>
+        <!-- XRP icon (fixed) -->
         <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
@@ -495,6 +498,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </span>
         <span class="nowrap">/</span>
         <span class="asset-chip asset-xrp">
+          <!-- XRP icon (fixed) -->
           <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP"> XRP
         </span>
       </div>
@@ -1457,3 +1461,5 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     </div>
   </div>
 </footer>
+</body>
+</html>
