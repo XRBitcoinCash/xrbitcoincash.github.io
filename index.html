@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,7 +99,6 @@ img,svg{ max-width:100%; height:auto; display:block; }
 .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; overflow-wrap:anywhere; word-break:break-word; hyphens:auto; }
 .nowrap{ white-space:nowrap; }
 
-
 .header-wrap{ position:relative; max-width:var(--wrap); margin:0 auto;
   padding:12px max(16px, env(safe-area-inset-left)) 12px max(16px, env(safe-area-inset-right));
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px;
@@ -132,8 +130,6 @@ img,svg{ max-width:100%; height:auto; display:block; }
 .pill-ecosys::after{ background:radial-gradient(closest-side, rgba(255,255,255,.55), transparent 70%); }
 .pill-whitepaper::after{ background:radial-gradient(closest-side, rgba(0,0,0,.65), transparent 70%); }
 
-
-
 /* ===== Stop-Loss nav pill (octagon, white outline) ===== */
 .header-nav .nav-pill.pill-stoploss{
   position: relative;
@@ -144,38 +140,22 @@ img,svg{ max-width:100%; height:auto; display:block; }
   color: #fff;
   background: var(--err, #ef4444);
   border: 2px solid #fff; /* white outline */
-  /* Angled edges: octagon */
   clip-path: polygon(15% 0, 85% 0, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0 85%, 0 15%);
   box-shadow: 0 0 0 2px rgba(0,0,0,.15) inset;
 }
-
 .header-nav .nav-pill.pill-stoploss:hover,
-.header-nav .nav-pill.pill-stoploss:focus{
-  filter: brightness(0.92);
-}
-
+.header-nav .nav-pill.pill-stoploss:focus{ filter: brightness(0.92); }
 .header-nav .nav-pill.pill-stoploss:focus-visible{
   outline: 2px solid var(--ink, #e7edf5);
   outline-offset: 3px;
 }
-
 /* Fallback if clip-path is unsupported */
 @supports not (clip-path: polygon(0 0)){
-  .header-nav .nav-pill.pill-stoploss{
-    clip-path: none;
-    border-radius: 10px; /* graceful fallback */
-  }
+  .header-nav .nav-pill.pill-stoploss{ clip-path: none; border-radius: 10px; }
 }
-
 /* Mobile tweak */
-@media (max-width: 640px){
-  .header-nav .nav-pill.pill-stoploss{ padding: 9px 12px }
-}
+@media (max-width: 640px){ .header-nav .nav-pill.pill-stoploss{ padding: 9px 12px } }
 
-
-
-
-    
 /* Theme toggle */
 #themeToggle{
   appearance:none; border:1px solid var(--line); border-radius:10px;
@@ -397,7 +377,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     animation-range: 0 160px;
   }
 }
-
 .site-header{
   position:static; top:auto; z-index:20;
   background:linear-gradient(180deg,#0b0f14,#0b1017);
@@ -406,11 +385,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   transition:transform .2s ease-out, background-color .2s ease-out;
   will-change:transform;
 }
-
-
-
-    
-    
   </style>
 </head>
 <body>
@@ -424,13 +398,12 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     </div>
 
     <nav class="header-center" role="navigation" aria-label="Primary">
-     <div class="header-nav">
-  <a class="nav-pill pill-ecosys" href="/xrbc-ecosystem.html" title="XRBC Ecosystem · DEX/AMM">XRBC Ecosystem · DEX/AMM</a>
-  <a class="nav-pill pill-extract" href="https://xrbitcoincash.com/limit-order-extraction.html" title="Instant Limit Order Extraction">Limit Order Extraction</a>
-  <a class="nav-pill pill-stoploss" href="/stop-loss-legal.html" title="Instant Stop-Loss">Instant Stop-Loss</a>
-  <a class="nav-pill pill-whitepaper" href="/whitepaper.html" title="XRBC White Paper">White Paper</a>
-</div>
-
+      <div class="header-nav">
+        <a class="nav-pill pill-ecosys" href="/xrbc-ecosystem.html" title="XRBC Ecosystem · DEX/AMM">XRBC Ecosystem · DEX/AMM</a>
+        <a class="nav-pill pill-extract" href="https://xrbitcoincash.com/limit-order-extraction.html" title="Instant Limit Order Extraction">Limit Order Extraction</a>
+        <a class="nav-pill pill-stoploss" href="/stop-loss.html" title="Instant Stop-Loss">Instant Stop-Loss</a>
+        <a class="nav-pill pill-whitepaper" href="/whitepaper.html" title="XRBC White Paper">White Paper</a>
+      </div>
     </nav>
 
     <div class="header-right">
@@ -459,21 +432,21 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #10b981;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Trade XRBC ↔ XRP (DEX)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:anodos.swap" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #38bdf8;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — ANODOS Swap (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <a href="https://xumm.app/detect/xapp:magnetic.dex" rel="noopener noreferrer"
          class="btn" style="width:100%;max-width:520px;margin:0 auto 10px;border-left:4px solid #1e3a8a;">
         <img src="/xrbc-nft.png" alt="XRBC" width="20" height="20" style="display:inline-block;border-radius:4px" />
         <span>Open in Xaman — Magnetic (XRBC ↔ XRP)</span>
-        <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
+        <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" width="20" height="20" style="display:inline-block" />
       </a>
 
       <div class="fine" style="margin-top:8px;color:#93a3af;font-size:12px;line-height:1.4;">
@@ -504,12 +477,12 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
        </div>
 
         <button id="connectWalletBtn" class="btn glow glow-green" type="button">Connect Wallet</button>
-        <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button">Set XRBC Trustline</button>
+        <button id="setTrustlineBtn" class="btn glow glow-yellow" type="button" hidden>Set XRBC Trustline</button>
         <button id="disconnectWalletBtn" class="btn glow glow-red" type="button" disabled>Disconnect</button>
       </div>
 
-      <p id="walletStatus" class="status-text">Status: Not connected</p>
-      <div id="trustlineMsg" class="status-text" style="margin-top:8px;"></div>
+      <p id="walletStatus" class="status-text" aria-live="polite">Status: Not connected</p>
+      <div id="trustlineMsg" class="status-text" style="margin-top:8px;" aria-live="polite"></div>
     </div>
 
     <!-- ===== Trading UI (exchange style) ===== -->
@@ -522,7 +495,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         </span>
         <span class="nowrap">/</span>
         <span class="asset-chip asset-xrp">
-          <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP"> XRP
+          <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP"> XRP
         </span>
       </div>
 
@@ -539,7 +512,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
             <strong>Buying XRBC:</strong>
             You’re trading
             <span class="asset-chip asset-xrp">
-              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
             </span>
             to receive
             <span class="asset-chip asset-xrbc">
@@ -557,7 +530,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
             </span>
             to receive
             <span class="asset-chip asset-xrp">
-              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
             </span>.
           </span>
         </div>
@@ -582,7 +555,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           How many XRBC you want to <span id="actionWord">buy</span>.
           <span class="nowrap">You’re trading
             <span class="asset-chip asset-xrp">
-              <img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
+              <img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP
             </span>
             to receive
             <span class="asset-chip asset-xrbc">
@@ -613,18 +586,18 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
       <!-- Submit -->
       <div class="button-row">
-        <button id="placeOfferBtn" class="btn btn-primary" type="button">Place Limit Order</button>
+        <button id="placeOfferBtn" class="btn btn-primary" type="button" disabled>Place Limit Order</button>
 
         <div class="refresh-indicator" aria-hidden="true">
           <div class="clock"></div>
           <span class="refresh-text">Auto-refresh every 10s</span>
         </div>
 
-        <!-- New market trade button (IOC) -->
-      <button id="marketTradeBtn" class="btn btn-primary" type="button">Market Swap (AMM)</button>
+        <!-- AMM path -->
+        <button id="marketTradeBtn" class="btn btn-primary" type="button" disabled>Market Swap (AMM)</button>
       </div>
 
-      <p id="tradeMsg" class="status-text">—</p>
+      <p id="tradeMsg" class="status-text" aria-live="polite">—</p>
 
       <select id="side" hidden>
         <option value="buy" selected>Buy</option>
@@ -679,6 +652,9 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     currency: "5852626974636F696E6361736800000000000000",
     issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
   };
+
+  const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
+  const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
 
   async function xrplRequest(payload){
     if (!PROXY_URL) throw new Error("Proxy URL missing");
@@ -756,7 +732,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     });
   })();
 
-  /* ===== Xumm SDK: connect / disconnect / trustline ===== */
+  /* ===== Xumm SDK: connect / disconnect / trustline (with gating) ===== */
   let xumm = null;
   const walletStatus  = document.getElementById("walletStatus");
   const trustlineMsg  = document.getElementById("trustlineMsg");
@@ -764,32 +740,75 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   const disconnectBtn = document.getElementById("disconnectWalletBtn");
   const setTrustBtn   = document.getElementById("setTrustlineBtn");
 
+  // prereq state
+  let HAS_TRUSTLINE = false;
+
+  async function checkTrustline(acct){
+    try{
+      if (!acct) return false;
+      const lines = await xrplRequest({
+        method: "account_lines",
+        params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
+      });
+      const tl = (lines?.result?.lines || []).find(l => normalizeHexCurrency(l.currency) === XRBC_HEX_NORM);
+      return !!tl;
+    }catch{ return false; }
+  }
+
+  function togglePrereqsUI(){
+    const connected = !!window.__xrbcWallet;
+
+    if (connectBtn)    connectBtn.disabled    = connected;
+    if (disconnectBtn) disconnectBtn.disabled = !connected;
+
+    if (setTrustBtn){
+      setTrustBtn.hidden   = !connected;
+      setTrustBtn.disabled = !connected || HAS_TRUSTLINE;
+    }
+
+    const allowTrade = connected && HAS_TRUSTLINE;
+    const placeOfferBtn = document.getElementById("placeOfferBtn");
+    const marketBtn     = document.getElementById("marketTradeBtn");
+    if (placeOfferBtn) placeOfferBtn.disabled = !allowTrade;
+    if (marketBtn)     marketBtn.disabled     = !allowTrade;
+  }
+
+  async function updateTrustline(acct){
+    HAS_TRUSTLINE = await checkTrustline(acct);
+    if (trustlineMsg) trustlineMsg.textContent = HAS_TRUSTLINE
+      ? "✅ XRBC trustline present."
+      : "XRBC trustline not found. Click “Set XRBC Trustline”.";
+    togglePrereqsUI();
+  }
+
   function setConnectedUI(acct){
     if (walletStatus) walletStatus.textContent = "Connected: " + acct;
     window.__xrbcWallet = acct;
     localStorage.setItem("xrbcWallet", acct);
     if (disconnectBtn) disconnectBtn.disabled = false;
     if (connectBtn) connectBtn.disabled = true;
+    updateTrustline(acct).catch(()=>{});
   }
   function setDisconnectedUI(){
     if (walletStatus) walletStatus.textContent = "Status: Not connected";
     window.__xrbcWallet = null;
     localStorage.removeItem("xrbcWallet");
-    if (disconnectBtn) disconnectBtn.disabled = true;
-    if (connectBtn) connectBtn.disabled = false;
+    HAS_TRUSTLINE = false;
+    togglePrereqsUI();
   }
 
   if (typeof Xumm !== 'undefined'){
     xumm = new Xumm(cfg.xummApiKey);
 
     const savedAcct = localStorage.getItem("xrbcWallet");
-    if (savedAcct) setConnectedUI(savedAcct);
+    if (savedAcct) setConnectedUI(savedAcct); else togglePrereqsUI();
 
     xumm.on("ready", async () => {
       try{
         const acct = await xumm.user.account;
         if (acct) setConnectedUI(acct);
-      } catch {}
+        else togglePrereqsUI();
+      } catch { togglePrereqsUI(); }
     });
 
     window.addEventListener("visibilitychange", () => { if (!document.hidden) { xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}); } });
@@ -797,13 +816,17 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
     if (connectBtn) connectBtn.addEventListener("click", async () => {
       try {
+        if (window.__xrbcWallet){
+          if (walletStatus) walletStatus.textContent = "Already connected: " + window.__xrbcWallet;
+          return;
+        }
         if (walletStatus) walletStatus.textContent = "Waiting for Xaman… (scan QR if shown)";
         await xumm.authorize();
         const acct = await xumm.user.account;
         if (acct) setConnectedUI(acct);
         else if (walletStatus) walletStatus.textContent = "Still waiting for Xaman…";
       } catch {
-        if (walletStatus) walletStatus.textContent = "Failed to connect wallet";
+        if (walletStatus) walletStatus.textContent = "Wallet connect canceled or timed out. Ensure Xaman is installed and try again.";
       }
     });
 
@@ -817,7 +840,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
         if (!acct) {
           if (trustlineMsg) trustlineMsg.textContent = "Please connect your wallet first, then try again.";
-          if (connectBtn) connectBtn.focus();
+          connectBtn?.focus();
           return;
         }
         if (trustlineMsg) trustlineMsg.textContent = "Preparing trustline request…";
@@ -837,6 +860,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         const result = await resolved;
         if (!result?.signed) { if (trustlineMsg) trustlineMsg.textContent = "Trustline not signed."; return; }
         if (trustlineMsg) trustlineMsg.textContent = "✅ Trustline set successfully!";
+        HAS_TRUSTLINE = true;
+        togglePrereqsUI();
       } catch (err) {
         if (trustlineMsg) trustlineMsg.textContent = "Error: " + (err?.message || err);
       } finally {
@@ -848,6 +873,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     if (connectBtn) connectBtn.disabled = true;
     if (setTrustBtn) setTrustBtn.disabled = true;
     if (trustlineMsg) trustlineMsg.textContent = "Wallet features unavailable: Xaman SDK not loaded.";
+    togglePrereqsUI();
   }
 
   /* ===== Trading UI ===== */
@@ -885,8 +911,8 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     if (label) label.textContent = 'Amount (XRBC)';
     if (hint){
       hint.innerHTML = (side === 'buy')
-        ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-        : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+        ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
+        : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="https://xrbitcoincash.github.io/assetsxrp.svg" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
     }
   }
 
@@ -919,8 +945,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   /* Wallet-aware balances for % chips */
   const BAL = { xrp: 0, xrbc: 0 };
   const RESERVE_BUFFER_XRP = 1.0;
-  const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
-  const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
 
   async function fetchBalances(){
     const acct = window.__xrbcWallet;
@@ -939,9 +963,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
         method: "account_lines",
         params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
       });
-      const tl = (lines?.result?.lines || []).find(l =>
-        normalizeHexCurrency(l.currency) === XRBC_HEX_NORM
-      );
+      const tl = (lines?.result?.lines || []).find(l => normalizeHexCurrency(l.currency) === XRBC_HEX_NORM);
       BAL.xrbc = tl ? Math.max(0, Number(tl.balance || 0)) : 0;
     } catch { BAL.xrbc = 0; }
 
@@ -1051,7 +1073,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     const side = sideEl.value;
     const amount = Number(amountEl.value);
     if (!amount || amount <= 0) {
-      if (tradeMsg){ tradeMsg.textContent = "Enter a valid XRBC amount."; tradeMsg.classList.remove("ok","err","connecting"); }
+      // stay quiet when there's no amount
       return;
     }
     if (tradeMsg){ tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…"; tradeMsg.classList.remove("ok","err"); tradeMsg.classList.add("connecting"); }
@@ -1072,12 +1094,13 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     if (amt > 0) fillBestPrice().catch(()=>{});
   }, 10000);
 
-  /* Place Limit Order (existing) */
+  /* Place Limit Order (gated) */
   if (placeOfferBtn) placeOfferBtn.addEventListener("click", async () => {
     try {
       if (!xumm) throw new Error("Wallet SDK not available.");
       const account = window.__xrbcWallet;
       if (!account) throw new Error("Connect your wallet first.");
+      if (!HAS_TRUSTLINE){ tradeMsg.textContent = "Set the XRBC trustline first."; tradeMsg.classList.add("err"); setTrustBtn?.focus(); return; }
 
       const side   = sideEl?.value;
       const amt    = Number(amountEl?.value);
@@ -1123,13 +1146,14 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     }
   });
 
-  /* ===== Market Swap (AMM path Payment) ===== */
+  /* ===== Market Swap (AMM path Payment, gated) ===== */
   if (marketBtn) marketBtn.addEventListener("click", async () => {
     const SLIPPAGE_PCT = 2; // protective cap
     try {
       if (!xumm) throw new Error("Wallet SDK not available.");
       const account = window.__xrbcWallet;
       if (!account) throw new Error("Connect your wallet first.");
+      if (!HAS_TRUSTLINE){ tradeMsg.textContent = "Set the XRBC trustline first."; tradeMsg.classList.add("err"); setTrustBtn?.focus(); return; }
 
       const side = sideEl?.value || "buy";
       const amt  = Number(amountEl?.value);
@@ -1328,8 +1352,17 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
       if (bookOut) bookOut.textContent = "Order book error: " + (e?.message || e);
     }
   }
+
+  // in-flight guard
+  let _refreshing = false;
   async function refreshAll(){
-    await Promise.allSettled([ refreshOrderBook(), refreshLedger() ]);
+    if (_refreshing) return;
+    _refreshing = true;
+    try {
+      await Promise.allSettled([ refreshOrderBook(), refreshLedger() ]);
+    } finally {
+      _refreshing = false;
+    }
   }
 
   // First paint + gentle auto-refresh
@@ -1338,7 +1371,6 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
   window.addEventListener("focus", () => refreshAll().catch(()=>{}));
   setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
 })();
-
   </script>
 
   <!-- ===== XRBC Footer ===== -->
