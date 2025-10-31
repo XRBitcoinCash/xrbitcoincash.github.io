@@ -22,9 +22,9 @@
     <changefreq>yearly</changefreq>
     <priority>1.0</priority>
   </url>
+  <!-- REPLACED dex.html → trade.html -->
   <url>
-    <loc>https://xrbitcoincash.com/dex.html</loc>
-    <lastmod>2025-08-22</lastmod>
+    <loc>https://xrbitcoincash.com/trade.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -34,14 +34,28 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://xrbitcoincash.com/metadata.html</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
 
-  <!-- Compliance / Well-Known Endpoints -->
+  <!-- Added core tool pages -->
+  <url><loc>https://xrbitcoincash.com/limit-order-extraction.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/stop-loss.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/stop-loss-legal.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/xrbc-ecosystem.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/security-jobs.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/limit-trade.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/vault-console.html</loc></url>
+
+  <!-- Policy/Docs -->
+  <url><loc>https://xrbitcoincash.com/privacy.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/terms.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/security-policy.html</loc></url>
+  <url><loc>https://xrbitcoincash.com/compliance.html</loc></url>
+
+  <!-- White paper sections -->
+  <url><loc>https://xrbitcoincash.com/white-paper/</loc></url>
+  <url><loc>https://xrbitcoincash.com/fa/white-paper/</loc></url>
+  <url><loc>https://xrbitcoincash.com/white-paper/communitynftgallery/</loc></url>
+
+  <!-- Compliance / Well-Known Endpoints (keep if these files exist) -->
   <url>
     <loc>https://xrbitcoincash.com/.well-known/xrp-ledger.toml</loc>
     <lastmod>2025-08-22</lastmod>
@@ -55,38 +69,7 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- Assets / Feeds -->
-  <url>
-    <loc>https://xrbitcoincash.com/api/status.json</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://xrbitcoincash.com/blog/</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://xrbitcoincash.com/blog/rss.xml</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.65</priority>
-  </url>
-
-  <!-- Instant Ping URLs (for your use, not for indexing your site content) -->
-  <url>
-    <loc>https://www.google.com/ping?sitemap=https://xrbitcoincash.com/sitemap.xml</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.0</priority>
-  </url>
-  <url>
-    <loc>https://www.bing.com/ping?sitemap=https://xrbitcoincash.com/sitemap.xml</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.0</priority>
-  </url>
+  <!-- Removed: metadata.html (marked noindex) -->
+  <!-- Removed: off-domain ping URLs to Google/Bing (not valid sitemap entries) -->
 
 </urlset>
