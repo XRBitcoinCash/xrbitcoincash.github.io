@@ -580,29 +580,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   }
   async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
 
-  /* === Auto-reload after on-ledger commit === */
-  const AUTO_RELOAD_ON_COMMIT = (cfg.autoReloadOnCommit !== false);
-  const COMMIT_WAIT_MS = Number(cfg.commitWaitMs || 15000);
-  const __sleep = (ms) => new Promise(r => setTimeout(r, ms));
-  async function waitForTxValidated(txid, {maxWaitMs = COMMIT_WAIT_MS, pollMs = 1000} = {}) {
-    if (!txid || typeof txid !== "string" || txid.length < 8) return false;
-    const t0 = Date.now();
-    while ((Date.now() - t0) < maxWaitMs) {
-      try {
-        const r = await xrplRequest({ method: "tx", params: [ { transaction: txid } ] });
-        if (r?.result?.validated === true) return true;
-      } catch {}
-      await __sleep(pollMs);
-    }
-    return false;
-  }
-  async function refreshAfterCommit(txid) {
-    if (!AUTO_RELOAD_ON_COMMIT) return;
-    try { history.scrollRestoration = "manual"; } catch {}
-    try { await waitForTxValidated(txid); } catch {}
-    window.location.reload();
-  }
-
   /* ===== DATA ===== */
   async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
   async function fetchOffers(acct){
@@ -705,6 +682,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       state.account = address; setAdapter(ad);
       localStorage.setItem('xrbc.lastAccount', address);
       setStatus($walletStatus, ad.name+': '+address, 'ok');
+      // Generate a fresh challenge on connect (visible before first sign)
       __LS_CHALLENGE = newChallenge6(); announceChallenge();
       $btnDisconnect.disabled = false;
       await refreshAll();
@@ -740,15 +718,14 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     $slTokens && ($slTokens.textContent='Connect wallet first.');
     $slPlanOut && ($slPlanOut.textContent = '');
     $panicPlanOut && ($panicPlanOut.textContent = '');
-    $xrbcBadge && ($xrbcBadge.textContent='';
-    )
+    $xrbcBadge && ($xrbcBadge.textContent='');
     $healthNote && ($healthNote.textContent='Connect wallet to enable scanning.');
     $healthTable && ($healthTable.style.display='none');
     $healthBody && ($healthBody.innerHTML='');
   }
 
   /* ===== CANCEL ===== */
-  async function cancelOne(seq, opts = { refresh: true }){
+  async function cancelOne(seq){
     if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
     const s = $('offersStatus'); if(s) setStatus(s,'Preparing cancel '+seq+'…');
     try{
@@ -756,9 +733,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const tx=attachMemos({TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)});
       const res=await state.adapter.signAndSubmit(tx);
       if(s) setStatus(s,`Submitted cancel ${seq}.`,'ok');
-      log(`tx hash: ${res.hash || '(unknown)'}`);
-      if (opts.refresh !== false) await refreshAfterCommit(res.hash);
-      return res;
+      await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
     }catch(e){ if(s) setStatus(s,'Error: '+(e.message||e),'err'); throw e; }
   }
   async function cancelAll(){
@@ -768,10 +743,9 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
     const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
     let i=0; const total=state.offers.length;
-    for (const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq, { refresh:false }); }catch{} }
+    for (const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
     setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
     if(s) setStatus(s,'Done.','ok');
-    await refreshAfterCommit(null);
   }
 
   /* ===== Slippage caps ===== */
@@ -1190,7 +1164,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       }catch(e){ fail++; }
     }
     $slStatus.textContent = `Submitted ${ok} stop(s). Failed ${fail}.`;
-    if (ok > 0) { $slStatus.textContent += ' Waiting for ledger commit…'; await refreshAfterCommit(null); }
   });
 
   /* ===== Panic preview/sell ===== */
@@ -1261,7 +1234,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     }
     const skipped = (toks.length - scored.length) + (scored.length - filtered.length);
     $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}. Skipped ${skipped} (no route/low liquidity).`;
-    if (ok > 0) { $panicStatus.textContent += ' Waiting for ledger commit…'; await refreshAfterCommit(null); }
   });
 
   /* ===== XRBC TRUST + BUY ===== */
@@ -1288,8 +1260,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       });
       __LS_CHALLENGE = newChallenge6(); announceChallenge();
       await state.adapter.signAndSubmit(tx);
-      setStatus($buyStatus,'TrustSet submitted. Waiting for ledger commit…','ok');
-      await refreshAfterCommit(null);
+      setStatus($buyStatus,'TrustSet submitted (rippling allowed). Wait for validation then retry buy.','ok');
     }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
   }
   async function pathFindBuy(acct,valueStr){
@@ -1316,8 +1287,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const tx=await pathFindBuy(state.account,String(units));
       __LS_CHALLENGE = newChallenge6(); announceChallenge();
       const res=await state.adapter.signAndSubmit(tx);
-      setStatus($buyStatus,'Buy submitted. Waiting for ledger commit…','ok');
-      await refreshAfterCommit(res?.hash || null);
+      setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
     }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
   }
 
@@ -1368,7 +1338,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   })();
 
 })();
-
 </script>
 </body>
 </html>
