@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Liquidity Sentinel · XRBitcoinCash</title>
+
+  <!-- ===== XRBitcoinCash · SEO/AI Meta Pack v1 (liquidity-sentinel) ===== -->
+  <link rel="canonical" href="https://xrbitcoincash.com/liquidity-sentinel.html" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/liquidity-sentinel.html" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+  <meta name="description" content="Analyze XRPL liquidity pool health for the tokens in any account. Estimates slippage, depth, and assigns a health score. Read-only, no secrets." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:title" content="Liquidity Sentinel · XRPL Pool Health" />
+  <meta property="og:description" content="Read-only app that checks XRPL AMM pools for tokens in an account and scores health." />
+  <meta property="og:url" content="https://xrbitcoincash.com/liquidity-sentinel.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Liquidity Sentinel · XRPL Pool Health" />
+  <meta name="twitter:description" content="Check XRPL AMM depth, fee, and slippage for the tokens held by an account." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <!-- Icons -->
+  <link rel="icon" href="/xrbc-nft.png" sizes="any" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- JSON-LD: WebApplication -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebApplication",
+    "name":"XRBitcoinCash · Liquidity Sentinel",
+    "url":"https://xrbitcoincash.com/liquidity-sentinel.html",
+    "applicationCategory":"FinanceApplication",
+    "operatingSystem":"Web",
+    "description":"Read-only XRPL liquidity health checker for tokens held by an account."
+  }
+  </script>
+
+  <style>
+  :root{
+    --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+    --ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--blue:#2563eb
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;max-width:100%;overflow-x:hidden}
+  body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+  header{max-width:var(--wrap);margin:18px auto 0;padding:0 16px;text-align:center}
+  header .brand{display:flex;flex-direction:column;align-items:center;gap:8px}
+  header img{width:56px;height:56px}
+  header .home{display:inline-block;margin-top:6px;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+  .container{max-width:var(--wrap);margin:16px auto;padding:0 16px}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:16px}
+  .row{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:900px){.row{grid-template-columns:1fr 2fr}}
+  input[type=text]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#0b121b;color:var(--ink)}
+  .btn{display:inline-block;border:1px solid var(--line);background:#0b121b;border-radius:10px;padding:10px 14px;cursor:pointer}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .status{margin-top:8px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:top}
+  th{font-weight:600;text-align:left}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+  .H{background:rgba(34,197,94,.12);border-color:#165b34}
+  .C{background:rgba(245,158,11,.12);border-color:#8a5a09}
+  .R{background:rgba(239,68,68,.12);border-color:#7a2222}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+  .qr-note{font-size:13px;color:var(--muted)}
+  [aria-live]{min-height:1.2em}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/xrbc-nft.png" alt="XRBitcoinCash" />
+      <h1 style="margin:0">Liquidity Sentinel</h1>
+      <a class="home" href="https://xrbitcoincash.com/">Home</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" aria-labelledby="intro">
+      <h2 id="intro" style="margin-top:0">Check pool health for tokens in an account</h2>
+      <div class="row">
+        <div>
+          <label for="acct">XRPL account (r…)</label>
+          <input id="acct" type="text" inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="rXXXXXXXXXXXX..." />
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            <button id="scanBtn" class="btn">Scan Liquidity</button>
+            <span id="status" class="status" aria-live="polite"></span>
+          </div>
+          <p class="qr-note">Read-only. You can paste any XRPL address. On desktop, we never ask for secrets. On mobile, opening in Xaman is optional.</p>
+        </div>
+        <div>
+          <div class="card" style="margin:0">
+            <strong>How scoring works</strong>
+            <ul style="margin:8px 0 0 18px;padding:0">
+              <li>Pool exists & reachable</li>
+              <li>Reserves depth (XRP side)</li>
+              <li>Slippage est. on 10 & 100 XRP</li>
+              <li>Trading fee</li>
+              <li>Ledger freshness</li>
+            </ul>
+            <div style="margin-top:8px">
+              <span class="pill H">Healthy</span>
+              <span class="pill C">Caution</span>
+              <span class="pill R">Risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 style="margin-top:0">Results</h3>
+      <div id="resultsNote" class="status">Enter an account and press Scan.</div>
+      <div style="overflow:auto">
+        <table id="resultsTable" style="display:none">
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Pool</th>
+              <th>Reserves (XRP / IOU)</th>
+              <th>Fee</th>
+              <th>Slippage (10 / 100 XRP)</th>
+              <th>Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <strong>Disclaimer</strong>
+      <p style="margin:8px 0 0">Estimates only. AMM math can vary with protocol upgrades and pool state. Do your own research. This page never handles keys and uses your existing proxy.</p>
+    </section>
+  </main>
+
+  <!-- ===== Config must remain immediately before main script ===== -->
+  <script id="app-config" type="application/json">
+  {
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+  }
+  </script>
+
+  <script>
+  (function(){
+    /* ===== Utilities / Config ===== */
+    const cfgNode = document.getElementById("app-config");
+    const cfg = cfgNode ? JSON.parse(cfgNode.textContent || "{}") : {};
+    const PROXY_URL = cfg.proxyUrl || "";
+    const XRP_TO_DROPS = 1_000_000;
+
+    const $ = (sel) => document.querySelector(sel);
+    const statusEl = $('#status');
+    const noteEl = $('#resultsNote');
+    const tableEl = $('#resultsTable');
+    const tbodyEl = $('#tbody');
+    let inFlight = false;
+
+    function short(addr){ return addr ? addr.slice(0,6)+"…"+addr.slice(-4) : ""; }
+    function sanitize(s){ return (s||"").toString().replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+
+    async function xrplRequest(body, {timeoutMs=12000} = {}){
+      if (!PROXY_URL) throw new Error("Proxy URL missing");
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeoutMs);
+      try{
+        const res = await fetch(PROXY_URL, {
+          method:"POST",
+          headers:{ "content-type":"application/json" },
+          body: JSON.stringify(body),
+          signal: ctrl.signal
+        });
+        if (!res.ok) throw new Error("HTTP "+res.status);
+        return await res.json();
+      } finally { clearTimeout(t); }
+    }
+
+    async function serverState(){
+      try{
+        const r = await xrplRequest({command:"server_state"});
+        const s = r && r.result && r.result.state || {};
+        return s;
+      }catch(e){ return {}; }
+    }
+
+    async function getAccountLines(account){
+      const r = await xrplRequest({command:"account_lines", account, ledger_index:"validated", limit:400});
+      return (r && r.result && r.result.lines) || [];
+    }
+
+    // XRPL AMM constant product helpers
+    function estSlippageXrpToIou(xrpIn, xrpRes, iouRes){
+      // Constant product: (xrpRes + dx)*(iouRes - dy) = k ⇒ dy = (iouRes * dx) / (xrpRes + dx)
+      // price impact vs spot: approx using reserves
+      if (xrpIn <= 0 || xrpRes <= 0 || iouRes <= 0) return {dy:0, slip:0};
+      const dy = (iouRes * xrpIn) / (xrpRes + xrpIn);
+      const spot = iouRes / xrpRes;
+      const eff = dy / xrpIn;
+      const slip = Math.max(0, (spot - eff) / spot);
+      return {dy, slip};
+    }
+
+    function scoreHealth({poolExists, xrpRes, fee, slip10, slip100, ledgerFresh}){
+      let score = 0;
+      if (poolExists) score += 1;
+      if (xrpRes >= 500) score += 2; else if (xrpRes >= 100) score += 1;
+      if (fee <= 0.3) score += 1; else if (fee <= 0.5) score += 0; else score -= 1;
+      if (slip10 <= 0.01) score += 2; else if (slip10 <= 0.03) score += 1;
+      if (slip100 <= 0.03) score += 2; else if (slip100 <= 0.10) score += 1;
+      if (ledgerFresh) score += 1;
+      let status = "Caution", cls="C";
+      if (score >= 6) { status="Healthy"; cls="H"; }
+      else if (score <= 2) { status="Risk"; cls="R"; }
+      return {score, status, cls};
+    }
+
+    async function ammInfo(asset1, asset2){
+      // asset1 / asset2 follow rippled schema
+      try{
+        const r = await xrplRequest({command:"amm_info", asset:asset1, asset2});
+        return r && r.result && r.result.amm ? r.result.amm : null;
+      }catch(e){ return null; }
+    }
+
+    function toAssetXRP(){ return {currency:"XRP"}; }
+    function toAssetIOU(currencyHex, issuer){
+      return {currency: currencyHex, issuer};
+    }
+    function normalizeHexCurrency(s){ return (s||'').toUpperCase().replace(/0+$/,''); }
+
+    async function scan(){
+      if (inFlight) return;
+      const account = ($('#acct').value || '').trim();
+      if (!/^r[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(account)){
+        statusEl.textContent = "Enter a valid XRPL account (starts with r…).";
+        return;
+      }
+      inFlight = true;
+      statusEl.textContent = "Fetching account lines…";
+      noteEl.textContent = "";
+      tbodyEl.innerHTML = "";
+      tableEl.style.display = "none";
+
+      const state = await serverState();
+      const ageOk = !!(state?.validated_ledger);
+      const lines = await getAccountLines(account);
+
+      statusEl.textContent = lines.length ? `Found ${lines.length} trustlines. Checking pools…` : "No trustlines found. You can still hold XRP without trustlines.";
+
+      // For each IOU, try pool with XRP
+      const rows = [];
+      for (const line of lines){
+        const currency = normalizeHexCurrency(line.currency);
+        const issuer = line.account;
+        if (!currency || !issuer) continue;
+
+        const assetXRP = toAssetXRP();
+        const assetIOU = toAssetIOU(currency, issuer);
+        const amm = await ammInfo(assetXRP, assetIOU);
+
+        if (!amm){
+          rows.push({
+            token: `${sanitize(line.currency)} (${short(issuer)})`,
+            pool: "XRP/IOU",
+            xrpRes: "-", iouRes: "-", fee: "-",
+            slip10: "-", slip100: "-",
+            score: 0, status: "No Pool", cls: "R"
+          });
+          continue;
+        }
+
+        // Parse reserves & fee
+        const xrpRes = Number(amm.amount?.value || amm.amount?.currency === "XRP" ? amm.amount?.value : amm.asset?.currency === "XRP" ? amm.asset?.value : amm.amount?.value) || Number(amm.asset?.value) || 0;
+        // IOU reserve may be in asset2 or "amount2"
+        const iouRes = Number(amm.amount2?.value) || Number(amm.asset2?.value) || 0;
+        const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30; // default/show if missing
+        const feePct = feeBps/100; // bps → %
+
+        // Slippage estimates for XRP→IOU trade sizes
+        const s10 = estSlippageXrpToIou(10, xrpRes, iouRes);
+        const s100 = estSlippageXrpToIou(100, xrpRes, iouRes);
+
+        const health = scoreHealth({
+          poolExists:true,
+          xrpRes,
+          fee: feePct,
+          slip10: s10.slip,
+          slip100: s100.slip,
+          ledgerFresh: ageOk
+        });
+
+        rows.push({
+          token: `${sanitize(line.currency)} (${short(issuer)})`,
+          pool: "XRP/IOU",
+          xrpRes: xrpRes.toFixed(2),
+          iouRes: iouRes.toFixed(2),
+          fee: feePct.toFixed(2) + "%",
+          slip10: (s10.slip*100).toFixed(2) + "%",
+          slip100: (s100.slip*100).toFixed(2) + "%",
+          score: health.score,
+          status: health.status,
+          cls: health.cls
+        });
+      }
+
+      if (!rows.length){
+        noteEl.textContent = "No pools found for this account’s trustlines (or pools unavailable).";
+        statusEl.textContent = "Done.";
+        return inFlight = false;
+      }
+
+      // Render table
+      tbodyEl.innerHTML = rows.map(r => `
+        <tr>
+          <td class="mono">${r.token}</td>
+          <td>${r.pool}</td>
+          <td>${r.xrpRes} XRP / ${r.iouRes}</td>
+          <td>${r.fee}</td>
+          <td>${r.slip10} / ${r.slip100}</td>
+          <td class="mono">${r.score}</td>
+          <td><span class="pill ${r.cls}">${r.status}</span></td>
+        </tr>
+      `).join("");
+      tableEl.style.display = "";
+      statusEl.textContent = "Done.";
+      inFlight = false;
+    }
+
+    $('#scanBtn').addEventListener('click', () => { scan().catch(err => { statusEl.textContent = "Error: "+(err?.message||err); inFlight=false; }); });
+  })();
+  </script>
+</body>
+</html>
