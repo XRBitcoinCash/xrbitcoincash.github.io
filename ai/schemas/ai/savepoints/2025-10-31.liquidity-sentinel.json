@@ -1,0 +1,42 @@
+{
+  "id": "2025-10-31.liquidity-sentinel",
+  "date": "2025-10-31T00:00:00Z",
+  "scope": "XRBC",
+  "page": "/liquidity-sentinel.html",
+  "summary": "Working baseline of Liquidity Sentinel + Stop-Loss with Xaman connect, challenge memo anti-spoofing, RLUSD pathfinding, and health scanner.",
+  "facts": [
+    "Proxy URL: https://xrbitcoincash-github-io.onrender.com",
+    "Xaman API key present in #app-config (no secret in repo)",
+    "Keep <script id=\"app-config\"> immediately BEFORE main script",
+    "Desktop = QR-only, Mobile = direct deep-link (Xaman)",
+    "XRBC issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "XRBC currencyHex=5852626974636F696E6361736800000000000000",
+    "Add XRBC trustline uses tfClearNoRipple (allow rippling)",
+    "Challenge code (6-digit) injected into XRPL Memos before sign",
+    "Health table scoring uses AMM reserves and 10/100 XRP slippage",
+    "Buttons: Quick Buy, Extract Orders, Stop-Loss/Panic (Limit-Trade link removed)"
+  ],
+  "constraints": [
+    "No placeholders or dummy addresses",
+    "Do not modify XRPL connectivity or proxy without explicit request",
+    "Provide short + expanded commit messages for edits",
+    "Respect filename casing (e.g., Trade.html)",
+    "Sanitize DOM updates; no innerHTML with untrusted data"
+  ],
+  "anchors": {
+    "file": "/liquidity-sentinel.html",
+    "must_precede_script": "#app-config before main script include",
+    "line_hints": [
+      "Head: CSP meta allowed-hosts inc. xaman.app + proxy origin",
+      "Actions card: no Limit-Trade button",
+      "Health card: Risk-only toggle above table",
+      "XummAdapter: createAndSubscribe, payload memos include CHALLENGE",
+      "TrustSet: tfClearNoRipple (0x00040000)"
+    ]
+  },
+  "status": "active",
+  "next": [
+    "Add server_state freshness badge",
+    "Optional: SRI hashes for external scripts"
+  ]
+}
