@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>XRBC · 2FA Test Harness · Xaman + Google/YouTube</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/xrbc-nft.png">
+  <link rel="license" href="#license-proprietary">
+  <meta name="theme-color" content="#0b0f14" />
+  <meta name="description" content="Local test page for dual-factor auth: Xaman wallet proof + Google/YouTube ownership proof. No secrets. Inline JS. Single-file." />
+
+  <style>
+    :root{
+      --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+      --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;max-width:100%;overflow-x:hidden}
+    body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+    header{position:sticky;top:0;background:rgba(11,15,20,.9);backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--line);z-index:10}
+    .brand{display:grid;place-items:center;padding:12px 0}
+    .brand img{width:42px;height:42px;border-radius:10px}
+    .brand h1{margin:6px 0 0 0;font-size:18px;font-weight:650;letter-spacing:.2px}
+    .home{display:block;margin:8px auto 14px auto;text-align:center}
+    .home a{color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+    .wrap{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+    .grid-12{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .col-12{grid-column:span 12}
+    @media(min-width:860px){.col-6{grid-column:span 6}}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 10px 28px rgba(0,0,0,.20)}
+    .card h2{margin:0 0 8px 0;font-size:18px}
+    .muted{color:var(--muted)}
+    .row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+    button{appearance:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:10px 14px;border-radius:12px;cursor:pointer}
+    button.primary{background:var(--blue);border-color:rgba(255,255,255,.08);color:white}
+    button.success{background:var(--ok);color:#02140a;border-color:transparent}
+    button.warning{background:var(--yellow);color:#0d0b02;border-color:transparent}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .status{font-size:14px;margin-top:8px}
+    .status .ok{color:var(--ok)}
+    .status .err{color:var(--err)}
+    .qr{display:grid;place-items:center;margin:10px 0}
+    .qr img{width:220px;height:220px;border-radius:12px;border:1px solid var(--line);background:#000}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:13px}
+    .kbd{font-variant-ligatures:none;border:1px solid var(--line);border-radius:6px;padding:0 6px;margin:0 2px}
+    .log{white-space:pre-wrap;background:#0a0f16;border:1px solid var(--line);border-radius:12px;padding:12px;max-height:260px;overflow:auto}
+    .footer{margin:18px 0;color:var(--muted);font-size:13px}
+    .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted)}
+    a.link{color:#9ec1ff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/xrbc-nft.png" alt="XRBC" />
+      <h1>XRBitcoinCash · 2FA Test Harness</h1>
+    </div>
+    <div class="home"><a href="https://xrbitcoincash.com/">Home</a></div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid-12">
+      <section class="card col-12">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h2>Overview</h2>
+          <span class="pill">desktop = QR only · mobile = deep-link</span>
+        </div>
+        <p class="muted">Goal: require <strong>Xaman wallet proof</strong> and <strong>Google/YouTube ownership</strong> before enabling privileged actions. This page is a local harness. It stores no secrets and includes no external scripts.</p>
+        <ul class="muted">
+          <li>Step 1 proves XRPL wallet control via Xaman.</li>
+          <li>Step 2 proves YouTube channel control via Google OAuth (with PKCE).</li>
+          <li>Both factors must be present to "Bind" (enroll) or "Verify" (session auth).</li>
+        </ul>
+      </section>
+
+      <!-- Step 1: Xaman wallet proof -->
+      <section class="card col-12 col-6" id="xamanCard">
+        <h2>Step 1 · Xaman wallet proof</h2>
+        <p class="muted">Desktop shows a QR. Mobile opens Xaman. This harness expects a server endpoint that creates a <span class="mono">SignIn</span> payload.</p>
+        <div class="row">
+          <button id="btnXamanDesktop" class="primary">Desktop: Show QR</button>
+          <button id="btnXamanMobile">Mobile: Open Xaman</button>
+          <button id="btnXamanReset" class="warning" disabled>Reset</button>
+        </div>
+        <div class="qr" id="xamanQr" hidden></div>
+        <div class="status" id="xamanStatus">State: <span class="mono">idle</span></div>
+        <div class="log mono" id="xamanLog"></div>
+      </section>
+
+      <!-- Step 2: Google/YouTube proof -->
+      <section class="card col-12 col-6" id="googleCard">
+        <h2>Step 2 · Google/YouTube ownership</h2>
+        <p class="muted">Uses OAuth 2.0 with PKCE. This page can capture <span class="mono">code</span> locally and optionally POST it to your server for token exchange and <span class="mono">channels?mine=true</span>.</p>
+        <div class="row">
+          <button id="btnGoogle" class="primary">Sign in with Google</button>
+          <button id="btnGoogleReset" class="warning" disabled>Reset</button>
+        </div>
+        <div class="status" id="googleStatus">State: <span class="mono">idle</span></div>
+        <div class="log mono" id="googleLog"></div>
+      </section>
+
+      <!-- Bind/Verify -->
+      <section class="card col-12" id="bindCard">
+        <h2>Bind / Verify</h2>
+        <p class="muted">When both factors are present, you can either enroll (bind wallet↔YouTube) or verify for a session. This harness shows the JSON your backend should accept.</p>
+        <div class="row">
+          <button id="btnShowBundle" disabled>Show enrollment bundle</button>
+          <button id="btnShowVerify" disabled>Show verify bundle</button>
+        </div>
+        <div class="log mono" id="bundleOut"></div>
+      </section>
+
+      <section class="card col-12">
+        <h2>Diagnostics</h2>
+        <div class="row">
+          <button id="btnClear" class="warning">Clear logs</button>
+          <button id="btnReload">Hard reload</button>
+        </div>
+        <div class="footer">No external libraries. If something appears stuck, you may <span class="kbd">Ctrl</span>+<span class="kbd">R</span> or use the button above.</div>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <a id="license-proprietary"></a>
+      Proprietary. No redistribution. No secrets are stored in this file.
+    </footer>
+  </main>
+
+  <!-- ===== Config: keep BEFORE main script ===== -->
+  <script id="app-config" type="application/json">
+  {
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+    /* Optional keys to enable full flow:
+      "xamanCreatePayloadUrl": "https://YOUR_SERVER/xaman/create",   // returns { deepLink, qrPng, pollUrl|wsUrl, payloadId }
+      "googleClientId": "YOUR_GOOGLE_OAUTH_WEB_CLIENT_ID",
+      "googleRedirectUri": "https://xrbitcoincash.com/path/to/this-file.html",
+      "googleTokenExchangeUrl": "https://YOUR_SERVER/oauth/google/exchange"  // body: { code, code_verifier, redirect_uri }
+    */
+  }
+  </script>
+
+  <!-- ===== Main script: single inline block ===== -->
+  <script>
+  (function(){
+    /*** Utilities ***/
+    const cfgNode = document.getElementById('app-config');
+    const cfg = cfgNode ? safeJson(cfgNode.textContent) : {};
+
+    function safeJson(txt){ try{ return JSON.parse(txt||'{}'); }catch(e){ console.error('Config JSON parse error', e); return {}; } }
+    const log = (el, ...args) => { el.textContent += (args.map(a => typeof a==='string'? a: JSON.stringify(a,null,2)).join(' ') + "\n"); el.scrollTop = el.scrollHeight; };
+    const setStatus = (el, s, cls) => { el.innerHTML = `State: <span class="mono ${cls||''}">${s}</span>` };
+    const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/, '');
+    const utf8 = (s) => new TextEncoder().encode(s);
+    const sha256 = async (s) => crypto.subtle.digest('SHA-256', utf8(s));
+    const rnd = (len=32) => b64url(crypto.getRandomValues(new Uint8Array(len)));
+
+    // Parse query params
+    const params = new URLSearchParams(location.search);
+    const q = (k) => params.get(k);
+
+    /*** UI elements ***/
+    const $ = (s) => document.querySelector(s);
+    const x = {
+      card: $('#xamanCard'), qr: $('#xamanQr'), st: $('#xamanStatus'), log: $('#xamanLog'),
+      btnDesktop: $('#btnXamanDesktop'), btnMobile: $('#btnXamanMobile'), btnReset: $('#btnXamanReset')
+    };
+    const g = {
+      card: $('#googleCard'), st: $('#googleStatus'), log: $('#googleLog'),
+      btn: $('#btnGoogle'), btnReset: $('#btnGoogleReset')
+    };
+    const bind = { btnBundle: $('#btnShowBundle'), btnVerify: $('#btnShowVerify'), out: $('#bundleOut') };
+
+    const state = {
+      xaman: { started:false, signed:false, txid:null, payloadId:null },
+      google: { started:false, haveCode:false, code:null, verifier:null, state:null, nonce:null, tokens:null, channelId:null },
+    };
+
+    function refreshBindButtons(){
+      const ok = state.xaman.signed && (state.google.tokens || state.google.haveCode);
+      bind.btnBundle.disabled = !ok;
+      bind.btnVerify.disabled = !ok;
+    }
+
+    /*** Step 1: Xaman wallet proof ***/
+    async function startXaman(mode){
+      setStatus(x.st, 'starting…'); x.log.textContent = '';
+      const url = cfg.xamanCreatePayloadUrl;
+      if(!url){ setStatus(x.st, 'missing xamanCreatePayloadUrl in #app-config', 'err'); return; }
+      try{
+        const body = { type: 'SignIn', return_url: location.href };
+        const res = await fetch(url, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.xaman.payloadId = data.payloadId || null;
+        const deepLink = data.deepLink || data.deeplink || '';
+        const qrPng = data.qrPng || data.qr || '';
+        const pollUrl = data.pollUrl || '';
+        const wsUrl = data.wsUrl || '';
+
+        if(mode === 'desktop'){
+          if(qrPng){ x.qr.innerHTML = `<img alt="Xaman QR" src="${qrPng}">`; x.qr.hidden = false; }
+          else if(deepLink){ x.qr.innerHTML = `<div class="muted">No QR provided. Copy link:</div><div class="mono log">${deepLink}</div>`; x.qr.hidden = false; }
+        } else {
+          if(deepLink) location.href = deepLink; else log(x.log, 'No deepLink provided by server');
+        }
+        setStatus(x.st,'waiting for sign…');
+        state.xaman.started = true;
+
+        // Subscribe for result
+        if(wsUrl){
+          const ws = new WebSocket(wsUrl);
+          ws.onmessage = (e)=>{ try{ const m = JSON.parse(e.data);
+            if(m?.signed){ onXamanSigned(m.txid||m.txHash||null); ws.close(); }
+          }catch(_){} };
+          ws.onerror = () => log(x.log,'ws error');
+        } else if(pollUrl){
+          pollUntil(async()=>{
+            try{ const r = await fetch(pollUrl).then(r=>r.json()); return r?.signed ? (onXamanSigned(r.txid||r.txHash||null), true) : false; }catch(_){ return false; }
+          }, {maxMs: 120000, stepMs: 1500});
+        } else {
+          log(x.log,'No wsUrl/pollUrl returned. Server should provide one to detect signing.');
+        }
+      }catch(err){ setStatus(x.st, 'error creating payload', 'err'); log(x.log, String(err)); }
+    }
+
+    function onXamanSigned(txid){
+      state.xaman.signed = true; state.xaman.txid = txid || null; setStatus(x.st,'signed ✓','ok');
+      refreshBindButtons();
+    }
+
+    /*** Step 2: Google OAuth with PKCE ***/
+    async function startGoogle(){
+      setStatus(g.st,'starting…'); g.log.textContent='';
+      const clientId = cfg.googleClientId; const redirectUri = cfg.googleRedirectUri || location.href.split('#')[0];
+      if(!clientId){ setStatus(g.st,'missing googleClientId in #app-config','err'); return; }
+      if(!redirectUri){ setStatus(g.st,'missing googleRedirectUri in #app-config','err'); return; }
+
+      const verifier = rnd(64); const chal = b64url(await sha256(verifier));
+      const st = rnd(16); const nonce = rnd(16);
+      sessionStorage.setItem('g_verifier', verifier);
+      sessionStorage.setItem('g_state', st);
+      sessionStorage.setItem('g_nonce', nonce);
+
+      const scopes = encodeURIComponent('openid profile https://www.googleapis.com/auth/youtube.readonly');
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${encodeURIComponent(st)}&code_challenge=${encodeURIComponent(chal)}&code_challenge_method=S256&nonce=${encodeURIComponent(nonce)}&access_type=offline&prompt=consent`;
+
+      // Same-page redirect flow keeps this single-file. Popup is optional but not required.
+      location.assign(authUrl);
+    }
+
+    async function handleGoogleCallback(){
+      const code = q('code'); const st = q('state');
+      if(!code) return; // not returning from Google
+      const stSaved = sessionStorage.getItem('g_state');
+      if(!stSaved || st !== stSaved){ setStatus(g.st,'state mismatch','err'); return; }
+      const verifier = sessionStorage.getItem('g_verifier');
+      state.google.started = true; state.google.haveCode = true; state.google.code = code; state.google.verifier = verifier;
+      setStatus(g.st,'authorization code captured ✓','ok');
+      log(g.log,{code});
+
+      // Optional: exchange at your server and fetch channel id
+      if(cfg.googleTokenExchangeUrl){
+        try{
+          setStatus(g.st,'exchanging code at server…');
+          const body = { code, code_verifier: verifier, redirect_uri: (cfg.googleRedirectUri || location.href.split('#')[0]) };
+          const r = await fetch(cfg.googleTokenExchangeUrl, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body)});
+          if(!r.ok) throw new Error(`HTTP ${r.status}`);
+          const tokens = await r.json();
+          state.google.tokens = tokens;
+          // Expect tokens to include id_token, access_token, and channelId if server also called channels?mine=true
+          if(tokens.channelId){ state.google.channelId = tokens.channelId; setStatus(g.st,'channel verified ✓','ok'); log(g.log,{channelId: tokens.channelId}); }
+          else { setStatus(g.st,'tokens received','ok'); }
+        }catch(err){ setStatus(g.st,'server exchange failed','err'); log(g.log,String(err)); }
+      }
+      refreshBindButtons();
+      // Clean query params after capture
+      history.replaceState({}, document.title, location.pathname);
+    }
+
+    /*** Bundles to send to backend ***/
+    function buildEnrollmentBundle(){
+      return {
+        type: 'enroll',
+        walletProof: { signed: state.xaman.signed, txid: state.xaman.txid, payloadId: state.xaman.payloadId },
+        google: {
+          // If tokens absent, send code+verifier for server exchange
+          code: state.google.tokens ? undefined : state.google.code,
+          code_verifier: state.google.tokens ? undefined : state.google.verifier,
+          redirect_uri: cfg.googleRedirectUri || location.href.split('#')[0],
+          tokens: state.google.tokens || undefined,
+          channelId: state.google.channelId || undefined
+        }
+      };
+    }
+
+    function buildVerifyBundle(){
+      return {
+        type: 'verify',
+        walletProof: { signed: state.xaman.signed, txid: state.xaman.txid, payloadId: state.xaman.payloadId },
+        google: {
+          tokens: state.google.tokens || undefined,
+          code: state.google.tokens ? undefined : state.google.code,
+          code_verifier: state.google.tokens ? undefined : state.google.verifier,
+          redirect_uri: cfg.googleRedirectUri || location.href.split('#')[0]
+        }
+      };
+    }
+
+    /*** Helpers ***/
+    async function pollUntil(fn, {maxMs=20000, stepMs=1000}={}){
+      const deadline = Date.now() + maxMs;
+      while(Date.now() < deadline){
+        try{ if(await fn()) return true; }catch(_){}
+        await new Promise(r=>setTimeout(r, stepMs));
+      }
+      return false;
+    }
+
+    /*** Wire up UI ***/
+    x.btnDesktop.addEventListener('click', ()=> startXaman('desktop'));
+    x.btnMobile.addEventListener('click', ()=> startXaman('mobile'));
+    x.btnReset.addEventListener('click', ()=>{ state.xaman={started:false,signed:false,txid:null,payloadId:null}; x.qr.hidden=true; x.qr.innerHTML=''; x.log.textContent=''; setStatus(x.st,'idle'); refreshBindButtons(); });
+
+    g.btn.addEventListener('click', ()=> startGoogle());
+    g.btnReset.addEventListener('click', ()=>{ state.google={started:false,haveCode:false,code:null,verifier:null,state:null,nonce:null,tokens:null,channelId:null}; g.log.textContent=''; setStatus(g.st,'idle'); refreshBindButtons(); });
+
+    bind.btnBundle.addEventListener('click', ()=>{ bind.out.textContent = JSON.stringify(buildEnrollmentBundle(), null, 2); });
+    bind.btnVerify.addEventListener('click', ()=>{ bind.out.textContent = JSON.stringify(buildVerifyBundle(), null, 2); });
+
+    $('#btnClear').addEventListener('click', ()=>{ x.log.textContent=''; g.log.textContent=''; bind.out.textContent=''; });
+    $('#btnReload').addEventListener('click', ()=> location.reload());
+
+    // Init
+    handleGoogleCallback();
+    setStatus(x.st,'idle'); setStatus(g.st,'idle'); refreshBindButtons();
+
+  })();
+  </script>
+</body>
+</html>
