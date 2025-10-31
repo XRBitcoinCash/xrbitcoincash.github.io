@@ -37,6 +37,18 @@
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
+  <!-- Optional CSP (single-file friendly). If anything breaks, comment this out and we’ll tune sources. -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src   'self' 'unsafe-inline' https://xaman.app;
+    style-src    'self' 'unsafe-inline';
+    img-src      'self' data:;
+    connect-src  'self' https://xaman.app https://xrbitcoincash-github-io.onrender.com wss:;
+    frame-src    'self';
+    base-uri     'self';
+    form-action  'self';
+  ">
+
   <style>
 :root{
   --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
@@ -196,6 +208,11 @@ body.embed header{display:none}
     <div class="panel-note">
       <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
     </div>
+
+    <!-- Copy Code (Patch B) -->
+    <div class="row center" style="margin-top:6px">
+      <button id="btnCopyChallenge" class="btn small" type="button" title="Copy the current 6-digit code">Copy Code</button>
+    </div>
   </section>
 
   <!-- ACTIONS TOOLBAR -->
@@ -217,11 +234,12 @@ body.embed header{display:none}
       <button id="btnHealthScan" class="btn glow-blue" type="button" disabled>Scan Health</button>
       <span id="healthStatus" class="status"></span>
     </div>
-    <!-- Risk-only filter -->
+    <!-- Risk-only + Retry (Patch A) -->
     <div class="row center" style="gap:10px;margin-top:6px">
       <label class="hint" style="display:flex;gap:8px;align-items:center">
         <input id="riskOnly" type="checkbox"> Show Risk only
       </label>
+      <button id="btnHealthRetry" class="btn small" type="button" title="Re-run health scan">Retry</button>
     </div>
 
     <div id="xrbcBadge" class="status" style="margin-top:8px"></div>
@@ -337,6 +355,10 @@ body.embed header{display:none}
     <div id="resultBox" class="hint">Receipts and freed reserve will appear here.</div>
     <div class="panel-note" style="margin-top:10px">
       <div class="hint">Activity log</div>
+      <!-- Clear Log (Patch B) -->
+      <div class="row center" style="gap:8px;margin-top:6px">
+        <button id="btnClearLog" class="btn small" type="button" title="Clear console log">Clear Log</button>
+      </div>
       <pre id="log" class="log" aria-live="polite"></pre>
     </div>
   </section>
@@ -389,7 +411,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 }
 </script>
 
-<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + challenge memos + risk filter) -->
+<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + challenge memos + risk filter + UX helpers) -->
 <script>
 (function(){
   'use strict';
@@ -464,6 +486,11 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const $healthNote    = $('healthNote');
   const $xrbcBadge     = $('xrbcBadge');
   const $riskOnly      = $('riskOnly');
+  const $btnHealthRetry= $('btnHealthRetry');
+
+  // UX helpers (Patch B)
+  const $btnCopyChallenge = $('btnCopyChallenge');
+  const $btnClearLog      = $('btnClearLog');
 
   /* ===== UTILS ===== */
   function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
@@ -689,8 +716,10 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($healthStatus,'');
     $btnDisconnect.disabled=true; updateConnectButtons();
     $slTokens && ($slTokens.textContent='Connect wallet first.');
-    $slPlanOut && ($slPlanOut.textContent='');
-    $panicPlanOut && ($panicPlanOut.textContent='');
+    $slPlanOut && ($slPlanOut.textContent='';
+    )
+    $panicPlanOut && ($panicPlanOut.textContent='';
+    )
     $xrbcBadge && ($xrbcBadge.textContent='');
     $healthNote && ($healthNote.textContent='Connect wallet to enable scanning.');
     $healthTable && ($healthTable.style.display='none');
@@ -1268,7 +1297,18 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   });
 
   if ($btnHealthScan) $btnHealthScan.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
-  $riskOnly?.addEventListener('change', applyRiskFilter);
+  if ($riskOnly) $riskOnly.addEventListener('change', applyRiskFilter);
+  if ($btnHealthRetry) $btnHealthRetry.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
+
+  if ($btnCopyChallenge) $btnCopyChallenge.addEventListener('click', async ()=>{
+    if (!__LS_CHALLENGE){ setStatus($walletStatus,'No code yet — start a sign flow first.'); return; }
+    try { await navigator.clipboard.writeText(__LS_CHALLENGE); setStatus($walletStatus,'Code copied','ok'); }
+    catch { setStatus($walletStatus,'Copy failed (permissions)','err'); }
+  });
+  if ($btnClearLog) $btnClearLog.addEventListener('click', ()=>{
+    if ($log) $log.textContent = '';
+    setStatus($walletStatus,'Log cleared');
+  });
 
   /* ===== Boot ===== */
   updateNetUI();
