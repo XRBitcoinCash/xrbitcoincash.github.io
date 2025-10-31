@@ -1252,44 +1252,82 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const exists=await hasXRBCTrustLine(state.account);
       if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
       // Allow rippling: tfClearNoRipple = 0x00040000
-      const tx=attachMemos({
-        TransactionType:'TrustSet',
-        Account:state.account,
-        LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" },
-        Flags: 0x00040000
-      });
-      __LS_CHALLENGE = newChallenge6(); announceChallenge();
-      await state.adapter.signAndSubmit(tx);
+     __LS_CHALLENGE = newChallenge6(); announceChallenge();
+const tx = attachMemos({
+  TransactionType: 'TrustSet',
+  Account: state.account,
+  LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" },
+  Flags: 0x00040000
+});
+await state.adapter.signAndSubmit(tx);
+
       setStatus($buyStatus,'TrustSet submitted (rippling allowed). Wait for validation then retry buy.','ok');
     }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
   }
-  async function pathFindBuy(acct,valueStr){
-    const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
-    const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
-    const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
-    let best=null;
-    for(const a of alts){
-      const sa=a.source_amount;
-      const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
-      if(!isFinite(drops)) continue;
-      if(!best || drops<best.drops) best={alt:a,drops};
+ // Return RAW Payment (no memos). Caller will attach memos after setting challenge.
+async function pathFindBuy(acct, valueStr){
+  const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr };
+
+  const pfWrap = await xrplRequest({
+    method: 'ripple_path_find',
+    params: [{
+      source_account: acct,
+      destination_account: acct,
+      destination_amount: AMOUNT,
+      source_currencies: [{ currency: "XRP" }]
+    }]
+  }, { timeoutMs: 15000 });
+
+  const pf = pfWrap?.result || {};
+  const alts = pf?.alternatives || [];
+  if (!alts.length) throw new Error('No path found for requested amount');
+
+  let best = null;
+  for (const a of alts){
+    const sa = a.source_amount;
+    const drops = typeof sa === 'string'
+      ? N(sa)
+      : (sa && sa.currency === 'XRP' ? Math.round(N(sa.value) * XRP_TO_DROPS) : Infinity);
+    if (!isFinite(drops)) continue;
+    if (!best || drops < best.drops) best = { alt: a, drops };
+  }
+  if (!best) throw new Error('No XRP route available');
+
+  const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100));
+  return {
+    TransactionType: 'Payment',
+    Account: acct,
+    Destination: acct,
+    Amount: AMOUNT,
+    SendMax: String(headroom),
+    Paths: best.alt.paths_computed || []
+  };
+}
+
+ async function buyXRBC(units){
+  if (!state.account || !state.adapter){
+    setStatus($buyStatus, 'Connect wallet first.', 'err'); return;
+  }
+  try{
+    setStatus($buyStatus, `Preparing to buy ${units} ${XRBC_CODE}…`);
+    const exists = await hasXRBCTrustLine(state.account);
+    if (!exists){
+      setStatus($buyStatus, 'No XRBC trust line. Use “Add XRBC Trust Line” first.', 'err'); return;
     }
-    if(!best) throw new Error('No XRP route available');
-    const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100));
-    return attachMemos({ TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] });
+
+    // Generate + show code FIRST, then build tx, then attach memos
+    __LS_CHALLENGE = newChallenge6();
+    announceChallenge();
+
+    const txRaw = await pathFindBuy(state.account, String(units));
+    const tx = attachMemos(txRaw);
+
+    const res = await state.adapter.signAndSubmit(tx);
+    setStatus($buyStatus, `Buy submitted. Hash: ${res && res.hash ? res.hash : '(pending)'}`, 'ok');
+  }catch(e){
+    setStatus($buyStatus, (e && e.message) || 'Buy failed', 'err');
   }
-  async function buyXRBC(units){
-    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-    try{
-      setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
-      const exists=await hasXRBCTrustLine(state.account);
-      if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-      const tx=await pathFindBuy(state.account,String(units));
-      __LS_CHALLENGE = newChallenge6(); announceChallenge();
-      const res=await state.adapter.signAndSubmit(tx);
-      setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
-    }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
-  }
+}
 
   /* ===== Wire UI ===== */
   document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
