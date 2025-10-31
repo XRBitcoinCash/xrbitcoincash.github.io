@@ -138,17 +138,6 @@
   .hero-top .left{justify-self:start}
   .hero-top .center{justify-self:center}
   .hero-top .right{justify-self:end;text-align:right}
-
-  /* === 6-digit verification modal === */
-  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999}
-  .backdrop[aria-hidden="false"]{display:flex}
-  .modal{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);width:min(420px,92vw);padding:16px}
-  .modal h3{margin:.2em 0 .4em}
-  .modal .hint{margin:.3em 0 1em}
-  .code-pill{display:inline-block;font:700 18px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin:6px 0}
-  .modal .row{gap:8px;justify-content:flex-end}
-  .verify-input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#0b111a;color:var(--ink);font:600 18px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;text-align:center;letter-spacing:.2em}
-  .errmsg{color:var(--err);font-size:12.5px;min-height:1.2em;margin-top:6px}
   </style>
 
   <!-- Xumm SDK (keep) -->
@@ -211,7 +200,7 @@
     <!-- quick buy -->
     <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
     <h2 id="buyxrbc">Quick Buy · XRBitcoinCash (XRBC)</h2>
-    <!-- Quick Buy explainer (blue, matches button accent) -->
+
     <div class="panel-note" style="margin-top:8px;border:1px solid var(--line);border-left:4px solid #60a5fa;border-radius:10px;padding:10px 12px;background:linear-gradient(180deg,#0e1520,#0c131c);">
       <p class="hint" style="margin:0;color:#60a5fa;font-weight:700;">
         Best available price at execution via XRPL pathfinding (AMM and/or order books) with a <strong>2% slippage cap</strong>.
@@ -285,22 +274,6 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
     </div>
   </section>
 
-  <!-- === 6-digit Verification Modal (HTML) === -->
-  <div id="verifyBackdrop" class="backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="verifyTitle">
-      <h3 id="verifyTitle">Confirm action</h3>
-      <p class="hint" id="verifyPurpose">Please type the code shown below to continue.</p>
-      <div class="code-pill" id="verifyCode">000000</div>
-      <input id="verifyInput" class="verify-input" type="text" inputmode="numeric" autocomplete="one-time-code"
-            pattern="\\d{6}" maxlength="6" placeholder="••••••" aria-label="Enter 6-digit code" />
-      <div class="errmsg" id="verifyErr"></div>
-      <div class="row">
-        <button id="verifyCancel" class="btn">Cancel</button>
-        <button id="verifySubmit" class="btn glow-blue">Verify</button>
-      </div>
-    </div>
-  </div>
-
 </main>
 
 <footer class="site-footer" role="contentinfo">
@@ -320,441 +293,398 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   </div>
 </footer>
 
-  <!-- App configuration (keep before main script) -->
-  <script type="application/json" id="app-config">
-  {
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-    "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
-    "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
-    "xrbc": {
-      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-      "currencyHex": "5852626974636F696E6361736800000000000000"
+<!-- App configuration (must remain immediately before the app script) -->
+<script type="application/json" id="app-config">
+{
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+  "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
+  "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
+  "xrbc": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000"
+  }
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+
+  // Embed mode
+  (function initEmbedMode(){
+    try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
+  })();
+
+  // Copy embed code
+  (function initCopy(){
+    const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
+    if(!btn||!pre) return;
+    btn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied';
+        setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }catch{
+        const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
+        btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }
+    });
+  })();
+
+  // CONFIG
+  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  const PROXY_BASE   = cfg.proxyUrl || '';
+  const XUMM_API_KEY = cfg.xummApiKey || '';
+  const XRBC         = cfg.xrbc || {};
+  const XRP_TO_DROPS = 1_000_000;
+
+  /* ===== Sentinel v1 helpers (code+context memos, signing lock) ===== */
+  const SENTINEL_VERSION = 'v1';
+  let __signInFlight = false;
+
+  const $ = (id) => document.getElementById(id);
+  const $walletStatus = $('walletStatus');
+
+  function genCode(){
+    const n = Math.floor(Math.random()*1_000_000);
+    return String(n).padStart(6,'0');
+  }
+  function asciiToHex(str){
+    let out=''; for(let i=0;i<str.length;i++){
+      const h = str.charCodeAt(i).toString(16).toUpperCase();
+      out += (h.length===1?'0':'') + h;
+    } return out;
+  }
+  function nowIso(){ try{ return new Date().toISOString(); }catch{ return ''; } }
+  function appIdFromPath(p){ try{ const name=(p||location.pathname).split('/').filter(Boolean).pop()||'index.html'; return 'XRBC:'+name; }catch{ return 'XRBC:unknown'; } }
+  function originForMemo(){ try{ return location.origin + location.pathname; }catch{ return ''; } }
+
+  function disableWalletButtons(disabled){
+    const ids=['btnXumm','btnDisconnect','btnRefresh','btnCancelAll','btnTrustXRBC','buy1','buy25','buy50','buy100'];
+    ids.forEach(id=>{ const el=$(id); if(el) el.disabled = !!disabled; });
+  }
+
+  function buildPayloadWithSentinel(txjson, ctx){
+    const memos = Array.isArray(txjson.Memos) ? txjson.Memos.slice() : [];
+    memos.push({ Memo: { MemoType: asciiToHex('XRBC-SENT'), MemoData: asciiToHex(ctx.code) }});
+    memos.push({ Memo: { MemoType: asciiToHex('XRBC-CTX'),  MemoData: asciiToHex(JSON.stringify({
+      v:SENTINEL_VERSION, ts:ctx.ts, net:ctx.net, origin:ctx.origin, app_id:ctx.app_id
+    })) }});
+    return { ...txjson, Memos: memos };
+  }
+  /* ===== /Sentinel v1 helpers ===== */
+
+  // STATE
+  const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
+
+  // DOM (extended at top for $walletStatus)
+  const $offersStatus = $('offersStatus');
+  const $offersWrap   = $('offersWrap');
+  const $resultBox    = $('resultBox');
+  const $log          = $('log');
+  const $btnXumm      = $('btnXumm');
+  const $btnDisconnect= $('btnDisconnect');
+  const $btnRefresh   = $('btnRefresh');
+  const $btnCancelAll = $('btnCancelAll');
+  const $networkSel   = $('network');
+  const $btnNetBadge  = $('btnNetBadge');
+  const $progress     = $('progressBar');
+  const $buyStatus    = $('buyStatus');
+
+  // UTILS
+  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
+  function setStatus(node,text,cls){
+    if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
+    if(node===$offersStatus) log('[offers] '+text); else if(node===$walletStatus) log('[wallet] '+text); else if(node===$buyStatus) log('[buy] '+text);
+  }
+  const N=v=>Number.isFinite(Number(v))?Number(v):0;
+  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
+  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
+  const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
+  const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
+  function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
+  function updateNetUI(){
+    const s = state.network==='testnet'?'Testnet':'Mainnet';
+    if($btnNetBadge){ $btnNetBadge.textContent=s; }
+  }
+  function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
+  function updateConnectButtons(){
+    const connected = Boolean(state.account && state.adapter);
+    if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; }
+    if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
+  }
+
+  // XRPL PROXY
+  async function xrplRequest(payload,{timeoutMs=12000}={}){
+    if(!PROXY_BASE) throw new Error('Proxy URL missing');
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
+      if(!res.ok) throw new Error('Proxy HTTP '+res.status);
+      const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
+    } finally { clearTimeout(t); }
+  }
+  async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
+
+  // DATA
+  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
+  async function fetchOffers(acct){
+    setStatus($offersStatus,'Loading open orders…');
+    try{
+      const r=await call('account_offers',{account:acct,limit:500});
+      state.offers=r?.offers||[]; renderOffers();
+      setStatus($offersStatus,`Found ${state.offers.length} open offer(s).`,'ok');
+    }catch(e){
+      state.offers=[]; renderOffers();
+      setStatus($offersStatus,'Error loading offers: '+(e.message||e),'err');
     }
   }
-  </script>
-
-  <script>
-  (function(){
-    'use strict';
-
-    const PAGE_ID = 'limit-order-extraction';
-
-    // ===== Embed mode
-    (function initEmbedMode(){
-      try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
-    })();
-
-    // ===== Copy embed code
-    (function initCopy(){
-      const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
-      if(!btn||!pre) return;
-      btn.addEventListener('click', async ()=>{
-        try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied';
-          setTimeout(()=>btn.textContent='Copy embed code',1200);
-        }catch{
-          const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
-          sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
-          btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
-        }
-      });
-    })();
-
-    // ===== CONFIG
-    const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-    const PROXY_BASE   = cfg.proxyUrl || '';
-    const XUMM_API_KEY = cfg.xummApiKey || '';
-    const XRBC         = cfg.xrbc || {};
-    const XRP_TO_DROPS = 1_000_000;
-
-    // ===== STATE
-    const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
-
-    // ===== DOM
-    const $ = id => document.getElementById(id);
-    const $walletStatus = $('walletStatus');
-    const $offersStatus = $('offersStatus');
-    const $offersWrap   = $('offersWrap');
-    const $resultBox    = $('resultBox');
-    const $log          = $('log');
-    const $btnXumm      = $('btnXumm');
-    const $btnDisconnect= $('btnDisconnect');
-    const $btnRefresh   = $('btnRefresh');
-    const $btnCancelAll = $('btnCancelAll');
-    const $networkSel   = $('network');
-    const $btnNetBadge  = $('btnNetBadge');
-    const $progress     = $('progressBar');
-    const $buyStatus    = $('buyStatus');
-
-    // ===== UTILS
-    function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
-    function setStatus(node,text,cls){
-      if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
-      if(node===$offersStatus) log('[offers] '+text);
-      else if(node===$walletStatus) log('[wallet] '+text);
-      else if(node===$buyStatus) log('[buy] '+text);
+  function renderOffers(){
+    $offersWrap.innerHTML='';
+    if(!state.offers.length){
+      const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
     }
-    const N=v=>Number.isFinite(Number(v))?Number(v):0;
-    const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
-    const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
-    const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
-    const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
-    function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
-    function updateNetUI(){
-      const s = state.network==='testnet'?'Testnet':'Mainnet';
-      if($btnNetBadge){ $btnNetBadge.textContent=s; }
+    const wrap=document.createElement('div'); wrap.style.overflow='auto';
+    const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
+    ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+    thead.appendChild(trh); table.appendChild(thead);
+    const tbody=document.createElement('tbody');
+    state.offers.forEach(o=>{
+      const tr=document.createElement('tr');
+      const tdSeq=document.createElement('td'); tdSeq.className='mono'; tdSeq.textContent=o.seq; tr.appendChild(tdSeq);
+      const tdGets=document.createElement('td'); tdGets.textContent=amtStr(o.taker_gets); tr.appendChild(tdGets);
+      const tdPays=document.createElement('td'); tdPays.textContent=amtStr(o.taker_pays); tr.appendChild(tdPays);
+      const tdPx=document.createElement('td'); tdPx.textContent=price(o.taker_gets,o.taker_pays); tr.appendChild(tdPx);
+      const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
+      b.addEventListener('click',()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
+  }
+  async function beforeAfterReserveReport(acct,prevInfo){
+    try{
+      const now=await getAccountInfo(acct);
+      const prevBal=N(prevInfo?.Balance)/XRP_TO_DROPS; const nowBal=N(now?.Balance)/XRP_TO_DROPS;
+      const prevOwn=N(prevInfo?.OwnerCount); const nowOwn=N(now?.OwnerCount);
+      const freed=Math.max(0,prevOwn-nowOwn)*2; const delta=(nowBal-prevBal).toFixed(6);
+      $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
+    }catch{}
+  }
+
+  // ADAPTERS
+  class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
+  class XummAdapter extends WalletAdapter{
+    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
+    async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
+    async resume(){
+      await this.ensureSDK();
+      const acct = await this.xumm.user.account;
+      if(acct){ return { address: acct }; }
+      return null;
     }
-    function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
-    function updateConnectButtons(){
-      const connected = Boolean(state.account && state.adapter);
-      if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; }
-      if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
+    async connect(){
+      await this.ensureSDK();
+      await this.xumm.authorize();
+      const acct=await this.xumm.user.account;
+      if(!acct) throw new Error('No account returned');
+      return { address: acct };
     }
 
-    // ===== HEX helpers for XRPL Memos
-    function asciiToHex(str){ let out=""; for(let i=0;i<str.length;i++){ out+=str.charCodeAt(i).toString(16).padStart(2,'0'); } return out; }
-    function jsonToHex(obj){ return asciiToHex(JSON.stringify(obj)); }
+    // ===== REPLACED: signAndSubmit with Sentinel injection =====
+    async signAndSubmit(txjson){
+      if(__signInFlight) { setStatus($walletStatus,'Signing in progress…','err'); return Promise.reject(new Error('Signing in progress')); }
+      __signInFlight = true;
+      disableWalletButtons(true);
 
-    // ===== Local correlation (Sentinel-style)
-    function hvRecord(event){
       try{
-        const key='xrbc.hv.events';
-        const arr=JSON.parse(sessionStorage.getItem(key)||'[]');
-        arr.push(event);
-        while(arr.length>40) arr.shift(); // cap
-        sessionStorage.setItem(key, JSON.stringify(arr));
-      }catch{}
-    }
-    function hvUpdateById(id, patch){
-      try{
-        const key='xrbc.hv.events';
-        const arr=JSON.parse(sessionStorage.getItem(key)||'[]');
-        const idx=arr.findIndex(e=>e.id===id);
-        if(idx>=0){ arr[idx]=Object.assign({},arr[idx],patch); sessionStorage.setItem(key, JSON.stringify(arr)); }
-      }catch{}
-    }
-
-    // ===== 6-digit Verification Modal
-    const $$ = (id) => document.getElementById(id);
-    const __vb = $$('verifyBackdrop'), __vc = $$('verifyCode'), __vi = $$('verifyInput'),
-          __vs = $$('verifySubmit'), __vx = $$('verifyCancel'), __vp = $$('verifyPurpose'), __ve = $$('verifyErr');
-
-    function __rand6(){ return String(Math.floor(Math.random()*1_000_000)).padStart(6,'0'); }
-
-    /**
-     * Shows the modal and resolves with the exact 6-digit code typed by the user.
-     * Records a local HV event immediately (without hash), which is later patched with tx hash.
-     */
-    function requireVerify(purpose='Confirm'){
-      return new Promise((resolve,reject)=>{
-        if(!__vb||!__vc||!__vi||!__vs||!__vx||!__vp){ return resolve(__rand6()); } // fail-open if nodes missing (still returns a code)
-        const code = __rand6();
-        __vc.textContent = code;
-        __vp.textContent = purpose;
-        __ve.textContent = '';
-        __vi.value = '';
-        __vb.setAttribute('aria-hidden','false');
-        setTimeout(()=>__vi.focus(), 30);
-
-        const onKey = (e)=>{
-          if(e.key === 'Enter'){ e.preventDefault(); __vs.click(); }
-          if(e.key === 'Escape'){ e.preventDefault(); cleanup(); reject(new Error('User canceled')); }
+        await this.ensureSDK();
+        const code = genCode();
+        const ctx = {
+          code,
+          ts: nowIso(),
+          net: state.network || 'mainnet',
+          origin: originForMemo(),
+          app_id: appIdFromPath(location.pathname)
         };
 
-        const submit = ()=>{
-          const v = (__vi.value||'').trim();
-          if(!/^\d{6}$/.test(v)){ __ve.textContent = 'Enter 6 digits.'; __vi.focus(); return; }
-          if(v !== code){ __ve.textContent = 'Code does not match.'; __vi.select(); return; }
-          cleanup(); resolve(code);
-        };
+        setStatus($walletStatus, `Verify code: ${code} — it must match the memo in your Xaman wallet.`, 'ok');
 
-        const cancel = ()=>{ cleanup(); reject(new Error('User canceled')); };
+        const tx = buildPayloadWithSentinel(txjson, ctx);
 
-        function cleanup(){
-          __vb.setAttribute('aria-hidden','true');
-          __vs.removeEventListener('click', submit);
-          __vx.removeEventListener('click', cancel);
-          document.removeEventListener('keydown', onKey);
-        }
-
-        __vs.addEventListener('click', submit);
-        __vx.addEventListener('click', cancel);
-        document.addEventListener('keydown', onKey);
-      });
-    }
-
-    // Attach XRPL Memo with HV info
-    function attachHVMemo(txjson, {code, purpose}){
-      const memo = {
-        Memo: {
-          MemoType: asciiToHex('XRBC-HV'),
-          MemoFormat: asciiToHex('application/json'),
-          MemoData: jsonToHex({
-            c: code,                 // 6-digit code
-            p: purpose,              // purpose
-            pg: PAGE_ID,             // page id
-            n: state.network||'mainnet',
-            t: new Date().toISOString()
-          })
-        }
-      };
-      const out = Object.assign({}, txjson);
-      out.Memos = Array.isArray(out.Memos) ? out.Memos.concat([memo]) : [memo];
-      return out;
-    }
-
-    // Unified: verify -> attach memo -> submit -> record/update local correlation
-    async function verifyAttachSubmit(txjson, purpose, reuse){
-      const code = reuse?.code || await requireVerify(purpose);
-      const hvId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-      hvRecord({ id: hvId, code, purpose, page: PAGE_ID, network: state.network||'mainnet', ts: new Date().toISOString() });
-      const txWithMemo = attachHVMemo(txjson, {code, purpose});
-      const res = await state.adapter.signAndSubmit(txWithMemo);
-      hvUpdateById(hvId, { hash: res?.hash || null, submittedAt: new Date().toISOString() });
-      log(`[hv] ${purpose} · code=${code}${res?.hash ? ' · hash='+res.hash : ''}`);
-      return res;
-    }
-
-    // ===== XRPL PROXY
-    async function xrplRequest(payload,{timeoutMs=12000}={}){
-      if(!PROXY_BASE) throw new Error('Proxy URL missing');
-      const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
-      try{
-        const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
-        if(!res.ok) throw new Error('Proxy HTTP '+res.status);
-        const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
-      } finally { clearTimeout(t); }
-    }
-    async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
-
-    // ===== DATA
-    async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
-    async function fetchOffers(acct){
-      setStatus($offersStatus,'Loading open orders…');
-      try{
-        const r=await call('account_offers',{account:acct,limit:500});
-        state.offers=r?.offers||[]; renderOffers();
-        setStatus($offersStatus,`Found ${state.offers.length} open offer(s).`,'ok');
-      }catch(e){
-        state.offers=[]; renderOffers();
-        setStatus($offersStatus,'Error loading offers: '+(e.message||e),'err');
-      }
-    }
-    function renderOffers(){
-      $offersWrap.innerHTML='';
-      if(!state.offers.length){
-        const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
-      }
-      const wrap=document.createElement('div'); wrap.style.overflow='auto';
-      const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
-      ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
-      thead.appendChild(trh); table.appendChild(thead);
-      const tbody=document.createElement('tbody');
-      state.offers.forEach(o=>{
-        const tr=document.createElement('tr');
-        const tdSeq=document.createElement('td'); tdSeq.className='mono'; tdSeq.textContent=o.seq; tr.appendChild(tdSeq);
-        const tdGets=document.createElement('td'); tdGets.textContent=amtStr(o.taker_gets); tr.appendChild(tdGets);
-        const tdPays=document.createElement('td'); tdPays.textContent=amtStr(o.taker_pays); tr.appendChild(tdPays);
-        const tdPx=document.createElement('td'); tdPx.textContent=price(o.taker_gets,o.taker_pays); tr.appendChild(tdPx);
-        const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
-        b.addEventListener('click',()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct);
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
-    }
-    async function beforeAfterReserveReport(acct,prevInfo){
-      try{
-        const now=await getAccountInfo(acct);
-        const prevBal=N(prevInfo?.Balance)/XRP_TO_DROPS; const nowBal=N(now?.Balance)/XRP_TO_DROPS;
-        const prevOwn=N(prevInfo?.OwnerCount); const nowOwn=N(now?.OwnerCount);
-        const freed=Math.max(0,prevOwn-nowOwn)*2; const delta=(nowBal-prevBal).toFixed(6);
-        $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
-      }catch{}
-    }
-
-    // ===== ADAPTERS
-    class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
-    class XummAdapter extends WalletAdapter{
-      constructor(){ super(); this.name='Xumm'; this.xumm=null; }
-      async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
-      async resume(){
-        await this.ensureSDK();
-        const acct = await this.xumm.user.account;
-        if(acct){ return { address: acct }; }
-        return null;
-      }
-      async connect(){
-        await this.ensureSDK();
-        await this.xumm.authorize();
-        const acct=await this.xumm.user.account;
-        if(!acct) throw new Error('No account returned');
-        return { address: acct };
-      }
-      async signAndSubmit(txjson){
         const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
-          { txjson, options:{ submit:true, expire:300 } },
+          {
+            txjson: tx,
+            options:{ submit:true, expire:300 },
+            custom_meta: {
+              instruction: `Verify code ${code} and details, then sign.`,
+              identifier: `sentinel:${ctx.app_id}:${code}`,
+              blob: { sentinel:'v1', code, ts:ctx.ts, net:ctx.net, origin:ctx.origin, app_id:ctx.app_id }
+            }
+          },
           ev => {
-            if (ev?.opened) setStatus($walletStatus,'Open Xumm to review & sign…');
+            if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…','ok');
             if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
           }
         );
+
         const res = await resolved;
         try{ websocket?.close(); }catch{}
         try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+
         if(!res?.signed) throw new Error('User rejected');
+
+        setStatus($walletStatus, `Submitted. Code ${code} recorded in memo.`, 'ok');
+
+        // Give the ledger a beat, then refresh any page data
+        try{
+          if (state.account) await fetchOffers(state.account);
+        }catch{}
+
         return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
-      }
-      async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
-    }
-
-    // ===== CONNECT HELPERS
-    function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
-
-    async function connectWith(AdapterClass){
-      try{
-        setStatus($walletStatus,'Connecting…');
-        // Verify before establishing wallet session
-        await requireVerify('Connect wallet');
-        const ad = new AdapterClass();
-        const { address } = await ad.connect();
-        state.account = address; setAdapter(ad);
-        localStorage.setItem('xrbc.lastAccount', address);
-        setStatus($walletStatus, ad.name+': '+address, 'ok');
-        $btnDisconnect.disabled = false;
-        state.lastAccountInfo = await getAccountInfo(address);
-        await fetchOffers(address);
       }catch(e){
-        setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
-      } finally { updateConnectButtons(); }
-    }
-
-    async function tryResumeWallet(){
-      try{
-        const ad = new XummAdapter();
-        const resumed = await ad.resume();
-        if(resumed && resumed.address){
-          state.account = resumed.address; setAdapter(ad);
-          setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
-          $btnDisconnect.disabled = false;
-          state.lastAccountInfo = await getAccountInfo(resumed.address);
-          await fetchOffers(resumed.address);
-        } else {
-          const cached = localStorage.getItem('xrbc.lastAccount');
-          if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
-        }
-      } catch(e){}
-      finally{ updateConnectButtons(); }
-    }
-
-    async function disconnect(){
-      try{ await state.adapter?.disconnect?.(); }catch{}
-      state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
-      localStorage.removeItem('xrbc.lastAccount');
-      $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
-      setStatus($walletStatus,'Status: Not connected');
-      setStatus($offersStatus,''); setStatus($buyStatus,'');
-      $btnDisconnect.disabled=true; updateConnectButtons();
-    }
-
-    // ===== CANCEL
-    async function cancelOne(seq, reuse){
-      if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      setStatus($offersStatus,'Preparing cancel '+seq+'…');
-      try{
-        const tx={TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)};
-        const res=await verifyAttachSubmit(tx, 'Cancel order #'+seq, reuse);
-        setStatus($offersStatus,`Submitted cancel ${seq}.`,'ok');
-        await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
-      }catch(e){ setStatus($offersStatus,'Error: '+(e.message||e),'err'); throw e; }
-    }
-
-    async function cancelAll(){
-      if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
-      if(!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
-      if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
-
-      // One verification for the whole batch; reuse same code on each tx (included in memos)
-      const batchCode = await requireVerify('Cancel ALL visible orders');
-
-      const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
-      let i=0; const total=state.offers.length;
-      for(const o of state.offers){
-        i++; setProgress(Math.floor((i-1)/total*100));
-        try{ await cancelOne(o.seq, {code: batchCode}); }catch{}
+        setStatus($walletStatus, (e && e.message) || 'Sign failed','err');
+        throw e;
+      }finally{
+        __signInFlight = false;
+        disableWalletButtons(false);
       }
-      setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
-      setStatus($offersStatus,'Done.','ok');
     }
+    // ===== /REPLACED =====
 
-    // ===== XRBC TRUST + BUY
-    const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
-    function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
-    const XRBC_CODE=hexToAscii(XRBC_HEX);
+    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+  }
 
-    async function hasXRBCTrustLine(acct){
-      const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
-      const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
-    }
-
-    async function addXRBCTrustLine(){
-      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      setStatus($buyStatus,'Checking trust line…');
-      try{
-        const exists=await hasXRBCTrustLine(state.account);
-        if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
-        const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
-        await verifyAttachSubmit(tx, 'Add XRBC trust line');
-        setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
-      }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
-    }
-
-    async function pathFindBuy(acct,valueStr){
-      const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
-      const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
-      const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
-      let best=null;
-      for(const a of alts){
-        const sa=a.source_amount;
-        const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
-        if(!isFinite(drops)) continue;
-        if(!best || drops<best.drops) best={alt:a,drops};
+  // CONNECT HELPERS
+  function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
+  async function connectWith(AdapterClass){
+    try{
+      setStatus($walletStatus,'Connecting…');
+      const ad = new AdapterClass();
+      const { address } = await ad.connect();
+      state.account = address; setAdapter(ad);
+      localStorage.setItem('xrbc.lastAccount', address);
+      setStatus($walletStatus, ad.name+': '+address, 'ok');
+      $btnDisconnect.disabled = false;
+      state.lastAccountInfo = await getAccountInfo(address);
+      await fetchOffers(address);
+    }catch(e){
+      setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
+    } finally { updateConnectButtons(); }
+  }
+  async function tryResumeWallet(){
+    try{
+      const ad = new XummAdapter();
+      const resumed = await ad.resume();
+      if(resumed && resumed.address){
+        state.account = resumed.address; setAdapter(ad);
+        setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
+        $btnDisconnect.disabled = false;
+        state.lastAccountInfo = await getAccountInfo(resumed.address);
+        await fetchOffers(resumed.address);
+      } else {
+        const cached = localStorage.getItem('xrbc.lastAccount');
+        if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
       }
-      if(!best) throw new Error('No XRP route available');
-      const headroom=Math.ceil(best.drops*1.005); // keep current headroom; UI notes 2% cap
-      return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+    } catch(e){}
+    finally{ updateConnectButtons(); }
+  }
+  async function disconnect(){
+    try{ await state.adapter?.disconnect?.(); }catch{}
+    state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
+    localStorage.removeItem('xrbc.lastAccount');
+    $('offersWrap').innerHTML='<div class="hint">No data yet.</div>';
+    setStatus($walletStatus,'Status: Not connected');
+    setStatus($offersStatus,''); setStatus($buyStatus,'');
+    $btnDisconnect.disabled=true; updateConnectButtons();
+  }
+
+  // CANCEL
+  async function cancelOne(seq){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    setStatus($offersStatus,'Preparing cancel '+seq+'…');
+    try{
+      const tx={TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)};
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($offersStatus,`Submitted cancel ${seq}.`,'ok');
+      await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
+    }catch(e){ setStatus($offersStatus,'Error: '+(e.message||e),'err'); throw e; }
+  }
+  async function cancelAll(){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    if(!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
+    if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
+    const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
+    let i=0; const total=state.offers.length;
+    for(const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
+    setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
+    setStatus($offersStatus,'Done.','ok');
+  }
+
+  // XRBC TRUST + BUY
+  const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
+  function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
+  const XRBC_CODE=hexToAscii(XRBC_HEX);
+  async function hasXRBCTrustLine(acct){
+    const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
+    const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
+  }
+  async function addXRBCTrustLine(){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    setStatus($buyStatus,'Checking trust line…');
+    try{
+      const exists=await hasXRBCTrustLine(state.account);
+      if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
+      const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
+      await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
+    }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
+  }
+  async function pathFindBuy(acct,valueStr){
+    const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
+    const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
+    const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
+    let best=null;
+    for(const a of alts){
+      const sa=a.source_amount;
+      const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
+      if(!isFinite(drops)) continue;
+      if(!best || drops<best.drops) best={alt:a,drops};
     }
+    if(!best) throw new Error('No XRP route available');
+    const headroom=Math.ceil(best.drops*1.005);
+    return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+  }
+  async function buyXRBC(units){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    try{
+      setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
+      const exists=await hasXRBCTrustLine(state.account);
+      if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
+      const tx=await pathFindBuy(state.account,String(units));
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
+    }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
+  }
 
-    async function buyXRBC(units){
-      if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
-      try{
-        setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
-        const exists=await hasXRBCTrustLine(state.account);
-        if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-        const tx=await pathFindBuy(state.account,String(units));
-        const res=await verifyAttachSubmit(tx, `Buy ${units} ${XRBC_CODE}`);
-        setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
-      }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
-    }
-
-    // ===== WIRE UI
-    $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
-    $btnDisconnect?.addEventListener('click',()=>disconnect());
-    $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
-    $btnCancelAll?.addEventListener('click',()=>cancelAll());
-    document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
-    document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
-    document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
-    document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
-    document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
-    $networkSel?.addEventListener('change',()=>{
-      state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet';
-      updateNetUI();
-      if(state.account) fetchOffers(state.account);
-    });
-
-    // ===== Boot
+  // WIRE UI
+  $btnXumm?.addEventListener('click',()=>connectWith(XummAdapter));
+  $btnDisconnect?.addEventListener('click',()=>disconnect());
+  $btnRefresh?.addEventListener('click',()=> state.account ? fetchOffers(state.account) : setStatus($walletStatus,'Connect first.','err'));
+  $btnCancelAll?.addEventListener('click',()=>cancelAll());
+  document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
+  document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
+  document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
+  document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
+  document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
+  $networkSel?.addEventListener('change',()=>{
+    state.network = $networkSel.value==='testnet' ? 'testnet' : 'mainnet';
     updateNetUI();
-    tryResumeWallet();
-  })();
-  </script>
+    if(state.account) fetchOffers(state.account);
+  });
+
+  // Boot
+  updateNetUI();
+  tryResumeWallet();
+})();
+</script>
 </body>
 </html>
