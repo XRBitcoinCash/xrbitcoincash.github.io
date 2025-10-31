@@ -1,0 +1,13 @@
+{
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+  "xrbc": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000"
+  },
+  "stablecoins": {
+    "RLUSD": {
+      "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+      "currencyHex": "524C555344000000000000000000000000000000"
+    }
+  }
+}
