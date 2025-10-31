@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Savepoint",
+  "type": "object",
+  "required": ["id", "date", "scope", "page", "summary", "facts", "constraints", "anchors", "status"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9\\-\\.]+$" },
+    "date": { "type": "string", "format": "date-time" },
+    "scope": { "type": "string", "enum": ["XRBC", "XRBitcoin", "Shared"] },
+    "page": { "type": "string" },
+    "summary": { "type": "string" },
+    "facts": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "anchors": {
+      "type": "object",
+      "properties": {
+        "file": { "type": "string" },
+        "must_precede_script": { "type": "string", "description": "selector or text anchor e.g. #app-config before main script" },
+        "line_hints": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "status": { "type": "string", "enum": ["baseline", "active", "deprecated"] },
+    "next": { "type": "array", "items": { "type": "string" } }
+  }
+}
