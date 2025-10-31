@@ -37,16 +37,16 @@
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
-  <!-- Optional CSP (single-file friendly). If anything breaks, comment this out and we’ll tune sources. -->
+  <!-- Updated CSP to allow Xumm/Xaman overlay and websocket -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src   'self' 'unsafe-inline' https://xaman.app;
-    style-src    'self' 'unsafe-inline';
-    img-src      'self' data:;
-    connect-src  'self' https://xaman.app https://xrbitcoincash-github-io.onrender.com wss:;
-    frame-src    'self';
-    base-uri     'self';
-    form-action  'self';
+    script-src  'self' 'unsafe-inline' https://xumm.app https://xaman.app;
+    style-src   'self' 'unsafe-inline';
+    img-src     'self' data: https:;
+    connect-src 'self' https://xumm.app https://oauth2.xumm.app https://xaman.app https://xrbitcoincash-github-io.onrender.com wss://xumm.app wss://xaman.app;
+    frame-src   'self' https://xumm.app https://oauth2.xumm.app https://xaman.app;
+    base-uri    'self';
+    form-action 'self';
   ">
 
   <style>
@@ -716,10 +716,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($healthStatus,'');
     $btnDisconnect.disabled=true; updateConnectButtons();
     $slTokens && ($slTokens.textContent='Connect wallet first.');
-    $slPlanOut && ($slPlanOut.textContent='';
-    )
-    $panicPlanOut && ($panicPlanOut.textContent='';
-    )
+    $slPlanOut && ($slPlanOut.textContent = '');
+    $panicPlanOut && ($panicPlanOut.textContent = '');
     $xrbcBadge && ($xrbcBadge.textContent='');
     $healthNote && ($healthNote.textContent='Connect wallet to enable scanning.');
     $healthTable && ($healthTable.style.display='none');
@@ -792,7 +790,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyCode, issuer} }] });
       const amm = a?.result?.amm;
       if (amm){
-        const rx = Number(amm.amount) / 1_000_000;
+        const rxDrops = typeof amm.amount === 'string' ? Number(amm.amount) : Number(amm.amount?.value || 0);
+        const rx = rxDrops / 1_000_000;
         const ry = Number(amm.amount2?.value || 0);
         if (rx > 0 && ry > 0) return rx / ry;
       }
@@ -913,8 +912,18 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
         continue;
       }
 
-      const xrpRes = Number(amm.amount?.value) || Number(amm.asset?.value) || 0;
-      const iouRes = Number(amm.amount2?.value) || Number(amm.asset2?.value) || 0;
+      // CORRECT parsing of reserves: XRP in drops string, IOU as .value
+      let xrpRes = 0;
+      let iouRes = 0;
+      if (typeof amm.amount === 'string') {
+        xrpRes = Number(amm.amount) / 1_000_000;
+      } else if (amm.amount && typeof amm.amount.value !== 'undefined') {
+        xrpRes = Number(amm.amount.value);
+      }
+      if (amm.amount2 && typeof amm.amount2.value !== 'undefined') {
+        iouRes = Number(amm.amount2.value);
+      }
+
       const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30;
       const feePct = feeBps/100;
 
