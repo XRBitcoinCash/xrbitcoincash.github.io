@@ -12,18 +12,18 @@
   <meta name="theme-color" content="#0b0f14" />
 
   <!-- SEO -->
-  <meta name="description" content="Dual‑factor auth for XRBC apps: Google/YouTube ownership + optional Xaman wallet proof. No secrets in client; server routes supply IDs." />
+  <meta name="description" content="Dual-factor auth for XRBC apps: Google/YouTube ownership + optional Xaman wallet proof. No secrets in client; server routes supply IDs." />
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
 
   <!-- Open Graph / Twitter -->
   <meta property="og:title" content="XRBC · 2FA Test Harness" />
-  <meta property="og:description" content="Google/YouTube + Xaman dual‑factor auth. Single‑file page. No client secrets." />
+  <meta property="og:description" content="Google/YouTube + Xaman dual-factor auth. Single-file page. No client secrets." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://xrbitcoincash.com/ai/2fa-test.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="XRBC · 2FA Test Harness" />
-  <meta name="twitter:description" content="Google/YouTube + Xaman dual‑factor auth for XRBC apps." />
+  <meta name="twitter:description" content="Google/YouTube + Xaman dual-factor auth for XRBC apps." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <link rel="license" href="#license-proprietary">
@@ -93,8 +93,8 @@
   <script type="application/ld+json">{
     "@context":"https://schema.org","@type":"WebApplication","name":"XRBC 2FA Test Harness",
     "url":"https://xrbitcoincash.com/ai/2fa-test.html","applicationCategory":"SecurityApplication",
-    "operatingSystem":"Web","author":{"@type":"Organization","name":"XRBitcoinCash"}
-  }</script>
+    "operatingSystem":"Web","author":{"@type":"Organization","name":"XRBitcoinCash"}}
+  </script>
 </head>
 <body>
   <header>
@@ -112,10 +112,10 @@
           <h2>Overview</h2>
           <span id="auth2faStatus" class="pill" data-state="need" aria-live="polite">2FA: sign in required</span>
         </div>
-        <p class="muted">No client placeholders. The server supplies Google Client ID and Xaman payload via routes. Desktop = QR only; Mobile = deep‑link. Buttons marked <span class="mono">data-need-2fa</span> remain disabled until verified.</p>
+        <p class="muted">No client placeholders. The server supplies Google Client ID and Xaman payload via routes. Desktop = QR only; Mobile = deep-link. Buttons marked <span class="mono">data-need-2fa</span> remain disabled until verified.</p>
         <ul class="muted">
           <li><strong>Google/YouTube proof</strong> → OAuth PKCE; server exchanges code; verifies <span class="mono">channels?mine=true</span>.</li>
-          <li><strong>Xaman SignIn</strong> (optional second factor) → QR/deep‑link; websocket/poll for signed.</li>
+          <li><strong>Xaman SignIn</strong> (optional second factor) → QR/deep-link; websocket/poll for signed.</li>
           <li>Bind/verify bundles let your backend enroll or gate sessions.</li>
         </ul>
       </section>
@@ -149,7 +149,7 @@
       <!-- Bind/Verify bundles (for backend) -->
       <section class="card col-12" id="bindCard">
         <h2>Bind / Verify</h2>
-        <p class="muted">Both factors present → build <em>enroll</em> bundle. Google‑only is sufficient for a session <em>verify</em> bundle if desired.</p>
+        <p class="muted">Both factors present → build <em>enroll</em> bundle. Google-only is sufficient for a session <em>verify</em> bundle if desired.</p>
         <div class="row">
           <button id="btnShowBundle" disabled>Show enrollment bundle (wallet+google)</button>
           <button id="btnShowVerify" disabled>Show verify bundle (google)</button>
@@ -160,12 +160,12 @@
       <!-- Example action area (how other apps will integrate) -->
       <section class="card col-12">
         <h2>Action Gate Demo</h2>
-        <p class="muted">Any privileged action in your apps can add <span class="mono">data-need-2fa</span>. The handler will auto‑start Google if not verified, then unlock the button.</p>
+        <p class="muted">Any privileged action in your apps can add <span class="mono">data-need-2fa</span>. The handler will auto-start Google if not verified, then unlock the button.</p>
         <div class="row">
           <button id="btnPrivilegedA" data-need-2fa class="success">Run Sentinel (demo)</button>
           <button id="btnPrivilegedB" data-need-2fa>Cancel Offers (demo)</button>
         </div>
-        <div class="status muted">Security tip: never enter secrets on this page. The app uses OAuth and Xaman deep‑links only.</div>
+        <div class="status muted">Security tip: never enter secrets on this page. The app uses OAuth and Xaman deep-links only.</div>
       </section>
 
       <section class="card col-12">
@@ -195,8 +195,7 @@
   (function(){
     /*** Utilities / Config ***/
     const $ = (s)=>document.querySelector(s);
-    const log = (el, ...args)=>{ el.textContent += (args.map(a => typeof a==='string'? a: JSON.stringify(a,null,2)).join(' ') + "
-"); el.scrollTop = el.scrollHeight; };
+    const log = (el, ...args)=>{ el.textContent += (args.map(a => typeof a==='string'? a: JSON.stringify(a,null,2)).join(' ') + '\n'); el.scrollTop = el.scrollHeight; };
     const setStatus=(el, s, cls)=>{ el.innerHTML = `State: <span class="mono ${cls||''}">${s}</span>` };
     const isMobile=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
@@ -289,6 +288,8 @@
     }
 
     async function handleGoogleCallback(){
+      // handle OAuth error/cancel
+      const err = q('error'); if (err) { setStatus(g.st, `oauth error: ${err}`, 'err'); history.replaceState({}, document.title, location.pathname); return; }
       const code = q('code'); if(!code) return; const st = q('state');
       const stSaved = sessionStorage.getItem('g_state'); if(!stSaved || st!==stSaved){ setStatus(g.st,'state mismatch','err'); return; }
       const verifier = sessionStorage.getItem('g_verifier');
@@ -298,9 +299,9 @@
         setStatus(g.st,'exchanging code at server…');
         const body = { code, code_verifier: verifier, redirect_uri: state.google.redirectUri };
         const r = await fetch(`${SERVER}/oauth/google/exchange`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(body) });
-        const tokens = await r.json(); if(!r.ok) throw new Error(JSON.stringify(tokens));
-        state.google.tokens = tokens; state.google.channelId = tokens.channelId || null;
-        setStatus(g.st, tokens.channelId? 'channel verified ✓' : 'tokens received ✓', 'ok'); log(g.log, { channelId: state.google.channelId });
+        const result = await r.json(); if(!r.ok) throw new Error(JSON.stringify(result));
+        state.google.tokens = result; state.google.channelId = result.channelId || null;
+        setStatus(g.st, result.channelId? 'channel verified ✓' : 'tokens received ✓', 'ok'); log(g.log, { channelId: state.google.channelId });
         refreshBindButtons();
       }catch(err){ setStatus(g.st,'server exchange failed','err'); log(g.log,String(err)); }
       history.replaceState({}, document.title, location.pathname);
@@ -321,6 +322,7 @@
     bind.btnBundle.addEventListener('click', ()=>{ bind.out.textContent = JSON.stringify(buildEnrollmentBundle(), null, 2); });
     bind.btnVerify.addEventListener('click', ()=>{ bind.out.textContent = JSON.stringify(buildVerifyBundle(), null, 2); });
 
+    // Demo gates (your real pages will just add data-need-2fa)
     $('#btnPrivilegedA').addEventListener('click', (e)=>{ if(!state.google.tokens){ e.preventDefault(); e.stopPropagation(); startGoogle(); } });
     $('#btnPrivilegedB').addEventListener('click', (e)=>{ if(!state.google.tokens){ e.preventDefault(); e.stopPropagation(); startGoogle(); } });
 
