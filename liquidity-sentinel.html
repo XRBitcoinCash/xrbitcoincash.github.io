@@ -188,6 +188,8 @@ body.embed header{display:none}
     <div class="row center" style="margin-top:10px">
       <button id="btnXumm" class="btn glow-green" type="button" title="Connect with Xaman wallet">Connect Xaman</button>
       <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+      <!-- Human challenge badge -->
+      <span id="challengeBadge" class="badge" style="display:none" aria-live="polite" title="Human challenge code (also appears in wallet Memo)">••••••</span>
     </div>
     <p id="walletStatus" class="status">Status: Not connected</p>
 
@@ -203,7 +205,7 @@ body.embed header{display:none}
       <a class="btn" href="/trade.html">Quick Buy · XRBC</a>
       <a class="btn" href="/limit-order-extraction.html">Extract Orders</a>
       <a class="btn" href="/stop-loss.html">Stop-Loss / Panic</a>
-      <a class="btn" href="/limit-trade.html">Limit-Trade</a>
+      <!-- Removed: <a class="btn" href="/limit-trade.html">Limit-Trade</a> -->
     </div>
   </section>
 
@@ -215,6 +217,13 @@ body.embed header{display:none}
       <button id="btnHealthScan" class="btn glow-blue" type="button" disabled>Scan Health</button>
       <span id="healthStatus" class="status"></span>
     </div>
+    <!-- Risk-only filter -->
+    <div class="row center" style="gap:10px;margin-top:6px">
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        <input id="riskOnly" type="checkbox"> Show Risk only
+      </label>
+    </div>
+
     <div id="xrbcBadge" class="status" style="margin-top:8px"></div>
     <div id="healthNote" class="hint" style="margin-top:8px">Connect wallet to enable scanning.</div>
     <div style="overflow:auto;margin-top:8px">
@@ -380,7 +389,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 }
 </script>
 
-<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + challenge memos) -->
+<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + challenge memos + risk filter) -->
 <script>
 (function(){
   'use strict';
@@ -454,9 +463,10 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const $healthBody    = $('healthBody');
   const $healthNote    = $('healthNote');
   const $xrbcBadge     = $('xrbcBadge');
+  const $riskOnly      = $('riskOnly');
 
   /* ===== UTILS ===== */
-  function log(s){ if($log){ $log.textContent += s + '\\n'; $log.scrollTop = $log.scrollHeight; } }
+  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
   function setStatus(node,text,cls){
     if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
     if(node===$walletStatus) log('[wallet] '+text);
@@ -497,15 +507,14 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     return { ticker: null, hex: code, label: code };
   }
 
-  /* ===== Spoof-resistance: challenge code in XRPL Memos ===== */
+  /* ===== Human test: challenge code shown + Memoed into tx ===== */
   let __LS_CHALLENGE = null;
-  function newChallenge6(){
-    // six-digit numeric code (e.g., 135792)
-    return String(Math.floor(100000 + Math.random()*900000));
-  }
-  function asciiToHex(s){
-    let out=''; for(let i=0;i<s.length;i++){ out += s.charCodeAt(i).toString(16).padStart(2,'0'); }
-    return out.toUpperCase();
+  function newChallenge6(){ return String(Math.floor(100000 + Math.random()*900000)); }
+  function asciiToHex(s){ let out=''; for(let i=0;i<s.length;i++){ out += s.charCodeAt(i).toString(16).padStart(2,'0'); } return out.toUpperCase(); }
+  function setChallengeBadge(code){
+    const el = $('challengeBadge'); if(!el) return;
+    if(!code){ el.style.display='none'; el.textContent=''; return; }
+    el.textContent = code; el.style.display = 'inline-block';
   }
   function buildMemos(){
     const app = 'Sentinel Liquidity Health';
@@ -526,6 +535,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   }
   function announceChallenge(){
     if (__LS_CHALLENGE){
+      setChallengeBadge(__LS_CHALLENGE);
       log('Verify code in wallet: ' + __LS_CHALLENGE);
       setStatus($walletStatus, 'Verify code in wallet: ' + __LS_CHALLENGE);
     }
@@ -645,6 +655,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       state.account = address; setAdapter(ad);
       localStorage.setItem('xrbc.lastAccount', address);
       setStatus($walletStatus, ad.name+': '+address, 'ok');
+      // Generate a fresh challenge on connect (visible before first sign)
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
       $btnDisconnect.disabled = false;
       await refreshAll();
     }catch(e){
@@ -658,6 +670,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       if(resumed && resumed.address){
         state.account = resumed.address; setAdapter(ad);
         setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
+        __LS_CHALLENGE = newChallenge6(); announceChallenge();
         $btnDisconnect.disabled = false;
         await refreshAll();
       } else {
@@ -670,6 +683,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     try{ await state.adapter?.disconnect?.(); }catch{}
     state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
     localStorage.removeItem('xrbc.lastAccount');
+    setChallengeBadge('');
     $offersWrap && ($offersWrap.innerHTML='<div class="hint">No data yet.</div>');
     setStatus($walletStatus,'Status: Not connected');
     setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($healthStatus,'');
@@ -702,7 +716,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
     const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
     let i=0; const total=state.offers.length;
-    for(const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
+    for (const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
     setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
     if(s) setStatus(s,'Done.','ok');
   }
@@ -816,6 +830,19 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     else if (score <= 2) { status="Risk"; cls="R"; }
     return {score, status, cls};
   }
+
+  function applyRiskFilter(){
+    if(!$healthBody) return;
+    const only = $riskOnly?.checked;
+    const rows = $healthBody.querySelectorAll('tr');
+    rows.forEach(tr=>{
+      if(!only){ tr.style.display=''; return; }
+      const pill = tr.querySelector('td:last-child .pill');
+      const isRisk = pill && pill.classList.contains('R');
+      tr.style.display = isRisk ? '' : 'none';
+    });
+  }
+
   async function refreshHealth(){
     if (!$healthBody) return;
     if (!state.account){ $healthNote.textContent='Connect wallet to enable scanning.'; return; }
@@ -909,6 +936,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       </tr>
     `).join("");
     $healthTable.style.display='';
+    applyRiskFilter();
     setStatus($healthStatus,'Done.','ok');
     $healthNote.textContent = '';
   }
@@ -1061,7 +1089,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const unit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
       lines.push(`✅ ${p.label}: stop ${stopPx.toFixed(6)} ${unit} · amount ${p.amt.toFixed(6)} IOU`);
     }
-    $slPlanOut.textContent = lines.join('\\n');
+    $slPlanOut.textContent = lines.join('\n');
     document.getElementById('btnCreateStops').disabled = !lines.some(l=>l.startsWith('✅'));
   });
 
@@ -1129,7 +1157,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const base = `✅ ${r.disp}: est ${r.px.toFixed(6)} ${perUnit} × ${r.balance.toFixed(6)} = ${r.est.toFixed(6)} ${r.unit}`;
       return r.low ? base + '  ⚠ low liquidity — will skip' : base;
     });
-    $panicPlanOut.textContent = lines.join('\\n');
+    $panicPlanOut.textContent = lines.join('\n');
   });
 
   $btnPanicSell?.addEventListener('click', async ()=>{
@@ -1240,6 +1268,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   });
 
   if ($btnHealthScan) $btnHealthScan.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
+  $riskOnly?.addEventListener('change', applyRiskFilter);
 
   /* ===== Boot ===== */
   updateNetUI();
