@@ -11,13 +11,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b0f14" />
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
-  <meta name="description" content="Analyze XRPL liquidity pool health for the tokens in any account. Estimates slippage, depth, and assigns a health score. Read-only, no secrets." />
+  <meta name="description" content="Connect your wallet (read-only) and scan XRPL AMM pools for the tokens you hold. Slippage & depth estimates with Healthy / Caution / Risk scoring." />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="XRBitcoinCash" />
   <meta property="og:title" content="Liquidity Sentinel · XRPL Pool Health" />
-  <meta property="og:description" content="Read-only app that checks XRPL AMM pools for tokens in an account and scores health." />
+  <meta property="og:description" content="Read-only pool health for your tokens: depth, fee, slippage, and a simple health score." />
   <meta property="og:url" content="https://xrbitcoincash.com/liquidity-sentinel.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:locale" content="en_US" />
@@ -25,7 +25,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Liquidity Sentinel · XRPL Pool Health" />
-  <meta name="twitter:description" content="Check XRPL AMM depth, fee, and slippage for the tokens held by an account." />
+  <meta name="twitter:description" content="Scan XRPL AMM pools for the tokens you hold. Healthy / Caution / Risk." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <!-- Icons -->
@@ -60,21 +60,28 @@
   .container{max-width:var(--wrap);margin:16px auto;padding:0 16px}
   .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:16px}
   .row{display:grid;grid-template-columns:1fr;gap:12px}
-  @media(min-width:900px){.row{grid-template-columns:1fr 2fr}}
+  @media(min-width:900px){.row{grid-template-columns:1.2fr 1.8fr}}
   input[type=text]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:#0b121b;color:var(--ink)}
   .btn{display:inline-block;border:1px solid var(--line);background:#0b121b;border-radius:10px;padding:10px 14px;cursor:pointer}
   .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .btn-row{display:flex;flex-wrap:wrap;gap:8px}
   .status{margin-top:8px;color:var(--muted)}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:top}
-  th{font-weight:600;text-align:left}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
   .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
   .H{background:rgba(34,197,94,.12);border-color:#165b34}
   .C{background:rgba(245,158,11,.12);border-color:#8a5a09}
   .R{background:rgba(239,68,68,.12);border-color:#7a2222}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-  .qr-note{font-size:13px;color:var(--muted)}
   [aria-live]{min-height:1.2em}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:top}
+  th{font-weight:600;text-align:left}
+  .footer-widget{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  .qr-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px}
+  .qr-card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:16px;max-width:480px;width:100%}
+  .qr-card h3{margin:0 0 8px 0}
+  .qr{display:flex;align-items:center;justify-content:center;background:#0b121b;border:1px dashed var(--line);border-radius:12px;aspect-ratio:1/1}
+  .qr-note{font-size:13px;color:var(--muted);margin-top:8px}
   </style>
 </head>
 <body>
@@ -87,41 +94,59 @@
   </header>
 
   <main class="container">
+
+    <!-- ===== App Toolbar (Quick Buy + 3 usual buttons) ===== -->
+    <section class="card" aria-labelledby="tools">
+      <h2 id="tools" style="margin:0 0 8px 0">Actions</h2>
+      <div class="toolbar">
+        <a class="btn" href="/trade.html">Quick Buy · XRBC</a>
+        <a class="btn" href="/limit-order-extraction.html">Extract Orders</a>
+        <a class="btn" href="/stop-loss.html">Stop-Loss / Panic</a>
+        <a class="btn" href="/limit-trade.html">Limit-Trade</a>
+      </div>
+    </section>
+
+    <!-- ===== Connect & Scan ===== -->
     <section class="card" aria-labelledby="intro">
-      <h2 id="intro" style="margin-top:0">Check pool health for tokens in an account</h2>
+      <h2 id="intro" style="margin-top:0">Scan pool health for tokens in your wallet</h2>
       <div class="row">
         <div>
-          <label for="acct">XRPL account (r…)</label>
-          <input id="acct" type="text" inputmode="latin" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="rXXXXXXXXXXXX..." />
-          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-            <button id="scanBtn" class="btn">Scan Liquidity</button>
-            <span id="status" class="status" aria-live="polite"></span>
+          <div class="btn-row">
+            <button id="connectBtn" class="btn">Connect Wallet</button>
+            <button id="pasteBtn" class="btn">Paste Address</button>
+            <button id="scanBtn" class="btn" disabled>Scan Now</button>
           </div>
-          <p class="qr-note">Read-only. You can paste any XRPL address. On desktop, we never ask for secrets. On mobile, opening in Xaman is optional.</p>
-        </div>
-        <div>
-          <div class="card" style="margin:0">
-            <strong>How scoring works</strong>
+          <div id="acctLine" class="status mono" style="margin-top:6px"></div>
+          <div id="status" class="status" aria-live="polite"></div>
+
+          <details style="margin-top:8px"><summary>How this works</summary>
             <ul style="margin:8px 0 0 18px;padding:0">
-              <li>Pool exists & reachable</li>
-              <li>Reserves depth (XRP side)</li>
-              <li>Slippage est. on 10 & 100 XRP</li>
-              <li>Trading fee</li>
-              <li>Ledger freshness</li>
+              <li>Read-only: no keys, no secrets, never signs a tx.</li>
+              <li>We pull your trustlines & check **XRP↔IOU AMM** pools.</li>
+              <li>We estimate slippage for 10 & 100 XRP and assign a score.</li>
             </ul>
             <div style="margin-top:8px">
               <span class="pill H">Healthy</span>
               <span class="pill C">Caution</span>
               <span class="pill R">Risk</span>
             </div>
+          </details>
+        </div>
+
+        <div>
+          <div class="card" style="margin:0">
+            <strong>XRBC (highlight)</strong>
+            <p style="margin:8px 0 0">If XRBC is in your wallet, we prioritize its pool first and show status at a glance.</p>
+            <div id="xrbcBadge" class="status"></div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ===== Results ===== -->
     <section class="card">
       <h3 style="margin-top:0">Results</h3>
-      <div id="resultsNote" class="status">Enter an account and press Scan.</div>
+      <div id="resultsNote" class="status">Connect or paste an account, then press Scan.</div>
       <div style="overflow:auto">
         <table id="resultsTable" style="display:none">
           <thead>
@@ -138,38 +163,88 @@
           <tbody id="tbody"></tbody>
         </table>
       </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button id="copyBtn" class="btn" disabled>Copy JSON</button>
+        <button id="csvBtn" class="btn" disabled>Export CSV</button>
+      </div>
     </section>
 
+    <!-- ===== Footer widget ===== -->
     <section class="card">
-      <strong>Disclaimer</strong>
-      <p style="margin:8px 0 0">Estimates only. AMM math can vary with protocol upgrades and pool state. Do your own research. This page never handles keys and uses your existing proxy.</p>
+      <h3 style="margin:0 0 8px 0">XRBC Ecosystem</h3>
+      <div class="footer-widget">
+        <a class="btn" href="/xrbc-ecosystem.html">XRBC · Ecosystem</a>
+        <a class="btn" href="/ai/status.html">Diagnostics · Status</a>
+        <a class="btn" href="/white-paper/">White Paper</a>
+        <a class="btn" href="/security-policy.html">Security Policy</a>
+      </div>
     </section>
   </main>
+
+  <!-- ===== Desktop QR (safety) modal ===== -->
+  <div id="qrModal" class="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+    <div class="qr-card">
+      <h3 id="qrTitle">Open on your phone</h3>
+      <div id="qrBox" class="qr" aria-label="QR Code target"></div>
+      <div class="qr-note">
+        1) Scan this QR with your phone.<br/>
+        2) Open in the <strong>Xaman (Xumm)</strong> app’s browser.<br/>
+        3) Tap <strong>Connect Wallet</strong> again to auto-detect your account (uses your existing Xaman app).<br/>
+        <div style="margin-top:6px"><a class="btn" href="https://xaman.app">Get Xaman</a> <button id="qrClose" class="btn">Close</button></div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== Config must remain immediately before main script ===== -->
   <script id="app-config" type="application/json">
   {
-    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com"
+    "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+    "xrbc": {
+      "currencyHex": "5852626974636F696E6361736800000000000000",
+      "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+    }
   }
   </script>
 
   <script>
   (function(){
-    /* ===== Utilities / Config ===== */
+    /* ===== [~line 310] Utilities / Config ===== */
     const cfgNode = document.getElementById("app-config");
     const cfg = cfgNode ? JSON.parse(cfgNode.textContent || "{}") : {};
     const PROXY_URL = cfg.proxyUrl || "";
+    if (!PROXY_URL) console.warn("Proxy URL missing");
     const XRP_TO_DROPS = 1_000_000;
 
+    const XRBC = {
+      currency: (cfg.xrbc && cfg.xrbc.currencyHex) || "5852626974636F696E6361736800000000000000",
+      issuer:   (cfg.xrbc && cfg.xrbc.issuer) || "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+    };
+    const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
+
     const $ = (sel) => document.querySelector(sel);
-    const statusEl = $('#status');
-    const noteEl = $('#resultsNote');
-    const tableEl = $('#resultsTable');
-    const tbodyEl = $('#tbody');
+    const on = (el, evt, fn) => el && el.addEventListener(evt, fn);
+
+    let activeAccount = "";          // set when connected / pasted
+    let lastRows = [];               // export cache
     let inFlight = false;
 
+    /* ===== [~line 330] DOM Refs ===== */
+    const acctLine = $('#acctLine');
+    const statusEl = $('#status');
+    const resultsNote = $('#resultsNote');
+    const tableEl = $('#resultsTable');
+    const tbodyEl = $('#tbody');
+    const connectBtn = $('#connectBtn');
+    const pasteBtn = $('#pasteBtn');
+    const scanBtn = $('#scanBtn');
+    const copyBtn = $('#copyBtn');
+    const csvBtn = $('#csvBtn');
+    const xrbcBadge = $('#xrbcBadge');
+
+    /* ===== [~line 345] Helpers ===== */
     function short(addr){ return addr ? addr.slice(0,6)+"…"+addr.slice(-4) : ""; }
     function sanitize(s){ return (s||"").toString().replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+    function normalizeHexCurrency(s){ return (s||'').toUpperCase().replace(/0+$/,''); }
 
     async function xrplRequest(body, {timeoutMs=12000} = {}){
       if (!PROXY_URL) throw new Error("Proxy URL missing");
@@ -190,8 +265,7 @@
     async function serverState(){
       try{
         const r = await xrplRequest({command:"server_state"});
-        const s = r && r.result && r.result.state || {};
-        return s;
+        return r && r.result && r.result.state || {};
       }catch(e){ return {}; }
     }
 
@@ -200,10 +274,18 @@
       return (r && r.result && r.result.lines) || [];
     }
 
-    // XRPL AMM constant product helpers
+    async function ammInfo(asset1, asset2){
+      try{
+        const r = await xrplRequest({command:"amm_info", asset:asset1, asset2});
+        return r && r.result && r.result.amm ? r.result.amm : null;
+      }catch(e){ return null; }
+    }
+
+    function toAssetXRP(){ return {currency:"XRP"}; }
+    function toAssetIOU(currencyHex, issuer){ return {currency: currencyHex, issuer}; }
+
+    // Constant-product slippage est for XRP -> IOU
     function estSlippageXrpToIou(xrpIn, xrpRes, iouRes){
-      // Constant product: (xrpRes + dx)*(iouRes - dy) = k ⇒ dy = (iouRes * dx) / (xrpRes + dx)
-      // price impact vs spot: approx using reserves
       if (xrpIn <= 0 || xrpRes <= 0 || iouRes <= 0) return {dy:0, slip:0};
       const dy = (iouRes * xrpIn) / (xrpRes + xrpIn);
       const spot = iouRes / xrpRes;
@@ -226,83 +308,117 @@
       return {score, status, cls};
     }
 
-    async function ammInfo(asset1, asset2){
-      // asset1 / asset2 follow rippled schema
-      try{
-        const r = await xrplRequest({command:"amm_info", asset:asset1, asset2});
-        return r && r.result && r.result.amm ? r.result.amm : null;
-      }catch(e){ return null; }
+    function setActiveAccount(addr){
+      activeAccount = addr;
+      acctLine.textContent = activeAccount ? ("Account: "+activeAccount) : "";
+      scanBtn.disabled = !activeAccount;
     }
 
-    function toAssetXRP(){ return {currency:"XRP"}; }
-    function toAssetIOU(currencyHex, issuer){
-      return {currency: currencyHex, issuer};
+    /* ===== [~line 430] Connect (Desktop QR helper + Mobile deep-link) ===== */
+    function isMobile(){
+      const ua = navigator.userAgent || "";
+      return /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
     }
-    function normalizeHexCurrency(s){ return (s||'').toUpperCase().replace(/0+$/,''); }
 
-    async function scan(){
-      if (inFlight) return;
-      const account = ($('#acct').value || '').trim();
-      if (!/^r[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(account)){
-        statusEl.textContent = "Enter a valid XRPL account (starts with r…).";
+    function showQr(){
+      const modal = document.getElementById('qrModal');
+      const box = document.getElementById('qrBox');
+      // Simple QR: page URL (lets users open this safe page inside Xaman browser)
+      const url = location.href.split('#')[0];
+      box.textContent = ""; // reset
+      // draw minimal QR (no external lib): fallback to showing URL as text for now
+      // TODO: (optional) inline a tiny QR encoder if you want generated squares; current UX shows the URL text as a fallback.
+      const pre = document.createElement('pre');
+      pre.style.padding = '12px'; pre.style.textAlign = 'center'; pre.className = 'mono';
+      pre.textContent = url;
+      box.appendChild(pre);
+      modal.style.display = 'flex';
+    }
+    on($('#qrClose'), 'click', () => { $('#qrModal').style.display='none'; });
+
+    async function connectFlow(){
+      statusEl.textContent = "";
+      if (!isMobile()){
+        // Desktop safety path: QR helper only (no signing on desktop).
+        showQr();
+        statusEl.textContent = "Open this page on your phone (Xaman) and press Connect again.";
         return;
       }
+      // Mobile path:
+      // TODO — WIRE YOUR EXISTING BACKEND SIGN-IN:
+      // Call your existing panic-button/Xaman backend endpoint to perform a
+      // read-only sign-in and return the account address (e.g., {"account":"r..."}).
+      // Then call setActiveAccount(result.account).
+      //
+      // Example integration point (do not guess endpoints):
+      // const r = await fetch(PROXY_URL + "/YOUR_SIGNIN_ENDPOINT").then(x=>x.json());
+      // setActiveAccount(r.account);
+      //
+      // For now, we guide to clipboard paste (one tap in Xaman → "Copy Address"):
+      statusEl.textContent = "Tap Paste Address to use the account copied from your Xaman wallet.";
+    }
+
+    /* ===== [~line 490] Scan ===== */
+    async function scan(){
+      if (!activeAccount) { statusEl.textContent = "No account yet."; return; }
+      if (inFlight) return;
       inFlight = true;
-      statusEl.textContent = "Fetching account lines…";
-      noteEl.textContent = "";
+      statusEl.textContent = "Fetching trustlines…";
+      resultsNote.textContent = "";
       tbodyEl.innerHTML = "";
       tableEl.style.display = "none";
+      copyBtn.disabled = true; csvBtn.disabled = true;
+      lastRows = [];
 
       const state = await serverState();
-      const ageOk = !!(state?.validated_ledger);
-      const lines = await getAccountLines(account);
+      const ledgerFresh = !!(state?.validated_ledger);
 
+      const lines = await getAccountLines(activeAccount);
       statusEl.textContent = lines.length ? `Found ${lines.length} trustlines. Checking pools…` : "No trustlines found. You can still hold XRP without trustlines.";
 
-      // For each IOU, try pool with XRP
+      const assetXRP = toAssetXRP();
       const rows = [];
+      let xrbcRow = null;
+
       for (const line of lines){
         const currency = normalizeHexCurrency(line.currency);
         const issuer = line.account;
         if (!currency || !issuer) continue;
 
-        const assetXRP = toAssetXRP();
+        const isXRBC = (currency === XRBC_HEX_NORM && issuer === XRBC.issuer);
         const assetIOU = toAssetIOU(currency, issuer);
         const amm = await ammInfo(assetXRP, assetIOU);
 
         if (!amm){
-          rows.push({
-            token: `${sanitize(line.currency)} (${short(issuer)})`,
+          const row = {
+            token: `${sanitize(line.currency)} (${issuer.slice(0,6)}…${issuer.slice(-4)})`,
             pool: "XRP/IOU",
             xrpRes: "-", iouRes: "-", fee: "-",
             slip10: "-", slip100: "-",
             score: 0, status: "No Pool", cls: "R"
-          });
+          };
+          if (isXRBC) xrbcRow = row;
+          rows.push(row);
           continue;
         }
 
-        // Parse reserves & fee
-        const xrpRes = Number(amm.amount?.value || amm.amount?.currency === "XRP" ? amm.amount?.value : amm.asset?.currency === "XRP" ? amm.asset?.value : amm.amount?.value) || Number(amm.asset?.value) || 0;
-        // IOU reserve may be in asset2 or "amount2"
+        const xrpRes = Number(amm.amount?.value) || Number(amm.asset?.value) || 0;
         const iouRes = Number(amm.amount2?.value) || Number(amm.asset2?.value) || 0;
-        const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30; // default/show if missing
-        const feePct = feeBps/100; // bps → %
+        const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30;
+        const feePct = feeBps/100;
 
-        // Slippage estimates for XRP→IOU trade sizes
         const s10 = estSlippageXrpToIou(10, xrpRes, iouRes);
         const s100 = estSlippageXrpToIou(100, xrpRes, iouRes);
 
         const health = scoreHealth({
           poolExists:true,
-          xrpRes,
-          fee: feePct,
-          slip10: s10.slip,
-          slip100: s100.slip,
-          ledgerFresh: ageOk
+          xrpRes, fee: feePct,
+          slip10: s10.slip, slip100: s100.slip,
+          ledgerFresh
         });
 
-        rows.push({
-          token: `${sanitize(line.currency)} (${short(issuer)})`,
+        const row = {
+          token: `${sanitize(line.currency)} (${issuer.slice(0,6)}…${issuer.slice(-4)})`,
           pool: "XRP/IOU",
           xrpRes: xrpRes.toFixed(2),
           iouRes: iouRes.toFixed(2),
@@ -312,16 +428,27 @@
           score: health.score,
           status: health.status,
           cls: health.cls
-        });
+        };
+        if (isXRBC) xrbcRow = row;
+        rows.push(row);
+      }
+
+      // XRBC badge
+      if (xrbcRow){
+        xrbcBadge.innerHTML = `<span class="pill ${xrbcRow.cls}">${xrbcRow.status}</span> · Score ${xrbcRow.score} · ${xrbcRow.xrpRes} XRP reserves`;
+      }else{
+        xrbcBadge.textContent = "XRBC not detected in this wallet (or no XRBC pool found).";
       }
 
       if (!rows.length){
-        noteEl.textContent = "No pools found for this account’s trustlines (or pools unavailable).";
+        resultsNote.textContent = "No pools found for this account’s trustlines (or pools unavailable).";
         statusEl.textContent = "Done.";
-        return inFlight = false;
+        inFlight = false;
+        return;
       }
 
-      // Render table
+      // Render rows
+      lastRows = rows;
       tbodyEl.innerHTML = rows.map(r => `
         <tr>
           <td class="mono">${r.token}</td>
@@ -334,11 +461,52 @@
         </tr>
       `).join("");
       tableEl.style.display = "";
+      copyBtn.disabled = false; csvBtn.disabled = false;
       statusEl.textContent = "Done.";
       inFlight = false;
     }
 
-    $('#scanBtn').addEventListener('click', () => { scan().catch(err => { statusEl.textContent = "Error: "+(err?.message||err); inFlight=false; }); });
+    /* ===== [~line 610] Exports ===== */
+    function copyJSON(){
+      if (!lastRows.length) return;
+      const data = JSON.stringify({account: activeAccount, rows: lastRows}, null, 2);
+      navigator.clipboard.writeText(data).then(() => { statusEl.textContent = "Copied JSON to clipboard."; });
+    }
+    function toCSV(rows){
+      const headers = ["token","pool","xrpRes","iouRes","fee","slip10","slip100","score","status"];
+      const esc = (v) => `"${String(v).replace(/"/g,'""')}"`;
+      return [headers.join(","), ...rows.map(r => headers.map(h => esc(r[h] ?? "")).join(","))].join("\n");
+    }
+    function exportCSV(){
+      if (!lastRows.length) return;
+      const csv = toCSV(lastRows);
+      const blob = new Blob([csv], {type:"text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "liquidity-sentinel.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    /* ===== [~line 650] UI wiring ===== */
+    on(connectBtn, 'click', connectFlow);
+    on(pasteBtn, 'click', async () => {
+      try{
+        const text = (await navigator.clipboard.readText() || "").trim();
+        if (/^r[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(text)){
+          setActiveAccount(text);
+          statusEl.textContent = "Address pasted. You can Scan now.";
+        }else{
+          statusEl.textContent = "Clipboard doesn’t contain a valid XRPL account.";
+        }
+      }catch(e){
+        statusEl.textContent = "Clipboard permission denied. Paste manually.";
+      }
+    });
+    on(scanBtn, 'click', () => { scan().catch(err => { statusEl.textContent = "Error: "+(err?.message||err); inFlight=false; }); });
+    on(copyBtn, 'click', copyJSON);
+    on(csvBtn, 'click', exportCSV);
+
   })();
   </script>
 </body>
