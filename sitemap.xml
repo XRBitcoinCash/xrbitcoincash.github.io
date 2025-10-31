@@ -69,7 +69,8 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- Removed: metadata.html (marked noindex) -->
-  <!-- Removed: off-domain ping URLs to Google/Bing (not valid sitemap entries) -->
-
+  <!-- Exclusions for clarity:
+       - metadata.html is omitted (page is marked noindex)
+       - Diagnostics/test pages are omitted (all marked noindex in-page)
+       - Off-domain ping URLs are not valid sitemap entries -->
 </urlset>
