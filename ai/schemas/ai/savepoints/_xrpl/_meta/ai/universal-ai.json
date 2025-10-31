@@ -1,0 +1,20 @@
+{
+  "name": "XRBitcoinCash — Liquidity & Trading Tools",
+  "domain": "https://xrbitcoincash.com",
+  "capabilities": [
+    { "id": "liquidity-sentinel", "path": "/liquidity-sentinel.html", "actions": ["health-scan", "plan-stop", "panic-sell", "quick-buy-xrbc"] },
+    { "id": "limit-order-extraction", "path": "/limit-order-extraction.html", "actions": ["list-offers", "cancel-offer"] },
+    { "id": "trade", "path": "/trade.html", "actions": ["limit-order-buy", "limit-order-sell"] }
+  ],
+  "security": {
+    "wallet_signing": "Xaman deep-link/QR only; no keys on site",
+    "challenge_memo": { "type": "numeric-6", "location": "XRPL Memos", "domain_hint": "xrbitcoincash.com" },
+    "desktop_policy": "QR-only; no direct signing on desktop",
+    "rate_limits": "client-side debouncing; proxy request budgets"
+  },
+  "xrpl": {
+    "proxy_url": "https://xrbitcoincash-github-io.onrender.com",
+    "methods": ["server_state", "account_lines", "book_offers", "amm_info", "ripple_path_find"]
+  },
+  "version": "2025.10.31"
+}
