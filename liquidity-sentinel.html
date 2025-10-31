@@ -37,16 +37,16 @@
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
-  <!-- Optional CSP (single-file friendly). If anything breaks, comment this out and we’ll tune sources. -->
+  <!-- Updated CSP to allow Xumm/Xaman overlay and websocket -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
-    script-src   'self' 'unsafe-inline' https://xaman.app;
-    style-src    'self' 'unsafe-inline';
-    img-src      'self' data:;
-    connect-src  'self' https://xaman.app https://xrbitcoincash-github-io.onrender.com wss:;
-    frame-src    'self';
-    base-uri     'self';
-    form-action  'self';
+    script-src  'self' 'unsafe-inline' https://xumm.app https://xaman.app;
+    style-src   'self' 'unsafe-inline';
+    img-src     'self' data: https:;
+    connect-src 'self' https://xumm.app https://oauth2.xumm.app https://xaman.app https://xrbitcoincash-github-io.onrender.com wss://xumm.app wss://xaman.app;
+    frame-src   'self' https://xumm.app https://oauth2.xumm.app https://xaman.app;
+    base-uri    'self';
+    form-action 'self';
   ">
 
   <style>
@@ -411,7 +411,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 }
 </script>
 
-<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + human-challenge memos + risk filter + UX helpers) -->
+<!-- Main script (merged: wallet connect + offers + stop-loss + panic + quick-buy + health + challenge memos + risk filter + UX helpers) -->
 <script>
 (function(){
   'use strict';
@@ -534,37 +534,38 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     return { ticker: null, hex: code, label: code };
   }
 
-  /* ===== Human challenge — SINGLE SOURCE OF TRUTH per tx ===== */
+  /* ===== Human test: challenge code shown + Memoed into tx ===== */
   let __LS_CHALLENGE = null;
   function newChallenge6(){ return String(Math.floor(100000 + Math.random()*900000)); }
-  function nextChallenge(){
-    __LS_CHALLENGE = newChallenge6();
-    setChallengeBadge(__LS_CHALLENGE);
-    setStatus($walletStatus, 'Verify code in wallet: ' + __LS_CHALLENGE);
-    log('Verify code in wallet: ' + __LS_CHALLENGE);
-    return __LS_CHALLENGE;
-  }
   function asciiToHex(s){ let out=''; for(let i=0;i<s.length;i++){ out += s.charCodeAt(i).toString(16).padStart(2,'0'); } return out.toUpperCase(); }
   function setChallengeBadge(code){
     const el = $('challengeBadge'); if(!el) return;
     if(!code){ el.style.display='none'; el.textContent=''; return; }
     el.textContent = code; el.style.display = 'inline-block';
   }
-  function buildMemosWith(code){
+  function buildMemos(){
     const app = 'Sentinel Liquidity Health';
-    const ch  = (code && String(code)) || newChallenge6();
+    const ch  = __LS_CHALLENGE || newChallenge6();
+    __LS_CHALLENGE = ch;
     return [
       { Memo: { MemoType: asciiToHex('APP'),       MemoData: asciiToHex(app) } },
       { Memo: { MemoType: asciiToHex('CHALLENGE'), MemoData: asciiToHex(ch)  } },
       { Memo: { MemoType: asciiToHex('DOMAIN'),    MemoData: asciiToHex('xrbitcoincash.com') } }
     ];
   }
-  function attachMemos(tx, code){
+  function attachMemos(tx){
     try{
-      const m = buildMemosWith(code);
+      const m = buildMemos();
       tx.Memos = Array.isArray(tx.Memos) ? tx.Memos.concat(m) : m;
     }catch{}
     return tx;
+  }
+  function announceChallenge(){
+    if (__LS_CHALLENGE){
+      setChallengeBadge(__LS_CHALLENGE);
+      log('Verify code in wallet: ' + __LS_CHALLENGE);
+      setStatus($walletStatus, 'Verify code in wallet: ' + __LS_CHALLENGE);
+    }
   }
 
   /* ===== XRPL PROXY ===== */
@@ -681,6 +682,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       state.account = address; setAdapter(ad);
       localStorage.setItem('xrbc.lastAccount', address);
       setStatus($walletStatus, ad.name+': '+address, 'ok');
+      // Generate a fresh challenge on connect (visible before first sign)
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
       $btnDisconnect.disabled = false;
       await refreshAll();
     }catch(e){
@@ -694,6 +697,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       if(resumed && resumed.address){
         state.account = resumed.address; setAdapter(ad);
         setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
+        __LS_CHALLENGE = newChallenge6(); announceChallenge();
         $btnDisconnect.disabled = false;
         await refreshAll();
       } else {
@@ -712,13 +716,12 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($healthStatus,'');
     $btnDisconnect.disabled=true; updateConnectButtons();
     $slTokens && ($slTokens.textContent='Connect wallet first.');
-    $slPlanOut && ($slPlanOut.textContent='');
-    $panicPlanOut && ($panicPlanOut.textContent='');
+    $slPlanOut && ($slPlanOut.textContent = '');
+    $panicPlanOut && ($panicPlanOut.textContent = '');
     $xrbcBadge && ($xrbcBadge.textContent='');
     $healthNote && ($healthNote.textContent='Connect wallet to enable scanning.');
     $healthTable && ($healthTable.style.display='none');
-   $healthBody && ($healthBody.innerHTML='');
-
+    $healthBody && ($healthBody.innerHTML='');
   }
 
   /* ===== CANCEL ===== */
@@ -726,8 +729,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
     const s = $('offersStatus'); if(s) setStatus(s,'Preparing cancel '+seq+'…');
     try{
-      const code = nextChallenge();
-      const tx=attachMemos({TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)}, code);
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
+      const tx=attachMemos({TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)});
       const res=await state.adapter.signAndSubmit(tx);
       if(s) setStatus(s,`Submitted cancel ${seq}.`,'ok');
       await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
@@ -787,7 +790,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyCode, issuer} }] });
       const amm = a?.result?.amm;
       if (amm){
-        const rx = Number(amm.amount) / 1_000_000;
+        const rxDrops = typeof amm.amount === 'string' ? Number(amm.amount) : Number(amm.amount?.value || 0);
+        const rx = rxDrops / 1_000_000;
         const ry = Number(amm.amount2?.value || 0);
         if (rx > 0 && ry > 0) return rx / ry;
       }
@@ -908,8 +912,18 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
         continue;
       }
 
-      const xrpRes = Number(amm.amount?.value) || Number(amm.asset?.value) || 0;
-      const iouRes = Number(amm.amount2?.value) || Number(amm.asset2?.value) || 0;
+      // CORRECT parsing of reserves: XRP in drops string, IOU as .value
+      let xrpRes = 0;
+      let iouRes = 0;
+      if (typeof amm.amount === 'string') {
+        xrpRes = Number(amm.amount) / 1_000_000;
+      } else if (amm.amount && typeof amm.amount.value !== 'undefined') {
+        xrpRes = Number(amm.amount.value);
+      }
+      if (amm.amount2 && typeof amm.amount2.value !== 'undefined') {
+        iouRes = Number(amm.amount2.value);
+      }
+
       const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30;
       const feePct = feeBps/100;
 
@@ -1144,8 +1158,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
           ? buildStopOfferRLUSD({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceRLUSDperIOU: stopPx })
           : buildStopOfferXRP({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceXrpPerIOU: stopPx });
 
-        const codeNow = nextChallenge();
-        await state.adapter.signAndSubmit(attachMemos(tx, codeNow));
+        __LS_CHALLENGE = newChallenge6(); announceChallenge();
+        await state.adapter.signAndSubmit(attachMemos(tx));
         ok++;
       }catch(e){ fail++; }
     }
@@ -1213,8 +1227,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
           ? await pathfindSellIOUtoRLUSD({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip })
           : await pathfindSellIOUtoXRP  ({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip });
 
-        const codeNow = nextChallenge();
-        await state.adapter.signAndSubmit(attachMemos(tx, codeNow));
+        __LS_CHALLENGE = newChallenge6(); announceChallenge();
+        await state.adapter.signAndSubmit(attachMemos(tx));
         ok++;
       }catch(e){ fail++; }
     }
@@ -1243,7 +1257,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
         Account:state.account,
         LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" },
         Flags: 0x00040000
-      }, nextChallenge());
+      });
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
       await state.adapter.signAndSubmit(tx);
       setStatus($buyStatus,'TrustSet submitted (rippling allowed). Wait for validation then retry buy.','ok');
     }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
@@ -1261,7 +1276,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     }
     if(!best) throw new Error('No XRP route available');
     const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100));
-    return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+    return attachMemos({ TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] });
   }
   async function buyXRBC(units){
     if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
@@ -1270,9 +1285,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const exists=await hasXRBCTrustLine(state.account);
       if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
       const tx=await pathFindBuy(state.account,String(units));
-      const codeNow = nextChallenge();
-      const withMemo = attachMemos(tx, codeNow);
-      const res=await state.adapter.signAndSubmit(withMemo);
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
+      const res=await state.adapter.signAndSubmit(tx);
       setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
     }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
   }
