@@ -1,819 +1,1404 @@
 <!DOCTYPE html>
-<!-- ===== Page Script (single block) ===== -->
-<script>
-(function(){
-'use strict';
+<html lang="en">
+<head>
+  <link rel="license" href="#license-proprietary">
+  <meta charset="utf-8" />
+  <!-- ===== XRBitcoinCash · SEO/AI Meta Pack v1 (stop-loss) ===== -->
+  <link rel="canonical" href="https://xrbitcoincash.com/stop-loss.html" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/stop-loss.html" />
 
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+  <meta name="description" content="Automatic & manual stop-loss for XRPL tokens, Sequential Panic Sell (tokens → XRP or RLUSD), and XRBC Quick Buy. Xaman supported. Secure, non-custodial." />
 
-/* ===== Utilities / Config ===== */
-const cfgNode = document.getElementById("app-config");
-const cfg = cfgNode ? JSON.parse(cfgNode.textContent || "{}") : {};
-const PROXY_URL = cfg.proxyUrl || "";
-const XRP_TO_DROPS = 1_000_000;
-const XRBC = { currency: (cfg.xrbc && cfg.xrbc.currencyHex) || "5852626974636F696E6361736800000000000000", issuer: (cfg.xrbc && cfg.xrbc.issuer) || "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw" };
-const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
-const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:title" content="Instant Stop Loss · XRPL · XRBitcoinCash" />
+  <meta property="og:description" content="Automatic & manual stop-loss for XRPL tokens, Sequential Panic Sell, and XRBC Quick Buy. Xaman supported." />
+  <meta property="og:url" content="https://xrbitcoincash.com/stop-loss.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:locale" content="en_US" />
 
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Instant Stop Loss · XRPL · XRBitcoinCash" />
+  <meta name="twitter:description" content="Automatic & manual stop-loss for XRPL tokens, Sequential Panic Sell, and XRBC Quick Buy. Xaman supported." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
-async function xrplRequest(payload){
-if (!PROXY_URL) throw new Error("Proxy URL missing");
-const res = await fetch(PROXY_URL, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload) });
-if (!res.ok) throw new Error("Proxy HTTP " + res.status);
-const data = await res.json();
-if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
-return data;
-}
-const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
+  <!-- Icons -->
+  <link rel="icon" href="/xrbc-nft.png" sizes="any" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-
-/* ===== Theme toggle ===== */
-(function themeInit(){
-const btn = document.getElementById('themeToggle');
-const saved = localStorage.getItem('xrbc-theme');
-if (saved === 'light') document.body.classList.add('light-mode');
-const sync = () => btn && btn.setAttribute('aria-pressed', document.body.classList.contains('light-mode') ? 'true' : 'false');
-sync();
-btn && btn.addEventListener('click', () => {
-document.body.classList.toggle('light-mode');
-localStorage.setItem('xrbc-theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
-sync();
-});
-})();
-
-
-/* ===== Download Xaman popover ===== */
-(function initDownloadPopover(){
-const wrap = document.querySelector(".dl-wrap");
-if (!wrap) return;
-const DOWNLOAD_URL = "https://xaman.app/download";
-const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-const downloadBtn = document.getElementById("btnDownloadXaman");
-const pop = document.getElementById("downloadPopover");
-const qrImg = document.getElementById("downloadQr");
-
-
-if (!downloadBtn || !pop) return;
-if (qrImg && !qrImg.src){ qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encodeURIComponent(DOWNLOAD_URL); }
-
-
-function openPopover(){ pop.hidden = false; pop.classList.add("open"); pop.setAttribute("aria-hidden","false"); downloadBtn.setAttribute("aria-expanded","true"); }
-function closePopover(){ pop.classList.remove("open"); pop.setAttribute("aria-hidden","true"); downloadBtn.setAttribute("aria-expanded","false"); setTimeout(() => { if (!pop.classList.contains("open")) pop.hidden = true; }, 300); }
-
-
-downloadBtn.addEventListener("click", (e) => { if (isMobile) { window.location.href = DOWNLOAD_URL; return; } e.preventDefault(); (pop.classList.contains("open") ? closePopover : openPopover)(); });
-document.addEventListener("click", (e) => { if (pop.hidden) return; if (!wrap.contains(e.target)) closePopover(); });
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pop.hidden) closePopover(); });
-})();
-
-
-/* ===== Sentinel v1 helpers (6‑digit code in memo) ===== */
-const SENTINEL_VERSION = 'v1';
-let __signInFlight = false;
-function genCode(){ const n = Math.floor(Math.random()*1_000_000); return String(n).padStart(6,'0'); }
-function asciiToHex(str){ let out=''; for(let i=0;i<str.length;i++){ const h = str.charCodeAt(i).toString(16).toUpperCase(); out += (h.length===1?'0':'') + h; } return out; }
-function nowIso(){ try{ return new Date().toISOString(); }catch{ return ''; } }
-function appIdFromPath(p){ try{ const name=(p||location.pathname).split('/').filter(Boolean).pop()||'index.html'; return 'XRBC:'+name; }catch{ return 'XRBC:unknown'; } }
-function originForMemo(){ try{ return location.origin + location.pathname; }catch{ return ''; } }
-function buildPayloadWithSentinel(txjson, ctx){
-const memos = Array.isArray(txjson.Memos) ? txjson.Memos.slice() : [];
-memos.push({ Memo: { MemoType: asciiToHex('XRBC-SENT'), MemoData: asciiToHex(ctx.code) }});
-memos.push({ Memo: { MemoType: asciiToHex('XRBC-CTX'), MemoData: asciiToHex(JSON.stringify({ v:SENTINEL_VERSION, ts:ctx.ts, origin:ctx.origin, app_id:ctx.app_id })) }});
-return { ...txjson, Memos: memos };
-}
-
-/* ===== Xumm SDK: connect / disconnect / trustline (with gating + Sentinel 6-digit verification) ===== */
-let xumm = null;
-const walletStatus  = document.getElementById("walletStatus");
-const trustlineMsg  = document.getElementById("trustlineMsg");
-const connectBtn    = document.getElementById("connectWalletBtn");
-const disconnectBtn = document.getElementById("disconnectWalletBtn");
-const setTrustBtn   = document.getElementById("setTrustlineBtn");
-
-// Prereq state
-let HAS_TRUSTLINE = false;
-
-// ===== Sentinel v1 (6-digit verification memos) =====
-const SENTINEL_VERSION = "v1";
-function genCode(){
-  const n = Math.floor(Math.random()*1_000_000);
-  return String(n).padStart(6,"0");
-}
-function asciiToHex(str){
-  let out = "";
-  for (let i=0;i<str.length;i++){
-    const h = str.charCodeAt(i).toString(16).toUpperCase();
-    out += (h.length===1?"0":"") + h;
+  <!-- JSON-LD: WebApplication (stop-loss tool) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "XRBitcoinCash · Instant Stop Loss",
+    "url": "https://xrbitcoincash.com/stop-loss.html",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "description": "Automatic & manual stop-loss for XRPL tokens, Sequential Panic Sell (tokens → XRP or RLUSD), and XRBC Quick Buy. Xaman supported.",
+    "image": "https://xrbitcoincash.com/xrbc-nft.png"
   }
-  return out;
+  </script>
+  <!-- ===== End Meta Pack v1 (stop-loss) ===== -->
+
+  <title>Instant Stop Loss · XRPL · XRBitcoinCash</title>
+
+  <link rel="preconnect" href="https://xaman.app" crossorigin>
+  <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
+
+  <style>
+:root{
+  --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+  --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
 }
-function buildTxWithSentinelMemos(txjson, ctx){
-  const memos = Array.isArray(txjson.Memos) ? txjson.Memos.slice() : [];
-  memos.push({ Memo:{ MemoType: asciiToHex("XRBC-SENT"), MemoData: asciiToHex(ctx.code) }});
-  memos.push({ Memo:{ MemoType: asciiToHex("XRBC-CTX"),  MemoData: asciiToHex(JSON.stringify({
-    v:SENTINEL_VERSION, ts:ctx.ts, origin:ctx.origin, app:"XRBC:index.html"
-  })) }});
-  return { ...txjson, Memos: memos };
+*{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+.container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:10px}
+h1,h2,h3{margin:.1em 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row-tight{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.center{justify-content:center}
+.between{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;max-width:100%}
+.btn.block{width:100%;max-width:360px}
+.btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+.glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
+.glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.hint{color:var(--muted);font-size:12.5px}
+.warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+.footer{margin-top:16px;color:var(--muted);font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
+.badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
+.progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
+.progress>span{display:block;height:100%;background:var(--blue);width:0%}
+.panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.panel-note-green{border-color:#14532d;color:#22c55e}
+.log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.btn-green{ border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510); }
+.btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
+.btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
+.btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
+.text-red{ color: var(--err); font-weight: 800; }
+.text-green{ color: var(--ok); font-weight: 700; }
+body.embed .container{max-width:none}
+body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
+body.embed header{display:none}
+.container, .card, .row, .btn { min-width: 0; }
+.card .row { justify-content: center; }
+
+/* Responsive tweaks */
+@media (max-width: 720px) {
+  .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
+  #offersWrap { overflow-x: auto; }
+  #offersWrap table { min-width: 520px; }
 }
-async function signWithSentinel(txjson, { statusEl = walletStatus } = {}){
-  if (!xumm) throw new Error("Wallet SDK not available.");
-  const code = genCode();
-  const ctx  = { code, ts:new Date().toISOString(), origin: location.origin + location.pathname };
-  statusEl && (statusEl.textContent = `Verify code: ${code} — it must match the memo in Xaman.`);
+@media (max-width: 420px) { .btn { padding: 10px 12px; } }
 
-  const tx = buildTxWithSentinelMemos(txjson, ctx);
-  const { resolved } = await xumm.payload.createAndSubscribe(
-    {
-      txjson: tx,
-      options:{ submit: true, expire: 300 },
-      custom_meta: {
-        instruction: `Verify code ${code} and all details before signing.`,
-        identifier:  `xrbc:index:${code}`,
-        blob: { sentinel:"v1", code, when:ctx.ts, origin:ctx.origin }
-      }
-    },
-    (ev) => {
-      if (ev?.opened && statusEl) statusEl.textContent = "Open Xaman (or scan QR) to review…";
-      if (ev?.signed === false && statusEl) statusEl.textContent = "Canceled in wallet.";
-    }
-  );
+/* Header grid */
+.hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.hero-top .left{justify-self:start}
+.hero-top .center{justify-self:center}
+.hero-top .right{justify-self=end;text-align:right}
 
-  const res = await resolved;
-  if (!res?.signed) throw new Error("User rejected");
-  statusEl && (statusEl.textContent = `Submitted. Code ${code} recorded in memo.`);
-  return res;
+/* === Stop-Loss Planner emphasis & container === */
+.hint-yellow{color:var(--yellow);font-weight:700}
+
+#slTokens{
+  border:1px solid var(--line);
+  border-left:4px solid #60a5fa;
+  background:linear-gradient(180deg,#0e1520,#0c131c);
+  box-shadow:0 0 0 2px rgba(37,99,235,.25),0 0 20px rgba(37,99,235,.18);
+  border-radius:10px;
+  padding:8px;
 }
 
-// ===== Trustline helpers =====
-const normalizeHexCurrency = (s) => (s || "").toUpperCase().replace(/0+$/,"");
-const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
-
-async function checkTrustline(acct){
-  try{
-    if (!acct) return false;
-    const lines = await xrplRequest({
-      method: "account_lines",
-      params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
-    });
-    const tl = (lines?.result?.lines || []).find(l => normalizeHexCurrency(l.currency) === XRBC_HEX_NORM);
-    return !!tl;
-  }catch{ return false; }
+/* Keep table stable & shrinkable */
+#slTokens table{table-layout:fixed;width:100%}
+#slTokens table th,#slTokens table td{
+  min-width:0;word-break:break-word;overflow-wrap:anywhere
 }
 
-function togglePrereqsUI(){
-  const connected = !!window.__xrbcWallet;
+/* Column color mapping (2=Hex, 3=Issuer, 4=Balance, 5=Amount) */
+#slTokens table thead th:nth-child(2),
+#slTokens table tbody td:nth-child(2){color:#fff;font-weight:700}
+#slTokens table thead th:nth-child(3),
+#slTokens table tbody td:nth-child(3){color:var(--blue);font-weight:700}
+#slTokens table thead th:nth-child(4),
+#slTokens table tbody td:nth-child(4){color:var(--yellow);font-weight:700}
+#slTokens table thead th:nth-child(5),
+#slTokens table tbody td:nth-child(5){color:var(--ok);font-weight:800}
 
-  if (connectBtn)    connectBtn.disabled    = connected;
-  if (disconnectBtn) disconnectBtn.disabled = !connected;
-
-  if (setTrustBtn){
-    setTrustBtn.hidden   = !connected;
-    setTrustBtn.disabled = !connected || HAS_TRUSTLINE;
+/* ===== Mobile-only refinements (desktop unchanged) ===== */
+@media (max-width:560px){
+  #slTokens{overflow:hidden}
+  #slTokens table th,#slTokens table td{padding:6px 8px}
+  #slTokens thead th{white-space:nowrap}
+  #slTokens table thead th:nth-child(5){font-size:12px;line-height:1.15;white-space:nowrap;color:var(--ok);font-weight:800}
+  #slTokens table thead th:nth-child(5)::after{ content:none }
+  #slTokens table thead th:nth-child(4),
+  #slTokens table thead th:nth-child(5){text-align:left;padding-left:6px;vertical-align:bottom}
+  #slTokens table thead th:nth-child(2),
+  #slTokens table tbody td:nth-child(2){width:38%}
+  #slTokens table thead th:nth-child(3),
+  #slTokens table tbody td:nth-child(3){width:20%}
+  #slTokens table thead th:nth-child(4),
+  #slTokens table tbody td:nth-child(4){width:18%}
+  #slTokens table thead th:nth-child(5),
+  #slTokens table tbody td:nth-child(5){width:24%}
+  #slTokens table tbody td:nth-child(5) > *{
+    display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
+    min-width:8ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
+    background:linear-gradient(180deg,#0e1520,#0c131c);overflow-wrap:anywhere;word-break:break-word;vertical-align:top
   }
-
-  const allowTrade   = connected && HAS_TRUSTLINE;
-  const placeOfferBtn= document.getElementById("placeOfferBtn");
-  const marketBtn    = document.getElementById("marketTradeBtn");
-  if (placeOfferBtn) placeOfferBtn.disabled = !allowTrade;
-  if (marketBtn)     marketBtn.disabled     = !allowTrade;
-}
-
-async function updateTrustline(acct){
-  HAS_TRUSTLINE = await checkTrustline(acct);
-  if (trustlineMsg) trustlineMsg.textContent = HAS_TRUSTLINE
-    ? "✅ XRBC trustline present."
-    : "XRBC trustline not found. Click “Set XRBC Trustline”.";
-  togglePrereqsUI();
-}
-
-function setConnectedUI(acct){
-  walletStatus && (walletStatus.textContent = "Connected: " + acct);
-  window.__xrbcWallet = acct;
-  localStorage.setItem("xrbcWallet", acct);
-  disconnectBtn && (disconnectBtn.disabled = false);
-  connectBtn    && (connectBtn.disabled = true);
-  updateTrustline(acct).catch(()=>{});
-}
-function setDisconnectedUI(){
-  walletStatus && (walletStatus.textContent = "Status: Not connected");
-  window.__xrbcWallet = null;
-  localStorage.removeItem("xrbcWallet");
-  HAS_TRUSTLINE = false;
-  togglePrereqsUI();
-}
-
-// Boot Xumm
-if (typeof Xumm !== "undefined"){
-  xumm = new Xumm(cfg.xummApiKey);
-
-  const savedAcct = localStorage.getItem("xrbcWallet");
-  if (savedAcct) setConnectedUI(savedAcct); else togglePrereqsUI();
-
-  xumm.on("ready", async () => {
-    try{
-      const acct = await xumm.user.account;
-      if (acct) setConnectedUI(acct);
-      else togglePrereqsUI();
-    } catch { togglePrereqsUI(); }
-  });
-
-  window.addEventListener("visibilitychange", () => {
-    if (!document.hidden) { xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{}); }
-  });
-  window.addEventListener("focus", () => {
-    xumm.user.account.then(a => a && setConnectedUI(a)).catch(()=>{});
-  });
-
-  connectBtn && connectBtn.addEventListener("click", async () => {
-    try {
-      if (window.__xrbcWallet){
-        walletStatus && (walletStatus.textContent = "Already connected: " + window.__xrbcWallet);
-        return;
-      }
-      walletStatus && (walletStatus.textContent = "Waiting for Xaman… (scan QR if shown)");
-      await xumm.authorize();
-      const acct = await xumm.user.account;
-      if (acct) setConnectedUI(acct);
-      else walletStatus && (walletStatus.textContent = "Still waiting for Xaman…");
-    } catch {
-      walletStatus && (walletStatus.textContent = "Wallet connect canceled or timed out. Ensure Xaman is installed and try again.");
-    }
-  });
-
-  disconnectBtn && disconnectBtn.addEventListener("click", () => {
-    setDisconnectedUI();
-    try { xumm.logout(); } catch {}
-  });
-
-  setTrustBtn && setTrustBtn.addEventListener("click", async () => {
-    try {
-      const acct = window.__xrbcWallet || (xumm && await xumm.user.account);
-      if (!acct) {
-        trustlineMsg && (trustlineMsg.textContent = "Please connect your wallet first, then try again.");
-        connectBtn?.focus();
-        return;
-      }
-      trustlineMsg && (trustlineMsg.textContent = "Preparing trustline request…");
-      setTrustBtn.disabled = true;
-
-      const txjson = {
-        TransactionType: "TrustSet",
-        Account: acct,
-        LimitAmount: { currency: XRBC.currency, issuer: XRBC.issuer, value: "21000000" }
-      };
-
-      await signWithSentinel(txjson, { statusEl: trustlineMsg });
-      trustlineMsg && (trustlineMsg.textContent = "✅ Trustline set successfully!");
-      HAS_TRUSTLINE = true;
-      togglePrereqsUI();
-      refreshAll?.(); // soft refresh UI if available
-    } catch (err) {
-      trustlineMsg && (trustlineMsg.textContent = "Error: " + (err?.message || err));
-    } finally {
-      setTrustBtn.disabled = false;
-    }
-  });
-} else {
-  console.warn("Xumm SDK not loaded — wallet actions disabled.");
-  connectBtn   && (connectBtn.disabled = true);
-  setTrustBtn  && (setTrustBtn.disabled = true);
-  trustlineMsg && (trustlineMsg.textContent = "Wallet features unavailable: Xaman SDK not loaded.");
-  togglePrereqsUI();
-}
-
-/* ===== Trading UI (Buy/Sell, Best Price, Limit Order, AMM Swap) ===== */
-const sideEl        = document.getElementById("side");
-const tradeCard     = document.getElementById("tradeCard");
-const buyTab        = document.getElementById("buyTab");
-const sellTab       = document.getElementById("sellTab");
-const amountEl      = document.getElementById("amount");
-const priceEl       = document.getElementById("price");
-const priceField    = document.getElementById("priceField");
-const totalXrpEl    = document.getElementById("totalXrp");
-const suggestBtn    = document.getElementById("suggestPriceBtn");
-const placeOfferBtn = document.getElementById("placeOfferBtn");
-const marketBtn     = document.getElementById("marketTradeBtn");
-const tradeMsg      = document.getElementById("tradeMsg");
-
-// XRP icon URL fix (guard)
-(() => {
-  const GOOD = 'https://xrbitcoincash.github.io/assetsxrp.svg';
-  document.querySelectorAll('img[alt="XRP"]').forEach(img => {
-    const src = String(img.src || '');
-    if (src.endsWith('assetsxrp.svg.svg') || src.includes('assetsxrp.svg.svg')) {
-      img.src = GOOD;
-      img.decoding = 'async';
-      img.loading  = 'eager';
-    }
-  });
-})();
-
-function updateExplainer(side){
-  const wrap = document.getElementById("sideExplain");
-  if (!wrap) return;
-
-  const buyNote  = wrap.querySelector('.note.buy');
-  const sellNote = wrap.querySelector('.note.sell');
-  const showBuy = (side === 'buy');
-
-  if (buyNote){
-    buyNote.hidden = !showBuy;
-    buyNote.classList.toggle('active', showBuy);
-    buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+  #slTokens table tbody td:nth-child(5) input,
+  #slTokens table tbody td:nth-child(5) textarea{
+    display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
+    min-width:8ch;padding:6px 10px;font:inherit;color:var(--ink);
+    background:linear-gradient(180deg,#0e1520,#0c131c);border:1px solid var(--line);border-radius:10px
   }
-  if (sellNote){
-    sellNote.hidden = showBuy;
-    sellNote.classList.toggle('active', !showBuy);
-    sellNote.setAttribute('aria-hidden', (showBuy).toString());
+  #slTokens table tbody td:nth-child(3),
+  #slTokens table tbody td:nth-child(4),
+  #slTokens table tbody td:nth-child(5){font-size:12px;line-height:1.2;white-space:normal}
+  .row{display:grid;grid-template-columns:1fr;align-items:start;row-gap:6px}
+  .row>.hint-yellow{order:0;margin-bottom:2px}
+  .row>.hint{order:0}
+  .row>button,.row>.btn,.row>input,.row>select,.row>textarea,
+  .row>.controls,.row>.field,.row>.row{order:1}
+}
+
+/* Extra-narrow safety */
+@media (max-width:380px){
+  #slTokens table thead th:nth-child(2),
+  #slTokens table tbody td:nth-child(2){font-size:10px}
+  #slTokens table thead th:nth-child(3),
+  #slTokens table tbody td:nth-child(3),
+  #slTokens table thead th:nth-child(4),
+  #slTokens table tbody td:nth-child(4),
+  #slTokens table thead th:nth-child(5),
+  #slTokens table tbody td:nth-child(5){font-size:11px}
+}
+
+/* Mobile landscape planner grid */
+@media (orientation:landscape) and (max-height:560px){
+  #slTokens{overflow:hidden}
+  #slTokens .row:has(.hint-yellow){
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    grid-template-rows:auto auto;
+    column-gap:10px; row-gap:6px;
+    align-items:start; justify-items:start;
   }
-
-  const hint  = document.getElementById('amountHint');
-  const label = document.getElementById('amountLabel');
-  if (label) label.textContent = 'Amount (XRBC)';
-
-  if (hint){
-    const XRP_ICON = 'https://xrbitcoincash.github.io/assetsxrp.svg';
-    hint.innerHTML = (side === 'buy')
-      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
-  }
+  #slTokens .row:has(.hint-yellow) .hint-yellow{margin:0; white-space:nowrap; grid-row:1;}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(1){grid-column:1}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(2){grid-column:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(3){grid-column:3}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(1) + *{grid-column:1; grid-row:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(2) + *{grid-column:2; grid-row:2}
+  #slTokens .row:has(.hint-yellow) .hint-yellow:nth-of-type(3) + *{grid-column:3; grid-row:2}
+  #slTokens table tbody td:nth-child(5) > *,
+  #slTokens table tbody td:nth-child(5) input,
+  #slTokens table tbody td:nth-child(5) textarea{box-sizing:border-box;width:100%;max-width:100%;}
 }
 
-function setSide(side){
-  if (sideEl) sideEl.value = side;
-  if (buyTab)  { buyTab.classList.toggle("active", side==='buy');  buyTab.setAttribute('aria-selected', side==='buy' ? 'true':'false'); }
-  if (sellTab) { sellTab.classList.toggle("active", side==='sell'); sellTab.setAttribute('aria-selected', side==='sell' ? 'true':'false'); }
-  if (tradeCard){
-    tradeCard.classList.toggle('buy', side==='buy');
-    tradeCard.classList.toggle('sell', side==='sell');
-  }
-  updateExplainer(side);
-  recalcTotals();
-}
-buyTab  && buyTab.addEventListener('click', () => setSide('buy'));
-sellTab && sellTab.addEventListener('click', () => setSide('sell'));
-setSide(sideEl?.value || 'buy');
+/* === Additions for price visibility & presets === */
+.pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-size:12px}
+.pricepill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:4px 8px}
+.dim{opacity:.55}
+.sl-summary{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:6px 0 10px}
+.sl-summary .item{display:flex;gap:6px;align-items:center}
+.sl-presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.sl-presets .btn.small{min-width:auto;padding:4px 8px}
+#slTokens .t-right{text-align:right}
+#slTokens .muted{color:var(--muted);font-size:12px}
+  </style>
 
-function recalcTotals(){
-  if (!totalXrpEl) return;
-  const amt = Number(amountEl?.value) || 0;
-  const px  = Number(priceEl?.value)  || 0;
-  const total = (px || 0) * amt;
-  totalXrpEl.textContent = (isFinite(total) ? total : 0).toFixed(6) + " XRP";
-}
-amountEl && amountEl.addEventListener("input", recalcTotals);
-priceEl  && priceEl.addEventListener("input", recalcTotals);
-
-// Wallet-aware balances for % chips
-const BAL = { xrp: 0, xrbc: 0 };
-const RESERVE_BUFFER_XRP = 1.0;
-
-async function fetchBalances(){
-  const acct = window.__xrbcWallet;
-  if (!acct) { BAL.xrp = 0; BAL.xrbc = 0; return BAL; }
-
-  try {
-    const info = await xrplRequest({
-      method: "account_info",
-      params: [{ account: acct, ledger_index: "validated" }]
-    });
-    BAL.xrp = Number(info?.result?.account_data?.Balance || 0) / XRP_TO_DROPS;
-  } catch { BAL.xrp = 0; }
-
-  try {
-    const lines = await xrplRequest({
-      method: "account_lines",
-      params: [{ account: acct, peer: XRBC.issuer, ledger_index: "validated" }]
-    });
-    const tl = (lines?.result?.lines || []).find(l => normalizeHexCurrency(l.currency) === XRBC_HEX_NORM);
-    BAL.xrbc = tl ? Math.max(0, Number(tl.balance || 0)) : 0;
-  } catch { BAL.xrbc = 0; }
-
-  return BAL;
-}
-
-// % chips wire-up
-(function initPercentChips(){
-  const chips = document.querySelectorAll('.quick-amounts .qa');
-  if (!chips.length) return;
-
-  async function applyPercent(pct){
-    const side = sideEl?.value || 'buy';
-    await fetchBalances();
-
-    if (side === 'sell'){
-      const amt = Math.max(0, BAL.xrbc * (pct/100));
-      if (amountEl){
-        amountEl.value = amt.toFixed(6);
-        amountEl.dispatchEvent(new Event('input'));
-      }
-      return;
-    }
-
-    let price = Number(priceEl?.value) || 0;
-    if (!price) { await fillBestPrice(); price = Number(priceEl?.value) || 0; }
-    if (!price || price <= 0) return;
-
-    const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
-    const amt = spendable > 0 ? (spendable / price) : 0;
-
-    if (amountEl){
-      amountEl.value = amt.toFixed(6);
-      amountEl.dispatchEvent(new Event('input'));
-    }
-  }
-
-  chips.forEach(btn => btn.addEventListener('click', async () => {
-    const pct = Number(btn.dataset.q || 0);
-    if (!pct) return;
-    btn.disabled = true;
-    try { await applyPercent(pct); }
-    finally { btn.disabled = false; }
-  }));
-})();
-
-// Pricing helpers
-async function getTopOfBook(){
-  const [askRes, bidRes] = await Promise.all([
-    xrplRequest({ method:"book_offers", params:[{ taker_gets: XRBC,             taker_pays: { currency:"XRP" }, limit:1 }] }),
-    xrplRequest({ method:"book_offers", params:[{ taker_gets: { currency:"XRP"}, taker_pays: XRBC,             limit:1 }] })
-  ]);
-  const priceFrom = (of) => {
-    if (!of) return null;
-    const gets = of.TakerGets?.value ? parseFloat(of.TakerGets.value) : parseFloat(of.TakerGets) / XRP_TO_DROPS;
-    const pays = of.TakerPays?.value ? parseFloat(of.TakerPays.value) : parseFloat(of.TakerPays) / XRP_TO_DROPS;
-    if (!isFinite(gets) || gets <= 0 || !isFinite(pays)) return null;
-    return pays / gets; // XRP per XRBC
-  };
-  return {
-    bestAsk: priceFrom(askRes?.result?.offers?.[0]) || null, // price you pay to buy XRBC
-    bestBid: priceFrom(bidRes?.result?.offers?.[0]) || null  // price you receive when selling XRBC
-  };
-}
-
-async function getMarketPrice(side){
-  // Try AMM first
-  try {
-    const data = await xrplRequest({
-      method: "amm_info",
-      params: [{ asset:{currency:"XRP"}, asset2:{currency:XRBC.currency, issuer:XRBC.issuer} }]
-    });
-    const amm = data?.result?.amm;
-    if (amm && amountEl){
-      const amt = Number(amountEl.value);
-      if (amt > 0){
-        const reserveXrp  = parseFloat(amm.amount) / XRP_TO_DROPS;
-        const reserveXrbc = parseFloat(amm.amount2.value);
-        const feeRate     = amm.trading_fee / 1_000_000;
-        const k = reserveXrp * reserveXrbc;
-        if (side === "buy"){
-          const newY = reserveXrbc - amt;
-          if (newY > 0){
-            const newX = k / newY;
-            let xrpIn = newX - reserveXrp;
-            xrpIn += xrpIn * feeRate;
-            return xrpIn / amt;
-          }
-        } else {
-          const newY = reserveXrbc + amt;
-          const newX = k / newY;
-          let xrpOut = reserveXrp - newX;
-          xrpOut -= xrpOut * feeRate;
-          return xrpOut / amt;
-        }
-      }
-    }
-  } catch {}
-
-  // Fallback: top of book
-  const { bestAsk, bestBid } = await getTopOfBook();
-  return side === "buy" ? bestAsk : bestBid;
-}
-
-// AMM-based price helper for the visible Price field
-async function fillBestPrice() {
-  if (!sideEl || !amountEl || !priceEl) return;
-  const side = sideEl.value;
-  const amount = Number(amountEl.value);
-  if (!amount || amount <= 0) return; // quiet when no amount
-
-  if (tradeMsg){ tradeMsg.textContent = "🔐 Connecting to XRPL for secure best price…"; tradeMsg.classList.remove("ok","err"); tradeMsg.classList.add("connecting"); }
-
-  try {
-    const px = await getMarketPrice(side);
-    if (!px || px <= 0) throw new Error("No price available");
-    priceEl.value = Number(px).toFixed(6);
-    recalcTotals();
-    if (tradeMsg){ tradeMsg.textContent = `Best price calculated from AMM/top-of-book (${side}).`; tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("ok"); }
-  } catch (err) {
-    if (tradeMsg){ tradeMsg.textContent = "Price helper error: " + (err?.message || err); tradeMsg.classList.remove("connecting"); tradeMsg.classList.add("err"); }
-  }
-}
-suggestBtn && suggestBtn.addEventListener("click", fillBestPrice);
-setInterval(() => {
-  const amt = Number(amountEl?.value);
-  if (amt > 0) fillBestPrice().catch(()=>{});
-}, 10000);
-
-// Place Limit Order (gated w/ Sentinel)
-placeOfferBtn && placeOfferBtn.addEventListener("click", async () => {
-  try {
-    if (!xumm) throw new Error("Wallet SDK not available.");
-    const account = window.__xrbcWallet;
-    if (!account) throw new Error("Connect your wallet first.");
-    if (!HAS_TRUSTLINE){ tradeMsg.textContent = "Set the XRBC trustline first."; tradeMsg.classList.add("err"); setTrustBtn?.focus(); return; }
-
-    const side   = sideEl?.value;
-    const amt    = Number(amountEl?.value);
-    const priceV = Number(priceEl?.value);
-
-    if (!amt || !priceV || amt <= 0 || priceV <= 0) throw new Error("Enter valid Amount & Price.");
-
-    const xrpTotal = priceV * amt;
-    const TF_SELL = 0x00080000;
-
-    let txjson;
-    if (side === "sell") {
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        TakerPays: toDrops(xrpTotal),
-        Flags: TF_SELL
-      };
-    } else {
-      txjson = {
-        TransactionType: "OfferCreate",
-        Account: account,
-        TakerGets: toDrops(xrpTotal),
-        TakerPays: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        Flags: 0
-      };
-    }
-
-    tradeMsg && (tradeMsg.textContent = "Open Xaman to review & sign…");
-    await signWithSentinel(txjson, { statusEl: tradeMsg });
-
-    tradeMsg && (tradeMsg.textContent = "Order submitted. Refreshing order book…");
-    await refreshOrderBook();
-    await refreshLedger();
-  } catch (err) {
-    tradeMsg && (tradeMsg.textContent = "Error: " + (err?.message || err));
-  }
-});
-
-// Market Swap (AMM path Payment, gated w/ Sentinel)
-marketBtn && marketBtn.addEventListener("click", async () => {
-  const SLIPPAGE_PCT = 2; // protective cap
-  try {
-    if (!xumm) throw new Error("Wallet SDK not available.");
-    const account = window.__xrbcWallet;
-    if (!account) throw new Error("Connect your wallet first.");
-    if (!HAS_TRUSTLINE){ tradeMsg.textContent = "Set the XRBC trustline first."; tradeMsg.classList.add("err"); setTrustBtn?.focus(); return; }
-
-    const side = sideEl?.value || "buy";
-    const amt  = Number(amountEl?.value);
-    if (!amt || amt <= 0) throw new Error("Enter valid Amount.");
-
-    // Get a reference price to compute slippage bounds
-    const basePx = await getMarketPrice(side);
-    if (!basePx || basePx <= 0) throw new Error("No market price available.");
-    const slip = SLIPPAGE_PCT / 100;
-
-    // Helpers
-    const TF_PARTIAL = 0x00020000; // tfPartialPayment
-    const ceilDrops  = (xrp) => Math.ceil(Number(xrp) * XRP_TO_DROPS).toString();
-    const floorDrops = (xrp) => Math.floor(Number(xrp) * XRP_TO_DROPS).toString();
-
-    // === Path-find ===
-    async function ripplePathFind(params){
-      const r = await xrplRequest({ method: "ripple_path_find", params: [params] });
-      const alts = r?.result?.alternatives || [];
-      if (!alts.length) throw new Error("No AMM/paths available for this amount.");
-      return alts;
-    }
-    function pickCheapestXrp(alts){
-      // Choose alternative with lowest XRP cost
-      let best = null, bestCostDrops = Infinity;
-      for (const alt of alts){
-        const sa = alt.source_amount;
-        let costDrops = Infinity;
-        if (typeof sa === "string"){
-          costDrops = Number(sa); // XRP drops
-        } else if (sa && sa.currency === "XRP"){
-          costDrops = Number(ceilDrops(sa.value));
-        }
-        if (Number.isFinite(costDrops) && costDrops < bestCostDrops){
-          best = alt; bestCostDrops = costDrops;
-        }
-      }
-      if (!best) throw new Error("Could not price a path with XRP.");
-      return { best, costDrops: bestCostDrops.toString() };
-    }
-    function pickCheapestIou(alts, iouCurrencyHex, iouIssuer){
-      // Choose alternative with lowest IOU cost (for selling XRBC)
-      let best = null, bestCost = Infinity;
-      for (const alt of alts){
-        const sa = alt.source_amount;
-        if (sa && typeof sa === "object" && sa.currency && sa.issuer){
-          const isXRBC = (sa.issuer === iouIssuer) &&
-            (String(sa.currency).toUpperCase() === String(iouCurrencyHex).toUpperCase());
-          if (isXRBC){
-            const v = Number(sa.value);
-            if (Number.isFinite(v) && v < bestCost){ best = alt; bestCost = v; }
-          }
-        }
-      }
-      if (!best) throw new Error("Could not price a path with XRBC as source.");
-      return { best, cost: bestCost };
-    }
-
-    let txjson;
-
-    if (side === "buy"){
-      // Buy XRBC using XRP → set Amount in XRBC, cap SendMax in XRP, allow partial with DeliverMin
-      const destAmt = { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) };
-      const alts = await ripplePathFind({
-        source_account: account,
-        destination_account: account,
-        destination_amount: destAmt,
-        source_currencies: [{ currency: "XRP" }]
-      });
-      const { best, costDrops } = pickCheapestXrp(alts);
-      const maxSpendDrops = Math.ceil(Number(costDrops) * (1 + slip)).toString();
-
-      txjson = {
-        TransactionType: "Payment",
-        Account: account,
-        Destination: account,
-        Amount: destAmt,
-        SendMax: maxSpendDrops, // XRP in drops
-        Flags: TF_PARTIAL,
-        DeliverMin: { currency: XRBC.currency, issuer: XRBC.issuer, value: (amt * (1 - slip)).toFixed(6) },
-        Paths: best.paths_computed || best.paths_canonical || []
-      };
-    } else {
-      // Sell XRBC to receive XRP → set Amount in XRP, cap SendMax in XRBC, require DeliverMin
-      const estXrp = amt * basePx;
-      const minXrpDrops = floorDrops(estXrp * (1 - slip));
-
-      // Guard against 0-drop rounding
-      let _min = Number(minXrpDrops);
-      if (_min < 1) throw new Error("Amount too small after slippage. Increase amount.");
-      const minDrops = String(_min);
-
-      const alts = await ripplePathFind({
-        source_account: account,
-        destination_account: account,
-        destination_amount: minDrops, // XRP drops as target
-        source_currencies: [{ currency: XRBC.currency, issuer: XRBC.issuer }]
-      });
-      const { best, cost } = pickCheapestIou(alts, XRBC.currency, XRBC.issuer);
-      if (cost > amt) throw new Error("Amount too small for slippage cap. Increase amount or relax slippage.");
-
-      txjson = {
-        TransactionType: "Payment",
-        Account: account,
-        Destination: account,
-        Amount: minDrops, // XRP in drops
-        SendMax: { currency: XRBC.currency, issuer: XRBC.issuer, value: String(amt) },
-        Flags: TF_PARTIAL,
-        DeliverMin: minDrops,
-        Paths: best.paths_computed || best.paths_canonical || []
-      };
-    }
-
-    tradeMsg && (tradeMsg.textContent = "Open Xaman to review & sign AMM swap…");
-    await signWithSentinel(txjson, { statusEl: tradeMsg });
-
-    tradeMsg && (tradeMsg.textContent = "Swap submitted. Refreshing…");
-    await refreshOrderBook();
-    await refreshLedger();
-  } catch (err) {
-    tradeMsg && (tradeMsg.textContent = "Error: " + (err?.message || err));
-  }
-});
-
-/* ===== Live Metrics: Ledger + Order Book (compact) ===== */
-const ledgerOut = document.getElementById("ledgerOutput");
-const bookOut   = document.getElementById("priceOutput");
-
-async function getLedgerSummary(){
-  const res = await xrplRequest({ method: "ledger", params: [{ ledger_index: "validated" }] });
-  const r = res?.result || {};
-  const idx   = r.ledger_index || r.validated_ledger_index || r.ledger?.ledger_index;
-  const hash  = r.ledger_hash  || r.ledger?.ledger_hash;
-  const close = r.ledger?.close_time_human || r.closed?.close_time_human;
-  return {
-    ledger_index: idx ?? "(unknown)",
-    ledger_hash : hash ?? "(unknown)",
-    close_time  : close || "(not expanded)",
-    validated   : r.validated === undefined ? true : !!r.validated
-  };
-}
-
-async function getOrderBookHtml(){
-  async function side(taker_gets, taker_pays, label){
-    const rows = [];
-    try{
-      const r = await xrplRequest({ method:"book_offers", params:[{ taker_gets, taker_pays, limit:5 }] });
-      const offers = r?.result?.offers || [];
-      if (!offers.length){
-        rows.push(`<tr><td>${label}</td><td>No offers</td><td>-</td></tr>`);
-      } else {
-        for (const ofr of offers){
-          const gets = ofr.TakerGets?.value ? parseFloat(ofr.TakerGets.value)
-                                            : parseFloat(ofr.TakerGets) / XRP_TO_DROPS;
-          const pays = ofr.TakerPays?.value ? parseFloat(ofr.TakerPays.value)
-                                            : parseFloat(ofr.TakerPays) / XRP_TO_DROPS;
-          const price = (isFinite(gets) && gets > 0) ? (pays / gets) : NaN;
-          rows.push(`<tr><td>${label}</td><td>${isFinite(price)?price.toFixed(6):"—"}</td><td>${isFinite(gets)?gets.toFixed(2):"—"}</td></tr>`);
-        }
-      }
-    } catch (e){
-      rows.push(`<tr><td>${label}</td><td>Error</td><td>${(e && e.message) || e}</td></tr>`);
-    }
-    return rows.join("");
-  }
-  const asks = await side(XRBC, { currency: "XRP" }, "Ask");
-  const bids = await side({ currency: "XRP" }, XRBC, "Bid");
-  return `
-    <div style="overflow:auto">
-      <table class="table">
-        <thead><tr><th>Side</th><th>Price (XRP/XRBC)</th><th>Amount</th></tr></thead>
-        <tbody>${asks}${bids}</tbody>
-      </table>
-    </div>
-  `;
-}
-
-async function refreshLedger(){
-  try {
-    const sum = await getLedgerSummary();
-    if (ledgerOut) ledgerOut.textContent = JSON.stringify(sum, null, 2);
-  } catch (e) {
-    if (ledgerOut) ledgerOut.textContent = "Error fetching ledger: " + (e?.message || e);
-  }
-}
-async function refreshOrderBook(){
-  try {
-    const html = await getOrderBookHtml();
-    if (bookOut) bookOut.innerHTML = html;
-  } catch (e) {
-    if (bookOut) bookOut.textContent = "Order book error: " + (e?.message || e);
-  }
-}
-
-// In-flight guard
-let _refreshing = false;
-async function refreshAll(){
-  if (_refreshing) return;
-  _refreshing = true;
-  try {
-    await Promise.allSettled([ refreshOrderBook(), refreshLedger() ]);
-  } finally {
-    _refreshing = false;
-  }
-}
-
-// First paint + gentle auto-refresh
-refreshAll().catch(()=>{});
-document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshAll().catch(()=>{}); });
-window.addEventListener("focus", () => refreshAll().catch(()=>{}));
-setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
-})(); // <-- END OF PAGE SCRIPT IIFE
-
-<!-- ===== Footer · XRBC Ecosystem ===== -->
-<footer class="site-footer" role="contentinfo" aria-label="XRBC ecosystem footer">
-  <div class="container" style="padding:20px 0">
-    <nav class="eco-links" aria-label="Project links">
-      <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:0;margin:0">
-        <li>
-          <a class="eco-link btn" href="https://xrbitcoincash.com/XRBitcoin/" target="_blank" rel="noopener noreferrer">
-            XRBitcoin (XRB)
-          </a>
-        </li>
-        <li>
-          <a class="eco-link btn" href="https://jesuschristsavestoken.com/" target="_blank" rel="noopener noreferrer">
-            Jesus Christ Saves (JCS)
-          </a>
-        </li>
-
-        <!-- TODO: Insert XRBC's official X (Twitter) profile URL and uncomment.
-        <li>
-          <a class="eco-link btn" href="https://x.com/REPLACE_WITH_XRBC" target="_blank" rel="noopener noreferrer" aria-label="Follow XRBC on X (Twitter)">
-            Follow XRBC on X
-          </a>
-        </li>
-        -->
-
-      </ul>
-    </nav>
-
-    <div class="muted" style="text-align:center;margin-top:10px;font-size:.95rem;opacity:.9">
-      Non-custodial. No secrets entered here. Always verify the domain <strong>xrbitcoincash.com</strong>.
-    </div>
+  <!-- Xumm SDK (keep) -->
+  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<noscript>
+  <div class="card" style="max-width:var(--wrap);margin:16px auto;color:#fca5a5;border-color:#7f1d1d">
+    This tool requires JavaScript to function. Please enable JavaScript to use wallet connect, previews, and signing.
   </div>
-</footer>
-<!-- ===== /Footer ===== -->
+</noscript>
 
- 
+<main class="container" aria-live="polite">
+
+  <!-- PRIMARY CARD -->
+  <section class="card" id="primary" aria-labelledby="hero-title">
+    <div class="hero-top">
+      <div class="left logo">
+        <img src="/xrbc-nft.png" alt="XRBC" width="32" height="32"
+             style="border-radius:6px;border:1px solid var(--line)" loading="lazy" decoding="async">
+      </div>
+      <div class="center">
+        <a class="btn glow-blue" href="/index.html" id="btnHome" title="Go to Home">Home</a>
+      </div>
+      <div class="right">
+        <button id="btnNetBadge" class="btn small" type="button" disabled>Mainnet</button>
+        <div class="row-tight" style="margin-top:6px">
+          <label class="hint" for="network">Network</label>
+          <select id="network" aria-label="Network">
+            <option value="mainnet" selected>Mainnet</option>
+            <option value="testnet">Testnet</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" style="margin-top:8px">
+      <h1 id="hero-title" style="margin:0">Instant Stop Loss</h1>
+      <p class="hint" style="margin:0">Automatic &amp; manual stop-loss for XRPL tokens + Sequential Panic Sell. Mobile-first. Desktop QR. Signing in Xaman.</p>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <button id="btnXumm" class="btn glow-green" type="button" title="Connect with Xaman wallet">Connect Xaman</button>
+      <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+    </div>
+    <p id="walletStatus" class="status">Status: Not connected</p>
+
+    <div class="panel-note">
+      <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
+    </div>
+
+    <!-- Hero: red/green disclaimers for instant recognition -->
+    <div class="panel-note" role="note" aria-live="polite">
+      <p class="text-red" style="margin:0 0 6px 0">
+        <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
+        <strong>automatically blocked</strong> (not submitted) — protecting liquidity during pool migrations, upgrades, or outages.
+      </p>
+      <p class="text-green" style="margin:0">
+        <strong>Safety measures:</strong> Auto-skip low-liquidity · sequential one-signature flow · clear preview flags · your funds never leave your wallet unless you approve.
+        Default threshold: <strong>2&nbsp;XRP</strong> (or <strong>2&nbsp;RLUSD</strong> when exiting to RLUSD).
+      </p>
+    </div>
+
+    <div id="offersWrap" class="hint">No data yet.</div>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+    <p id="offersStatus" class="status"></p>
+  </section>
+
+  <!-- STOP-LOSS PLANNER -->
+  <section class="card" aria-labelledby="slp">
+    <h2 id="slp">Stop-Loss Planner (per token)</h2>
+    <p class="hint">Create on-ledger stop-limit sells that trigger at your level. No bots or custody.</p>
+
+    <div id="slTokens" class="hint">Loading your token balances…</div>
+
+    <div class="row center" style="margin-top:6px;gap:14px">
+      <div class="hint hint-yellow" style="max-width:220px;text-align:center">
+        <strong>Mode</strong> — choose “% below current” or “Exact stop price”.
+      </div>
+      <div class="hint hint-yellow" style="max-width:220px;text-align:center">
+        <strong>Value</strong> — enter the percentage or the exact stop price.
+      </div>
+      <div class="hint hint-yellow" style="max-width:220px;text-align:center">
+        <strong>Exit</strong> — the asset you’ll receive when it triggers (XRP or RLUSD).
+      </div>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        Mode:
+        <select id="slMode">
+          <option value="pct" selected>% below current</option>
+          <option value="price">Exact stop price</option>
+        </select>
+      </label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        Value:
+        <input id="slValue" type="number" step="0.000001" inputmode="decimal" autocomplete="off"
+               placeholder="e.g., 10 for 10% or 0.123456" style="min-width:140px">
+      </label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        Exit to:
+        <select id="slTarget">
+          <option value="XRP" selected>XRP</option>
+          <option value="RLUSD">RLUSD (stable)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <button id="btnPlanStops" class="btn glow-blue" type="button" title="Preview calculated stop prices and amounts">Preview Planned Stops</button>
+      <button id="btnCreateStops" class="btn glow-green" type="button" title="Create and sign stop orders in Xaman" disabled>Create &amp; Sign Stops</button>
+    </div>
+    <div class="panel-note" style="margin-top:6px">
+      <p class="hint" style="margin:0">Preview shows the stop price per token and amount to protect. “Create &amp; Sign” submits one Offer per selected token, signed sequentially in Xaman.</p>
+    </div>
+    <div id="slPlanOut" class="log" style="margin-top:10px"></div>
+    <p id="slStatus" class="status"></p>
+  </section>
+
+  <!-- PANIC SELL -->
+  <section class="card" aria-labelledby="panic">
+    <h2 id="panic">Panic Sell — Sequential</h2>
+    <div class="warn" style="margin-bottom:10px">
+      <p class="text-red" style="margin:0 0 6px 0">
+        <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
+        <strong>automatically blocked</strong> and will <strong>not</strong> be submitted for signing.
+      </p>
+      <p class="text-green" style="margin:0">
+        <strong>Safety measures:</strong> Auto-skip low-liquidity · sequential one-signature flow (no “sell-all” spam) · preview lists order &amp; flags.
+        Default threshold: <strong>2&nbsp;XRP</strong> (or <strong>2&nbsp;RLUSD</strong> when exiting to RLUSD). Transactions you do sign are final.
+      </p>
+    </div>
+
+    <div class="row center">
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        Exit to:
+        <select id="panicTarget">
+          <option value="XRP" selected>XRP</option>
+          <option value="RLUSD">RLUSD (stable)</option>
+        </select>
+      </label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        Slippage cap (%):
+        <input id="panicSlip" type="number" step="0.1" value="2" inputmode="decimal" autocomplete="off" style="min-width:90px">
+      </label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center">
+        <input id="panicCancelFirst" type="checkbox" checked>
+        Cancel all open orders first (frees reserve)
+      </label>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <button id="btnPanicPreview" class="btn glow-yellow" type="button" title="Check routes and sort by estimated proceeds">Preview Routes &amp; Order</button>
+      <button id="btnPanicSell" class="btn glow-red" type="button" title="Submit sequentially; tokens with no route or below threshold are skipped">Sequential Panic Sell</button>
+    </div>
+
+    <div id="panicPlanOut" class="log" style="margin-top:10px"></div>
+    <p id="panicStatus" class="status"></p>
+  </section>
+
+  <!-- QUICK BUY (XRBC) -->
+  <section class="card" aria-labelledby="buyxrbc">
+    <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+    <h2 id="buyxrbc">Quick Buy · XRBitcoinCash (XRBC)</h2>
+
+    <div class="panel-note" style="margin-top:8px;border:1px solid var(--line);border-left:4px solid #60a5fa;border-radius:10px;padding:10px 12px;background:linear-gradient(180deg,#0e1520,#0c131c);">
+      <p class="hint" style="margin:0;color:#60a5fa;font-weight:700;">
+        Best available price at execution via XRPL pathfinding (AMM and/or order books) with a <strong>2% slippage cap</strong>.
+        Review &amp; sign <strong>inside Xaman</strong> (desktop shows a QR). <strong>Trustline required.</strong>
+      </p>
+    </div>
+
+    <div class="col" style="margin-top:8px">
+      <button class="btn btn-green glow-green block"  id="buy1"   type="button" title="Cheapest">Buy 1 XRBC for XRP</button>
+      <button class="btn btn-blue glow-blue block"    id="buy25"  type="button">Buy 25 XRBC for XRP</button>
+      <button class="btn btn-yellow glow-yellow block"id="buy50"  type="button">Buy 50 XRBC for XRP</button>
+      <button class="btn btn-red glow-red block"      id="buy100" type="button" title="Most expensive">Buy 100 XRBC for XRP</button>
+    </div>
+
+    <div class="col" style="margin-top:10px">
+      <button id="btnTrustXRBC" class="btn block" type="button" title="Add XRBC Trust Line">Add XRBC Trust Line</button>
+      <span class="hint">Issuer:
+        <span class="mono" id="xrbcIssuerPill" style="display:inline-block;max-width:18ch;overflow-wrap:anywhere;word-break:break-all;vertical-align:top">
+          rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw
+        </span>
+      </span>
+    </div>
+
+    <div class="panel-note panel-note-green" style="margin-top:10px">
+      <div class="hint" style="color:#22c55e">Tip: Start small. Verify each wallet prompt. Routes and slippage can change.</div>
+    </div>
+
+    <p id="buyStatus" class="status"></p>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="card" aria-labelledby="res">
+    <h2 id="res">Results</h2>
+    <div id="resultBox" class="hint">Receipts and freed reserve will appear here.</div>
+    <div class="panel-note" style="margin-top:10px">
+      <div class="hint">Activity log</div>
+      <pre id="log" class="log" aria-live="polite"></pre>
+    </div>
+  </section>
+
+  <!-- EMBED -->
+  <section class="card" aria-labelledby="embed">
+    <h2 id="embed">Embed this tool on your site</h2>
+    <p class="hint">Copy the snippet below. It renders an iframe in “embed mode.”</p>
+    <div class="panel-note">
+      <div class="row center" style="gap:8px">
+        <button id="btnCopyIframe" class="btn glow-blue" type="button">Copy embed code</button>
+        <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/stop-loss.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
+      </div>
+<pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
+&lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
+var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
+})(window,document,'xrbc-widget','https://xrbitcoincash.com/stop-loss.html?embed=1&amp;network=mainnet','980px');&lt;/script&gt;</pre>
+    </div>
+  </section>
+
+  <!-- IMPORTANT + FULL LEGAL -->
+  <section class="card" aria-labelledby="important">
+    <h2 id="important">Important</h2>
+    <div class="warn">
+      <p><strong>No custody / no brokerage.</strong> XRBitcoinCash provides software that constructs XRPL transactions for you to review and sign <em>in your own wallet</em>. We do not take possession of funds, route orders on your behalf, execute trades, or provide brokerage, ATS, exchange, or advisory services.</p>
+      <p><strong>Finality and risk.</strong> XRPL transactions are irreversible once validated. You are solely responsible for verifying asset, network, amounts, slippage, destinations, fees, and all details in your wallet before approval. Market conditions and routes may change between preview and signing.</p>
+      <p><strong>“Panic Sell” function.</strong> Panic Sell attempts to liquidate multiple IOUs via XRPL pathfinding. Assets with no viable route or that fall below the minimum-liquidity threshold are <strong>automatically skipped</strong> and not submitted. For submitted transactions, partial fills and materially worse execution than previews can occur. Use at your own risk.</p>
+      <p><strong>No guarantees / no warranties.</strong> The software is provided “AS IS” and “AS AVAILABLE” without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, non-infringement, uninterrupted availability, accuracy, or error-free operation.</p>
+      <p><strong>Compliance is your responsibility.</strong> You are solely responsible for complying with all applicable laws (including sanctions, export controls, tax, securities/commodities, and consumer protection laws) in your jurisdiction(s). Access may be restricted where prohibited.</p>
+      <p><strong>No investment advice / no solicitation.</strong> Nothing here constitutes investment, legal, accounting, or tax advice, or an offer or solicitation to buy or sell any asset. You should seek professional advice as needed.</p>
+      <p><strong>Limitation of liability.</strong> To the maximum extent permitted by law, XRBitcoinCash and its contributors shall not be liable for any direct, indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, data, goodwill, or other losses, arising from or related to your use of, or inability to use, the software, even if advised of the possibility of such damages.</p>
+      <p><strong>Assumption of risk.</strong> By using the software or embedding the widget, you acknowledge that digital assets are volatile and speculative, and you accept all risks associated with using XRPL and third-party wallets.</p>
+    </div>
+
+    <div id="license-proprietary" class="license" style="color:var(--muted);font-size:12px;white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
+<strong>Proprietary License — Instant Stop Loss (XRPL)</strong>
+Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+By accessing this page or embedding the widget, you accept the Important terms above and this License. You receive a limited, revocable, non-exclusive right to access the page and display the widget as provided, without modification of core functionality or removal of attribution. Access may be modified, throttled, or revoked at any time. No rights are granted to the trademarks “XRP” or “Xaman,” which are the property of their respective owners. XRBitcoinCash is not affiliated with Ripple, XRPL Labs, or Xaman.
+    </div>
+  </section>
+
+</main>
+
+<!-- App configuration (keep immediately before main script) -->
+<script type="application/json" id="app-config">
+{
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+  "xummApiKey": "2b433aaa-d2cc-4b75-a771-8a20433ac1c5",
+  "networks": {
+    "mainnet": { "label": "Mainnet" },
+    "testnet": { "label": "Testnet" }
+  },
+  "xrbc": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000"
+  },
+  "boot": {
+    "autoResume": true,
+    "autoLoadData": true,
+    "refreshOnFocus": true
+  }
+}
+</script>
+
+<script>
+/* === Instant Stop Loss · with Sentinel v1 (6-digit memo auth) === */
+(function(){
+  'use strict';
+
+  const FIRST_COMMIT_YEAR = 2025;
+
+  // ===== Embed mode
+  (function initEmbedMode(){
+    try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
+  })();
+
+  // ===== Copy embed code
+  (function initCopy(){
+    const btn=document.getElementById('btnCopyIframe'); const pre=document.getElementById('embedCode');
+    if(!btn||!pre) return;
+    btn.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(pre.textContent); btn.textContent='Copied';
+        setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }catch{
+        const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
+        btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy embed code',1200);
+      }
+    });
+  })();
+
+  // ===== CONFIG
+  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  const PROXY_BASE   = cfg.proxyUrl || '';
+  const XUMM_API_KEY = cfg.xummApiKey || '';
+  const XRBC         = cfg.xrbc || {};
+  const BOOT         = cfg.boot || {};
+  const XRP_TO_DROPS = 1_000_000;
+
+  // ===== Sentinel v1 helpers (6-digit code + memos + signing lock)
+  const SENTINEL_VERSION = 'v1';
+  let __signInFlight = false;
+
+  const $ = id => document.getElementById(id);
+  const $walletStatus = $('walletStatus');
+
+  function genCode(){ const n=Math.floor(Math.random()*1_000_000); return String(n).padStart(6,'0'); }
+  function asciiToHex(str){ let out=''; for(let i=0;i<str.length;i++){ const h=str.charCodeAt(i).toString(16).toUpperCase(); out += (h.length===1?'0':'') + h; } return out; }
+  function nowIso(){ try{ return new Date().toISOString(); }catch{ return ''; } }
+  function appIdFromPath(p){ try{ const name=(p||location.pathname).split('/').filter(Boolean).pop()||'index.html'; return 'XRBC:'+name; }catch{ return 'XRBC:unknown'; } }
+  function originForMemo(){ try{ return location.origin + location.pathname; }catch{ return ''; } }
+
+  function disableWalletButtons(disabled){
+    const ids=[
+      'btnXumm','btnDisconnect','btnRefresh','btnCancelAll',
+      'btnTrustXRBC','buy1','buy25','buy50','buy100',
+      'btnPlanStops','btnCreateStops','btnPanicPreview','btnPanicSell'
+    ];
+    ids.forEach(id=>{ const el=$(id); if(el) el.disabled = !!disabled; });
+  }
+  function buildPayloadWithSentinel(txjson, ctx){
+    const memos = Array.isArray(txjson.Memos) ? txjson.Memos.slice() : [];
+    memos.push({ Memo: { MemoType: asciiToHex('XRBC-SENT'), MemoData: asciiToHex(ctx.code) }});
+    memos.push({ Memo: { MemoType: asciiToHex('XRBC-CTX'),  MemoData: asciiToHex(JSON.stringify({
+      v:SENTINEL_VERSION, ts:ctx.ts, net:ctx.net, origin:ctx.origin, app_id:ctx.app_id
+    })) }});
+    return { ...txjson, Memos: memos };
+  }
+
+  // ===== STATE
+  const state = { network:'mainnet', account:null, adapter:null, offers:[], lastAccountInfo:null };
+
+  // ===== DOM
+  const $offersStatus = $('offersStatus');
+  const $offersWrap   = $('offersWrap');
+  const $resultBox    = $('resultBox');
+  const $log          = $('log');
+  const $btnXumm      = $('btnXumm');
+  const $btnDisconnect= $('btnDisconnect');
+  const $btnRefresh   = $('btnRefresh');
+  const $btnCancelAll = $('btnCancelAll');
+  const $networkSel   = $('network');
+  const $btnNetBadge  = $('btnNetBadge');
+  const $progress     = $('progressBar');
+  const $buyStatus    = $('buyStatus');
+
+  // Stop-loss & Panic DOM
+  const $slTokens = $('slTokens');
+  const $slMode   = $('slMode');
+  const $slValue  = $('slValue');
+  const $slTarget = $('slTarget');
+  const $slPlanOut= $('slPlanOut');
+  const $slStatus = $('slStatus');
+
+  const $panicTarget    = $('panicTarget');
+  const $panicSlip      = $('panicSlip');
+  const $panicCancelFirst = $('panicCancelFirst');
+  const $panicPlanOut   = $('panicPlanOut');
+  const $panicStatus    = $('panicStatus');
+  const $btnPanicPreview= $('btnPanicPreview');
+  const $btnPanicSell   = $('btnPanicSell');
+
+  // ===== UTILS
+  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
+  function setStatus(node,text,cls){
+    if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
+    if(node===$offersStatus) log('[offers] '+text); else if(node===$walletStatus) log('[wallet] '+text);
+    else if(node===$slStatus) log('[stop] '+text); else if(node===$panicStatus) log('[panic] '+text);
+    else if(node===$buyStatus) log('[buy] '+text);
+  }
+  const N=v=>Number.isFinite(Number(v))?Number(v):0;
+  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
+  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
+  const amtStr=a=>isXRP(a)?fmtDrops(a):(Number(a.value).toFixed(6)+' '+(a.currency||'IOU'));
+  const price=(gets,pays)=>{ const g=isXRP(gets)?N(gets)/XRP_TO_DROPS:N(gets.value); const p=isXRP(pays)?N(pays)/XRP_TO_DROPS:N(pays.value); return g>0?(p/g).toFixed(6):'—'; };
+  function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
+  function updateNetUI(){
+    const s = state.network==='testnet'?'Testnet':'Mainnet';
+    if($btnNetBadge){ $btnNetBadge.textContent=s; $btnNetBadge.className='btn small badge ' + (s==='Testnet'?'testnet':'mainnet'); }
+  }
+  function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
+  function updateConnectButtons(){
+    const connected = Boolean(state.account && state.adapter);
+    if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; $btnXumm.textContent='Connect Xaman'; }
+    if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
+  }
+  function hexToAscii(hex){
+    try{
+      const clean = hex.replace(/[^0-9A-F]/gi,'').toUpperCase();
+      if(clean.length%2!==0 || clean.length<2) return null;
+      let out=''; for(let i=0;i<clean.length;i+=2){ const b=parseInt(clean.slice(i,i+2),16); if(!b) break; if(b<32 || b>126) return null; out+=String.fromCharCode(b); }
+      return out || null;
+    }catch{ return null; }
+  }
+  function tokenDisplay(code){
+    const isHex = /^[0-9A-F]{10,}$/.test(code);
+    if(!isHex) return { ticker: code, hex: null, label: code };
+    const ascii = hexToAscii(code);
+    if(ascii) return { ticker: ascii, hex: code, label: `${ascii} (${code})` };
+    return { ticker: null, hex: code, label: code };
+  }
+
+  // ===== XRPL PROXY
+  async function xrplRequest(payload,{timeoutMs=12000}={}){
+    if(!PROXY_BASE) throw new Error('Proxy URL missing');
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res=await fetch(proxyUrl(),{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit' });
+      if(!res.ok) throw new Error('Proxy HTTP '+res.status);
+      const data=await res.json(); if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error')); return data;
+    } finally { clearTimeout(t); }
+  }
+  async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
+
+  // ===== DATA
+  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
+  async function fetchOffers(acct){
+    setStatus($offersStatus,'Loading open orders…');
+    try{
+      const r=await call('account_offers',{account:acct,limit:500});
+      state.offers=r?.offers||[]; renderOffers();
+      setStatus($offersStatus,`Found ${state.offers.length} open offer(s).`,'ok');
+    }catch(e){
+      state.offers=[]; renderOffers();
+      setStatus($offersStatus,'Error loading offers: '+(e.message||e),'err');
+    }
+  }
+  function renderOffers(){
+    $offersWrap.innerHTML='';
+    if(!state.offers.length){
+      const d=document.createElement('div'); d.className='hint'; d.textContent='No open offers found.'; $offersWrap.appendChild(d); return;
+    }
+    const wrap=document.createElement('div'); wrap.style.overflow='auto';
+    const table=document.createElement('table'); const thead=document.createElement('thead'); const trh=document.createElement('tr');
+    ['Offer Seq','Owner gets','Owner pays','Price','Action'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+    thead.appendChild(trh); table.appendChild(thead);
+    const tbody=document.createElement('tbody');
+    state.offers.forEach(o=>{
+      const tr=document.createElement('tr');
+      const tdSeq=document.createElement('td'); tdSeq.className='mono'; tdSeq.textContent=o.seq; tr.appendChild(tdSeq);
+      const tdGets=document.createElement('td'); tdGets.textContent=amtStr(o.taker_gets); tr.appendChild(tdGets);
+      const tdPays=document.createElement('td'); tdPays.textContent=amtStr(o.taker_pays); tr.appendChild(tdPays);
+      const tdPx=document.createElement('td'); tdPx.textContent=price(o.taker_gets,o.taker_pays); tr.appendChild(tdPx);
+      const tdAct=document.createElement('td'); const b=document.createElement('button'); b.className='btn'; b.type='button'; b.textContent='Cancel';
+      b.addEventListener('click',()=>cancelOne(o.seq)); tdAct.appendChild(b); tr.appendChild(tdAct);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody); wrap.appendChild(table); $offersWrap.appendChild(wrap);
+  }
+  async function beforeAfterReserveReport(acct,prevInfo){
+    try{
+      const now=await getAccountInfo(acct);
+      const prevBal=N(prevInfo?.Balance)/XRP_TO_DROPS; const nowBal=N(now?.Balance)/XRP_TO_DROPS;
+      const prevOwn=N(prevInfo?.OwnerCount); const nowOwn=N(now?.OwnerCount);
+      const freed=Math.max(0,prevOwn-nowOwn)*2; const delta=(nowBal-prevBal).toFixed(6);
+      $resultBox.innerHTML = `<div>Freed reserve: <strong>${freed.toFixed(6)} XRP</strong>. Balance change: <strong>${delta} XRP</strong>.</div>`;
+    }catch{}
+  }
+
+  // ===== ADAPTERS
+  class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
+  class XummAdapter extends WalletAdapter{
+    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
+    async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
+    async resume(){
+      await this.ensureSDK();
+      const acct = await this.xumm.user.account;
+      if(acct){ return { address: acct }; }
+      return null;
+    }
+    async connect(){
+      await this.ensureSDK();
+      await this.xumm.authorize();
+      const acct=await this.xumm.user.account;
+      if(!acct) throw new Error('No account returned');
+      return { address: acct };
+    }
+
+    // ===== Sentinel-enabled sign & submit (global for ALL actions) =====
+    async signAndSubmit(txjson){
+      if(__signInFlight){ setStatus($walletStatus,'Signing in progress…','err'); throw new Error('Signing in progress'); }
+      __signInFlight = true;
+      disableWalletButtons(true);
+
+      try{
+        await this.ensureSDK();
+        const code = genCode();
+        const ctx = {
+          code,
+          ts: nowIso(),
+          net: state.network || 'mainnet',
+          origin: originForMemo(),
+          app_id: appIdFromPath(location.pathname)
+        };
+
+        setStatus($walletStatus, `Verify code: ${code} — it must match the memo in your Xaman wallet.`, 'ok');
+
+        const tx = buildPayloadWithSentinel(txjson, ctx);
+
+        const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
+          {
+            txjson: tx,
+            options:{ submit:true, expire:300 },
+            custom_meta: {
+              instruction: `Verify code ${code} and details, then sign.`,
+              identifier: `sentinel:${ctx.app_id}:${code}`,
+              blob: { sentinel:'v1', code, ts:ctx.ts, net:ctx.net, origin:ctx.origin, app_id:ctx.app_id }
+            }
+          },
+          ev => {
+            if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…','ok');
+            if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
+          }
+        );
+
+        const res = await resolved;
+        try{ websocket?.close(); }catch{}
+        try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+
+        if(!res?.signed) throw new Error('User rejected');
+
+        setStatus($walletStatus, `Submitted. Code ${code} recorded in memo.`, 'ok');
+
+        // refresh all live views after submit (offers + token table)
+        try{ if (state.account) await refreshAll(); }catch{}
+
+        return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
+      }catch(e){
+        setStatus($walletStatus, (e && e.message) || 'Sign failed','err');
+        throw e;
+      }finally{
+        __signInFlight = false;
+        disableWalletButtons(false);
+      }
+    }
+    // ===== /Sentinel =====
+
+    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+  }
+
+  // ===== CONNECT HELPERS
+  function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
+  async function refreshAll(){
+    if(!state.account) return;
+    updateNetUI();
+    state.lastAccountInfo = await getAccountInfo(state.account);
+    await Promise.allSettled([ fetchOffers(state.account), refreshSLTokens() ]);
+  }
+  async function connectWith(AdapterClass){
+    try{
+      setStatus($walletStatus,'Connecting…');
+      const ad = new AdapterClass();
+      const { address } = await ad.connect();
+      state.account = address; setAdapter(ad);
+      localStorage.setItem('xrbc.lastAccount', address);
+      setStatus($walletStatus, ad.name+': '+address, 'ok');
+      $btnDisconnect.disabled = false;
+      await refreshAll();
+    }catch(e){
+      setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
+    } finally { updateConnectButtons(); }
+  }
+  async function tryResumeWallet(){
+    try{
+      const ad = new XummAdapter();
+      const resumed = await ad.resume();
+      if(resumed && resumed.address){
+        state.account = resumed.address; setAdapter(ad);
+        setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
+        $btnDisconnect.disabled = false;
+        await refreshAll();
+      } else {
+        const cached = localStorage.getItem('xrbc.lastAccount');
+        if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
+      }
+    } catch(e){}
+    finally{ updateConnectButtons(); }
+  }
+  async function disconnect(){
+    try{ await state.adapter?.disconnect?.(); }catch{}
+    state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
+    localStorage.removeItem('xrbc.lastAccount');
+    $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
+    setStatus($walletStatus,'Status: Not connected');
+    setStatus($offersStatus,''); setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($buyStatus,'');
+    $btnDisconnect.disabled=true; updateConnectButtons();
+    $slTokens.textContent='Connect wallet first.';
+    $slPlanOut.textContent=''; $panicPlanOut.textContent='';
+  }
+
+  // ===== CANCEL
+  async function cancelOne(seq){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    setStatus($offersStatus,'Preparing cancel '+seq+'…');
+    try{
+      const tx={TransactionType:'OfferCancel',Account:state.account,OfferSequence:Number(seq)};
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($offersStatus,`Submitted cancel ${seq}.`,'ok');
+      await fetchOffers(state.account); log(`tx hash: ${res.hash || '(unknown)'}`); return res;
+    }catch(e){ setStatus($offersStatus,'Error: '+(e.message||e),'err'); throw e; }
+  }
+  async function cancelAll(){
+    if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
+    if(!state.offers.length){ setStatus($offersStatus,'No visible offers to cancel.'); return; }
+    if(!confirm(`Cancel ${state.offers.length} offer(s)? You will approve each in your wallet.`)) return;
+    const beforeInfo = state.lastAccountInfo || await getAccountInfo(state.account);
+    let i=0; const total=state.offers.length;
+    for(const o of state.offers){ i++; setProgress(Math.floor((i-1)/total*100)); try{ await cancelOne(o.seq); }catch{} }
+    setProgress(100); await beforeAfterReserveReport(state.account,beforeInfo);
+    setStatus($offersStatus,'Done.','ok');
+  }
+
+  // ===== Slippage caps
+  const ST_DEFAULT_SLIPPAGE_PCT = 2;
+  const QUICK_BUY_SLIPPAGE_PCT  = 2;
+
+  const TARGETS = {
+    XRP:   { kind: 'XRP' },
+    RLUSD: {
+      kind: 'IOU',
+      issuer: 'rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De',
+      currencyHex: '524C555344000000000000000000000000000000'
+    }
+  };
+
+  const MIN_PANIC_VALUE = { XRP: 2, RLUSD: 2 };
+  function belowMin(estValue, tgt){
+    const min = tgt === 'RLUSD' ? MIN_PANIC_VALUE.RLUSD : MIN_PANIC_VALUE.XRP;
+    return Number(estValue) < Number(min);
+  }
+
+  // ===== Token discovery (positive balances)
+  async function listUserTokens(acct){
+    const out = [];
+    try{
+      const r = await call('account_lines', { account: acct, limit: 400 });
+      for(const l of (r?.lines || [])){
+        const bal = Number(l.balance || 0);
+        if (bal > 0) out.push({
+          code: (l.currency || '').toString().toUpperCase(),
+          issuer: l.account || l.issuer || l.account,
+          balance: bal
+        });
+      }
+    }catch{}
+    return out;
+  }
+
+  // ===== Price helpers
+  async function refPriceIOUtoXRP(currencyCode, issuer){
+    try{
+      const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyCode, issuer} }] });
+      const amm = a?.result?.amm;
+      if (amm){
+        const rx = Number(amm.amount) / 1_000_000;
+        const ry = Number(amm.amount2?.value || 0);
+        if (rx > 0 && ry > 0) return rx / ry;
+      }
+    }catch{}
+    try{
+      const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:'XRP'}, taker_pays:{currency:currencyCode, issuer}, limit:1 }] });
+      const of = r?.result?.offers?.[0];
+      if (of){
+        const gets = Number(of.TakerGets) / 1_000_000;
+        const pays = Number(of.TakerPays?.value);
+        if (pays > 0) return gets / pays;
+      }
+    }catch{}
+    return null;
+  }
+  async function refPriceIOUtoRLUSD(currencyCode, issuer){
+    const RL = TARGETS.RLUSD;
+    try{
+      const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:RL.currencyHex, issuer:RL.issuer}, asset2:{currency:currencyCode, issuer} }] });
+      const amm = a?.result?.amm;
+      if (amm){
+        const rL = Number(amm.amount?.value || 0);
+        const rT = Number(amm.amount2?.value || 0);
+        if (rL > 0 && rT > 0) return rL / rT;
+      }
+    }catch{}
+    try{
+      const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:RL.currencyHex, issuer:RL.issuer}, taker_pays:{currency:currencyCode, issuer}, limit:1 }] });
+      const of = r?.result?.offers?.[0];
+      if (of){
+        const gets = Number(of.TakerGets?.value);
+        const pays = Number(of.TakerPays?.value);
+        if (pays > 0) return gets / pays;
+      }
+    }catch{}
+    return null;
+  }
+
+  /* ===== Live price cache + helpers (adds price visibility) ===== */
+  const priceCache = new Map(); // key: code:issuer -> { xrpPx, rlPx, ts }
+
+  async function getPrices(code, issuer){
+    const key = `${code}:${issuer}`;
+    const cached = priceCache.get(key);
+    if (cached && Date.now() - cached.ts < 15_000) return cached; // 15s freshness
+
+    const [xrpPx, rlPx] = await Promise.all([
+      refPriceIOUtoXRP(code, issuer),
+      refPriceIOUtoRLUSD(code, issuer)
+    ]);
+
+    const val = {
+      xrpPx: (typeof xrpPx === 'number' && xrpPx > 0) ? xrpPx : null,
+      rlPx:  (typeof rlPx  === 'number' && rlPx  > 0) ? rlPx  : null,
+      ts: Date.now()
+    };
+    priceCache.set(key, val);
+    return val;
+  }
+  function unitForTarget(tgt){ return tgt === 'RLUSD' ? 'RLUSD' : 'XRP'; }
+  function computeStopPx({ basePx, mode, val }){
+    if (!basePx) return null;
+    if (mode === 'pct') return basePx * (1 - (Number(val)||0)/100);
+    return Number(val)||0;
+  }
+
+  // ===== Build offers
+  function buildStopOfferXRP({ acct, currencyCode, issuer, amountIOU, stopPriceXrpPerIOU }){
+    const TF_SELL = 0x00080000;
+    const xrpTotal = Math.max(0, Number(amountIOU) * Number(stopPriceXrpPerIOU));
+    return {
+      TransactionType: 'OfferCreate',
+      Account: acct,
+      TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },
+      TakerPays: String(Math.ceil(xrpTotal * 1_000_000)),
+      Flags: TF_SELL
+    };
+  }
+  function buildStopOfferRLUSD({ acct, currencyCode, issuer, amountIOU, stopPriceRLUSDperIOU }){
+    const RL = TARGETS.RLUSD;
+    const rlTotal = Math.max(0, Number(amountIOU) * Number(stopPriceRLUSDperIOU));
+    return {
+      TransactionType: 'OfferCreate',
+      Account: acct,
+      TakerGets: { currency: currencyCode, issuer, value: String(amountIOU) },
+      TakerPays: { currency: RL.currencyHex, issuer: RL.issuer, value: String(rlTotal) },
+      Flags: 0x00080000
+    };
+  }
+
+  // ===== Pathfind payments
+  async function pathfindSellIOUtoXRP({ acct, currencyCode, issuer, amountIOU, slippagePct }){
+    const estPx = (await refPriceIOUtoXRP(currencyCode, issuer)) || 0;
+    if (!estPx) throw new Error('No price');
+    const estXrp = amountIOU * estPx;
+    const slip = Math.max(0, Number(slippagePct)/100);
+    const minDrops = Math.floor(Math.max(1, estXrp * (1 - slip) * 1_000_000)).toString();
+
+    const pf = await xrplRequest({
+      method:'ripple_path_find',
+      params:[{
+        source_account: acct,
+        destination_account: acct,
+        destination_amount: minDrops,
+        source_currencies: [{ currency: currencyCode, issuer }]
+      }]
+    });
+    const alt = (pf?.result?.alternatives || [])[0];
+    if (!alt) throw new Error('No path');
+
+    return {
+      TransactionType: 'Payment',
+      Account: acct,
+      Destination: acct,
+      Amount: minDrops,
+      SendMax: { currency: currencyCode, issuer, value: String(amountIOU) },
+      Flags: 0x00020000,
+      DeliverMin: minDrops,
+      Paths: alt.paths_computed || alt.paths_canonical || []
+    };
+  }
+  async function pathfindSellIOUtoRLUSD({ acct, currencyCode, issuer, amountIOU, slippagePct }){
+    const RL = TARGETS.RLUSD;
+    const estPx = (await refPriceIOUtoRLUSD(currencyCode, issuer)) || 0;
+    if (!estPx) throw new Error('No price');
+    const estRl = amountIOU * estPx;
+    const slip = Math.max(0, Number(slippagePct)/100);
+    const minObj = { currency: RL.currencyHex, issuer: RL.issuer, value: String(estRl * (1 - slip)) };
+
+    const pf = await xrplRequest({
+      method:'ripple_path_find',
+      params:[{
+        source_account: acct,
+        destination_account: acct,
+        destination_amount: minObj,
+        source_currencies: [{ currency: currencyCode, issuer }]
+      }]
+    });
+    const alt = (pf?.result?.alternatives || [])[0];
+    if (!alt) throw new Error('No path');
+
+    return {
+      TransactionType: 'Payment',
+      Account: acct,
+      Destination: acct,
+      Amount: minObj,
+      SendMax: { currency: currencyCode, issuer, value: String(amountIOU) },
+      Flags: 0x00020000,
+      DeliverMin: minObj,
+      Paths: alt.paths_computed || alt.paths_canonical || []
+    };
+  }
+
+  // ===== Refresh planner tokens (with price + value + per-row stop hint)
+  async function refreshSLTokens(){
+    if (!state.account){ $slTokens.textContent='Connect wallet first.'; return; }
+
+    const toks = await listUserTokens(state.account);
+    if (!toks.length){ $slTokens.textContent='No positive IOU balances found.'; return; }
+
+    const tgt  = ($slTarget?.value === 'RLUSD') ? 'RLUSD' : 'XRP';
+    const mode = $slMode?.value || 'pct';
+    const val  = Number($slValue?.value || 0);
+    const unit = unitForTarget(tgt);
+
+    const rows = [];
+    let portfolioTotal = 0;
+
+    for (const t of toks){
+      const disp = tokenDisplay(t.code).label;
+      const prices = await getPrices(t.code, t.issuer);
+      const basePx = (tgt === 'RLUSD') ? prices.rlPx : prices.xrpPx;
+
+      let est = null;
+      if (basePx){ est = basePx * t.balance; portfolioTotal += est; }
+
+      rows.push({
+        disp, code: t.code, issuer: t.issuer, bal: t.balance,
+        basePx, est,
+        noRoute: !basePx
+      });
+    }
+
+    const tbl = document.createElement('table');
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>
+      <th></th>
+      <th>Token / Hex</th>
+      <th>Issuer</th>
+      <th class="t-right">Balance</th>
+      <th class="t-right">Est. price (${unit}/IOU)</th>
+      <th class="t-right">Est. value (${unit})</th>
+      <th>Amt to protect</th>
+    </tr>`;
+    tbl.appendChild(thead);
+
+    const tb = document.createElement('tbody');
+
+    for (const r of rows){
+      const tr = document.createElement('tr');
+      if (r.noRoute) tr.classList.add('dim');
+
+      // Pick
+      const tdPick = document.createElement('td');
+      const pick = document.createElement('input');
+      pick.type = 'checkbox';
+      pick.className = 'slPick';
+      pick.disabled = r.noRoute;
+      tdPick.appendChild(pick);
+      tr.appendChild(tdPick);
+
+      // Label
+      const tdLabel = document.createElement('td');
+      tdLabel.className = 'mono'; tdLabel.textContent = r.disp;
+      tr.appendChild(tdLabel);
+
+      // Issuer
+      const tdIssuer = document.createElement('td');
+      tdIssuer.className = 'mono'; tdIssuer.style.wordBreak='anywhere';
+      tdIssuer.textContent = r.issuer;
+      tr.appendChild(tdIssuer);
+
+      // Balance
+      const tdBal = document.createElement('td');
+      tdBal.className='t-right';
+      tdBal.textContent = r.bal.toFixed(6);
+      tr.appendChild(tdBal);
+
+      // Est price
+      const tdPx = document.createElement('td');
+      tdPx.className='t-right';
+      tdPx.textContent = r.basePx ? r.basePx.toFixed(6) : '—';
+      tr.appendChild(tdPx);
+
+      // Est value
+      const tdVal = document.createElement('td');
+      tdVal.className='t-right';
+      tdVal.textContent = (r.est != null) ? r.est.toFixed(6) : '—';
+      tr.appendChild(tdVal);
+
+      // Amt to protect + per-row "Stop @" hint
+      const tdAmt = document.createElement('td');
+      const amtInput = document.createElement('input');
+      amtInput.type = 'number';
+      amtInput.className = 'slAmt';
+      amtInput.step = '0.000001';
+      amtInput.value = String(Math.max(0, r.bal).toFixed(6));
+      tdAmt.appendChild(amtInput);
+
+      const hint = document.createElement('div');
+      hint.className = 'muted';
+      const stopPx = computeStopPx({ basePx: r.basePx, mode, val });
+      hint.textContent = r.basePx
+        ? `Stop @ ${ (stopPx||0).toFixed(6) } ${unit}/IOU (base ${r.basePx.toFixed(6)})`
+        : 'No price/route — cannot compute stop';
+      tdAmt.appendChild(hint);
+
+      tr.appendChild(tdAmt);
+      tb.appendChild(tr);
+    }
+
+    tbl.appendChild(tb);
+
+    // Summary + presets
+    const summary = document.createElement('div');
+    summary.className = 'sl-summary';
+    summary.innerHTML = `
+      <div class="item"><span class="pill">Exit: ${unit}</span></div>
+      <div class="item"><span class="pill">Portfolio est: ${(portfolioTotal||0).toFixed(6)} ${unit}</span></div>
+      <div class="item muted">Prices are reference only (AMM/OB); routes & slippage can change.</div>
+    `;
+
+    const presets = document.createElement('div');
+    presets.className = 'sl-presets';
+    [5,10,15,20].forEach(p=>{
+      const b=document.createElement('button');
+      b.className='btn small'; b.type='button'; b.textContent=`-${p}%`;
+      b.addEventListener('click', ()=>{
+        if ($slMode) $slMode.value='pct';
+        if ($slValue) $slValue.value=String(p);
+        refreshSLTokens();
+      });
+      presets.appendChild(b);
+    });
+
+    $slTokens.replaceChildren(summary, presets, tbl);
+  }
+
+  // ===== Stop-Loss plan
+  document.getElementById('btnPlanStops')?.addEventListener('click', async ()=>{
+    if (!state.account) return ($slStatus.textContent='Connect wallet first.');
+    const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
+    const picks = rows.map(row=>{
+      const ckb = row.querySelector('.slPick'); if(!ckb?.checked) return null;
+      const codeLabel = row.children[1].textContent.trim();
+      const hexMatch = codeLabel.match(/\(([0-9A-F]{10,})\)$/);
+      const code = hexMatch ? hexMatch[1] : codeLabel.split(' ')[0];
+      const issuer = row.children[2].textContent.trim();
+      const bal = Number(row.children[3].textContent||0);
+      const amt = Number(row.querySelector('.slAmt')?.value||0);
+      return { code, issuer, bal, amt, label: codeLabel };
+    }).filter(Boolean);
+    if (!picks.length) return ($slStatus.textContent='Pick at least one token.');
+
+    const mode = $slMode.value; const val = Number($slValue.value||0);
+    if (!val || val <= 0) return ($slStatus.textContent='Enter a % or price.');
+    const tgt = $slTarget.value;
+
+    const lines = [];
+    for (const p of picks){
+      const basePx = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(p.code, p.issuer)
+                                       : await refPriceIOUtoXRP(p.code, p.issuer);
+      if (!basePx){ lines.push(`❌ ${p.label}: no price`); continue; }
+      const stopPx = (mode==='pct') ? (basePx * (1 - val/100)) : val;
+      const unit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
+      lines.push(`✅ ${p.label}: stop ${stopPx.toFixed(6)} ${unit} · amount ${p.amt.toFixed(6)} IOU`);
+    }
+    $slPlanOut.textContent = lines.join('\n');
+    document.getElementById('btnCreateStops').disabled = !lines.some(l=>l.startsWith('✅'));
+  });
+
+  // ===== Stop-Loss create (sequential, each with Sentinel memos)
+  document.getElementById('btnCreateStops')?.addEventListener('click', async ()=>{
+    if (!state.account || !state.adapter) return ($slStatus.textContent='Connect wallet first.');
+    const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
+    const mode = $slMode.value; const val = Number($slValue.value||0);
+    const tgt  = $slTarget.value;
+
+    $slStatus.textContent='Building stop orders…';
+    let ok=0, fail=0;
+    for (const row of rows){
+      const ckb=row.querySelector('.slPick'); if(!ckb?.checked) continue;
+      const codeLabel = row.children[1].textContent.trim();
+      const hexMatch = codeLabel.match(/\(([0-9A-F]{10,})\)$/);
+      const code = hexMatch ? hexMatch[1] : codeLabel.split(' ')[0];
+      const issuer = row.children[2].textContent.trim();
+      const amt = Number(row.querySelector('.slAmt')?.value||0);
+      if (!amt || amt<=0) { fail++; continue; }
+
+      try{
+        const basePx = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(code, issuer)
+                                         : await refPriceIOUtoXRP(code, issuer);
+        if (!basePx) throw new Error('no price');
+        const stopPx = (mode==='pct') ? (basePx * (1 - val/100)) : val;
+
+        const tx = (tgt === 'RLUSD')
+          ? buildStopOfferRLUSD({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceRLUSDperIOU: stopPx })
+          : buildStopOfferXRP({ acct: state.account, currencyCode: code, issuer, amountIOU: amt, stopPriceXrpPerIOU: stopPx });
+
+        await state.adapter.signAndSubmit(tx);
+        ok++;
+      }catch(e){ fail++; }
+    }
+    $slStatus.textContent = `Submitted ${ok} stop(s). Failed ${fail}.`;
+  });
+
+  // ===== Panic preview
+  $btnPanicPreview?.addEventListener('click', async ()=>{
+    if (!state.account) return ($panicStatus.textContent='Connect wallet first.');
+    const toks = await listUserTokens(state.account);
+    if (!toks.length){ $panicPlanOut.textContent='No positive IOU balances.'; return; }
+    const tgt = $panicTarget.value;
+
+    const rows = [];
+    for (const t of toks){
+      const disp = tokenDisplay(t.code).label;
+      const px = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(t.code, t.issuer)
+                                   : await refPriceIOUtoXRP(t.code, t.issuer);
+      if (px){
+        const est  = px * t.balance;
+        const unit = (tgt === 'RLUSD') ? 'RLUSD' : 'XRP';
+        const low  = belowMin(est, tgt);
+        rows.push({ ...t, disp, px, est, unit, route: !low, low });
+      } else {
+        rows.push({ ...t, disp, px:null, est:0, unit:(tgt==='RLUSD'?'RLUSD':'XRP'), route:false, low:false });
+      }
+    }
+    rows.sort((a,b)=>b.est-a.est);
+
+    const lines = rows.map(r=>{
+      if(!r.px) return `❌ ${r.disp}: no route`;
+      const perUnit = (tgt === 'RLUSD') ? 'RLUSD/IOU' : 'XRP/IOU';
+      const base = `✅ ${r.disp}: est ${r.px.toFixed(6)} ${perUnit} × ${r.balance.toFixed(6)} = ${r.est.toFixed(6)} ${r.unit}`;
+      return r.low ? base + '  ⚠ low liquidity — will skip' : base;
+    });
+    $panicPlanOut.textContent = lines.join('\n');
+  });
+
+  // ===== Panic sell (sequential, Sentinel memos)
+  $btnPanicSell?.addEventListener('click', async ()=>{
+    if (!state.account || !state.adapter) return ($panicStatus.textContent='Connect wallet first.');
+    const slip = Number($panicSlip.value||ST_DEFAULT_SLIPPAGE_PCT);
+    const tgt  = $panicTarget.value;
+
+    if ($panicCancelFirst?.checked) {
+      try { await cancelAll(); } catch {}
+    }
+
+    const toks = await listUserTokens(state.account);
+    if (!toks.length){ $panicStatus.textContent='No positive IOU balances.'; return; }
+
+    const scored = [];
+    for (const t of toks){
+      const px = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(t.code, t.issuer)
+                                   : await refPriceIOUtoXRP(t.code, t.issuer);
+      if (px) scored.push({ ...t, est: px * t.balance });
+    }
+    scored.sort((a,b)=>b.est-a.est);
+
+    const filtered = scored.filter(s => !belowMin(s.est, tgt));
+
+    let ok=0, fail=0;
+    for (const t of filtered){
+      try{
+        const tx = (tgt === 'RLUSD')
+          ? await pathfindSellIOUtoRLUSD({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip })
+          : await pathfindSellIOUtoXRP  ({ acct: state.account, currencyCode: t.code, issuer: t.issuer, amountIOU: t.balance, slippagePct: slip });
+        await state.adapter.signAndSubmit(tx);
+        ok++;
+      }catch(e){ fail++; }
+    }
+    const skipped = (toks.length - scored.length) + (scored.length - filtered.length);
+    $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}. Skipped ${skipped} (no route/low liquidity).`;
+  });
+
+  // ===== XRBC TRUST + BUY
+  const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
+  function hexToAsciiLoose(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
+  const XRBC_CODE=hexToAsciiLoose(XRBC_HEX);
+
+  async function hasXRBCTrustLine(acct){
+    const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
+    const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
+  }
+  async function addXRBCTrustLine(){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    setStatus($buyStatus,'Checking trust line…');
+    try{
+      const exists=await hasXRBCTrustLine(state.account);
+      if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
+      const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" } };
+      await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
+    }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
+  }
+  async function pathFindBuy(acct,valueStr){
+    const AMOUNT={currency:XRBC_HEX,issuer:XRBC.issuer,value:valueStr};
+    const pfWrap=await xrplRequest({ method:'ripple_path_find', params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }] }, {timeoutMs:15000});
+    const pf=pfWrap?.result||{}; const alts=pf?.alternatives||[]; if(!alts.length) throw new Error('No path found for requested amount');
+    let best=null;
+    for(const a of alts){
+      const sa=a.source_amount;
+      const drops=typeof sa==='string'?N(sa):(sa && sa.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
+      if(!isFinite(drops)) continue;
+      if(!best || drops<best.drops) best={alt:a,drops};
+    }
+    if(!best) throw new Error('No XRP route available');
+
+    const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100));
+
+    return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths:best.alt.paths_computed||[] };
+  }
+  async function buyXRBC(units){
+    if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    try{
+      setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
+      const exists=await hasXRBCTrustLine(state.account);
+      if(!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
+      const tx=await pathFindBuy(state.account,String(units));
+      const res=await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
+    }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
+  }
+
+  // ===== Wire base UI
+  document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
+  document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
+  document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
+  document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
+  document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
+
+  document.getElementById('btnXumm')?.addEventListener('click',()=>connectWith(XummAdapter));
+  document.getElementById('btnDisconnect')?.addEventListener('click',()=>disconnect());
+  document.getElementById('btnRefresh')?.addEventListener('click',()=> state.account ? refreshAll() : setStatus($walletStatus,'Connect first.','err'));
+  document.getElementById('btnCancelAll')?.addEventListener('click',()=>cancelAll());
+  document.getElementById('network')?.addEventListener('change',()=>{
+    state.network = document.getElementById('network').value==='testnet' ? 'testnet' : 'mainnet';
+    updateNetUI();
+    if(state.account) { refreshAll(); }
+  });
+
+  /* === Re-render planner on control changes === */
+  $slTarget?.addEventListener('change', ()=>{ if(state.account) refreshSLTokens(); });
+  $slMode  ?.addEventListener('change',  ()=>{ if(state.account) refreshSLTokens(); });
+  $slValue ?.addEventListener('input',   ()=>{ if(state.account) refreshSLTokens(); });
+
+  // Boot
+  updateNetUI();
+  if (BOOT.autoResume !== false) { tryResumeWallet(); }
+  if (BOOT.autoLoadData !== false) {
+    setTimeout(()=>{ if(state.account){ refreshAll(); } }, 400);
+  }
+  if (BOOT.refreshOnFocus) {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state.account) refreshAll();
+    });
+    window.addEventListener('focus', () => { if (state.account) refreshAll(); });
+  }
+
+  (function setCopyrightYear(){
+    const y0 = FIRST_COMMIT_YEAR, y1 = new Date().getFullYear();
+    const el = document.getElementById('copyrightYear');
+    if (el) el.textContent = (y1 > y0) ? (y0 + '–' + y1) : String(y0);
+  })();
+
+})();
+</script>
+</body>
+</html>
