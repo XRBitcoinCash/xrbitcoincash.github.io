@@ -1,5 +1,5 @@
 # XRBitcoinCash — robots.txt
-# Version: 2025.10.21
+# Version: 2025.10.30
 # Style: AI-native, Ledger-indexed, XRPL-compliant
 # Mission: Make public what machines need to know. Guard what they do not.
 
@@ -14,20 +14,33 @@ Allow: /.well-known/
 Allow: /pgp-key.txt
 Allow: /xrbitcoincash.github.io/ai/
 Allow: /XRBitcoin/
+Allow: /xrbc-nft.png
 Allow: /xrbitcoin-nft.png
 Allow: /whitepaper.html
+Allow: /white-paper/
+Allow: /fa/white-paper/
+Allow: /white-paper/communitynftgallery/
 Allow: /metadata.html
 Allow: /trade.html
+Allow: /limit-order-extraction.html
+Allow: /stop-loss.html
+Allow: /stop-loss-legal.html
 Allow: /nfts.html
+Allow: /xrbc-ecosystem.html
+Allow: /security-jobs.html
 Allow: /compliance.html
+Allow: /security-policy.html
 Allow: /terms.html
 Allow: /privacy.html
+Allow: /limit-trade.html
+Allow: /vault-console.html
 
 # ❌ Sensitive, Experimental, or Non-indexable Areas
 Disallow: /members/
 Disallow: /bs/
 Disallow: /it/
 Disallow: /fa/
+Allow: /fa/white-paper/           # override to allow the localized white paper
 Disallow: /xrpl-test*
 Disallow: /xrpl-frontend.js
 Disallow: /xrpl-connector.js
@@ -45,7 +58,7 @@ AI-Manifest: https://xrbitcoincash.com/ai/ai.json
 AI-Schema: https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json
 Provenance: https://xrbitcoincash.com/ai/provenance.json
 Diagnostics: https://xrbitcoincash.com/ai/status.html
-Ledger-Issuer: https://xrbitcoincash.com/ai/account.html
+Ledger-Issuer: https://xrbitcoincash.com/ai/ai/account.html
 
 # 🛡️ Rate Hints (advisory, not enforced)
 Crawl-delay: 3
@@ -63,4 +76,3 @@ Crawl-delay: 3
 # 🧬 Future Compatibility Statement
 # This robots.txt is intended to support AI, ledger-indexers, and cross-network semantic agents through 2050.
 # Behavior-based bots welcome. Intelligence-weighted rankings encouraged. Your presence is not anonymized.
-
