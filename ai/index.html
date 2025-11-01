@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AI Beacon · Repo Index · XRBitcoinCash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="canonical" href="https://xrbitcoincash.com/ai/index.html" />
+  <meta name="description" content="Public AI Beacon for XRBitcoinCash. Live index of the public repo and canonical constants for AI agents. No secrets." />
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+  <meta name="theme-color" content="#0b0f14" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:title" content="AI Beacon · Repo Index" />
+  <meta property="og:description" content="Live index of public repo + canonical constants for AI agents." />
+  <meta property="og:url" content="https://xrbitcoincash.com/ai/index.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:locale" content="en_US" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Beacon · Repo Index" />
+  <meta name="twitter:description" content="Live index of public repo + canonical constants for AI agents." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <link rel="icon" href="/xrbc-nft.png" sizes="any" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <!-- Optional hint for agents -->
+  <link rel="alternate" type="application/json" href="/universal-ai.json" title="AI Canonicals" />
+
+  <style>
+  :root{
+    --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+    --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b;--shadow:rgba(0,0,0,.35)
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;max-width:100%;overflow-x:hidden}
+  body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+  a{color:#93c5fd;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px var(--shadow);margin-top:10px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .row.center{justify-content:center}
+  .row.between{justify-content:space-between}
+  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-align:center}
+  .btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .btn-blue{ border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324) }
+  .btn-green{border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510) }
+  .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104) }
+  .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+  .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+  .status{font-size:13px;color:var(--muted)} .ok{color:var(--ok)} .err{color:var(--err)}
+  .hint{color:var(--muted);font-size:12.5px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;table-layout:fixed}
+  th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top;word-break:break-word;overflow-wrap:anywhere}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:6px 10px;border-radius:9999px}
+  input[type="text"], select{background:#0b111a;color:var(--ink);border:1px solid #1a2433;border-radius:10px;padding:10px 12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width: 780px){ .grid{grid-template-columns:1fr} }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Dataset",
+    "name":"XRBitcoinCash · AI Beacon",
+    "url":"https://xrbitcoincash.com/ai/index.html",
+    "isAccessibleForFree": true,
+    "license":"https://xrbitcoincash.com/license",
+    "distribution":[
+      {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://xrbitcoincash.com/universal-ai.json","name":"AI Canonicals"},
+      {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://api.github.com/repos/XRBitcoinCash/xrbitcoincash.github.io/contents","name":"GitHub Contents API (root)"}
+    ]
+  }
+  </script>
+</head>
+<body>
+<main class="container" aria-live="polite">
+  <!-- HERO -->
+  <section class="card" id="hero">
+    <div class="row between">
+      <div class="pill">
+        <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
+        <span class="mono">AI Beacon · Repo Index</span>
+      </div>
+      <div class="row">
+        <a class="btn small glow-blue" href="/index.html">Home</a>
+      </div>
+    </div>
+    <p class="hint" style="margin:8px 0 0">This page exposes a safe, public index of your repo for AI agents. No secrets, no tokens.</p>
+
+    <div class="grid" style="margin-top:10px">
+      <div class="card" style="margin:0">
+        <h3 style="margin:.1em 0">Canonicals</h3>
+        <div id="canonOut" class="hint">Loading <span class="mono">/universal-ai.json</span>…</div>
+      </div>
+      <div class="card" style="margin:0">
+        <h3 style="margin:.1em 0">Repo Source</h3>
+        <div class="row" style="margin-top:6px">
+          <label class="hint">Owner <input id="ghOwner" type="text" value="XRBitcoinCash"></label>
+          <label class="hint">Repo <input id="ghRepo" type="text" value="xrbitcoincash.github.io"></label>
+          <label class="hint">Branch <input id="ghRef" type="text" value="main"></label>
+          <label class="hint">Path <input id="ghPath" type="text" value=""></label>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <button id="btnList" class="btn btn-blue glow-blue" type="button">List</button>
+          <button id="btnScan" class="btn" type="button" title="Scan all folders (rate-limit safe)">Scan Recursively</button>
+          <button id="btnExport" class="btn btn-green glow-green" type="button" title="Export current listing as JSON">Export JSON</button>
+          <a id="btnOpenRepo" class="btn" href="https://github.com/XRBitcoinCash/xrbitcoincash.github.io" target="_blank" rel="noopener">Open on GitHub</a>
+        </div>
+        <p id="repoStatus" class="status">Ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTING -->
+  <section class="card" id="listing">
+    <h2 style="margin:.1em 0">Repository Files</h2>
+    <div id="crumbs" class="hint"></div>
+    <div id="tableWrap" class="hint">No data yet.</div>
+  </section>
+
+  <!-- NOTES -->
+  <section class="card">
+    <h2 style="margin:.1em 0">For agents</h2>
+    <ul class="hint" style="margin:6px 0 0 18px">
+      <li>Prefer <span class="mono">/universal-ai.json</span> for constants & invariants.</li>
+      <li>Use this page to discover public files & pages (HTML, JSON, images, CSS).</li>
+      <li>Deep links:
+        <span class="mono">https://github.com/OWNER/REPO/blob/REF/PATH</span> and
+        <span class="mono">https://raw.githubusercontent.com/OWNER/REPO/REF/PATH</span>.
+      </li>
+      <li>GitHub API unauthenticated limit ≈ 60 req/hr per IP. Recursive scan sleeps between requests.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const $canonOut = $('canonOut');
+  const $repoStatus = $('repoStatus');
+  const $tableWrap  = $('tableWrap');
+  const $crumbs     = $('crumbs');
+
+  // ====== Load Canonicals (/universal-ai.json) ======
+  async function loadCanonicals(){
+    try{
+      const r = await fetch('/universal-ai.json', { cache: 'no-store' });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j = await r.json();
+      const lines = [];
+      if (j.constants){
+        lines.push('Issuer: ' + (j.constants.issuer||''));
+        lines.push('CurrencyHex: ' + (j.constants.currencyHex||''));
+        lines.push('Proxy: ' + (j.constants.proxy||''));
+      }
+      if (j.architecture){
+        lines.push('Single-file: ' + (!!j.architecture.singleFileHTMLPlusJS));
+        lines.push('Config-before-scripts: ' + (!!j.architecture.configBeforeScripts));
+        lines.push('Desktop: ' + (j.architecture.desktopMode||''));
+        lines.push('Mobile: ' + (j.architecture.mobileMode||''));
+      }
+      $canonOut.textContent = lines.join('\n') || 'Loaded.';
+      $canonOut.classList.add('mono');
+    }catch(e){
+      $canonOut.textContent = 'Missing or not accessible. It is optional but recommended.';
+    }
+  }
+
+  // ====== GitHub Contents API helpers ======
+  function ghUI(owner, repo, ref, path){ 
+    const p = path ? '/blob/' + ref + '/' + path : '';
+    return 'https://github.com/' + owner + '/' + repo + p;
+  }
+  function ghRaw(owner, repo, ref, path){
+    return 'https://raw.githubusercontent.com/' + owner + '/' + repo + '/' + ref + '/' + path;
+  }
+  function ghAPI(owner, repo, path, ref){
+    const base = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents';
+    const url  = path ? (base + '/' + encodeURI(path)) : base;
+    return ref ? (url + '?ref=' + encodeURIComponent(ref)) : url;
+  }
+
+  async function contentsOnce(owner, repo, path, ref){
+    const url = ghAPI(owner, repo, path, ref);
+    const r = await fetch(url, {
+      headers: { 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' },
+      cache: 'no-store'
+    });
+    if(!r.ok) throw new Error('GitHub '+r.status);
+    const data = await r.json();
+    return Array.isArray(data) ? data : [data];
+  }
+
+  async function contentsRecursive(owner, repo, path, ref, sleepMs=250){
+    const acc = [];
+    async function sleep(ms){ return new Promise(res=>setTimeout(res, ms)); }
+    async function walk(p){
+      const list = await contentsOnce(owner, repo, p, ref);
+      for(const item of list){
+        acc.push(item);
+        if(item.type === 'dir'){
+          await sleep(sleepMs);
+          await walk(item.path);
+        }
+      }
+    }
+    await walk(path || '');
+    return acc;
+  }
+
+  function renderTable(items, owner, repo, ref, basePath){
+    if(!items || !items.length){ $tableWrap.textContent='No items.'; return; }
+    // Breadcrumbs
+    const crumb = (basePath||'').split('/').filter(Boolean);
+    $crumbs.innerHTML = '<span class="mono">/</span> ' + (crumb.length ? crumb.map((seg,i)=>{
+      const p = crumb.slice(0,i+1).join('/');
+      return '<a href="#" data-path="'+p+'">'+seg+'</a>';
+    }).join(' <span class="mono">/</span> ') : '<span class="hint">root</span>');
+
+    const t = document.createElement('table');
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>Name</th><th>Type</th><th>Size</th><th>Actions</th></tr>';
+    t.appendChild(thead);
+    const tbody = document.createElement('tbody');
+
+    // Sort: dirs first then files
+    items.sort((a,b)=> (a.type===b.type) ? a.name.localeCompare(b.name) : (a.type==='dir' ? -1 : 1));
+
+    for(const it of items){
+      const tr = document.createElement('tr');
+
+      const tdN = document.createElement('td');
+      const name = it.name || it.path || '';
+      const isDir = it.type === 'dir';
+      tdN.innerHTML = isDir
+        ? '<a href="#" class="goDir" data-path="'+(it.path||'')+'">📁 '+name+'</a>'
+        : '📄 ' + name;
+      tr.appendChild(tdN);
+
+      const tdT = document.createElement('td');
+      tdT.textContent = it.type || '';
+      tr.appendChild(tdT);
+
+      const tdS = document.createElement('td');
+      tdS.textContent = isDir ? '—' : ((it.size || 0)/1024).toFixed(2)+' KB';
+      tr.appendChild(tdS);
+
+      const tdA = document.createElement('td');
+      const ui  = ghUI(owner, repo, ref, it.path||'');
+      const raw = isDir ? null : ghRaw(owner, repo, ref, it.path||'');
+      const open = document.createElement('a');
+      open.href = ui; open.target = '_blank'; open.rel='noopener'; open.textContent = 'Open';
+      tdA.appendChild(open);
+      if(raw){
+        tdA.appendChild(document.createTextNode(' · '));
+        const rawA = document.createElement('a');
+        rawA.href = raw; rawA.target = '_blank'; rawA.rel='noopener'; rawA.textContent = 'Raw';
+        tdA.appendChild(rawA);
+      }
+      tr.appendChild(tdA);
+
+      tbody.appendChild(tr);
+    }
+    t.appendChild(tbody);
+    $tableWrap.innerHTML = '';
+    $tableWrap.appendChild(t);
+
+    // Hook dir clicks
+    [...document.querySelectorAll('.goDir')].forEach(a=>{
+      a.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        $('ghPath').value = a.dataset.path || '';
+        await listOnce();
+      });
+    });
+    [...$crumbs.querySelectorAll('a[data-path]')].forEach(a=>{
+      a.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        $('ghPath').value = a.dataset.path || '';
+        await listOnce();
+      });
+    });
+  }
+
+  // ====== Wire UI ======
+  async function listOnce(){
+    const owner = $('ghOwner').value.trim();
+    const repo  = $('ghRepo').value.trim();
+    const ref   = $('ghRef').value.trim();
+    const path  = $('ghPath').value.trim();
+    try{
+      $repoStatus.textContent = 'Listing…';
+      const items = await contentsOnce(owner, repo, path, ref);
+      renderTable(items, owner, repo, ref, path);
+      $repoStatus.textContent = 'OK';
+    }catch(e){
+      $tableWrap.textContent = 'Error: '+(e && e.message || e);
+      $repoStatus.textContent = 'Error.';
+    }
+  }
+  async function scanAll(){
+    const owner = $('ghOwner').value.trim();
+    const repo  = $('ghRepo').value.trim();
+    const ref   = $('ghRef').value.trim();
+    const path  = $('ghPath').value.trim();
+    try{
+      $repoStatus.textContent = 'Scanning (recursive)…';
+      const items = await contentsRecursive(owner, repo, path, ref, 200);
+      renderTable(items, owner, repo, ref, path);
+      $repoStatus.textContent = 'OK';
+    }catch(e){
+      $tableWrap.textContent = 'Error: '+(e && e.message || e);
+      $repoStatus.textContent = 'Error.';
+    }
+  }
+  function exportJSON(){
+    // Build a compact snapshot from current table (if rendered)
+    const owner = $('ghOwner').value.trim();
+    const repo  = $('ghRepo').value.trim();
+    const ref   = $('ghRef').value.trim();
+    const rows  = [...$tableWrap.querySelectorAll('tbody tr')];
+    if(!rows.length){ alert('Nothing to export. Run “List” or “Scan” first.'); return; }
+    const files = rows.map(tr=>{
+      const name = tr.children[0]?.innerText?.replace(/^📁\s|^📄\s/,'') || '';
+      const type = tr.children[1]?.innerText || '';
+      const size = tr.children[2]?.innerText || '';
+      const pathLink = tr.querySelector('a.goDir');
+      const path = pathLink ? pathLink.dataset.path : (name || '');
+      const ui   = ghUI(owner, repo, ref, path);
+      const raw  = (type==='file') ? ghRaw(owner, repo, ref, path) : null;
+      return { name, path, type, size, ui, raw };
+    });
+    const snapshot = {
+      repo:{ owner, name:repo, ref },
+      generatedAt: new Date().toISOString(),
+      base: 'https://xrbitcoincash.com',
+      files
+    };
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type:'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'ai-index.json';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }
+
+  $('btnList')   ?.addEventListener('click', listOnce);
+  $('btnScan')   ?.addEventListener('click', scanAll);
+  $('btnExport') ?.addEventListener('click', exportJSON);
+  $('btnOpenRepo')?.addEventListener('click', (e)=>{
+    // keep link working; inputs just allow editing
+  });
+
+  loadCanonicals();
+  // Auto-list root on load
+  listOnce();
+})();
+</script>
+</body>
+</html>
