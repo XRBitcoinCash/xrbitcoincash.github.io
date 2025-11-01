@@ -790,34 +790,55 @@ button, a {
 
 
   <!-- ===== Page Script ===== -->
-  <script>
+<script>
 (function(){
+  'use strict';
+
   /* ===== Utilities / Config ===== */
   const cfgNode = document.getElementById("app-config");
   const cfg = cfgNode ? JSON.parse(cfgNode.textContent || "{}") : {};
   const PROXY_URL = cfg.proxyUrl || "";
   const XRP_TO_DROPS = 1_000_000;
 
-  const XRBC = {
+  const XRBC = Object.freeze({
     currency: "5852626974636F696E6361736800000000000000",
     issuer:   "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-  };
+  });
 
   const normalizeHexCurrency = (s) => (s || '').toUpperCase().replace(/0+$/,'');
   const XRBC_HEX_NORM = normalizeHexCurrency(XRBC.currency);
 
-  async function xrplRequest(payload){
-    if (!PROXY_URL) throw new Error("Proxy URL missing");
-    const res = await fetch(PROXY_URL, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error("Proxy HTTP " + res.status);
-    const data = await res.json();
-    if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
-    return data;
+  // Minimal HTML escape for safe innerHTML insertions (error cells, etc.)
+  function esc(str){
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
+
+  // Abortable fetch to avoid hanging the UI (default 10s)
+  async function xrplRequest(payload, {timeoutMs=10000} = {}){
+    if (!PROXY_URL) throw new Error("Proxy URL missing");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try{
+      const res = await fetch(PROXY_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal
+      });
+      if (!res.ok) throw new Error("Proxy HTTP " + res.status);
+      const data = await res.json();
+      if (data && data.error) throw new Error("XRPL: " + JSON.stringify(data.error));
+      return data;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   const toDrops = (xrp) => Math.round(Number(xrp) * XRP_TO_DROPS).toString();
 
   /* ===== Theme toggle ===== */
@@ -1040,61 +1061,52 @@ button, a {
   const marketBtn     = document.getElementById("marketTradeBtn");
   const tradeMsg      = document.getElementById("tradeMsg");
 
-
   ;(() => {
-  // One-time sanity pass: fix any XRP icons that still use the bad ".svg.svg"
-  const GOOD = 'https://xrbitcoincash.github.io/assetsxrp.svg';
-  document.querySelectorAll('img[alt="XRP"]').forEach(img => {
-    const src = String(img.src || '');
-    if (src.endsWith('assetsxrp.svg.svg') || src.includes('assetsxrp.svg.svg')) {
-      img.src = GOOD;
-      img.decoding = 'async';
-      img.loading  = 'eager';
-    }
-  });
-})();
+    // One-time sanity pass: fix any XRP icons that still use the bad ".svg.svg"
+    const GOOD = 'https://xrbitcoincash.github.io/assetsxrp.svg';
+    document.querySelectorAll('img[alt="XRP"]').forEach(img => {
+      const src = String(img.src || '');
+      if (src.endsWith('assetsxrp.svg.svg') || src.includes('assetsxrp.svg.svg')) {
+        img.src = GOOD;
+        img.decoding = 'async';
+        img.loading  = 'eager';
+      }
+    });
+  })();
 
-  
-  
   function updateExplainer(side){
-  const wrap = document.getElementById("sideExplain");
-  if (!wrap) return;
+    const wrap = document.getElementById("sideExplain");
+    if (!wrap) return;
 
-  const buyNote  = wrap.querySelector('.note.buy');
-  const sellNote = wrap.querySelector('.note.sell');
-  const showBuy = (side === 'buy');
+    const buyNote  = wrap.querySelector('.note.buy');
+    const sellNote = wrap.querySelector('.note.sell');
+    const showBuy = (side === 'buy');
 
-  if (buyNote){
-    buyNote.hidden = !showBuy;
-    buyNote.classList.toggle('active', showBuy);
-    buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+    if (buyNote){
+      buyNote.hidden = !showBuy;
+      buyNote.classList.toggle('active', showBuy);
+      buyNote.setAttribute('aria-hidden', (!showBuy).toString());
+    }
+    if (sellNote){
+      sellNote.hidden = showBuy;
+      sellNote.classList.toggle('active', !showBuy);
+      sellNote.setAttribute('aria-hidden', (showBuy).toString());
+    }
+
+    const hint  = document.getElementById('amountHint');
+    const label = document.getElementById('amountLabel');
+    if (label) label.textContent = 'Amount (XRBC)';
+
+    if (hint){
+      // Use the single CORRECT XRP icon URL everywhere:
+      const XRP_ICON = 'https://xrbitcoincash.github.io/assetsxrp.svg';
+
+      hint.innerHTML = (side === 'buy')
+        ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
+        : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
+    }
   }
-  if (sellNote){
-    sellNote.hidden = showBuy;
-    sellNote.classList.toggle('active', !showBuy);
-    sellNote.setAttribute('aria-hidden', (showBuy).toString());
-  }
 
-  const hint  = document.getElementById('amountHint');
-  const label = document.getElementById('amountLabel');
-  if (label) label.textContent = 'Amount (XRBC)';
-
-  if (hint){
-    // Use the single CORRECT XRP icon URL everywhere:
-    const XRP_ICON = 'https://xrbitcoincash.github.io/assetsxrp.svg';
-
-    hint.innerHTML = (side === 'buy')
-      ? `How many XRBC you want to <span id="actionWord">buy</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span> to receive <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span>.</span>`
-      : `How many XRBC you want to <span id="actionWord">sell</span>. <span class="nowrap">You’re trading <span class="asset-chip asset-xrbc"><img src="/xrbc-nft.png" alt="XRBC" style="height:1.05em;width:auto;vertical-align:-.2em;border-radius:3px"> XRBC</span> to receive <span class="asset-chip asset-xrp"><img src="${XRP_ICON}" alt="XRP" style="height:1.05em;width:auto;vertical-align:-.2em;background:#fff;border-radius:3px;padding:1px"> XRP</span>.</span>`;
-  }
-}
-
-
-
-
-
-
-  
   function setSide(side){
     if (sideEl) sideEl.value = side;
     if (buyTab)  { buyTab.classList.toggle("active", side==='buy');  buyTab.setAttribute('aria-selected', side==='buy' ? 'true':'false'); }
@@ -1149,54 +1161,63 @@ button, a {
     return BAL;
   }
 
- (function initPercentChips(){
-  // Support BOTH legacy (.quick-amounts .qa [data-q]) and new (.pct-group .pct-btn "25%") patterns.
-  const chips = document.querySelectorAll('.pct-group .pct-btn, .quick-amounts .qa');
-  if (!chips.length) return;
+  (function initPercentChips(){
+    // Support BOTH the new .pct-btn buttons and the legacy .quick-amounts .qa buttons.
+    const chips = document.querySelectorAll('.pct-group .pct-btn, .quick-amounts .qa');
+    if (!chips.length) return;
 
-  function parsePct(btn){
-    // Prefer data-q if present; otherwise parse inner text like "25%"
-    if (btn.dataset && btn.dataset.q) return Number(btn.dataset.q);
-    const m = String(btn.textContent || '').match(/(\d+)\s*%/);
-    return m ? Number(m[1]) : 0;
-  }
+    function pctFrom(el){
+      // Priority: data-q attribute → label text → pct-* class
+      if (el.dataset && el.dataset.q) {
+        const n = Number(el.dataset.q);
+        if (Number.isFinite(n) && n > 0) return n;
+      }
+      const t = (el.textContent || '').trim().replace('%','');
+      const byText = Number(t);
+      if (Number.isFinite(byText) && byText > 0) return byText;
 
-  async function applyPercent(pct){
-    const side = sideEl?.value || 'buy';
-    await fetchBalances();
+      if (el.classList.contains('pct-25'))  return 25;
+      if (el.classList.contains('pct-50'))  return 50;
+      if (el.classList.contains('pct-75'))  return 75;
+      if (el.classList.contains('pct-100')) return 100;
+      return 0;
+    }
 
-    if (side === 'sell'){
-      const amt = Math.max(0, BAL.xrbc * (pct/100));
+    async function applyPercent(pct){
+      const side = (sideEl?.value) || 'buy';
+      await fetchBalances();
+
+      if (side === 'sell'){
+        const amt = Math.max(0, BAL.xrbc * (pct/100));
+        if (amountEl){
+          amountEl.value = amt.toFixed(6);
+          amountEl.dispatchEvent(new Event('input'));
+        }
+        return;
+      }
+
+      // BUY: need price to convert XRP budget → XRBC amount
+      let price = Number(priceEl?.value) || 0;
+      if (!price) { await fillBestPrice(); price = Number(priceEl?.value) || 0; }
+      if (!price || price <= 0) return;
+
+      const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
+      const amt = spendable > 0 ? (spendable / price) : 0;
+
       if (amountEl){
         amountEl.value = amt.toFixed(6);
         amountEl.dispatchEvent(new Event('input'));
       }
-      return;
     }
 
-    // BUY side: spend XRP → derive XRBC amount at current/best price
-    let price = Number(priceEl?.value) || 0;
-    if (!price) { await fillBestPrice(); price = Number(priceEl?.value) || 0; }
-    if (!price || price <= 0) return;
-
-    const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
-    const amt = spendable > 0 ? (spendable / price) : 0;
-
-    if (amountEl){
-      amountEl.value = amt.toFixed(6);
-      amountEl.dispatchEvent(new Event('input'));
-    }
-  }
-
-  chips.forEach(btn => btn.addEventListener('click', async () => {
-    const pct = parsePct(btn);
-    if (!pct) return;
-    btn.disabled = true;
-    try { await applyPercent(pct); }
-    finally { btn.disabled = false; }
-  }));
-})();
-
+    chips.forEach(btn => btn.addEventListener('click', async () => {
+      const pct = pctFrom(btn);
+      if (!pct) return;
+      btn.disabled = true;
+      try { await applyPercent(pct); }
+      finally { btn.disabled = false; }
+    }));
+  })();
 
   /* Pricing helpers */
   async function getTopOfBook(){
@@ -1497,7 +1518,7 @@ button, a {
         const r = await xrplRequest({ method:"book_offers", params:[{ taker_gets, taker_pays, limit:5 }] });
         const offers = r?.result?.offers || [];
         if (!offers.length){
-          rows.push(`<tr><td>${label}</td><td>No offers</td><td>-</td></tr>`);
+          rows.push(`<tr><td>${esc(label)}</td><td>No offers</td><td>-</td></tr>`);
         } else {
           for (const ofr of offers){
             const gets = ofr.TakerGets?.value ? parseFloat(ofr.TakerGets.value)
@@ -1505,11 +1526,12 @@ button, a {
             const pays = ofr.TakerPays?.value ? parseFloat(ofr.TakerPays.value)
                                               : parseFloat(ofr.TakerPays) / XRP_TO_DROPS;
             const price = (isFinite(gets) && gets > 0) ? (pays / gets) : NaN;
-            rows.push(`<tr><td>${label}</td><td>${isFinite(price)?price.toFixed(6):"—"}</td><td>${isFinite(gets)?gets.toFixed(2):"—"}</td></tr>`);
+            rows.push(`<tr><td>${esc(label)}</td><td>${isFinite(price)?price.toFixed(6):"—"}</td><td>${isFinite(gets)?gets.toFixed(2):"—"}</td></tr>`);
           }
         }
       } catch (e){
-        rows.push(`<tr><td>${label}</td><td>Error</td><td>${(e && e.message) || e}</td></tr>`);
+        const msg = esc((e && e.message) || e);
+        rows.push(`<tr><td>${esc(label)}</td><td>Error</td><td>${msg}</td></tr>`);
       }
       return rows.join("");
     }
@@ -1560,7 +1582,8 @@ button, a {
   window.addEventListener("focus", () => refreshAll().catch(()=>{}));
   setInterval(() => { refreshAll().catch(()=>{}); }, 15000);
 })();
-  </script>
+</script>
+
 
 <!-- ===== XRBC Footer ===== -->
 <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
