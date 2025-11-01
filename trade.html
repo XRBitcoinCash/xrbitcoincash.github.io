@@ -1,383 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="license" href="#license-proprietary">
   <meta charset="utf-8" />
+  <link rel="license" href="#license-proprietary">
 
-  <!-- ===== XRBitcoinCash · SEO/AI Meta Pack (Power Trade) ===== -->
-  <title>Power Trading · XRBC / XRP · XRPL Pro</title>
+  <!-- ===== XRBitcoinCash · Safe Trading Hub (No Local Trading) ===== -->
+  <title>Trade XRBC · Safe Trading Hub · XRBitcoinCash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="canonical" href="https://xrbitcoincash.com/power-trade.html" />
-  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/power-trade.html" />
-  <meta name="description" content="Pro tools for XRBC: IOC/FOK, passive maker, laddered orders, pathfinding swaps, live book & reserve meter. Xaman wallet. Desktop QR / Mobile deep-link." />
+  <link rel="canonical" href="https://xrbitcoincash.com/trade.html" />
+  <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/trade.html" />
+  <meta name="description" content="How to safely trade XRBitcoinCash (XRBC) on XRPL. Verify issuer & currency, and use trusted venues. Self-custody. No local trading on this page." />
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
   <meta name="theme-color" content="#0b0f14" />
 
   <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="XRBitcoinCash" />
-  <meta property="og:title" content="Power Trading · XRBC / XRP" />
-  <meta property="og:description" content="IOC/FOK, passive maker, ladder builder, pathfinding swaps, book depth, reserve meter. Wallet-signed with verification memos." />
-  <meta property="og:url" content="https://xrbitcoincash.com/power-trade.html" />
+  <meta property="og:title" content="Trade XRBC · Safe Trading Hub" />
+  <meta property="og:description" content="Verified routes, issuer/currency checks, and trusted venues for XRBC on XRPL. Self-custody via Xaman." />
+  <meta property="og:url" content="https://xrbitcoincash.com/trade.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:locale" content="en_US" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Power Trading · XRBC / XRP" />
-  <meta name="twitter:description" content="Pro XRPL trading for XRBC with advanced order controls." />
+  <meta name="twitter:title" content="Trade XRBC · Safe Trading Hub" />
+  <meta name="twitter:description" content="Verified routes, issuer/currency checks, and trusted venues for XRBC on XRPL." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <!-- Icons -->
   <link rel="icon" href="/xrbc-nft.png" sizes="any" />
   <link rel="apple-touch-icon" href="/xrbc-nft.png" />
 
-  <!-- Preconnects -->
-  <link rel="preconnect" href="https://xaman.app" crossorigin>
-  <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
-
   <style>
   :root{
-    --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel-2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
-    --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b;--shadow:rgba(0,0,0,.35)
+    --wrap:1100px; --bg:#0b0f14; --panel:#0e1520; --panel-2:#0c131c; --ink:#e7edf5; --muted:#9fb0c5; --line:#2b3a4b;
+    --ok:#22c55e; --err:#ef4444; --blue:#2563eb; --yellow:#f59e0b; --shadow:rgba(0,0,0,.35);
+    --orb-a:#164e63; --orb-b:#0b5; --orb-c:#1e3a8a;
   }
   *{box-sizing:border-box}
   html,body{height:100%;max-width:100%;overflow-x:hidden}
   body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
-  a{color:#93c5fd;text-decoration:none} a:hover{text-decoration:underline}
+
+  /* ===== Ambient orb background (bluish-green, rotating) ===== */
+  .orbs{
+    position:fixed; inset:-20vmax; pointer-events:none; z-index:-1; filter:blur(40px) saturate(120%);
+    background:
+      radial-gradient(35vmax 35vmax at 20% 30%, rgba(0,200,255,.18), transparent 60%),
+      radial-gradient(30vmax 30vmax at 80% 25%, rgba(0,255,170,.16), transparent 60%),
+      radial-gradient(25vmax 25vmax at 60% 80%, rgba(60,120,255,.14), transparent 60%);
+    animation: drift 28s linear infinite;
+  }
+  @keyframes drift{
+    0%{ transform: rotate(0deg) scale(1) translateZ(0); }
+    50%{ transform: rotate(180deg) scale(1.02) translateZ(0); }
+    100%{ transform: rotate(360deg) scale(1) translateZ(0); }
+  }
+
+  /* ===== Layout / Cards / Elements ===== */
   .container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
   .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px var(--shadow);margin-top:10px}
   .grid-12{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
-  .col-span-3{grid-column:span 3}.col-span-4{grid-column:span 4}.col-span-5{grid-column:span 5}
-  .col-span-6{grid-column:span 6}.col-span-7{grid-column:span 7}.col-span-12{grid-column:span 12}
-  h1,h2,h3{margin:.1em 0}
+  .col-span-3{grid-column:span 3} .col-span-4{grid-column:span 4} .col-span-5{grid-column:span 5}
+  .col-span-6{grid-column:span 6} .col-span-7{grid-column:span 7} .col-span-8{grid-column:span 8}
+  .col-span-12{grid-column:span 12}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .row-tight{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
   .center{justify-content:center}
-  .between{justify-content:space-between}
-  .col{display:flex;flex-direction:column;gap:10px;align-items:stretch}
-  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-align:center;white-space:normal;max-width:100%}
-  .btn.block{width:100%}.btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
+  h1,h2,h3{margin:.1em 0}
+  .hint{color:var(--muted);font-size:12.5px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .status{font-size:13px;color:var(--muted)}
+  .panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+  .panel-note-green{border-color:#14532d;color:#22c55e}
+  .panel-note-blue{border-color:#1e3a8a;color:#93c5fd}
+  .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+
+  /* Buttons with glows */
+  .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);
+       padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-align:center;white-space:normal;max-width:100%}
+  .btn.block{width:100%}
+  .btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
   .btn-green{ border-color:#14532d; background:linear-gradient(180deg,#0f1f16,#0b1510); }
   .btn-blue{  border-color:#1e3a8a; background:linear-gradient(180deg,#0f172a,#0b1324); }
   .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
   .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
   .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
-  .glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+  .glow-blue{ box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
   .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
-  .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
-  .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-  .input{display:flex;flex-direction:column;gap:6px}
-  input[type="number"], input[type="text"], select{
-    width:100%;background:#0b111a;color:var(--ink);border:1px solid #1a2433;border-radius:10px;padding:10px 12px
-  }
+  .glow-red{  box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+
+  /* Pills / chips */
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:6px 10px;border-radius:9999px;background:#0b111a}
+  .pill .copy{cursor:pointer; border:1px solid var(--line); padding:2px 8px; border-radius:8px}
+
+  /* Tables / lists */
   table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
   th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .hint{color:var(--muted);font-size:12.5px}
-  .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
-  .footer{margin-top:16px;color:#9fb0c5;font-size:12px}
-  .badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
-  .badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4}
-  .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
-  .panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
-  .panel-note-green{border-color:#14532d;color:#22c55e}
-  .panel-note-blue{border-color:#1e3a8a;color:#93c5fd}
-  .log{max-height:240px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
-  .hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-  .hero-top .left{justify-self:start}
-  .hero-top .center{justify-self:center}
-  .hero-top .right{justify-self:end;text-align:right}
-  .pair-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:6px 10px;border-radius:9999px}
-  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .kpi .box{border:1px solid var(--line);border-radius:10px;padding:8px;background:#0b111a}
-  .progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
-  .progress>span{display:block;height:100%;background:var(--blue);width:0%}
+  ul.clean{list-style:none;padding-left:0;margin:0}
+  ul.clean li{padding:6px 0;border-bottom:1px dashed #1a2433}
+  ul.clean li:last-child{border-bottom:none}
 
-  .tabs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-  .tab{border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
-  .tab[aria-selected="true"]{box-shadow:0 0 0 2px rgba(37,99,235,.25)}
-  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media (max-width: 980px){ .split{grid-template-columns:1fr} }
-  @media (max-width: 900px){ .col-span-6,.col-span-7,.col-span-5,.col-span-4,.col-span-3{grid-column:span 12} .kpi{grid-template-columns:repeat(2,1fr)} }
-  @media (max-width: 620px){ .kpi{grid-template-columns:1fr} }
+  /* Link cards container */
+  .link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  @media (max-width: 900px){ .grid-12{grid-template-columns:repeat(6,1fr)} .col-span-6{grid-column:span 6} .col-span-12{grid-column:span 6}
+    .link-grid{grid-template-columns:1fr} }
+  @media (max-width: 720px){ .card h1,.card h2,.card h3,.hint, .status { text-align:center } }
+
+  /* Safe embed mode (if ever iframed) */
+  body.embed .container{max-width:none}
+  body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
+  body.embed header{display:none}
   </style>
-
-  <!-- Xumm SDK -->
-  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
+<div class="orbs" aria-hidden="true"></div>
+
 <main class="container" aria-live="polite">
-  <!-- HEADER / HERO -->
-  <section class="card" id="primary">
-    <div class="hero-top">
-      <div class="left">
-        <span class="pair-pill">
-          <img src="/xrbc-nft.png" alt="XRBC" width="24" height="24" style="border-radius:6px;border:1px solid var(--line)">
-          <span class="mono">XRBC / XRP</span>
-        </span>
-      </div>
-      <div class="center">
-        <a class="btn glow-blue" href="/index.html" id="btnHome" title="Go to Home">Home</a>
-      </div>
-      <div class="right">
-        <button id="btnNetBadge" class="btn small" type="button" disabled>Mainnet</button>
-        <div class="row-tight" style="margin-top:6px">
-          <label class="hint" for="network">Network</label>
-          <select id="network" aria-label="Network">
-            <option value="mainnet" selected>Mainnet</option>
-            <option value="testnet">Testnet</option>
-          </select>
-        </div>
-      </div>
-    </div>
 
-    <div class="row center" style="margin-top:10px">
-      <button id="btnXumm" class="btn glow-green" type="button" title="Connect with Xaman">Connect Xaman</button>
-      <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+  <!-- HERO -->
+  <section class="card" id="hero">
+    <div class="row center" style="gap:12px">
+      <img src="/xrbc-nft.png" alt="XRBC" width="40" height="40" style="border-radius:8px;border:1px solid var(--line)">
+      <h1 style="margin:0">Trade XRBC · Safe Trading Hub</h1>
     </div>
-    <p id="walletStatus" class="status">Status: Not connected</p>
+    <p class="hint" style="margin-top:6px">
+      This page is <strong>information-only</strong>. No local trading here. You trade in your own wallet (Xaman) or on trusted venues. Verify the asset first.
+    </p>
 
-    <div class="panel-note">
-      <p class="hint" style="margin:0">Self-custody. You sign in Xaman. Desktop shows a QR; mobile deep-links.</p>
-    </div>
-
-    <!-- KPIs -->
-    <div class="kpi" style="margin-top:10px">
-      <div class="box"><div class="hint">Best Ask (sell XRBC → get XRP)</div><div id="kpiAsk" class="mono">—</div></div>
-      <div class="box"><div class="hint">Best Bid (buy XRBC ← pay XRP)</div><div id="kpiBid" class="mono">—</div></div>
-      <div class="box"><div class="hint">Spread</div><div id="kpiSpread" class="mono">—</div></div>
-      <div class="box"><div class="hint">Ledger age</div><div id="kpiLedger" class="mono">—</div></div>
-    </div>
-
-    <div class="panel-note panel-note-blue">
-      <div class="hint">Sentinel verification code (appears in Xaman memo on every tx):</div>
-      <div id="sentinelCodePill" class="mono" style="font-size:20px;margin-top:6px">———</div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs" role="tablist" aria-label="Power trade modes">
-      <button class="tab" id="tabLimit"  role="tab" aria-controls="panelLimit"  aria-selected="true">Limit (Pro)</button>
-      <button class="tab" id="tabLadder" role="tab" aria-controls="panelLadder" aria-selected="false">Ladder Builder</button>
-      <button class="tab" id="tabSwap"   role="tab" aria-controls="panelSwap"   aria-selected="false">Instant Swap</button>
-      <button class="tab" id="tabOM"     role="tab" aria-controls="panelOM"     aria-selected="false">Order Mgmt</button>
-    </div>
-
-    <!-- Limit (Pro) -->
-    <section id="panelLimit" role="tabpanel" aria-labelledby="tabLimit" class="card" style="margin-top:10px">
-      <h2>Limit Order — Advanced flags</h2>
+    <div class="panel-note panel-note-blue" style="margin-top:10px">
       <div class="grid-12">
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Side</span>
-            <select id="limitSide">
-              <option value="buy">Buy XRBC (pay XRP)</option>
-              <option value="sell">Sell XRBC (get XRP)</option>
-            </select>
-          </label>
-        </div>
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Amount (XRBC)</span>
-            <input id="limitAmount" type="number" step="0.000001" min="0" placeholder="e.g. 25" inputmode="decimal">
-            <span class="hint">How many XRBC to buy/sell.</span>
-          </label>
-        </div>
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Limit Price (XRP per XRBC)</span>
-            <input id="limitPrice" type="number" step="0.000001" min="0" placeholder="e.g. 0.040000" inputmode="decimal">
-            <span class="hint">Your max (buy) / min (sell) price.</span>
-          </label>
-        </div>
-
-        <div class="col col-span-12">
-          <div class="row">
-            <label class="hint"><input id="flagPassive" type="checkbox"> Passive (maker-only)</label>
-            <label class="hint"><input id="flagIOC" type="checkbox"> IOC (Immediate-or-Cancel)</label>
-            <label class="hint"><input id="flagFOK" type="checkbox"> FOK (Fill-or-Kill)</label>
-            <label class="hint"><input id="flagSell" type="checkbox" checked> SELL flag when selling</label>
+        <div class="col-span-6">
+          <div class="hint">Issuer (verify on an XRPL explorer)</div>
+          <div class="pill" style="margin-top:6px">
+            <span class="mono" id="issuerPill">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
+            <button class="copy" id="copyIssuer" type="button" title="Copy issuer">Copy</button>
           </div>
         </div>
-
-        <div class="col col-span-12">
-          <div class="row">
-            <button id="btnLimitPlace" class="btn btn-blue glow-blue" type="button">Place Limit Order</button>
-            <button id="btnLimitClear" class="btn" type="button">Clear</button>
-            <button id="btnTrustXRBC_L" class="btn" type="button" title="Add XRBC Trust Line">Add XRBC Trust Line</button>
-          </div>
-          <p id="limitStatus" class="status"></p>
-        </div>
-
-        <div class="col col-span-12">
-          <div class="split">
-            <div class="panel-note">
-              <div class="hint">Order book (top depth)</div>
-              <div id="orderbookWrap" class="hint">Loading…</div>
-            </div>
-            <div class="panel-note">
-              <div class="hint">Reserve meter</div>
-              <div id="reserveWrap" class="hint">—</div>
-            </div>
+        <div class="col-span-6">
+          <div class="hint">Currency (HEX)</div>
+          <div class="pill" style="margin-top:6px">
+            <span class="mono" id="hexPill">5852626974636F696E6361736800000000000000</span>
+            <button class="copy" id="copyHex" type="button" title="Copy HEX">Copy</button>
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- Ladder Builder -->
-    <section id="panelLadder" role="tabpanel" aria-labelledby="tabLadder" class="card" hidden style="margin-top:10px">
-      <h2>Ladder Builder — Linear steps</h2>
-      <div class="grid-12">
-        <div class="col col-span-3">
-          <label class="input">
-            <span>Side</span>
-            <select id="ladderSide">
-              <option value="buy">Buy XRBC (pay XRP)</option>
-              <option value="sell">Sell XRBC (get XRP)</option>
-            </select>
-          </label>
-        </div>
-        <div class="col col-span-3">
-          <label class="input">
-            <span>Levels</span>
-            <input id="ladderLevels" type="number" min="1" max="50" value="5">
-            <span class="hint"># of orders</span>
-          </label>
-        </div>
-        <div class="col col-span-3">
-          <label class="input">
-            <span>Start Price (XRP/XRBC)</span>
-            <input id="ladderStart" type="number" step="0.000001" min="0">
-            <span class="hint">Top/first level price</span>
-          </label>
-        </div>
-        <div class="col col-span-3">
-          <label class="input">
-            <span>Step (±XRP)</span>
-            <input id="ladderStep" type="number" step="0.000001" value="-0.001000">
-            <span class="hint">Add per level (e.g., -0.001)</span>
-          </label>
-        </div>
-
-        <div class="col col-span-6">
-          <label class="input">
-            <span>Qty per level (XRBC)</span>
-            <input id="ladderQty" type="number" step="0.000001" min="0">
-          </label>
-        </div>
-        <div class="col col-span-6">
-          <div class="row">
-            <label class="hint"><input id="ladderPassive" type="checkbox"> Passive</label>
-            <label class="hint"><input id="ladderIOC" type="checkbox"> IOC</label>
-            <label class="hint"><input id="ladderFOK" type="checkbox"> FOK</label>
-            <label class="hint"><input id="ladderSellFlag" type="checkbox" checked> SELL flag when selling</label>
-          </div>
-        </div>
-
-        <div class="col col-span-12">
-          <div class="row">
-            <button id="btnLadderPreview" class="btn" type="button">Preview Ladder</button>
-            <button id="btnLadderPlace" class="btn btn-yellow glow-yellow" type="button" disabled>Place Ladder (sequential)</button>
-          </div>
-          <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
-          <div id="ladderOut" class="log" style="margin-top:8px"></div>
-          <p id="ladderStatus" class="status"></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Instant Swap -->
-    <section id="panelSwap" role="tabpanel" aria-labelledby="tabSwap" class="card" hidden style="margin-top:10px">
-      <h2>Instant Swap — AMM pathfinding</h2>
-      <div class="grid-12">
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Direction</span>
-            <select id="swapDir">
-              <option value="xrp_to_xrbc">Pay XRP → Receive XRBC</option>
-              <option value="xrbc_to_xrp">Pay XRBC → Receive XRP</option>
-            </select>
-          </label>
-        </div>
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Amount</span>
-            <input id="swapAmount" type="number" step="0.000001" min="0" placeholder="e.g. 25" inputmode="decimal">
-            <span class="hint">Source asset amount.</span>
-          </label>
-        </div>
-        <div class="col col-span-4">
-          <label class="input">
-            <span>Slippage cap (%)</span>
-            <input id="swapSlip" type="number" step="0.1" min="0" value="2.0" inputmode="decimal">
-          </label>
-        </div>
-
-        <div class="col col-span-12">
-          <div class="row">
-            <button id="btnSwap" class="btn btn-blue glow-blue" type="button">Swap</button>
-            <button id="btnTrustXRBC_S" class="btn" type="button" title="Add XRBC Trust Line">Add XRBC Trust Line</button>
-          </div>
-          <p id="swapStatus" class="status"></p>
-        </div>
-
-        <div class="col col-span-12">
-          <div class="panel-note panel-note-green">
-            <div class="hint">AMM pathfinding selects best route (pool and/or order book). You confirm details in Xaman.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Order Management -->
-    <section id="panelOM" role="tabpanel" aria-labelledby="tabOM" class="card" hidden style="margin-top:10px">
-      <h2>Order Management</h2>
-      <div class="row">
-        <button id="btnRefresh" class="btn" type="button">Refresh</button>
-        <button id="btnCancelAll" class="btn btn-red glow-red" type="button">Cancel All Open Offers</button>
-      </div>
-      <p id="offersStatus" class="status"></p>
-      <div id="offersWrap" class="panel-note" style="margin-top:8px">No data yet.</div>
-    </section>
-
-    <!-- RESULTS / LOG -->
-    <section class="card" aria-labelledby="res" style="margin-top:10px">
-      <h2 id="res">Results</h2>
-      <div id="resultBox" class="hint">Receipts and refresh notes appear here.</div>
-      <div class="panel-note" style="margin-top:10px">
-        <div class="hint">Activity log</div>
-        <pre id="log" class="log" aria-live="polite"></pre>
-      </div>
-    </section>
-
-    <!-- IMPORTANT + FULL LEGAL -->
-    <section class="card" aria-labelledby="important" style="margin-top:10px">
-      <h2 id="important">Important</h2>
-      <div class="warn">
-        Verify each wallet prompt. Transactions are final. Ensure the same network in wallet and page. Trustline required to hold XRBC. IOC/FOK may result in immediate cancel if not matched.
-      </div>
-      <p class="footer">
-        Disclaimer: Not a broker or custodian. You sign in your wallet. Use at your own risk. Verify on an explorer if in doubt.
+      <p class="hint" style="margin-top:8px">
+        Checking <em>both</em> prevents imposter assets. If a venue shows a different issuer or HEX, do not proceed.
       </p>
-
-      <div id="license-proprietary" class="license" style="color:var(--muted);font-size:12px;white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
-        <strong>Proprietary License — XRBC Power Trade (XRPL)</strong>
-        Copyright (c) 2025 XRBitcoinCash. All rights reserved.
-      </div>
-    </section>
+    </div>
   </section>
+
+  <!-- TRUSTED VENUES (Buttons appear if you set URLs in config) -->
+  <section class="card" id="venues">
+    <h2>Trade XRBC on Trusted Venues</h2>
+    <p class="hint">Buttons below render only when their URLs are present in the config. No dummy links.</p>
+
+    <div class="grid-12">
+      <div class="col-span-6">
+        <h3 style="margin-top:4px">Wallet xApps (Xaman)</h3>
+        <div id="xapps" class="link-grid" aria-live="polite"></div>
+        <p class="hint" style="margin-top:6px">
+          On mobile, these deep-link into Xaman; on desktop, Xaman shows a QR to open the xApp.
+        </p>
+      </div>
+      <div class="col-span-6">
+        <h3 style="margin-top:4px">DEX / Aggregators</h3>
+        <div id="aggregators" class="link-grid" aria-live="polite"></div>
+        <p class="hint" style="margin-top:6px">
+          Prefer venues that display issuer + currency HEX and use XRPL native signing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARN & VERIFY -->
+  <section class="card" id="learn">
+    <h2>Learn & Verify</h2>
+    <div class="grid-12">
+      <div class="col-span-6">
+        <div class="panel-note">
+          <div class="hint"><strong>Self-custody flow</strong></div>
+          <ul class="clean hint" style="margin-top:6px">
+            <li>1) Verify issuer & currency HEX</li>
+            <li>2) Set XRBC trustline in your wallet</li>
+            <li>3) Choose venue (xApp/DEX)</li>
+            <li>4) Review every prompt in Xaman; sign only if correct</li>
+            <li>5) Verify transactions on an explorer</li>
+          </ul>
+        </div>
+        <div class="panel-note panel-note-green" style="margin-top:10px">
+          <div class="hint"><strong>AMM vs Order Book</strong></div>
+          <p class="hint" style="margin-top:6px">
+            AMM swaps give instant routes; order books give price control (limit). Compare both when size is meaningful.
+          </p>
+        </div>
+      </div>
+      <div class="col-span-6">
+        <div class="panel-note">
+          <div class="hint"><strong>References</strong> (rendered from config)</div>
+          <ul id="references" class="clean hint" style="margin-top:6px"></ul>
+        </div>
+        <div class="panel-note" style="margin-top:10px">
+          <div class="hint"><strong>Risk & Slippage</strong></div>
+          <p class="hint" style="margin-top:6px">
+            Quotes can move between preview and signing. Use small test trades, and set a slippage cap when supported.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERNAL TOOLS (links only; still no local trading here) -->
+  <section class="card" id="internal">
+    <h2>XRBC Tools (Hosted Pages)</h2>
+    <div class="row" style="gap:8px">
+      <a class="btn btn-blue glow-blue" href="/stop-loss.html">Instant Stop-Loss</a>
+      <a class="btn btn-yellow glow-yellow" href="/limit-order-extraction.html">Limit-Order Extractor</a>
+      <a class="btn" href="/index.html">Home</a>
+    </div>
+    <p class="hint" style="margin-top:6px">These are information/utility pages hosted on xrbitcoincash.com and open in your browser.</p>
+  </section>
+
+  <!-- LEGAL -->
+  <section class="card" id="legal">
+    <h2>Important</h2>
+    <div class="warn">
+      <p><strong>No custody / no brokerage.</strong> You construct & sign XRPL transactions in your own wallet. This page does not execute trades.</p>
+      <p><strong>Finality & risk.</strong> XRPL transactions are irreversible. Verify asset, network, amounts, fees, and slippage in your wallet before approval.</p>
+      <p><strong>No guarantees.</strong> Provided “AS IS” without warranties. You are responsible for legal compliance in your jurisdiction(s).</p>
+    </div>
+    <div id="license-proprietary" class="license hint" style="white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
+<strong>Proprietary License — XRBC Safe Trading Hub</strong>
+Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+    </div>
+  </section>
+
 </main>
 
-<!-- ===== App configuration (keep this immediately BEFORE the main script) ===== -->
+<!-- ===== App configuration (keep this immediately BEFORE the main script) =====
+     IMPORTANT: Only fill URLs you actually control/verify. If a URL is omitted,
+     its button/list item will be hidden. There are NO dummy links. -->
 <script type="application/json" id="app-config">
 {
-  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
-  "xummApiKey": "4c734233-9a51-4ab5-abf0-a83c06c5afd9",
-  "networks": { "mainnet": { "label": "Mainnet" }, "testnet": { "label": "Testnet" } },
   "xrbc": {
     "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
     "currencyHex": "5852626974636F696E6361736800000000000000"
-  }
+  },
+
+  "xapps": {
+    /* Add only if confirmed */
+    "anodos": null,     /* ex: "https://xumm.app/detect/xapp:anodos.io" */
+    "magnetic": null    /* ex: "https://xumm.app/detect/xapp:magnetic.io" */
+  },
+
+  "aggregators": {
+    /* Supply fully-qualified URLs when ready (leave null to hide) */
+    "sologenic": null,  /* e.g., full XRBC/XRP market URL */
+    "xpmarket": null,   /* e.g., token/market page */
+    "bithomp": null,    /* e.g., issuer asset page */
+    "xrpscan": null     /* e.g., token page */
+  },
+
+  "references": [
+    /* Each entry renders as a list item. Examples (leave nulls out):
+    { "label": "XRBC Security/AI Explainer", "url": "https://xrbitcoincash.com/security.html" },
+    { "label": "XRBC GitHub", "url": "https://github.com/xrbitcoincash/xrbitcoincash.github.io" }
+    */
+  ]
 }
 </script>
 
@@ -385,562 +274,82 @@
 (function(){
   'use strict';
 
-  /* ========== CONFIG / STATE / DOM ========== */
-  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
-  const PROXY_BASE   = cfg.proxyUrl || '';
-  const XUMM_API_KEY = cfg.xummApiKey || '';
-  const XRBC         = cfg.xrbc || {};
-  const XRP_TO_DROPS = 1_000_000;
-
-  const state = {
-    network:'mainnet',
-    account:null,
-    adapter:null,
-    spamLock:false,
-    lastAccountInfo:null,
-    inFlight:false
-  };
+  /* ===== Embed mode (optional) ===== */
+  (function initEmbedMode(){
+    try { const q=new URLSearchParams(location.search); if (q.get('embed')==='1') document.body.classList.add('embed'); } catch {}
+  })();
 
   const $ = id => document.getElementById(id);
-  const $walletStatus = $('walletStatus');
-  const $btnXumm      = $('btnXumm');
-  const $btnDisconnect= $('btnDisconnect');
-  const $networkSel   = $('network');
-  const $btnNetBadge  = $('btnNetBadge');
-  const $log          = $('log');
-  const $resultBox    = $('resultBox');
-  const $progress     = $('progressBar');
-  const $codePill     = $('sentinelCodePill');
+  const cfg = JSON.parse($('app-config').textContent || '{}');
 
-  /* Limit UI */
-  const $limitSide   = $('limitSide');
-  const $limitAmount = $('limitAmount');
-  const $limitPrice  = $('limitPrice');
-  const $limitStatus = $('limitStatus');
-  const $btnLimit    = $('btnLimitPlace');
-  const $btnLimitClr = $('btnLimitClear');
-  const $btnTrustL   = $('btnTrustXRBC_L');
-  const $orderbookWrap = $('orderbookWrap');
-  const $reserveWrap = $('reserveWrap');
-  const $flagPassive = $('flagPassive');
-  const $flagIOC     = $('flagIOC');
-  const $flagFOK     = $('flagFOK');
-  const $flagSell    = $('flagSell');
+  /* Issuer / HEX pills + copy */
+  $('issuerPill').textContent = cfg.xrbc?.issuer || '—';
+  $('hexPill').textContent    = (cfg.xrbc?.currencyHex || '—').toUpperCase();
 
-  /* Ladder UI */
-  const $ladderSide   = $('ladderSide');
-  const $ladderLevels = $('ladderLevels');
-  const $ladderStart  = $('ladderStart');
-  const $ladderStep   = $('ladderStep');
-  const $ladderQty    = $('ladderQty');
-  const $ladderPassive= $('ladderPassive');
-  const $ladderIOC    = $('ladderIOC');
-  const $ladderFOK    = $('ladderFOK');
-  const $ladderSell   = $('ladderSellFlag');
-  const $ladderOut    = $('ladderOut');
-  const $ladderStatus = $('ladderStatus');
-  const $btnLadderPreview = $('btnLadderPreview');
-  const $btnLadderPlace   = $('btnLadderPlace');
-
-  /* Swap UI */
-  const $swapDir   = $('swapDir');
-  const $swapAmount= $('swapAmount');
-  const $swapSlip  = $('swapSlip');
-  const $swapStatus= $('swapStatus');
-  const $btnSwap   = $('btnSwap');
-  const $btnTrustS = $('btnTrustXRBC_S');
-
-  /* OM */
-  const $btnRefresh   = $('btnRefresh');
-  const $btnCancelAll = $('btnCancelAll');
-  const $offersStatus = $('offersStatus');
-  const $offersWrap   = $('offersWrap');
-
-  /* KPI */
-  const $kpiAsk = $('kpiAsk');
-  const $kpiBid = $('kpiBid');
-  const $kpiSpr = $('kpiSpread');
-  const $kpiLedger = $('kpiLedger');
-
-  /* Tabs */
-  const $tabLimit  = $('tabLimit');
-  const $tabLadder = $('tabLadder');
-  const $tabSwap   = $('tabSwap');
-  const $tabOM     = $('tabOM');
-  const $panelLimit= $('panelLimit');
-  const $panelLadder= $('panelLadder');
-  const $panelSwap = $('panelSwap');
-  const $panelOM   = $('panelOM');
-
-  /* ========== UTILITIES ========== */
-  function log(s){ if($log){ $log.textContent += s + '\\n'; $log.scrollTop = $log.scrollHeight; } }
-  function setStatus(node,text,cls){
-    if(!node) return;
-    node.textContent=text;
-    node.classList.remove('ok','err');
-    if(cls) node.classList.add(cls);
-    if(node===$walletStatus) log('[wallet] '+text);
-    if(node===$limitStatus)  log('[limit] '+text);
-    if(node===$swapStatus)   log('[swap] '+text);
-    if(node===$offersStatus) log('[offers] '+text);
-    if(node===$ladderStatus) log('[ladder] '+text);
-  }
-  const N=v=>Number.isFinite(Number(v))?Number(v):0;
-  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
-  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
-  function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
-  function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
-  function updateNetUI(){ $btnNetBadge.textContent = state.network==='testnet'?'Testnet':'Mainnet'; }
-  function updateConnectButtons(){
-    const connected = Boolean(state.account && state.adapter);
-    $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : '';
-    $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none';
-  }
-
-  /* Sentinel code + memo helpers */
-  function randCode(){
-    const c = String(Math.floor(100000 + Math.random()*900000));
-    sessionStorage.setItem('__xrbc_sentinel_code', c);
-    $codePill.textContent = c;
-    return c;
-  }
-  function currentCode(){ return sessionStorage.getItem('__xrbc_sentinel_code') || randCode(); }
-  function toHex(str){ return Array.from(new TextEncoder().encode(String(str))).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase(); }
-  function sentinelMemos(action){
-    const code = randCode();
-    const ts   = new Date().toISOString();
-    const page = '/power-trade.html';
-    const memoStr = `SENTINEL v1 | code=${code} | page=${page} | action=${action} | ts=${ts}`;
-    return [
-      { Memo: { MemoType: toHex('text/plain'), MemoData: toHex(memoStr) } },
-      { Memo: { MemoType: toHex('app'),        MemoData: toHex('XRBitcoinCash • Power Trade') } }
-    ];
-  }
-
-  /* ========== XRPL PROXY + CALLS ========== */
-  async function xrplRequest(payload,{timeoutMs=12000}={}){
-    if(!PROXY_BASE) throw new Error('Proxy URL missing');
-    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+  function copyFrom(elId){
+    const el = $(elId);
     try{
-      const res=await fetch(proxyUrl(),{
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload), signal:ctrl.signal, redirect:'error', cache:'no-store', credentials:'omit'
-      });
-      if(!res.ok) throw new Error('Proxy HTTP '+res.status);
-      const data=await res.json();
-      if(data && data.error) throw new Error('XRPL '+(data.error?.message||'error'));
-      return data;
-    } finally { clearTimeout(t); }
+      const s = el.textContent.trim();
+      navigator.clipboard.writeText(s);
+      return true;
+    }catch{ return false; }
   }
-  async function call(method,params){
-    const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]});
-    return r?.result;
+  $('copyIssuer')?.addEventListener('click', ()=> copyFrom('issuerPill'));
+  $('copyHex')?.addEventListener('click', ()=> copyFrom('hexPill'));
+
+  /* Render a button if url provided */
+  function btn(title, url, cls='btn'){
+    const a = document.createElement('a');
+    a.className = cls;
+    a.textContent = title;
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    return a;
   }
 
-  /* ========== ACCOUNT / INFO / BOOK ========== */
-  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
-  async function serverInfo(){ const r=await call('server_info',{}); return r?.info || {}; }
+  /* XApps */
+  (function renderXapps(){
+    const box = $('xapps'); if(!box) return;
+    const items = [];
 
-  function orderPriceXRPperXRBC(gets,pays){
-    const g = isXRP(gets) ? N(gets)/XRP_TO_DROPS : N(gets?.value);
-    const p = isXRP(pays) ? N(pays)/XRP_TO_DROPS : N(pays?.value);
-    if(!g || !p) return NaN;
-    if(!isXRP(gets)) return (p/g); else return (g/p);
-  }
-  async function fetchBestOfBook(){
-    const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
-    const rAsk = await call('book_offers',{ taker_gets:{currency:"XRP"}, taker_pays:{currency:XRBC_HEX, issuer:XRBC.issuer}, limit:10 });
-    const rBid = await call('book_offers',{ taker_gets:{currency:XRBC_HEX, issuer:XRBC.issuer}, taker_pays:{currency:"XRP"}, limit:10 });
+    if (cfg.xapps?.anodos)   items.push(btn('Open ANODOS (Xumm xApp)',   cfg.xapps.anodos,   'btn btn-blue glow-blue'));
+    if (cfg.xapps?.magnetic) items.push(btn('Open Magnetic (Xumm xApp)', cfg.xapps.magnetic, 'btn btn-green glow-green'));
 
-    const asks = (rAsk?.offers||[]).map(o=>({ px:orderPriceXRPperXRBC(o.TakerGets, o.TakerPays), o }));
-    const bids = (rBid?.offers||[]).map(o=>({ px:orderPriceXRPperXRBC(o.TakerGets, o.TakerPays), o }));
-    const askP = asks.map(x=>x.px).filter(isFinite); const bidP=bids.map(x=>x.px).filter(isFinite);
+    if (items.length) items.forEach(el=>box.appendChild(el));
+    else box.innerHTML = '<div class="hint">No xApps linked yet. Add URLs in <span class="mono">#app-config</span>.</div>';
+  })();
 
-    const bestAsk = askP.length? Math.min(...askP) : NaN;
-    const bestBid = bidP.length? Math.max(...bidP) : NaN;
+  /* Aggregators / DEX links */
+  (function renderAggregators(){
+    const box = $('aggregators'); if(!box) return;
+    const items = [];
 
-    $kpiAsk.textContent = isFinite(bestAsk)? bestAsk.toFixed(6)+' XRP' : '—';
-    $kpiBid.textContent = isFinite(bestBid)? bestBid.toFixed(6)+' XRP' : '—';
-    $kpiSpr.textContent = (isFinite(bestAsk)&&isFinite(bestBid))? (bestAsk-bestBid).toFixed(6)+' XRP' : '—';
+    if (cfg.aggregators?.sologenic) items.push(btn('Sologenic DEX — XRBC/XRP', cfg.aggregators.sologenic, 'btn btn-yellow glow-yellow'));
+    if (cfg.aggregators?.xpmarket)  items.push(btn('XPMarket — XRBC',          cfg.aggregators.xpmarket,  'btn'));
+    if (cfg.aggregators?.bithomp)   items.push(btn('Bithomp — XRBC Asset',     cfg.aggregators.bithomp,   'btn'));
+    if (cfg.aggregators?.xrpscan)   items.push(btn('XRPScan — XRBC Asset',     cfg.aggregators.xrpscan,   'btn'));
 
-    // Render depth table
-    const t = document.createElement('table');
-    const thead=document.createElement('thead'), trh=document.createElement('tr');
-    ['Ask (XRP/XRBC)','Bid (XRP/XRBC)'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th);});
-    thead.appendChild(trh); t.appendChild(thead);
-    const tbody=document.createElement('tbody');
-    const rows=Math.max(asks.length,bids.length,1);
-    for(let i=0;i<Math.min(rows,10);i++){
-      const tr=document.createElement('tr');
-      tr.innerHTML = `<td class="mono">${asks[i]?.px?.toFixed?asks[i].px.toFixed(6):'—'}</td>
-                      <td class="mono">${bids[i]?.px?.toFixed?bids[i].px.toFixed(6):'—'}</td>`;
-      tbody.appendChild(tr);
+    if (items.length) items.forEach(el=>box.appendChild(el));
+    else box.innerHTML = '<div class="hint">No DEX/Aggregator links yet. Add URLs in <span class="mono">#app-config</span>.</div>';
+  })();
+
+  /* References */
+  (function renderRefs(){
+    const ul = $('references'); if(!ul) return;
+    const arr = Array.isArray(cfg.references) ? cfg.references : [];
+    if (!arr.length){ ul.innerHTML = '<li>None yet. Add items to <span class="mono">references</span> in the config.</li>'; return; }
+    for(const r of arr){
+      if(!r || !r.url || !r.label) continue;
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = r.url; a.textContent = r.label; a.target = '_blank'; a.rel='noopener';
+      li.appendChild(a);
+      ul.appendChild(li);
     }
-    t.appendChild(tbody);
-    $orderbookWrap.innerHTML=''; $orderbookWrap.appendChild(t);
-  }
+  })();
 
-  async function refreshReserve(){
-    if(!state.account){ $reserveWrap.textContent='Connect wallet first.'; return; }
-    const info = await getAccountInfo(state.account);
-    state.lastAccountInfo = info;
-    const balanceXRP = N(info.Balance)/XRP_TO_DROPS;
-    const owners = N(info.OwnerCount);
-    const base = 10; // base reserve (XRP) – protocol default target
-    const ownerRes = owners * 2;
-    const needed = base + ownerRes;
-    const spend = Math.max(0, balanceXRP - needed);
-    $reserveWrap.innerHTML = `
-      <div>Balance: <b>${balanceXRP.toFixed(6)} XRP</b></div>
-      <div>Owners: <b>${owners}</b> → Reserve: <b>${needed.toFixed(6)} XRP</b></div>
-      <div>Spendable est.: <b>${spend.toFixed(6)} XRP</b></div>`;
-  }
-
-  async function refreshLedgerKPI(){
-    try{
-      const info = await serverInfo();
-      const age = Number(info?.validated_ledger?.age || info?.time || 0);
-      $kpiLedger.textContent = isFinite(age) ? (age.toFixed(0)+'s') : '—';
-    }catch{ $kpiLedger.textContent='—'; }
-  }
-
-  /* ========== TRUSTLINE / CHECKS ========== */
-  const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
-  function hexToAscii(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
-  const XRBC_CODE=hexToAscii(XRBC_HEX);
-
-  async function hasXRBCTrustLine(acct){
-    const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
-    const lines=r?.lines||[];
-    return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
-  }
-  async function addXRBCTrustLine(){
-    if(!state.account || !state.adapter){ setStatus($limitStatus,'Connect wallet first.','err'); setStatus($swapStatus,'Connect wallet first.','err'); return; }
-    const memos=sentinelMemos('TrustSet');
-    const tx={ TransactionType:'TrustSet', Account:state.account, LimitAmount:{ currency:XRBC_HEX, issuer:XRBC.issuer, value:"1000000000" }, Memos:memos };
-    await state.adapter.signAndSubmit(tx);
-    setStatus($limitStatus,'TrustSet submitted.','ok');
-    setStatus($swapStatus,'TrustSet submitted.','ok');
-  }
-
-  /* ========== XUMM ADAPTER ========== */
-  class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
-  class XummAdapter extends WalletAdapter{
-    constructor(){ super(); this.name='Xumm'; this.xumm=null; }
-    async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xumm SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xumm API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
-    async resume(){ await this.ensureSDK(); const acct = await this.xumm.user.account; return acct? { address: acct } : null; }
-    async connect(){ await this.ensureSDK(); await this.xumm.authorize(); const acct=await this.xumm.user.account; if(!acct) throw new Error('No account returned'); return { address: acct }; }
-    async signAndSubmit(txjson){
-      if(state.inFlight) throw new Error('Signing in progress');
-      state.inFlight=true;
-      try{
-        const memos = Array.isArray(txjson.Memos)? txjson.Memos : [];
-        if(!memos.length) txjson.Memos = sentinelMemos('Tx');
-        const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
-          { txjson, options:{ submit:true, expire:300 } },
-          ev => {
-            if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…');
-            if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
-          }
-        );
-        const res = await resolved;
-        try{ websocket?.close(); }catch{}
-        try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
-        if(!res?.signed) throw new Error('User rejected');
-        return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
-      } finally {
-        state.inFlight=false;
-      }
-    }
-    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
-  }
-
-  /* ========== CONNECT HELPERS ========== */
-  function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
-  async function connectWith(AdapterClass){
-    try{
-      setStatus($walletStatus,'Connecting…');
-      const ad = new AdapterClass();
-      const { address } = await ad.connect();
-      state.account = address; setAdapter(ad);
-      localStorage.setItem('xrbc.lastAccount', address);
-      setStatus($walletStatus, ad.name+': '+address, 'ok');
-      $('btnDisconnect').disabled = false;
-      await afterAnyRefresh();
-    }catch(e){
-      setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
-    } finally { updateConnectButtons(); }
-  }
-  async function tryResumeWallet(){
-    try{
-      const ad = new XummAdapter();
-      const resumed = await ad.resume();
-      if(resumed && resumed.address){
-        state.account = resumed.address; setAdapter(ad);
-        setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
-        $('btnDisconnect').disabled = false;
-      } else {
-        const cached = localStorage.getItem('xrbc.lastAccount');
-        if(cached){ setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
-      }
-    }catch(e){}
-    finally{ updateConnectButtons(); await afterAnyRefresh(); }
-  }
-  async function disconnect(){
-    try{ await state.adapter?.disconnect?.(); }catch{}
-    state.account=null; state.adapter=null; setProgress(0);
-    localStorage.removeItem('xrbc.lastAccount');
-    setStatus($walletStatus,'Status: Not connected');
-    setStatus($limitStatus,''); setStatus($swapStatus,''); setStatus($offersStatus,''); setStatus($ladderStatus,'');
-    $('btnDisconnect').disabled=true; updateConnectButtons();
-    $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
-    $reserveWrap.textContent='—';
-  }
-
-  /* ========== FLAGS (OfferCreate) ========== */
-  const TF = {
-    Passive:         0x00010000,
-    ImmediateOrCancel:0x00020000,
-    FillOrKill:      0x00040000,
-    Sell:            0x00080000
-  };
-  function drops(xrp){ return String(Math.round(N(xrp)*XRP_TO_DROPS)); }
-  function buildFlags({ passive, ioc, fok, sell }){
-    let f=0;
-    if(passive) f|=TF.Passive;
-    if(ioc)     f|=TF.ImmediateOrCancel;
-    if(fok)     f|=TF.FillOrKill;
-    if(sell)    f|=TF.Sell;
-    return f;
-  }
-
-  /* ========== LIMIT (Pro) ========== */
-  async function placeLimit(){
-    if(state.spamLock) return;
-    if(!state.account || !state.adapter){ setStatus($limitStatus,'Connect wallet first.','err'); return; }
-
-    const side = $limitSide.value;
-    const qty  = N($limitAmount.value);
-    const px   = N($limitPrice.value);
-    if(!(qty>0) || !(px>0)){ setStatus($limitStatus,'Enter valid amount and price.','err'); return; }
-
-    if(side==='buy'){
-      const exists=await hasXRBCTrustLine(state.account);
-      if(!exists){ setStatus($limitStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-    }
-
-    const flags = buildFlags({
-      passive: $flagPassive.checked,
-      ioc:     $flagIOC.checked,
-      fok:     $flagFOK.checked,
-      sell:    (side==='sell' && $flagSell.checked)
-    });
-
-    const memos = sentinelMemos('OfferCreate');
-    let tx;
-    if(side==='buy'){
-      const payXRP = qty*px;
-      tx = {
-        TransactionType:'OfferCreate',
-        Account:state.account,
-        TakerGets: drops(payXRP),                                // XRP (drops)
-        TakerPays: { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(qty) }, // XRBC
-        Flags: flags,
-        Memos: memos
-      };
-    } else {
-      const getXRP = qty*px;
-      tx = {
-        TransactionType:'OfferCreate',
-        Account:state.account,
-        TakerGets: { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(qty) }, // XRBC
-        TakerPays: drops(getXRP),                               // XRP (drops)
-        Flags: flags,
-        Memos: memos
-      };
-    }
-
-    try{
-      state.spamLock=true; $btnLimit.disabled=true;
-      setStatus($limitStatus,'Open Xaman to review & sign…');
-      const res=await state.adapter.signAndSubmit(tx);
-      setStatus($limitStatus,`Order submitted. Hash: ${res.hash || '(pending)'} — refreshing…`,'ok');
-      await afterAnyRefresh();
-    }catch(e){
-      setStatus($limitStatus,(e && e.message) || 'Order failed','err');
-    } finally{
-      state.spamLock=false; $btnLimit.disabled=false;
-    }
-  }
-
-  /* ========== LADDER ========== */
-  function ladderPreview(){
-    const side=$ladderSide.value;
-    const levels=Math.min(50,Math.max(1,Math.floor(N($ladderLevels.value))));
-    const start=N($ladderStart.value), step=N($ladderStep.value), qty=N($ladderQty.value);
-    if(!(levels>0 && qty>0 && start>0)){ $ladderOut.textContent='Enter levels>0, qty>0, start>0'; $btnLadderPlace.disabled=true; return; }
-
-    const prices=[]; for(let i=0;i<levels;i++){ const p=start + step*i; if(p>0) prices.push(p); }
-    const lines=prices.map((p,i)=>`#${i+1} ${side==='buy'?'Buy':'Sell'} ${qty.toFixed(6)} XRBC @ ${p.toFixed(6)} XRP`);
-    $ladderOut.textContent = lines.join('\\n');
-    $btnLadderPlace.disabled = !prices.length;
-  }
-
-  async function ladderPlace(){
-    if(state.spamLock) return;
-    if(!state.account || !state.adapter){ setStatus($ladderStatus,'Connect wallet first.','err'); return; }
-
-    const side=$ladderSide.value;
-    const exists=await hasXRBCTrustLine(state.account);
-    if(!exists){ setStatus($ladderStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-
-    const levels=Math.min(50,Math.max(1,Math.floor(N($ladderLevels.value))));
-    const start=N($ladderStart.value), step=N($ladderStep.value), qty=N($ladderQty.value);
-    if(!(levels>0 && qty>0 && start>0)){ setStatus($ladderStatus,'Enter valid ladder inputs.','err'); return; }
-
-    const flags = buildFlags({
-      passive: $ladderPassive.checked,
-      ioc:     $ladderIOC.checked,
-      fok:     $ladderFOK.checked,
-      sell:    (side==='sell' && $ladderSell.checked)
-    });
-
-    const prices=[]; for(let i=0;i<levels;i++){ const p=start + step*i; if(p>0) prices.push(p); }
-    if(!prices.length){ setStatus($ladderStatus,'No valid price levels after step.','err'); return; }
-
-    setStatus($ladderStatus,`Submitting ${prices.length} order(s)…`);
-    state.spamLock=true; $btnLadderPlace.disabled=true;
-    let ok=0, fail=0;
-    for(let i=0;i<prices.length;i++){
-      const px=prices[i];
-      const memos=sentinelMemos('OfferCreate:Ladder');
-      let tx;
-      if(side==='buy'){
-        const payXRP = qty*px;
-        tx = {
-          TransactionType:'OfferCreate',
-          Account:state.account,
-          TakerGets: drops(payXRP),
-          TakerPays: { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(qty) },
-          Flags: flags,
-          Memos: memos
-        };
-      } else {
-        const getXRP = qty*px;
-        tx = {
-          TransactionType:'OfferCreate',
-          Account:state.account,
-          TakerGets: { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(qty) },
-          TakerPays: drops(getXRP),
-          Flags: flags,
-          Memos: memos
-        };
-      }
-      try{
-        setProgress(Math.floor((i/prices.length)*100));
-        await state.adapter.signAndSubmit(tx);
-        ok++;
-      }catch{ fail++; }
-    }
-    setProgress(100);
-    setStatus($ladderStatus,`Done. Submitted ${ok}, failed ${fail}.`,'ok');
-    await afterAnyRefresh();
-    setTimeout(()=>setProgress(0), 600);
-    state.spamLock=false; $btnLadderPlace.disabled=false;
-  }
-
-  /* ========== SWAP (Payment pathfind) ========== */
-  async function ripplePathFind(acct, dstAmtObj){
-    const req = {
-      method:'ripple_path_find',
-      params:[{
-        source_account:acct,
-        destination_account:acct,
-        destination_amount:dstAmtObj,
-        source_currencies:[{currency:"XRP"},{currency:XRBC_HEX, issuer:XRBC.issuer}]
-      } ]
-    };
-    const pfWrap = await xrplRequest(req, {timeoutMs:15000});
-    return pfWrap?.result || {};
-  }
-
-  async function buildSwapTx(acct, dir, amount, slipPct){
-    if(!(amount>0)) throw new Error('Invalid amount');
-
-    const memos = sentinelMemos('Swap');
-
-    if(dir==='xrp_to_xrbc'){
-      const dest = { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(amount) };
-      const pf = await ripplePathFind(acct, dest);
-      const alts = pf.alternatives || [];
-      if(!alts.length) throw new Error('No route found');
-      let best = null;
-      for(const a of alts){
-        const sa=a.source_amount;
-        const dropsAmt = typeof sa==='string' ? N(sa) : (sa?.currency==='XRP' ? Math.round(N(sa.value)*XRP_TO_DROPS) : Infinity);
-        if(!isFinite(dropsAmt)) continue;
-        if(!best || dropsAmt < best.drops) best = { alt:a, drops:dropsAmt };
-      }
-      if(!best) throw new Error('No XRP route');
-      const headroom = Math.ceil(best.drops * (1 + N(slipPct)/100));
-      return {
-        TransactionType:'Payment',
-        Account:acct,
-        Destination:acct,
-        Amount:dest,
-        SendMax:String(headroom),
-        Paths:best.alt.paths_computed||[],
-        Memos:memos
-      };
-    } else {
-      const xrbcSend = { currency:XRBC_HEX, issuer:XRBC.issuer, value:String(amount) };
-      const rBid = await call('book_offers',{ taker_gets:{currency:XRBC_HEX,issuer:XRBC.issuer}, taker_pays:{currency:"XRP"}, limit:1 });
-      const bidPx = (rBid?.offers||[]).length ? orderPriceXRPperXRBC(rBid.offers[0].TakerGets, rBid.offers[0].TakerPays) : 0;
-      const estXRP = bidPx ? amount * bidPx : 0;
-      const deliverMin = estXRP ? Math.floor((estXRP * (1 - N(slipPct)/100)) * XRP_TO_DROPS) : 0;
-
-      return {
-        TransactionType:'Payment',
-        Account:acct,
-        Destination:acct,
-        Amount: String(0), // XRP unknown upfront
-        SendMax: xrbcSend,
-        Flags: 0x00020000, // tfPartialPayment
-        DeliverMin: deliverMin ? String(deliverMin) : undefined,
-        Memos:memos
-      };
-    }
-  }
-
-  async function doSwap(){
-    if(state.spamLock) return;
-    if(!state.account || !state.adapter){ setStatus($swapStatus,'Connect wallet first.','err'); return; }
-    const exists=await hasXRBCTrustLine(state.account);
-    if(!exists){ setStatus($swapStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-
-    const amt = N($swapAmount.value);
-    const slip= N($swapSlip.value);
-    if(!(amt>0)){ setStatus($swapStatus,'Enter a valid amount.','err'); return; }
-
-    try{
-      state.spamLock=true; $btnSwap.disabled=true;
-      setStatus($swapStatus,'Calculating route…');
-      const tx = await buildSwapTx(state.account, $swapDir.value, amt, slip);
-      setStatus($swapStatus,'Open Xaman to review & sign…');
-      const res=await state.adapter.signAndSubmit(tx);
-      setStatus($swapStatus,`Swap submitted. Hash: ${res.hash || '(pending)'} — refreshing…`,'ok');
-      await afterAnyRefresh();
-    }catch(e){
-      setStatus($swapStatus,(e && e.message) || 'Swap failed','err');
-    } finally{
-      state.spamLock=false; $btnSwap.disabled=false;
-    }
-  }
-
-  /* ========== ORDER MGMT ========== */
-  async function fetchOffers(acct){
-    setStatus($offersStatus,'Loading open orders…');
-    try{
-      const r=await call('account_offers',{account:acct,limit:500});
-      const offers=r?.offers||[];
-      const wrap=document.createElement('div');
+})();
+</script>
+</body>
+</html>
