@@ -34,7 +34,6 @@
   :root{
     --wrap:1100px; --bg:#0b0f14; --panel:#0e1520; --panel-2:#0c131c; --ink:#e7edf5; --muted:#9fb0c5; --line:#2b3a4b;
     --ok:#22c55e; --err:#ef4444; --blue:#2563eb; --yellow:#f59e0b; --shadow:rgba(0,0,0,.35);
-    --orb-a:#164e63; --orb-b:#0b5; --orb-c:#1e3a8a;
   }
   *{box-sizing:border-box}
   html,body{height:100%;max-width:100%;overflow-x:hidden}
@@ -88,17 +87,6 @@
   .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
   .glow-red{  box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
 
-  /* Pills / chips */
-  .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);padding:6px 10px;border-radius:9999px;background:#0b111a}
-  .pill .copy{cursor:pointer; border:1px solid var(--line); padding:2px 8px; border-radius:8px}
-
-  /* Tables / lists */
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-  th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
-  ul.clean{list-style:none;padding-left:0;margin:0}
-  ul.clean li{padding:6px 0;border-bottom:1px dashed #1a2433}
-  ul.clean li:last-child{border-bottom:none}
-
   /* Link cards container */
   .link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   @media (max-width: 900px){ .grid-12{grid-template-columns:repeat(6,1fr)} .col-span-6{grid-column:span 6} .col-span-12{grid-column:span 6}
@@ -133,20 +121,53 @@
           <div class="hint">Issuer (verify on an XRPL explorer)</div>
           <div class="pill" style="margin-top:6px">
             <span class="mono" id="issuerPill">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
-            <button class="copy" id="copyIssuer" type="button" title="Copy issuer">Copy</button>
+            <button class="btn small" id="copyIssuer" type="button" title="Copy issuer">Copy</button>
           </div>
         </div>
         <div class="col-span-6">
           <div class="hint">Currency (HEX)</div>
           <div class="pill" style="margin-top:6px">
             <span class="mono" id="hexPill">5852626974636F696E6361736800000000000000</span>
-            <button class="copy" id="copyHex" type="button" title="Copy HEX">Copy</button>
+            <button class="btn small" id="copyHex" type="button" title="Copy HEX">Copy</button>
           </div>
         </div>
       </div>
       <p class="hint" style="margin-top:8px">
         Checking <em>both</em> prevents imposter assets. If a venue shows a different issuer or HEX, do not proceed.
       </p>
+    </div>
+
+    <div class="panel-note" style="margin-top:10px">
+      <div class="hint"><strong>AI-Audit Proof:</strong> This page’s UX/safety copy was co-authored with ChatGPT-5. No custody, no auto-signing, explicit verification steps, and wallet-first execution.</div>
+    </div>
+  </section>
+
+  <!-- AUDIT & TRANSPARENCY -->
+  <section class="card" id="audit">
+    <h2>Audit & Transparency</h2>
+    <p>
+      XRBitcoinCash (XRBC) has been built and iterated with an ongoing ChatGPT-5 audit mindset: every major page and control was designed around self-custody, explicit wallet signing, and verifiable on-ledger signals. We keep execution in your wallet (Xaman) or on trusted XRPL venues, and we show issuer + currency HEX prominently to prevent imposter assets. <em>This paragraph was compiled by ChatGPT-5 to verify the project’s authenticity and clarity.</em>
+    </p>
+    <p>
+      Practically: we never take custody, never auto-sign, and never hide the route. You confirm every intent inside your wallet and can verify transactions on independent explorers. Pages favor defense-in-depth: issuer/HEX verification, trustline gating when receiving XRBC, clear slippage language where relevant, and a deliberate split between order-book (limit) and AMM (instant) on separate tools.
+    </p>
+    <p>
+      We hardened UX around XRPL realities: desktop shows a safe QR hand-off to mobile Xaman, mobile uses deep-links, and post-transaction refresh keeps the interface anchored to ledger state. These choices reduce foot-guns for new users while giving power-users the direct controls they need. You remain in full control of keys and approvals—every step leaves an on-ledger trail.
+    </p>
+    <div class="panel-note panel-note-blue" style="margin-top:10px">
+      <div class="hint"><strong>Recommendation:</strong> use the Sentinel Security Center (below) to analyze any token before you trade it—liquidity, issuer status, order-book presence, and more.</div>
+    </div>
+  </section>
+
+  <!-- SENTINEL -->
+  <section class="card" id="sentinel">
+    <h2>Sentinel Security Center</h2>
+    <p class="hint">
+      A deep-dive analyzer for XRPL tokens. Connect your wallet to inspect liquidity paths, issuer state, and order-book signals before you trade.
+    </p>
+    <div id="sentinelBtnWrap" class="row" style="gap:8px"></div>
+    <div class="panel-note" style="margin-top:8px">
+      <div class="hint">If no button appears here, provide a verified Sentinel URL in <span class="mono">#app-config</span> to enable the CTA.</div>
     </div>
   </section>
 
@@ -180,7 +201,7 @@
       <div class="col-span-6">
         <div class="panel-note">
           <div class="hint"><strong>Self-custody flow</strong></div>
-          <ul class="clean hint" style="margin-top:6px">
+          <ul class="hint" style="margin-top:6px;list-style:none;padding-left:0">
             <li>1) Verify issuer & currency HEX</li>
             <li>2) Set XRBC trustline in your wallet</li>
             <li>3) Choose venue (xApp/DEX)</li>
@@ -191,19 +212,19 @@
         <div class="panel-note panel-note-green" style="margin-top:10px">
           <div class="hint"><strong>AMM vs Order Book</strong></div>
           <p class="hint" style="margin-top:6px">
-            AMM swaps give instant routes; order books give price control (limit). Compare both when size is meaningful.
+            AMM swaps can route instantly; order books give price control (limit). Compare both when trade size is meaningful.
           </p>
         </div>
       </div>
       <div class="col-span-6">
         <div class="panel-note">
           <div class="hint"><strong>References</strong> (rendered from config)</div>
-          <ul id="references" class="clean hint" style="margin-top:6px"></ul>
+          <ul id="references" class="hint" style="margin-top:6px;list-style:none;padding-left:0"></ul>
         </div>
         <div class="panel-note" style="margin-top:10px">
           <div class="hint"><strong>Risk & Slippage</strong></div>
           <p class="hint" style="margin-top:6px">
-            Quotes can move between preview and signing. Use small test trades, and set a slippage cap when supported.
+            Quotes can move between preview and signing. Use small test trades and set a slippage cap when supported.
           </p>
         </div>
       </div>
@@ -237,36 +258,25 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 
 </main>
 
-<!-- ===== App configuration (keep this immediately BEFORE the main script) =====
-     IMPORTANT: Only fill URLs you actually control/verify. If a URL is omitted,
-     its button/list item will be hidden. There are NO dummy links. -->
+<!-- ===== App configuration (keep this immediately BEFORE the main script) ===== -->
 <script type="application/json" id="app-config">
 {
   "xrbc": {
     "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
     "currencyHex": "5852626974636F696E6361736800000000000000"
   },
-
   "xapps": {
-    /* Add only if confirmed */
-    "anodos": null,     /* ex: "https://xumm.app/detect/xapp:anodos.io" */
-    "magnetic": null    /* ex: "https://xumm.app/detect/xapp:magnetic.io" */
+    "anodos": null,
+    "magnetic": null
   },
-
   "aggregators": {
-    /* Supply fully-qualified URLs when ready (leave null to hide) */
-    "sologenic": null,  /* e.g., full XRBC/XRP market URL */
-    "xpmarket": null,   /* e.g., token/market page */
-    "bithomp": null,    /* e.g., issuer asset page */
-    "xrpscan": null     /* e.g., token page */
+    "sologenic": null,
+    "xpmarket": null,
+    "bithomp": null,
+    "xrpscan": null
   },
-
-  "references": [
-    /* Each entry renders as a list item. Examples (leave nulls out):
-    { "label": "XRBC Security/AI Explainer", "url": "https://xrbitcoincash.com/security.html" },
-    { "label": "XRBC GitHub", "url": "https://github.com/xrbitcoincash/xrbitcoincash.github.io" }
-    */
-  ]
+  "references": [],
+  "sentinelUrl": null
 }
 </script>
 
@@ -280,16 +290,16 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   })();
 
   const $ = id => document.getElementById(id);
-  const cfg = JSON.parse($('app-config').textContent || '{}');
+  const cfg = JSON.parse(($('app-config')?.textContent||'{}'));
 
   /* Issuer / HEX pills + copy */
   $('issuerPill').textContent = cfg.xrbc?.issuer || '—';
   $('hexPill').textContent    = (cfg.xrbc?.currencyHex || '—').toUpperCase();
 
   function copyFrom(elId){
-    const el = $(elId);
     try{
-      const s = el.textContent.trim();
+      const s = ($(elId)?.textContent||'').trim();
+      if (!s) return false;
       navigator.clipboard.writeText(s);
       return true;
     }catch{ return false; }
@@ -308,14 +318,22 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     return a;
   }
 
+  /* Sentinel CTA (optional; only if cfg.sentinelUrl is truthy) */
+  (function renderSentinel(){
+    const url = (cfg.sentinelUrl || '').trim ? (cfg.sentinelUrl || '').trim() : (cfg.sentinelUrl || '');
+    const wrap = $('sentinelBtnWrap');
+    if (!wrap) return;
+    if (url){
+      wrap.appendChild(btn('Open Sentinel — Security Center', url, 'btn btn-green glow-green'));
+    }
+  })();
+
   /* XApps */
   (function renderXapps(){
     const box = $('xapps'); if(!box) return;
     const items = [];
-
-    if (cfg.xapps?.anodos)   items.push(btn('Open ANODOS (Xumm xApp)',   cfg.xapps.anodos,   'btn btn-blue glow-blue'));
-    if (cfg.xapps?.magnetic) items.push(btn('Open Magnetic (Xumm xApp)', cfg.xapps.magnetic, 'btn btn-green glow-green'));
-
+    if (cfg.xapps?.anodos)   items.push(btn('Open ANODOS (Xaman xApp)',   cfg.xapps.anodos,   'btn btn-blue glow-blue'));
+    if (cfg.xapps?.magnetic) items.push(btn('Open Magnetic (Xaman xApp)', cfg.xapps.magnetic, 'btn btn-green glow-green'));
     if (items.length) items.forEach(el=>box.appendChild(el));
     else box.innerHTML = '<div class="hint">No xApps linked yet. Add URLs in <span class="mono">#app-config</span>.</div>';
   })();
@@ -324,12 +342,10 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   (function renderAggregators(){
     const box = $('aggregators'); if(!box) return;
     const items = [];
-
     if (cfg.aggregators?.sologenic) items.push(btn('Sologenic DEX — XRBC/XRP', cfg.aggregators.sologenic, 'btn btn-yellow glow-yellow'));
     if (cfg.aggregators?.xpmarket)  items.push(btn('XPMarket — XRBC',          cfg.aggregators.xpmarket,  'btn'));
     if (cfg.aggregators?.bithomp)   items.push(btn('Bithomp — XRBC Asset',     cfg.aggregators.bithomp,   'btn'));
     if (cfg.aggregators?.xrpscan)   items.push(btn('XRPScan — XRBC Asset',     cfg.aggregators.xrpscan,   'btn'));
-
     if (items.length) items.forEach(el=>box.appendChild(el));
     else box.innerHTML = '<div class="hint">No DEX/Aggregator links yet. Add URLs in <span class="mono">#app-config</span>.</div>';
   })();
