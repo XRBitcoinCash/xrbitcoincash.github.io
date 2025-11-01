@@ -115,6 +115,19 @@ body.embed header{display:none}
 .hero-top .center{justify-self:center}
 .hero-top .right{justify-self:end;text-align:right}
 
+/* === Valuation summary (inside hero) === */
+#valuation { border:1px solid var(--line); border-left:4px solid #60a5fa; background:linear-gradient(180deg,#0e1520,#0c131c); border-radius:10px; padding:10px; }
+.val-cards{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; width:100%; }
+.val-card{ border:1px solid var(--line); border-radius:10px; padding:8px; min-width:0; }
+.val-card .label{ font-size:12px; color:var(--muted) }
+.val-card .value{ font-weight:800; font-size:16px; line-height:1.2; word-break:break-word; overflow-wrap:anywhere }
+#valTableWrap{ margin-top:8px; overflow:auto; }
+#valTable{ width:100%; min-width:520px; table-layout:fixed }
+#valTable th:nth-child(1){ width:44% } /* Token/Hex */
+#valTable th:nth-child(2){ width:22% } /* Balance */
+#valTable th:nth-child(3){ width:34% } /* Est Value */
+@media (max-width:640px){ .val-cards{ grid-template-columns:1fr; } }
+
 /* === Stop-Loss Planner emphasis & container === */
 .hint-yellow{color:var(--yellow);font-weight:700}
 
@@ -126,9 +139,9 @@ body.embed header{display:none}
   box-shadow:0 0 0 2px rgba(37,99,235,.25),0 0 20px rgba(37,99,235,.18);
   border-radius:10px;
   padding:8px;
-  overflow-x:auto;           /* NEW: allow horizontal scroll if needed */
+  overflow-x:auto;
 }
-#slTokens table{table-layout:fixed;width:100%;min-width:560px} /* NEW: stable min width */
+#slTokens table{table-layout:fixed;width:100%;min-width:560px}
 #slTokens table th,#slTokens table td{min-width:0;word-break:break-word;overflow-wrap:anywhere}
 
 /* Column color mapping (2=Hex, 3=Issuer, 4=Balance, 5=Amount) */
@@ -141,17 +154,16 @@ body.embed header{display:none}
 #slTokens table thead th:nth-child(5),
 #slTokens table tbody td:nth-child(5){color:var(--ok);font-weight:800}
 
-/* ===== Mobile-only refinements (desktop unchanged) ===== */
+/* ===== Mobile-only refinements ===== */
 @media (max-width:560px){
-  #slTokens{overflow-x:auto} /* CHANGED: was hidden */
-  #slTokens table{min-width:480px} /* tighter min width on small phones */
+  #slTokens{overflow-x:auto}
+  #slTokens table{min-width:480px}
   #slTokens table th,#slTokens table td{padding:6px 8px;white-space:normal}
-  #slTokens thead th{white-space:normal} /* allow wrapping headers */
+  #slTokens thead th{white-space:normal}
   #slTokens table thead th:nth-child(5){font-size:12px;line-height:1.2;color:var(--ok);font-weight:800}
   #slTokens table thead th:nth-child(4),
   #slTokens table thead th:nth-child(5){text-align:left;padding-left:6px;vertical-align:bottom}
 
-  /* Gentle width guidance, but allow wrap to avoid overflow */
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){width:38%}
   #slTokens table thead th:nth-child(3),
@@ -161,7 +173,6 @@ body.embed header{display:none}
   #slTokens table thead th:nth-child(5),
   #slTokens table tbody td:nth-child(5){width:22%}
 
-  /* Inputs are fully contained */
   #slTokens table tbody td:nth-child(5) > *{
     display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
     min-width:6ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
@@ -231,7 +242,7 @@ body.embed header{display:none}
 
 <main class="container" aria-live="polite">
 
-  <!-- PRIMARY CARD -->
+  <!-- PRIMARY (HERO) CARD -->
   <section class="card" id="primary" aria-labelledby="hero-title">
     <div class="hero-top">
       <div class="left logo">
@@ -268,7 +279,48 @@ body.embed header{display:none}
       <p class="hint" style="margin:0">Raw secret signing disabled. Use a wallet. No keys stored.</p>
     </div>
 
-    <!-- Hero: red/green disclaimers for instant recognition -->
+    <!-- Inline valuation — always fits inside hero card -->
+    <div id="valuation" class="panel-note" role="region" aria-labelledby="valTitle">
+      <div class="row between">
+        <h3 id="valTitle" style="margin:0">Portfolio Value</h3>
+        <label class="hint" style="display:flex;gap:8px;align-items:center">
+          Value in:
+          <select id="valTarget">
+            <option value="XRP" selected>XRP</option>
+            <option value="RLUSD">RLUSD (stable)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="val-cards" style="margin-top:8px">
+        <div class="val-card">
+          <div class="label">Total</div>
+          <div class="value" id="valTotal">—</div>
+        </div>
+        <div class="val-card">
+          <div class="label">Native XRP balance</div>
+          <div class="value" id="valXrp">—</div>
+        </div>
+        <div class="val-card">
+          <div class="label">Tokens subtotal</div>
+          <div class="value" id="valTokens">—</div>
+        </div>
+      </div>
+
+      <div id="valTableWrap">
+        <table id="valTable" aria-describedby="valTitle">
+          <thead>
+            <tr><th>Token / Hex</th><th>Balance</th><th>Est. value</th></tr>
+          </thead>
+          <tbody id="valTbody">
+            <tr><td class="hint" colspan="3">Connect to load valuation…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p id="valStatus" class="status"></p>
+    </div>
+
+    <!-- Hero: safeguards -->
     <div class="panel-note" role="note" aria-live="polite">
       <p class="text-red" style="margin:0 0 6px 0">
         <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
@@ -340,6 +392,7 @@ body.embed header{display:none}
   <!-- PANIC SELL -->
   <section class="card" aria-labelledby="panic">
     <h2 id="panic">Panic Sell — Sequential</h2>
+    <p class="hint" style="margin:0 0 8px 0">On-ledger swaps only (XRPL AMMs &amp; order books). No centralized exchange required.</p>
     <div class="warn" style="margin-bottom:10px">
       <p class="text-red" style="margin:0 0 6px 0">
         <strong>Liquidity safeguard is ON.</strong> Tokens with <em>no viable route</em> or below the <em>minimum-liquidity threshold</em> are
@@ -362,10 +415,6 @@ body.embed header{display:none}
       <label class="hint" style="display:flex;gap:8px;align-items:center">
         Slippage cap (%):
         <input id="panicSlip" type="number" step="0.1" value="2" inputmode="decimal" autocomplete="off" style="min-width:90px">
-      </label>
-      <label class="hint" style="display:flex;gap:8px;align-items:center">
-        <input id="panicCancelFirst" type="checkbox" checked>
-        Cancel all open orders first (frees reserve)
       </label>
     </div>
 
@@ -521,7 +570,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
   // ===== Sentinel v1 helpers (6-digit code + memos + signing lock)
   const SENTINEL_VERSION = 'v1';
   let __signInFlight = false;
-  let __uiUnlockTimer = null; /* NEW: UI unlock guard */
+  let __uiUnlockTimer = null;
 
   const $ = id => document.getElementById(id);
   const $walletStatus = $('walletStatus');
@@ -540,7 +589,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
     ];
     ids.forEach(id=>{ const el=$(id); if(el) el.disabled = !!disabled; });
   }
-  /* NEW: lock with auto-unlock safety */
   function lockUI(){
     disableWalletButtons(true);
     clearTimeout(__uiUnlockTimer);
@@ -590,11 +638,18 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
   const $panicTarget    = $('panicTarget');
   const $panicSlip      = $('panicSlip');
-  const $panicCancelFirst = $('panicCancelFirst');
   const $panicPlanOut   = $('panicPlanOut');
   const $panicStatus    = $('panicStatus');
   const $btnPanicPreview= $('btnPanicPreview');
   const $btnPanicSell   = $('btnPanicSell');
+
+  // Valuation DOM
+  const $valTarget = $('valTarget');
+  const $valTbody  = $('valTbody');
+  const $valTotal  = $('valTotal');
+  const $valXrp    = $('valXrp');
+  const $valTokens = $('valTokens');
+  const $valStatus = $('valStatus');
 
   // ===== UTILS
   function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
@@ -602,7 +657,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
     if(node===$offersStatus) log('[offers] '+text); else if(node===$walletStatus) log('[wallet] '+text);
     else if(node===$slStatus) log('[stop] '+text); else if(node===$panicStatus) log('[panic] '+text);
-    else if(node===$buyStatus) log('[buy] '+text);
+    else if(node===$buyStatus) log('[buy] '+text); else if(node===$valStatus) log('[value] '+text);
   }
   const N=v=>Number.isFinite(Number(v))?Number(v):0;
   const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
@@ -716,7 +771,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     async signAndSubmit(txjson){
       if(__signInFlight){ setStatus($walletStatus,'Signing in progress…','err'); throw new Error('Signing in progress'); }
       __signInFlight = true;
-      lockUI(); /* NEW */
+      lockUI();
 
       try{
         await this.ensureSDK();
@@ -729,7 +784,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
           app_id: appIdFromPath(location.pathname)
         };
 
-        // Show only the human code (avoid confusion with hex)
         setStatus($walletStatus, `Verify code: ${code} in Xaman, then sign.`, 'ok');
 
         const tx = buildPayloadWithSentinel(txjson, ctx);
@@ -758,8 +812,8 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
         setStatus($walletStatus, `Submitted. Code verified in wallet.`, 'ok');
 
-        // refresh all live views after submit (offers + token table)
-        try{ if (state.account) await refreshAll(); }catch{}
+        // refresh all live views after submit (offers + token table + valuation)
+        try{ if (state.account) { await refreshAll(); await refreshValuation(); } }catch{}
 
         return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
       }catch(e){
@@ -767,7 +821,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
         throw e;
       }finally{
         __signInFlight = false;
-        unlockUI(); /* NEW */
+        unlockUI();
       }
     }
     // ===== /Sentinel =====
@@ -793,6 +847,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
       setStatus($walletStatus, ad.name+': '+address, 'ok');
       $btnDisconnect.disabled = false;
       await refreshAll();
+      await refreshValuation(); // NEW
     }catch(e){
       setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
     } finally { updateConnectButtons(); }
@@ -806,6 +861,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
         setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
         $btnDisconnect.disabled = false;
         await refreshAll();
+        await refreshValuation(); // NEW
       } else {
         const cached = localStorage.getItem('xrbc.lastAccount');
         if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); }
@@ -819,13 +875,15 @@ By accessing this page or embedding the widget, you accept the Important terms a
     localStorage.removeItem('xrbc.lastAccount');
     $offersWrap.innerHTML='<div class="hint">No data yet.</div>';
     setStatus($walletStatus,'Status: Not connected');
-    setStatus($offersStatus,''); setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($buyStatus,'');
+    setStatus($offersStatus,''); setStatus($slStatus,''); setStatus($panicStatus,''); setStatus($buyStatus,''); setStatus($valStatus,'');
     $btnDisconnect.disabled=true; updateConnectButtons();
     $slTokens.textContent='Connect wallet first.';
     $slPlanOut.textContent=''; $panicPlanOut.textContent='';
+    $valTbody.innerHTML='<tr><td class="hint" colspan="3">Connect to load valuation…</td></tr>';
+    $valTotal.textContent='—'; $valXrp.textContent='—'; $valTokens.textContent='—';
   }
 
-  // ===== CANCEL
+  // ===== CANCEL (offers view; not used by Panic Sell anymore)
   async function cancelOne(seq){
     if(!state.account || !state.adapter){ setStatus($offersStatus,'Connect wallet first.','err'); return; }
     setStatus($offersStatus,'Preparing cancel '+seq+'…');
@@ -847,7 +905,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     setStatus($offersStatus,'Done.','ok');
   }
 
-  // ===== Slippage caps
+  // ===== Slippage caps & targets
   const ST_DEFAULT_SLIPPAGE_PCT = 2;
   const QUICK_BUY_SLIPPAGE_PCT  = 2;
 
@@ -923,6 +981,29 @@ By accessing this page or embedding the widget, you accept the Important terms a
         const gets = Number(of.TakerGets?.value);
         const pays = Number(of.TakerPays?.value);
         if (pays > 0) return gets / pays;
+      }
+    }catch{}
+    return null;
+  }
+  async function refPriceXRPtoRLUSD(){ // Native conversion for valuation totals
+    const RL = TARGETS.RLUSD;
+    try{
+      // AMM RLUSD/XRP
+      const a = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:RL.currencyHex, issuer:RL.issuer}, asset2:{currency:'XRP'} }] });
+      const amm = a?.result?.amm;
+      if (amm){
+        const rl = Number(amm.amount?.value || 0);
+        const xrp= Number(amm.amount2 || 0) / XRP_TO_DROPS;
+        if (rl>0 && xrp>0) return rl / xrp; // RLUSD per 1 XRP
+      }
+    }catch{}
+    try{
+      const r = await xrplRequest({ method:'book_offers', params:[{ taker_gets:{currency:RL.currencyHex, issuer:RL.issuer}, taker_pays:{currency:'XRP'}, limit:1 }] });
+      const of = r?.result?.offers?.[0];
+      if (of){
+        const getsRL = Number(of.TakerGets?.value);
+        const paysXRP= Number(of.TakerPays) / XRP_TO_DROPS;
+        if (paysXRP>0) return getsRL / paysXRP;
       }
     }catch{}
     return null;
@@ -1060,8 +1141,8 @@ By accessing this page or embedding the widget, you accept the Important terms a
       amtInput.className = 'slAmt';
       amtInput.step = '0.000001';
       amtInput.value = String(Math.max(0, t.balance).toFixed(6));
-      amtInput.style.width = '100%';           /* ensure fit */
-      amtInput.style.boxSizing = 'border-box'; /* ensure fit */
+      amtInput.style.width = '100%';
+      amtInput.style.boxSizing = 'border-box';
       tdAmt.appendChild(amtInput);
       tr.appendChild(tdAmt);
 
@@ -1105,7 +1186,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     document.getElementById('btnCreateStops').disabled = !lines.some(l=>l.startsWith('✅'));
   });
 
-  // ===== Stop-Loss create (sequential, each with Sentinel memos)
+  // ===== Stop-Loss create
   document.getElementById('btnCreateStops')?.addEventListener('click', async ()=>{
     if (!state.account || !state.adapter) return ($slStatus.textContent='Connect wallet first.');
     const rows = [...($slTokens.querySelectorAll('tbody tr')||[])];
@@ -1172,15 +1253,11 @@ By accessing this page or embedding the widget, you accept the Important terms a
     $panicPlanOut.textContent = lines.join('\n');
   });
 
-  // ===== Panic sell (sequential, Sentinel memos)
+  // ===== Panic sell (pure on-ledger swaps; no cancel-all)
   $btnPanicSell?.addEventListener('click', async ()=>{
     if (!state.account || !state.adapter) return ($panicStatus.textContent='Connect wallet first.');
     const slip = Number($panicSlip.value||ST_DEFAULT_SLIPPAGE_PCT);
     const tgt  = $panicTarget.value;
-
-    if ($panicCancelFirst?.checked) {
-      try { await cancelAll(); } catch {}
-    }
 
     const toks = await listUserTokens(state.account);
     if (!toks.length){ $panicStatus.textContent='No positive IOU balances.'; return; }
@@ -1207,6 +1284,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
     }
     const skipped = (toks.length - scored.length) + (scored.length - filtered.length);
     $panicStatus.textContent = `Submitted ${ok} swap(s). Failed ${fail}. Skipped ${skipped} (no route/low liquidity).`;
+    try{ await refreshValuation(); }catch{}
   });
 
   // ===== XRBC TRUST + BUY
@@ -1255,7 +1333,67 @@ By accessing this page or embedding the widget, you accept the Important terms a
       const tx=await pathFindBuy(state.account,String(units));
       const res=await state.adapter.signAndSubmit(tx);
       setStatus($buyStatus,`Buy submitted. Hash: ${(res && res.hash)?res.hash:'(pending)'}`,'ok');
+      try{ await refreshValuation(); }catch{}
     }catch(e){ setStatus($buyStatus,(e && e.message) || 'Buy failed','err'); }
+  }
+
+  // ===== Valuation engine (hero card)
+  async function refreshValuation(){
+    if(!state.account){
+      $valTbody.innerHTML='<tr><td class="hint" colspan="3">Connect to load valuation…</td></tr>';
+      $valTotal.textContent='—'; $valXrp.textContent='—'; $valTokens.textContent='—';
+      return;
+    }
+    const tgt = $valTarget.value; // 'XRP' or 'RLUSD'
+    setStatus($valStatus,'Calculating…');
+
+    // Native XRP balance
+    const acctInfo = state.lastAccountInfo || await getAccountInfo(state.account);
+    const xrpBal = N(acctInfo?.Balance) / XRP_TO_DROPS;
+
+    // Token lines
+    const toks = await listUserTokens(state.account);
+
+    // Per-token values
+    let rowsHtml = '';
+    let tokensSubtotal = 0;
+
+    for (const t of toks){
+      let px = null;
+      try{
+        px = (tgt === 'RLUSD') ? await refPriceIOUtoRLUSD(t.code, t.issuer)
+                               : await refPriceIOUtoXRP(t.code, t.issuer);
+      }catch{}
+      const disp = tokenDisplay(t.code).label;
+      if (!px){
+        rowsHtml += `<tr><td class="mono">${disp}</td><td>${t.balance.toFixed(6)}</td><td class="hint">no route</td></tr>`;
+        continue;
+      }
+      const est = t.balance * px;
+      tokensSubtotal += est;
+      const unit = (tgt==='RLUSD') ? 'RLUSD' : 'XRP';
+      rowsHtml += `<tr><td class="mono">${disp}</td><td>${t.balance.toFixed(6)}</td><td><strong>${est.toFixed(6)} ${unit}</strong> @ ${px.toFixed(6)} ${unit}/IOU</td></tr>`;
+    }
+
+    if (!toks.length){
+      rowsHtml = '<tr><td class="hint" colspan="3">No positive IOU balances.</td></tr>';
+    }
+    $valTbody.innerHTML = rowsHtml;
+
+    // Native component & total
+    let nativeValue = xrpBal;
+    if (tgt === 'RLUSD'){
+      const r = await refPriceXRPtoRLUSD();
+      nativeValue = r ? xrpBal * r : 0;
+      $valXrp.textContent = r ? `${nativeValue.toFixed(6)} RLUSD (at ${r.toFixed(6)} RLUSD/XRP)` : '—';
+    } else {
+      $valXrp.textContent = `${xrpBal.toFixed(6)} XRP`;
+    }
+
+    $valTokens.textContent = `${tokensSubtotal.toFixed(6)} ${tgt}`;
+    const total = nativeValue + tokensSubtotal;
+    $valTotal.textContent = `${total.toFixed(6)} ${tgt}`;
+    setStatus($valStatus,'');
   }
 
   // ===== Wire base UI
@@ -1267,25 +1405,28 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
   document.getElementById('btnXumm')?.addEventListener('click',()=>connectWith(XummAdapter));
   document.getElementById('btnDisconnect')?.addEventListener('click',()=>disconnect());
-  document.getElementById('btnRefresh')?.addEventListener('click',()=> state.account ? refreshAll() : setStatus($walletStatus,'Connect first.','err'));
+  document.getElementById('btnRefresh')?.addEventListener('click',()=> state.account ? (refreshAll(), refreshValuation()) : setStatus($walletStatus,'Connect first.','err'));
   document.getElementById('btnCancelAll')?.addEventListener('click',()=>cancelAll());
   document.getElementById('network')?.addEventListener('change',()=>{
     state.network = document.getElementById('network').value==='testnet' ? 'testnet' : 'mainnet';
     updateNetUI();
-    if(state.account) { refreshAll(); }
+    if(state.account) { refreshAll(); refreshValuation(); }
   });
+
+  // Valuation selector change
+  document.getElementById('valTarget')?.addEventListener('change', ()=>{ if(state.account) refreshValuation(); });
 
   // Boot
   updateNetUI();
   if (BOOT.autoResume !== false) { tryResumeWallet(); }
   if (BOOT.autoLoadData !== false) {
-    setTimeout(()=>{ if(state.account){ refreshAll(); } }, 400);
+    setTimeout(async ()=>{ if(state.account){ await refreshAll(); await refreshValuation(); } }, 400);
   }
   if (BOOT.refreshOnFocus) {
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && state.account) refreshAll();
+      if (document.visibilityState === 'visible' && state.account) { refreshAll(); refreshValuation(); }
     });
-    window.addEventListener('focus', () => { if (state.account) refreshAll(); });
+    window.addEventListener('focus', () => { if (state.account) { refreshAll(); refreshValuation(); } });
   }
 
   (function setCopyrightYear(){
