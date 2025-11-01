@@ -230,6 +230,93 @@ img,svg{ max-width:100%; height:auto; display:block; }
 .btn small{ display:block; font-size:.88em; opacity:.9; line-height:1.1; }
 .btn::before{ content:none !important; }
 
+
+/* === Centralized Trade button: blue glow behind XRP logo === */
+/* Add class="btn-cex" to that one CTA. The glow targets the logo image. */
+.btn-cex img[alt="XRP"],
+.btn-cex .xrp-logo{
+  background:#fff;
+  border-radius:4px;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,.85),
+    0 0 18px rgba(59,130,246,.55),
+    0 0 36px rgba(59,130,246,.35);
+}
+
+/* Optional: subtle outer glow around the whole centralized trade button */
+.btn-cex{
+  position:relative;
+  isolation:isolate;
+}
+.btn-cex::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:14px;
+  filter:blur(14px);
+  background:radial-gradient(closest-side, rgba(59,130,246,.30), transparent 70%);
+  opacity:.9;
+  z-index:-1;
+  pointer-events:none;
+}
+
+/* === Percent chips (25/50/75/100) with colored backlights === */
+/* Apply these classes to your existing percentage buttons (no JS needed):
+     25% -> class="pct-btn pct-25"
+     50% -> class="pct-btn pct-50"
+     75% -> class="pct-btn pct-75"
+    100% -> class="pct-btn pct-100"
+*/
+.pct-group{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:6px;
+}
+.pct-btn{
+  position:relative;
+  border:1px dashed var(--line);
+  border-radius:10px;
+  background:#0b111a;
+  color:var(--ink);
+  font-weight:800;
+  min-height:34px;
+  padding:8px 0;
+  cursor:pointer;
+  text-align:center;
+}
+.pct-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* Backlight glow layer */
+.pct-btn::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:12px;
+  filter:blur(12px);
+  opacity:.9;
+  z-index:-1;
+  pointer-events:none;
+}
+
+/* 25% white, 50% green, 75% yellow, 100% blue */
+.pct-25::after{  background:radial-gradient(closest-side, rgba(255,255,255,.85), transparent 70%); }
+.pct-50::after{  background:radial-gradient(closest-side, rgba(34,197,94,.75),  transparent 70%); }
+.pct-75::after{  background:radial-gradient(closest-side, rgba(245,158,11,.75), transparent 70%); }
+.pct-100::after{ background:radial-gradient(closest-side, rgba(59,130,246,.80), transparent 70%); }
+
+/* Nice hover nudge + focus ring */
+.pct-btn:hover{ transform:translateY(-1px); }
+.pct-btn:focus-visible{
+  outline:2px solid rgba(37,99,235,.35);
+  outline-offset:2px;
+  border-color:#1e3a8a;
+}
+
+
+
+
+    
 /* DEX / Trade UI */
 .trade-card{
   display:grid; gap:12px; text-align:left; padding:14px; border-radius:14px;
@@ -432,7 +519,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 </head>
 <body>
 
- <!-- ===== Header ===== -->
+<!-- ===== Header ===== -->
 <header class="site-header">
   <div class="header-wrap">
     <div class="brand">
@@ -442,6 +529,11 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 
     <nav class="header-center" role="navigation" aria-label="Primary">
       <div class="header-nav">
+        <!-- NEW -->
+        <a class="nav-pill pill-sentinel"
+           href="https://xrbitcoincash.com/liquidity-sentinel.html?network=mainnet"
+           title="Liquidity Sentinel · Live Liquidity Monitor">Liquidity • Sentinel</a>
+
         <a class="nav-pill pill-ecosys" href="/xrbc-ecosystem.html" title="XRBC Ecosystem · DEX/AMM">XRBC Ecosystem · DEX/AMM</a>
         <a class="nav-pill pill-extract" href="https://xrbitcoincash.com/limit-order-extraction.html" title="Instant Limit Order Extraction">Limit Order Extraction</a>
         <a class="nav-pill pill-stoploss" href="/stop-loss.html" title="Instant Stop-Loss">Instant Stop-Loss</a>
@@ -454,6 +546,7 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
     </div>
   </div>
 </header>
+
 
   <!-- ===== Main ===== -->
   <main class="container" style="max-width:800px;text-align:center;">
@@ -591,12 +684,13 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
           <input id="amount" type="number" step="0.000001" inputmode="decimal" placeholder="0.000000">
         </div>
 
-        <div class="quick-amounts" role="group" aria-label="Quick amount">
-          <button class="qa" data-q="25" type="button">25%</button>
-          <button class="qa" data-q="50" type="button">50%</button>
-          <button class="qa" data-q="75" type="button">75%</button>
-          <button class="qa" data-q="100" type="button">100%</button>
-        </div>
+      <div class="pct-group">
+  <button type="button" class="pct-btn pct-25">25%</button>
+  <button type="button" class="pct-btn pct-50">50%</button>
+  <button type="button" class="pct-btn pct-75">75%</button>
+  <button type="button" class="pct-btn pct-100">100%</button>
+</div>
+
 
       <div class="inline-hint" id="amountHint" style="margin-top:6px">
   How many XRBC you want to <span id="actionWord">buy</span>.
