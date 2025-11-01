@@ -103,21 +103,12 @@ th .sub{display:block;font-weight:600;color:var(--muted);font-size:12px;margin-t
 .footer{margin-top:16px;color:var(--muted);font-size:12px}
 .logo{display:flex;align-items:center;gap:10px}
 
-/* Token cell (logo + ticker + hex) */
-.tok{ display:flex; align-items:flex-start; gap:8px; min-width:220px }
-.tok-logo{ width:18px; height:18px; border-radius:4px; border:1px solid var(--line); object-fit:cover; background:#0c131c }
-.tok-name{ display:flex; flex-direction:column; gap:2px }
-.tok-name strong{ line-height:1; }
-.tok-name small{ color:var(--muted); font-size:12px; line-height:1.1; word-break:anywhere }
-
 /* Responsive tweaks */
 #healthWrap{overflow:auto}
 #healthTable{min-width:720px}
 @media (max-width: 720px){
   .card h1, .card h2, .card h3, .card p.hint, .status { text-align:center }
   .row { justify-content:center }
-  .tok{ min-width:0 }
-  #healthTable{ min-width:640px }
 }
 
 /* Orbs background for subtle motion */
@@ -195,16 +186,14 @@ body.embed header{display:none}
       <h2 id="health" style="margin:0">Wallet Liquidity Health</h2>
       <div class="row" style="gap:6px">
         <span id="ledgerPill" class="badge" aria-live="polite" title="Validated ledger freshness">Ledger: —</span>
-        <span id="basePill"   class="badge" aria-live="polite" title="Slippage base">Base: XRP</span>
       </div>
     </div>
-    <p class="hint">Scans your wallet trustlines, finds XRP↔IOU pools, estimates slippage on 10/100 (Base), scores each token, and tracks deltas vs last scan.</p>
+    <p class="hint">Scans your wallet trustlines, finds XRP↔IOU pools, estimates slippage on 10/100 XRP, scores each token, and tracks deltas vs last scan.</p>
 
     <div class="row row-center" style="gap:8px">
       <button id="btnHealthScan" class="btn glow-blue" type="button" disabled>Scan Health</button>
       <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="riskOnly" type="checkbox"> Risk only</label>
       <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="watchOnly" type="checkbox"> Watchlist only</label>
-      <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="proRlusd" type="checkbox"> Pro: RLUSD pivot</label>
       <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="autoRefresh" type="checkbox"> Auto-refresh</label>
       <select id="autoEvery" aria-label="Auto refresh interval" title="Auto refresh interval" class="hint">
         <option value="15" selected>15s</option><option value="30">30s</option><option value="60">60s</option>
@@ -223,7 +212,7 @@ body.embed header{display:none}
             <th scope="col">Pool</th>
             <th scope="col">Reserves <span class="sub">XRP / IOU</span></th>
             <th scope="col">Fee</th>
-            <th scope="col">Slippage <span class="sub">10 / 100 (Base)</span></th>
+            <th scope="col">Slippage <span class="sub">10 / 100 XRP</span></th>
             <th scope="col">Score</th>
             <th scope="col">Status</th>
           </tr>
@@ -322,17 +311,10 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     "currencyHex": "5852626974636F696E6361736800000000000000"
   },
   "boot": { "autoResume": true, "autoLoadData": true, "refreshOnFocus": true }
-  /* Optional RLUSD config (leave out if unknown; toggle auto-disables)
-  ,"rlusd": {
-    "issuer": "rXXXXXXXXXXXXXXRLUSD_Issuer",
-    "currencyHex": "RLUSD",
-    "logo": "/logos/rlusd.png"
-  }
-  */
 }
 </script>
 
-<!-- Main script (health + deltas + watchlist + JSON export + quick-buy estimates + wallet connect + RLUSD Pro Mode) -->
+<!-- Main script (health + deltas + watchlist + JSON export + quick-buy estimates + wallet connect) -->
 <script>
 (function(){
   'use strict';
@@ -349,7 +331,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const PROXY_BASE   = cfg.proxyUrl || '';
   const XUMM_API_KEY = cfg.xummApiKey || '';
   const XRBC         = cfg.xrbc || {};
-  const RLUSD        = cfg.rlusd || null; // optional
   const BOOT         = cfg.boot || {};
   const XRP_TO_DROPS = 1_000_000;
 
@@ -386,8 +367,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const $healthBody   = $('healthBody');
   const $healthNote   = $('healthNote');
   const $ledgerPill   = $('ledgerPill');
-  const $basePill     = $('basePill');     // NEW
-  const $proRlusd     = $('proRlusd');     // NEW
   const $riskOnly     = $('riskOnly');
   const $watchOnly    = $('watchOnly');
   const $autoRefresh  = $('autoRefresh');
@@ -407,7 +386,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const $btnCopyIframe    = $('btnCopyIframe');
 
   /* ===== UTILS ===== */
-  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
+  function log(s){ if($log){ $log.textContent += s + '\\n'; $log.scrollTop = $log.scrollHeight; } }
   function setStatus(node,text,cls){
     if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
     if(node===$walletStatus) log('[wallet] '+text);
@@ -415,6 +394,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     else if(node===$buyStatus) log('[buy] '+text);
   }
   const N=v=>Number.isFinite(Number(v))?Number(v):0;
+  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
   const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
 
   function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
@@ -422,7 +402,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     const s = state.network==='testnet'?'Testnet':'Mainnet';
     if($btnNetBadge){ $btnNetBadge.textContent=s; $btnNetBadge.className='btn small badge ' + (s==='Testnet'?'testnet':'mainnet'); }
   }
-  function setBasePill(base){ if($basePill){ $basePill.textContent = 'Base: ' + (base || 'XRP'); } }
   function proxyUrl(){ return PROXY_BASE + (state.network==='testnet' ? '?network=testnet' : ''); }
   function updateConnectButtons(){
     const connected = Boolean(state.account && state.adapter);
@@ -552,6 +531,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     const cls = d>0 ? 'up' : 'down';
     const sym = d>0 ? '▲' : '▼';
     const mag = Math.abs(d);
+    // For slippage we show percentage points (already in %). For reserves we show raw.
     return `<span class="delta ${cls}">${sym} ${mag.toFixed(2)}</span>`;
   }
 
@@ -559,8 +539,11 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     try{
       const v = srv?.validated_ledger || {};
       const idx = v.seq || v.ledger_index || v.base_fee_xrp ? (v.seq||v.ledger_index) : '—';
+      const now = (srv?.time || Date.now());
       let ago = '—';
-      if (v.age != null) ago = String(v.age) + 's';
+      if (v.age != null) { // rippled server_state includes "age"
+        ago = String(v.age) + 's';
+      }
       $ledgerPill.textContent = 'Ledger ' + idx + ' · ' + ago;
     }catch{
       $ledgerPill.textContent = 'Ledger: —';
@@ -600,6 +583,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   }
 
   function issuerLink(issuer){
+    // Safe, predictable account link (no guessing token URL formats)
     return 'https://xrpscan.com/account/' + encodeURIComponent(issuer);
   }
 
@@ -627,74 +611,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     });
     state.prevSnap = map;
     savePrevSnap(map);
-  }
-
-  // ==== Logos & Tickers ====
-  function hexToAsciiLoose(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
-  function tokenTicker(hex){
-    const t = hexToAsciiLoose(String(hex||'')).trim().toUpperCase();
-    return /^[A-Z0-9]{3,8}$/.test(t) ? t : (t || String(hex||'').slice(0,6));
-  }
-  function tokenLogoUrl(hex, issuer){
-    if ((String(hex||'').toUpperCase() === String(XRBC.currencyHex||'').toUpperCase()) && issuer === XRBC.issuer) return '/xrbc-nft.png';
-    if (RLUSD && RLUSD.logo && (String(hex||'').toUpperCase() === String(RLUSD.currencyHex||'').toUpperCase()) && issuer === RLUSD.issuer) return RLUSD.logo;
-    return null;
-  }
-
-  // ==== RLUSD Pro Mode helpers ====
-  function srcCurrencyFromConfig(obj){
-    if (!obj) return null;
-    const hex = String(obj.currencyHex||'').trim().toUpperCase();
-    if (!hex || !obj.issuer) return null;
-    if (!(/^[0-9A-F]{40}$/.test(hex) || /^[A-Z0-9]{3,6}$/.test(hex))) return null;
-    return { currency: hex, issuer: obj.issuer };
-  }
-  async function estimateCostInIssued({ acct, destHex, destIssuer, units, src }){
-    const destAmt = { currency: destHex, issuer: destIssuer, value: String(units) };
-    const wrap = await xrplRequest({
-      method: 'ripple_path_find',
-      params: [{ source_account: acct, destination_account: acct, destination_amount: destAmt, source_currencies: [ src ] }]
-    }, { timeoutMs: 15000 }).catch(()=>null);
-
-    const alts = wrap?.result?.alternatives || [];
-    let best = Infinity;
-    for (const a of alts){
-      const sa = a.source_amount;
-      if (!sa || typeof sa === 'string') continue; // string => XRP drops, not our issued
-      if ((String(sa.currency).toUpperCase() === String(src.currency).toUpperCase())
-          && String(sa.issuer) === String(src.issuer)) {
-        const v = Number(sa.value);
-        if (isFinite(v) && v < best) best = v;
-      }
-    }
-    return (best !== Infinity) ? best : null;
-  }
-  async function addRLUSDSlippageForRows(rows){
-    const src = srcCurrencyFromConfig(RLUSD);
-    if (!src || !state.account) return {};
-    const candidates = $watchOnly?.checked
-      ? rows.filter(r => state.watchlist.has(r.key))
-      : [...rows].sort((a,b) => b.xrpRes - a.xrpRes).slice(0, 10);
-
-    const out = {};
-    let j = 0, total = Math.max(1, candidates.length);
-    for (const r of candidates){
-      j++; setProgress(20 + Math.min(75, Math.floor(j/total*75)));
-      const [c1,c10,c100] = await Promise.allSettled([
-        estimateCostInIssued({ acct: state.account, destHex: r.hex, destIssuer: r.issuer, units: 1,   src }),
-        estimateCostInIssued({ acct: state.account, destHex: r.hex, destIssuer: r.issuer, units: 10,  src }),
-        estimateCostInIssued({ acct: state.account, destHex: r.hex, destIssuer: r.issuer, units: 100, src })
-      ]);
-      const v1   = c1.status==='fulfilled'   ? c1.value   : null;
-      const v10  = c10.status==='fulfilled'  ? c10.value  : null;
-      const v100 = c100.status==='fulfilled' ? c100.value : null;
-      if (v1==null || v10==null || v100==null){ out[r.key]=null; continue; }
-      const unit1 = v1;
-      const slip10  = Math.max(0, (v10  / (unit1*10))  - 1) * 100;
-      const slip100 = Math.max(0, (v100 / (unit1*100)) - 1) * 100;
-      out[r.key] = { slip10Pct: slip10, slip100Pct: slip100 };
-    }
-    return out;
   }
 
   async function refreshHealth(){
@@ -783,25 +699,18 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       const prev = state.prevSnap[r.key] || {};
       const dRes = deltaBadge(Number(r.xrpRes), Number(prev.xrpRes));
       const dS10 = deltaBadge(Number(r.slip10Pct), Number(prev.slip10Pct));
+      const dS100= deltaBadge(Number(r.slip100Pct), Number(prev.slip100Pct));
       const starred = state.watchlist.has(r.key) ? 'on' : '';
-      const logoUrl = tokenLogoUrl(r.hex, r.issuer);
-      const ticker  = tokenTicker(r.hex);
       return `
       <tr data-key="${r.key}" data-status="${r.cls}">
         <td>
           <span class="icon-star ${starred}" role="button" aria-label="Toggle watch" tabindex="0">★</span>
         </td>
-        <td>
-          <div class="tok">
-            ${logoUrl ? `<img class="tok-logo" src="${logoUrl}" alt="${ticker} logo" loading="lazy" decoding="async">` : `<span class="tok-logo" aria-hidden="true"></span>`}
-            <div class="tok-name">
-              <strong>${ticker}</strong>
-              <small class="mono">${r.hex}</small>
-              <div class="hint" style="word-break:anywhere">
-                <a href="${issuerLink(r.issuer)}" target="_blank" rel="noopener" class="icon-link" aria-label="Open issuer on XRPScan">↗ Issuer</a>
-                · <span>${r.issuer}</span>
-              </div>
-            </div>
+        <td class="mono">
+          ${r.label}
+          <div class="hint" style="word-break:anywhere">
+            <a href="${issuerLink(r.issuer)}" target="_blank" rel="noopener" class="icon-link" aria-label="Open issuer on XRPScan">↗ Issuer</a>
+            · <span>${r.issuer}</span>
           </div>
         </td>
         <td>${r.pool}</td>
@@ -820,34 +729,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
       star.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const tr=star.closest('tr'); const k=tr.getAttribute('data-key'); toggleWatch(k, star); }});
     });
 
-    // === PRO MODE: RLUSD pivot (optional) ===
     state.healthRows = rows;
-    const proOn = !!($proRlusd && $proRlusd.checked);
-    const srcOK = !!srcCurrencyFromConfig(RLUSD);
-    if (proOn && srcOK){
-      setBasePill('RLUSD');
-      setStatus($healthStatus,'Pro mode: computing RLUSD pathfind (watchlist / Top-10)…');
-      try{
-        const map = await addRLUSDSlippageForRows(rows);
-        rows.forEach(r => {
-          const m = map[r.key];
-          if (!m) return;
-          r.slip10Pct = m.slip10Pct; r.slip100Pct = m.slip100Pct;
-          const tr = $healthBody?.querySelector(`tr[data-key="${r.key}"]`);
-          if (tr && tr.children && tr.children[5]){
-            const prev = state.prevSnap[r.key] || {};
-            const dS10  = deltaBadge(Number(r.slip10Pct),  Number(prev.slip10Pct));
-            tr.children[5].innerHTML = `${r.slip10Pct.toFixed(2)}% / ${r.slip100Pct.toFixed(2)}% ${dS10}`;
-          }
-        });
-      }catch(e){
-        setStatus($healthStatus,'Pro mode RLUSD pathfind failed — showing XRP base.','err');
-        setBasePill('XRP');
-      }
-    } else {
-      setBasePill('XRP');
-    }
-
     saveRowsSnapshot(rows);
     applyFilters();
     setStatus($healthStatus,'Done.','ok');
@@ -886,6 +768,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 
   /* ===== Export / Copy JSON ===== */
   function currentRowsJson(){
+    // Only include currently rendered (after filters) rows
     const visibleKeys = [...($healthBody.querySelectorAll('tr')||[])].filter(tr=>tr.style.display!=='none').map(tr=>tr.getAttribute('data-key'));
     const map = new Map(state.healthRows.map(r=>[r.key, r]));
     return visibleKeys.map(k=>map.get(k)).filter(Boolean);
@@ -897,6 +780,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 
   /* ===== Quick Buy: trust, estimate, buy ===== */
   const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
+  function hexToAsciiLoose(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
   const XRBC_CODE=hexToAsciiLoose(XRBC_HEX);
 
   async function hasXRBCTrustLine(acct){
@@ -1068,18 +952,8 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     try{ await navigator.clipboard.writeText(JSON.stringify(arr, null, 2)); setStatus($healthStatus,'JSON copied','ok'); } catch { setStatus($healthStatus,'Copy failed','err'); }
   });
 
-  // Pro toggle wiring + auto-disable until configured
-  if ($proRlusd){
-    if (!srcCurrencyFromConfig(RLUSD)){
-      $proRlusd.checked = false;
-      $proRlusd.disabled = true;
-      $proRlusd.title = 'Configure RLUSD in app-config to enable';
-    }
-    $proRlusd.addEventListener('change', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
-  }
-
   /* ===== Boot ===== */
-  function updateNetAndUI(){ updateNetUI(); setBasePill('XRP'); syncQueryParams(); }
+  function updateNetAndUI(){ updateNetUI(); syncQueryParams(); }
   async function refreshAll(){
     updateNetUI();
     if (state.account){
