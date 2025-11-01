@@ -459,6 +459,68 @@ body.light-mode #tradeCard .asset-chip { background: #fff !important; color: var
 /* Reduced Motion */
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
 
+/* ===== XRBC Wallet Controls — Clickability Safety Patch =====
+   Purpose: ensure decorative glows never steal clicks and wallet buttons
+   sit above any layered effects. No JS changes.
+================================================================ */
+
+/* 1) All decorative layers ignore pointer events */
+.header-wrap::after,
+.nav-pill::after,
+.btn::after,
+.btn-cex::after,
+.pct-btn::after,
+.qa::after,
+.trade-card::before,
+.wallet-card::before {
+  pointer-events: none !important;
+}
+
+/* 2) Wallet/action buttons float above any nearby effects */
+#btnXumm,
+#btnDisconnect,
+#btnTrustXRBC_L,
+#btnTrustXRBC_S,
+#btnSwap,
+#btnLimitPlace,
+#btnLadderPlace,
+#btnRefresh,
+#btnCancelAll {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* 3) Ensure main content has its own stacking context (prevents
+      header/background glows from overlapping the trade card area) */
+main, .container, .card, .trade-card {
+  isolation: isolate;
+}
+
+/* 4) Paranoid: make interactive controls always accept clicks */
+button, a {
+  pointer-events: auto;
+}
+
+/* 5) If any overlay/panel uses a full-bleed pseudo-element, keep it behind */
+.panel-note::before,
+.panel-note::after,
+.warn::before,
+.warn::after {
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* 6) Optional "nuclear" switch:
+   If you still see interference, uncomment below to disable ALL button glows.
+   This preserves layout and instantly eliminates any glow-layer issues. */
+/*
+.btn::after,
+.btn-cex::after,
+.pct-btn::after,
+.qa::after { content: none !important; }
+*/
+
+    
   </style>
 </head>
 <body>
