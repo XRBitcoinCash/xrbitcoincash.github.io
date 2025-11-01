@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
   <link rel="license" href="#license-proprietary">
+  <meta charset="utf-8" />
 
   <!-- ===== XRBitcoinCash · Liquidity Sentinel (Health + Quick Buy) ===== -->
   <title>Liquidity Sentinel · XRPL · XRBitcoinCash</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="canonical" href="https://xrbitcoincash.com/liquidity-sentinel.html" />
   <link rel="alternate" hreflang="en" href="https://xrbitcoincash.com/liquidity-sentinel.html" />
-  <meta name="description" content="Scan XRPL AMM pool health for your trustlines (slippage probes, scoring, filters), and quick-buy XRBC with a 2% cap. Self-custody with Xaman." />
-  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b0f14" />
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+  <meta name="description" content="Connect wallet to scan XRPL AMM pool health (Healthy/Caution/Risk), view deltas, export JSON, star a watchlist, and quick-buy XRBC with preflight cost. Read-only until you sign in Xaman." />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="XRBitcoinCash" />
   <meta property="og:title" content="Liquidity Sentinel · XRPL" />
-  <meta property="og:description" content="Pool health with slippage probes (Small 1/10 or Standard 10/100 XRP), CSV export, filters, and XRBC Quick Buy." />
+  <meta property="og:description" content="AMM pool health scanner with auto-refresh, deltas, JSON export, watchlist, and quick-buy estimates." />
   <meta property="og:url" content="https://xrbitcoincash.com/liquidity-sentinel.html" />
   <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
   <meta property="og:locale" content="en_US" />
@@ -25,7 +26,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Liquidity Sentinel · XRPL" />
-  <meta name="twitter:description" content="Pool health with slippage probes (Small 1/10 or Standard 10/100 XRP), CSV export, filters, and XRBC Quick Buy." />
+  <meta name="twitter:description" content="Pool health scanner (auto-refresh, deltas, JSON export, watchlist) + quick-buy estimates." />
   <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
 
   <!-- Icons -->
@@ -36,7 +37,7 @@
   <link rel="preconnect" href="https://xaman.app" crossorigin>
   <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
 
-  <!-- CSP -->
+  <!-- CSP to allow Xumm/Xaman overlay and websocket -->
   <meta http-equiv="Content-Security-Policy" content="
     default-src 'self';
     script-src  'self' 'unsafe-inline' https://xumm.app https://xaman.app;
@@ -59,8 +60,9 @@ body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-syste
 .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px var(--shadow);margin-top:10px}
 h1,h2,h3{margin:.1em 0}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.center{justify-content:center}
-.col{display:flex;flex-direction:column;gap:10px;align-items:center}
+.row-center{justify-content:center}
+.row-between{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px}
 .btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;max-width:100%}
 .btn.block{width:100%;max-width:360px}
 .btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
@@ -70,38 +72,61 @@ h1,h2,h3{margin:.1em 0}
 .btn-yellow{border-color:#713f12; background:linear-gradient(180deg,#1e1606,#191104); }
 .btn-red{   border-color:#7f1d1d; background:linear-gradient(180deg,#1a0d0d,#140a0a); }
 .glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
 .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
 .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
 .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
 table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
 th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+th{position:relative}
+th .sub{display:block;font-weight:600;color:var(--muted);font-size:12px;margin-top:2px}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .hint{color:var(--muted);font-size:12.5px}
 .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
-.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
-.badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4} .badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
-.panel-note{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
-.panel-note-green{border-color:#14532d;color:#22c55e}
 .log{max-height:200px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px;margin-left:8px}
+.badge.testnet{background:#102018;color:#9fe29f;border-color:#2c4}
+.badge.mainnet{background:#181820;color:#cfd2ff;border-color:#44c}
 .pill{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px}
 .H{background:rgba(34,197,94,.12);border-color:#165b34}
 .C{background:rgba(245,158,11,.12);border-color:#8a5a09}
 .R{background:rgba(239,68,68,.12);border-color:#7a2222}
+.delta{font-size:11.5px;margin-left:6px;opacity:.9}
+.delta.up{color:#22c55e}
+.delta.down{color:#ef4444}
+.delta.neutral{color:#9fb0c5}
+.icon-link{font-size:13px;opacity:.9;margin-left:6px;text-decoration:none}
+.icon-star{cursor:pointer;font-size:14px;margin-right:6px;user-select:none}
+.icon-star.on{color:#fde047;filter:drop-shadow(0 0 6px rgba(250,204,21,.35))}
+.progress{height:6px;background:#112035;border-radius:9999px;overflow:hidden;margin-top:8px}
+.progress>span{display:block;height:100%;background:var(--blue);width:0%}
+.footer{margin-top:16px;color:var(--muted);font-size:12px}
+.logo{display:flex;align-items:center;gap:10px}
 
 /* Responsive tweaks */
-@media (max-width: 720px) {
-  .card h1, .card h2, .card h3, .card p.hint { text-align: center; }
-  #healthWrap { overflow-x: auto; }
-  #healthWrap table { min-width: 560px; }
+#healthWrap{overflow:auto}
+#healthTable{min-width:720px}
+@media (max-width: 720px){
+  .card h1, .card h2, .card h3, .card p.hint, .status { text-align:center }
+  .row { justify-content:center }
 }
 
-/* Header grid */
-.hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-.hero-top .left{justify-self:start}
-.hero-top .center{justify-self:center}
-.hero-top .right{justify-self:end;text-align:right}
+/* Orbs background for subtle motion */
+.orbs{
+  position:fixed; inset:-20vmax; pointer-events:none; z-index:-1; filter:blur(40px) saturate(120%);
+  background:
+    radial-gradient(35vmax 35vmax at 20% 30%, rgba(0,200,255,.18), transparent 60%),
+    radial-gradient(30vmax 30vmax at 80% 25%, rgba(0,255,170,.16), transparent 60%),
+    radial-gradient(25vmax 25vmax at 60% 80%, rgba(60,120,255,.14), transparent 60%);
+  animation: drift 28s linear infinite;
+}
+@keyframes drift{
+  0%{ transform: rotate(0deg) scale(1) translateZ(0) }
+  50%{ transform: rotate(180deg) scale(1.02) translateZ(0) }
+  100%{ transform: rotate(360deg) scale(1) translateZ(0) }
+}
 
-/* Safe embed mode */
+/* Embed mode */
 body.embed .container{max-width:none}
 body.embed .card{border-radius:0;box-shadow:none;border:none;margin-top:0}
 body.embed header{display:none}
@@ -113,24 +138,23 @@ body.embed header{display:none}
 <body>
 <noscript>
   <div class="card" style="max-width:var(--wrap);margin:16px auto;color:#fca5a5;border-color:#7f1d1d">
-    This tool requires JavaScript to function. Please enable JavaScript to use wallet connect and scanning.
+    This tool requires JavaScript to function. Please enable JavaScript to use wallet connect, previews, and signing.
   </div>
 </noscript>
 
-<main class="container" aria-live="polite">
+<div class="orbs" aria-hidden="true"></div>
 
-  <!-- PRIMARY -->
+<main class="container" aria-live="polite">
+  <!-- HEADER / NETWORK / CONNECT -->
   <section class="card" id="primary" aria-labelledby="hero-title">
-    <div class="hero-top">
-      <div class="left">
+    <div class="row row-between" style="gap:8px">
+      <div class="logo">
         <img src="/xrbc-nft.png" alt="XRBC" width="32" height="32" style="border-radius:6px;border:1px solid var(--line)" loading="lazy" decoding="async">
+        <a class="btn" href="/index.html" id="btnHome" title="Go to Home">Home</a>
       </div>
-      <div class="center">
-        <a class="btn glow-blue" href="/index.html" id="btnHome">Home</a>
-      </div>
-      <div class="right">
+      <div>
         <button id="btnNetBadge" class="btn small" type="button" disabled>Mainnet</button>
-        <div class="row" style="margin-top:6px">
+        <div class="row" style="margin-top:6px;justify-content:flex-end">
           <label class="hint" for="network">Network</label>
           <select id="network" aria-label="Network">
             <option value="mainnet" selected>Mainnet</option>
@@ -140,99 +164,106 @@ body.embed header{display:none}
       </div>
     </div>
 
-    <div class="col" style="margin-top:8px">
+    <div class="col" style="margin-top:8px;align-items:center">
       <h1 id="hero-title" style="margin:0">Liquidity Sentinel</h1>
-      <p class="hint" style="margin:0">Scan AMM pool health for your trustlines with adjustable slippage probes, filters, and CSV export. Connect via Xaman. Desktop shows QR; mobile deep-links.</p>
+      <p class="hint" style="margin:0">Scan XRPL AMM pool health, see changes, export JSON, star a watchlist, and quick-buy XRBC. Mobile-first. Desktop QR. Signing in Xaman.</p>
     </div>
 
-    <div class="row center" style="margin-top:10px">
+    <div class="row row-center" style="margin-top:10px">
       <button id="btnXumm" class="btn glow-green" type="button" title="Connect with Xaman wallet">Connect Xaman</button>
       <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
       <span id="challengeBadge" class="badge" style="display:none" aria-live="polite" title="Human challenge code (also appears in wallet Memo)">••••••</span>
     </div>
     <p id="walletStatus" class="status">Status: Not connected</p>
-
-    <div class="panel-note">
-      <p class="hint" style="margin:0">No secrets are entered here. You review and sign in your wallet. We never custody funds.</p>
+    <div class="row row-center" style="gap:8px;margin-top:6px">
+      <button id="btnCopyChallenge" class="btn small" type="button" title="Copy the current 6-digit code">Copy Code</button>
     </div>
   </section>
 
-  <!-- LIQUIDITY HEALTH -->
+  <!-- HEALTH -->
   <section class="card" aria-labelledby="health">
-    <h2 id="health" style="margin-top:0">Wallet Liquidity Health</h2>
-    <p class="hint">Find XRP↔IOU pools for your trustlines, estimate slippage at two probes, and score each token.</p>
-
-    <div class="row center" style="gap:8px">
-      <button id="btnHealthScan" class="btn glow-blue" type="button" disabled>Scan Health</button>
-      <button id="btnHealthRetry" class="btn small" type="button" title="Re-run health scan">Retry</button>
-
-      <!-- Probe preset -->
-      <label class="hint" style="display:flex;gap:8px;align-items:center">
-        Probe:
-        <select id="probePreset" aria-label="Slippage probe preset">
-          <option value="small">Small (1 / 10 XRP)</option>
-          <option value="standard" selected>Standard (10 / 100 XRP)</option>
-        </select>
-      </label>
-
-      <!-- Filters -->
-      <label class="hint" style="display:flex;gap:8px;align-items:center">
-        <input id="riskOnly" type="checkbox"> Risk only
-      </label>
-      <label class="hint" style="display:flex;gap:8px;align-items:center">
-        <input id="hideNoPool" type="checkbox"> Hide “No Pool”
-      </label>
-
-      <button id="btnExportCsv" class="btn small" type="button" title="Export table as CSV">Export CSV</button>
+    <div class="row row-between" style="gap:6px">
+      <h2 id="health" style="margin:0">Wallet Liquidity Health</h2>
+      <div class="row" style="gap:6px">
+        <span id="ledgerPill" class="badge" aria-live="polite" title="Validated ledger freshness">Ledger: —</span>
+      </div>
     </div>
+    <p class="hint">Scans your wallet trustlines, finds XRP↔IOU pools, estimates slippage on 10/100 XRP, scores each token, and tracks deltas vs last scan.</p>
 
-    <div id="xrbcBadge" class="status" style="margin-top:8px"></div>
-    <div id="healthStatus" class="status"></div>
-    <div id="healthNote" class="hint" style="margin-top:8px">Connect wallet to enable scanning.</div>
+    <div class="row row-center" style="gap:8px">
+      <button id="btnHealthScan" class="btn glow-blue" type="button" disabled>Scan Health</button>
+      <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="riskOnly" type="checkbox"> Risk only</label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="watchOnly" type="checkbox"> Watchlist only</label>
+      <label class="hint" style="display:flex;gap:8px;align-items:center"><input id="autoRefresh" type="checkbox"> Auto-refresh</label>
+      <select id="autoEvery" aria-label="Auto refresh interval" title="Auto refresh interval" class="hint">
+        <option value="15" selected>15s</option><option value="30">30s</option><option value="60">60s</option>
+      </select>
+      <span id="lastScan" class="status" aria-live="polite">Last scan: —</span>
+    </div>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+    <p id="healthStatus" class="status" aria-live="polite"></p>
 
-    <div id="healthWrap" style="overflow:auto;margin-top:8px">
-      <table id="healthTable" style="display:none">
+    <div id="healthWrap">
+      <table id="healthTable" style="display:none" aria-describedby="healthNote">
         <thead>
           <tr>
-            <th>Token</th>
-            <th>Pool</th>
-            <th>Reserves (XRP / IOU)</th>
-            <th>Fee</th>
-            <th id="slipHeader">Slippage (10 / 100 XRP)</th>
-            <th>Score</th>
-            <th>Status</th>
+            <th scope="col" title="Watch"><span class="sub">⭐</span></th>
+            <th scope="col">Token / Hex <span class="sub">Issuer</span></th>
+            <th scope="col">Pool</th>
+            <th scope="col">Reserves <span class="sub">XRP / IOU</span></th>
+            <th scope="col">Fee</th>
+            <th scope="col">Slippage <span class="sub">10 / 100 XRP</span></th>
+            <th scope="col">Score</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody id="healthBody"></tbody>
       </table>
     </div>
+    <p id="healthNote" class="hint" style="margin-top:8px">Connect wallet to enable scanning.</p>
+
+    <div class="row row-center" style="gap:8px;margin-top:8px">
+      <button id="btnExportJson" class="btn small" type="button" title="Download JSON of current health rows">Export JSON</button>
+      <button id="btnCopyJson" class="btn small" type="button" title="Copy JSON of current health rows">Copy JSON</button>
+      <button id="btnHealthRetry" class="btn small" type="button" title="Re-run health scan">Retry</button>
+    </div>
   </section>
 
   <!-- QUICK BUY (XRBC) -->
   <section class="card" aria-labelledby="buyxrbc">
-    <h2 id="buyxrbc">Quick Buy · XRBitcoinCash (XRBC)</h2>
-    <div class="panel-note" style="margin-top:8px;border:1px solid var(--line);border-left:4px solid #60a5fa;border-radius:10px;padding:10px 12px;background:linear-gradient(180deg,#0e1520,#0c131c);">
-      <p class="hint" style="margin:0;color:#60a5fa;font-weight:700;">XRPL pathfinding with a <strong>2%</strong> cap. Review &amp; sign in Xaman. <strong>Trustline required.</strong></p>
-    </div>
+    <h2 id="buyxrbc" style="margin-top:0">Quick Buy · XRBitcoinCash (XRBC)</h2>
+    <div class="hint">Best path via XRPL with a slippage cap (2%). Review &amp; sign in Xaman. <strong>Trustline required.</strong></div>
     <div class="col" style="margin-top:8px">
-      <button class="btn btn-green glow-green block"  id="buy1"   type="button">Buy 1 XRBC for XRP</button>
-      <button class="btn btn-blue glow-blue block"    id="buy25"  type="button">Buy 25 XRBC for XRP</button>
-      <button class="btn btn-yellow glow-yellow block"id="buy50"  type="button">Buy 50 XRBC for XRP</button>
-      <button class="btn btn-red glow-red block"      id="buy100" type="button">Buy 100 XRBC for XRP</button>
-    </div>
-    <div class="col" style="margin-top:10px">
-      <button id="btnTrustXRBC" class="btn block" type="button">Add XRBC Trust Line (Allow Rippling)</button>
+      <div class="row row-center" style="gap:8px">
+        <button class="btn btn-green glow-green"  id="buy1"   type="button">Buy 1 XRBC</button><span id="est1" class="status" aria-live="polite">≈ — XRP</span>
+      </div>
+      <div class="row row-center" style="gap:8px">
+        <button class="btn btn-blue glow-blue"    id="buy25"  type="button">Buy 25 XRBC</button><span id="est25" class="status" aria-live="polite">≈ — XRP</span>
+      </div>
+      <div class="row row-center" style="gap:8px">
+        <button class="btn btn-yellow glow-yellow" id="buy50"  type="button">Buy 50 XRBC</button><span id="est50" class="status" aria-live="polite">≈ — XRP</span>
+      </div>
+      <div class="row row-center" style="gap:8px">
+        <button class="btn btn-red glow-red"      id="buy100" type="button">Buy 100 XRBC</button><span id="est100" class="status" aria-live="polite">≈ — XRP</span>
+      </div>
+      <div class="row row-center" style="gap:8px;margin-top:8px">
+        <button id="btnRefreshEst" class="btn small" type="button" title="Refresh preflight estimates">Refresh estimates</button>
+        <button id="btnTrustXRBC" class="btn small" type="button">Add XRBC Trust Line</button>
+      </div>
       <span class="hint">Issuer: <span class="mono" id="xrbcIssuerPill" style="display:inline-block;max-width:18ch;overflow-wrap:anywhere;word-break:break-all;vertical-align:top">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span></span>
+      <p id="buyStatus" class="status"></p>
     </div>
-    <p id="buyStatus" class="status"></p>
   </section>
 
-  <!-- RESULTS -->
+  <!-- RESULTS / LOG -->
   <section class="card" aria-labelledby="res">
     <h2 id="res">Results</h2>
-    <div id="resultBox" class="hint">Receipts will appear here.</div>
+    <div id="resultBox" class="hint">Receipts and freed reserve will appear here.</div>
     <div class="panel-note" style="margin-top:10px">
       <div class="hint">Activity log</div>
+      <div class="row row-center" style="gap:8px;margin-top:6px">
+        <button id="btnClearLog" class="btn small" type="button" title="Clear console log">Clear Log</button>
+      </div>
       <pre id="log" class="log" aria-live="polite"></pre>
     </div>
   </section>
@@ -242,10 +273,14 @@ body.embed header{display:none}
     <h2 id="embed">Embed this tool on your site</h2>
     <p class="hint">Copy the snippet below. It renders an iframe in “embed mode.”</p>
     <div class="panel-note">
+      <div class="row row-center" style="gap:8px">
+        <button id="btnCopyIframe" class="btn glow-blue" type="button">Copy embed code</button>
+        <a id="btnOpenDemo" class="btn" href="https://xrbitcoincash.com/liquidity-sentinel.html?embed=1" target="_blank" rel="noopener">Open embed demo</a>
+      </div>
 <pre id="embedCode" class="log" style="user-select:all;white-space:pre-wrap">&lt;div id="xrbc-widget" style="width:100%;max-width:1100px;margin:auto"&gt;&lt;/div&gt;
 &lt;script&gt;(function(w,d,c,u,h){var el=d.getElementById(c)||d.body.appendChild(Object.assign(d.createElement('div'),{id:c}));
 var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h;f.style.border='0';f.loading='lazy';el.appendChild(f);
-})(window,document,'xrbc-widget','https://xrbitcoincash.com/liquidity-sentinel.html?embed=1&amp;network=mainnet','780px');&lt;/script&gt;</pre>
+})(window,document,'xrbc-widget','https://xrbitcoincash.com/liquidity-sentinel.html?embed=1&amp;network=mainnet','1180px');&lt;/script&gt;</pre>
     </div>
   </section>
 
@@ -253,19 +288,19 @@ var f=d.createElement('iframe');f.src=u;f.style.width='100%';f.style.minHeight=h
   <section class="card" aria-labelledby="important">
     <h2 id="important">Important</h2>
     <div class="warn">
-      <p><strong>No custody / no brokerage.</strong> You construct & sign XRPL transactions in your own wallet. We don’t take possession of funds.</p>
-      <p><strong>Finality & risk.</strong> XRPL transactions are irreversible. Verify asset, network, amounts, fees, and slippage in your wallet before approval.</p>
-      <p><strong>No guarantees.</strong> Provided “AS IS.” You are responsible for legal compliance.</p>
+      <p><strong>No custody / no brokerage.</strong> XRBitcoinCash provides software that constructs XRPL transactions for you to review and sign <em>in your own wallet</em>. We do not take possession of funds, route orders on your behalf, execute trades, or provide brokerage, ATS, exchange, or advisory services.</p>
+      <p><strong>Finality and risk.</strong> XRPL transactions are irreversible once validated. You are solely responsible for verifying asset, network, amounts, slippage, destinations, fees, and all details in your wallet before approval. Market conditions and routes may change between preview and signing.</p>
+      <p><strong>No guarantees / no warranties.</strong> The software is provided “AS IS” and “AS AVAILABLE” without warranties of any kind, express or implied.</p>
     </div>
     <div id="license-proprietary" class="license" style="color:var(--muted);font-size:12px;white-space:pre-wrap;line-height:1.45;border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
 <strong>Proprietary License — Liquidity Sentinel (XRPL)</strong>
 Copyright (c) 2025 XRBitcoinCash. All rights reserved.
+You receive a limited, revocable, non-exclusive right to access the page and display the widget as provided, without modification of core functionality or removal of attribution.
     </div>
   </section>
-
 </main>
 
-<!-- App configuration (keep immediately before main script) -->
+<!-- App configuration (keep immediately BEFORE main script) -->
 <script type="application/json" id="app-config">
 {
   "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
@@ -279,10 +314,12 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
 }
 </script>
 
-<!-- Main script -->
+<!-- Main script (health + deltas + watchlist + JSON export + quick-buy estimates + wallet connect) -->
 <script>
 (function(){
   'use strict';
+
+  const FIRST_COMMIT_YEAR = 2025;
 
   /* ===== Embed mode ===== */
   (function initEmbedMode(){
@@ -298,33 +335,55 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   const XRP_TO_DROPS = 1_000_000;
 
   /* ===== STATE ===== */
-  const state = { network:'mainnet', account:null, adapter:null };
+  const state = {
+    network:'mainnet',
+    account:null,
+    adapter:null,
+    offers:[],
+    lastAccountInfo:null,
+    lastScanTs: 0,
+    scanTimerId: null,
+    scanIntervalMs: 15000,
+    scanning: false,
+    healthRows: [],
+    prevSnap: loadPrevSnap(),
+    watchlist: loadWatchlist()
+  };
 
   /* ===== DOM ===== */
   const $ = id => document.getElementById(id);
   const $walletStatus = $('walletStatus');
+  const $resultBox    = $('resultBox');
+  const $log          = $('log');
   const $btnXumm      = $('btnXumm');
   const $btnDisconnect= $('btnDisconnect');
   const $networkSel   = $('network');
   const $btnNetBadge  = $('btnNetBadge');
-  const $log          = $('log');
+  const $progress     = $('progressBar');
 
-  // Health
-  const $btnHealthScan = $('btnHealthScan');
+  const $btnHealthScan= $('btnHealthScan');
+  const $healthStatus = $('healthStatus');
+  const $healthTable  = $('healthTable');
+  const $healthBody   = $('healthBody');
+  const $healthNote   = $('healthNote');
+  const $ledgerPill   = $('ledgerPill');
+  const $riskOnly     = $('riskOnly');
+  const $watchOnly    = $('watchOnly');
+  const $autoRefresh  = $('autoRefresh');
+  const $autoEvery    = $('autoEvery');
+  const $lastScan     = $('lastScan');
+  const $btnExportJson= $('btnExportJson');
+  const $btnCopyJson  = $('btnCopyJson');
   const $btnHealthRetry= $('btnHealthRetry');
-  const $probePreset   = $('probePreset');
-  const $riskOnly      = $('riskOnly');
-  const $hideNoPool    = $('hideNoPool');
-  const $healthStatus  = $('healthStatus');
-  const $healthTable   = $('healthTable');
-  const $healthBody    = $('healthBody');
-  const $healthNote    = $('healthNote');
-  const $slipHeader    = $('slipHeader');
-  const $xrbcBadge     = $('xrbcBadge');
-  const $btnExportCsv  = $('btnExportCsv');
 
-  // Quick Buy
+  // Quick buy
   const $buyStatus = $('buyStatus');
+  const $est1 = $('est1'), $est25 = $('est25'), $est50 = $('est50'), $est100 = $('est100');
+
+  // UX helpers
+  const $btnCopyChallenge = $('btnCopyChallenge');
+  const $btnClearLog      = $('btnClearLog');
+  const $btnCopyIframe    = $('btnCopyIframe');
 
   /* ===== UTILS ===== */
   function log(s){ if($log){ $log.textContent += s + '\\n'; $log.scrollTop = $log.scrollHeight; } }
@@ -336,7 +395,9 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   }
   const N=v=>Number.isFinite(Number(v))?Number(v):0;
   const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
+  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
 
+  function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
   function updateNetUI(){
     const s = state.network==='testnet'?'Testnet':'Mainnet';
     if($btnNetBadge){ $btnNetBadge.textContent=s; $btnNetBadge.className='btn small badge ' + (s==='Testnet'?'testnet':'mainnet'); }
@@ -349,9 +410,10 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     if($btnHealthScan){ $btnHealthScan.disabled = !connected; }
   }
 
-  function asciiToHex(s){ let out=''; for(let i=0;i<s.length;i++){ out += s.charCodeAt(i).toString(16).padStart(2,'0'); } return out.toUpperCase(); }
+  /* ===== Human test: challenge code ===== */
   let __LS_CHALLENGE = null;
   function newChallenge6(){ return String(Math.floor(100000 + Math.random()*900000)); }
+  function asciiToHex(s){ let out=''; for(let i=0;i<s.length;i++){ out+=s.charCodeAt(i).toString(16).padStart(2,'0'); } return out.toUpperCase(); }
   function setChallengeBadge(code){
     const el = $('challengeBadge'); if(!el) return;
     if(!code){ el.style.display='none'; el.textContent=''; return; }
@@ -367,12 +429,11 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
       { Memo: { MemoType: asciiToHex('DOMAIN'),    MemoData: asciiToHex('xrbitcoincash.com') } }
     ];
   }
-  function attachMemos(tx){
-    try{
-      const m = buildMemos();
-      tx.Memos = Array.isArray(tx.Memos) ? tx.Memos.concat(m) : m;
-    }catch{}
-    return tx;
+  function announceChallenge(){
+    if (__LS_CHALLENGE){
+      setChallengeBadge(__LS_CHALLENGE);
+      setStatus($walletStatus, 'Verify code in wallet: ' + __LS_CHALLENGE);
+    }
   }
 
   /* ===== XRPL PROXY ===== */
@@ -387,242 +448,13 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
   }
   async function call(method,params){ const r=await xrplRequest({method,params:[{...params,ledger_index:'validated'}]}); return r?.result; }
 
-  /* ===== Account helpers ===== */
-  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
-  async function listUserTokens(acct){
-    const out = [];
-    try{
-      const r = await call('account_lines', { account: acct, limit: 400 });
-      for(const l of (r?.lines || [])){
-        const bal = Number(l.balance || 0);
-        if (bal > 0) out.push({
-          code: (l.currency || '').toString().toUpperCase(),
-          issuer: l.account || l.issuer || l.account,
-          balance: bal
-        });
-      }
-    }catch{}
-    return out;
-  }
-  function hexToAscii(hex){
-    try{
-      const clean = hex.replace(/[^0-9A-F]/gi,'').toUpperCase();
-      if(clean.length%2!==0 || clean.length<2) return null;
-      let out=''; for(let i=0;i<clean.length;i+=2){ const b=parseInt(clean.slice(i,i+2),16); if(!b) break; if(b<32 || b>126) return null; out+=String.fromCharCode(b); }
-      return out || null;
-    }catch{ return null; }
-  }
-  function tokenDisplay(code){
-    const isHex = /^[0-9A-F]{10,}$/.test(code);
-    if(!isHex) return { ticker: code, hex: null, label: code };
-    const ascii = hexToAscii(code);
-    if(ascii) return { ticker: ascii, hex: code, label: `${ascii} (${code})` };
-    return { ticker: null, hex: code, label: code };
-  }
-
-  /* ===== AMM helpers ===== */
-  async function ammInfoXrpIou(currencyHex, issuer){
-    try{
-      const r = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyHex, issuer} }] });
-      return r?.result?.amm || null;
-    }catch{ return null; }
-  }
-  function estSlippageXrpToIou(xrpIn, xrpRes, iouRes){
-    if (xrpIn <= 0 || xrpRes <= 0 || iouRes <= 0) return {dy:0, slip:0};
-    const dy = (iouRes * xrpIn) / (xrpRes + xrpIn);
-    const spot = iouRes / xrpRes;
-    const eff = dy / xrpIn;
-    const slip = Math.max(0, (spot - eff) / spot);
-    return {dy, slip};
-  }
-  function scoreHealth({poolExists, xrpRes, fee, slipA, slipB, ledgerFresh}){
-    let score = 0;
-    if (poolExists) score += 1;
-    if (xrpRes >= 500) score += 2; else if (xrpRes >= 100) score += 1;
-    if (fee <= 0.3) score += 1; else if (fee <= 0.5) score += 0; else score -= 1;
-    if (slipA <= 0.01) score += 2; else if (slipA <= 0.03) score += 1;
-    if (slipB <= 0.03) score += 2; else if (slipB <= 0.10) score += 1;
-    if (ledgerFresh) score += 1;
-    let status = "Caution", cls="C";
-    if (score >= 6) { status="Healthy"; cls="H"; }
-    else if (score <= 2) { status="Risk"; cls="R"; }
-    return {score, status, cls};
-  }
-
-  /* ===== Health scan ===== */
-  async function refreshHealth(){
-    if (!$healthBody) return;
-    if (!state.account){ $healthNote.textContent='Connect wallet to enable scanning.'; return; }
-
-    $healthBody.innerHTML=''; $healthTable.style.display='none';
-    setStatus($healthStatus,'Fetching trustlines…');
-
-    const srv = await call('server_state',{}).catch(()=>null);
-    const ledgerFresh = !!(srv && srv.validated_ledger);
-
-    const linesR = await call('account_lines',{account:state.account,limit:400}).catch(()=>null);
-    const lines = (linesR && linesR.lines) ? linesR.lines : [];
-
-    if (!lines.length){
-      $healthNote.textContent='No trustlines found. You can still hold XRP without trustlines.';
-      setStatus($healthStatus,'', ''); return;
-    }
-
-    // Probe sizes
-    const preset = $probePreset?.value || 'standard';
-    const PROBE_A = preset === 'small' ? 1 : 10;
-    const PROBE_B = preset === 'small' ? 10 : 100;
-    if ($slipHeader) $slipHeader.textContent = `Slippage (${PROBE_A} / ${PROBE_B} XRP)`;
-
-    setStatus($healthStatus,`Found ${lines.length} trustlines. Checking pools with ${PROBE_A}/${PROBE_B} XRP probes…`);
-
-    const XRBC_HEX = (XRBC.currencyHex||'').toUpperCase();
-    let xrbcRow = null;
-    const rows = [];
-
-    for (const l of lines){
-      const currencyHex = (l.currency||'').toUpperCase();
-      const issuer = l.account || l.issuer;
-      if (!currencyHex || !issuer) continue;
-
-      const amm = await ammInfoXrpIou(currencyHex, issuer);
-      if (!amm){
-        const r = {
-          token: tokenDisplay(currencyHex).label + ` (${issuer.slice(0,6)}…${issuer.slice(-4)})`,
-          pool: 'XRP/IOU',
-          xrpRes: '-', iouRes: '-', fee: '-',
-          slipA: '-', slipB: '-', score: 0, status:'No Pool', cls:'R'
-        };
-        if (currencyHex===XRBC_HEX && issuer===XRBC.issuer) xrbcRow = r;
-        rows.push(r);
-        continue;
-      }
-
-      // XRP reserve can arrive as drops string
-      let xrpRes = 0;
-      let iouRes = 0;
-      if (typeof amm.amount === 'string') xrpRes = Number(amm.amount) / 1_000_000;
-      else if (amm.amount && typeof amm.amount.value !== 'undefined') xrpRes = Number(amm.amount.value);
-      if (amm.amount2 && typeof amm.amount2.value !== 'undefined') iouRes = Number(amm.amount2.value);
-
-      const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30;
-      const feePct = feeBps/100;
-
-      const sA = estSlippageXrpToIou(PROBE_A, xrpRes, iouRes);
-      const sB = estSlippageXrpToIou(PROBE_B, xrpRes, iouRes);
-
-      const health = scoreHealth({
-        poolExists:true, xrpRes, fee: feePct, slipA: sA.slip, slipB: sB.slip, ledgerFresh
-      });
-
-      const r = {
-        token: tokenDisplay(currencyHex).label + ` (${issuer.slice(0,6)}…${issuer.slice(-4)})`,
-        pool: 'XRP/IOU',
-        xrpRes: xrpRes.toFixed(2),
-        iouRes: iouRes.toFixed(2),
-        fee: feePct.toFixed(2) + '%',
-        slipA: (sA.slip*100).toFixed(2) + '%',
-        slipB: (sB.slip*100).toFixed(2) + '%',
-        score: health.score,
-        status: health.status,
-        cls: health.cls
-      };
-      if (currencyHex===XRBC_HEX && issuer===XRBC.issuer) xrbcRow = r;
-      rows.push(r);
-    }
-
-    if (xrbcRow){
-      $xrbcBadge.innerHTML = `<span class="pill ${xrbcRow.cls}">${xrbcRow.status}</span> · Score ${xrbcRow.score} · ${xrbcRow.xrpRes} XRP reserves`;
-    } else {
-      $xrbcBadge.textContent = "XRBC not detected in this wallet (or no XRBC pool found).";
-    }
-
-    if (!rows.length){
-      $healthNote.textContent = 'No pools found for this account’s trustlines (or pools unavailable).';
-      setStatus($healthStatus,'Done.');
-      return;
-    }
-
-    // Render rows
-    $healthBody.innerHTML = rows.map(r => `
-      <tr data-status="${r.status}">
-        <td class="mono">${r.token}</td>
-        <td>${r.pool}</td>
-        <td>${r.xrpRes} XRP / ${r.iouRes}</td>
-        <td>${r.fee}</td>
-        <td>${r.slipA} / ${r.slipB}</td>
-        <td class="mono">${r.score}</td>
-        <td><span class="pill ${r.cls}">${r.status}</span></td>
-      </tr>
-    `).join("");
-    $healthTable.style.display='';
-
-    applyFilters();
-    setStatus($healthStatus,'Done.','ok');
-    $healthNote.textContent = '';
-  }
-
-  function applyFilters(){
-    const riskOnly = $riskOnly?.checked;
-    const hideNoPool = $hideNoPool?.checked;
-    const rows = $healthBody?.querySelectorAll('tr') || [];
-    rows.forEach(tr=>{
-      const status = tr.getAttribute('data-status') || '';
-      let show = true;
-      if (riskOnly && status !== 'Risk') show = false;
-      if (hideNoPool && status === 'No Pool') show = false;
-      tr.style.display = show ? '' : 'none';
-    });
-  }
-
-  function downloadCsvFromTable(){
-    if (!$healthTable || $healthTable.style.display === 'none') return;
-    const rows = [...$healthTable.querySelectorAll('tr')];
-    if (!rows.length) return;
-
-    const csv = rows.map(tr=>{
-      const cells = [...tr.children];
-      return cells.map(td=>{
-        // strip commas/newlines, keep text content
-        const t = (td.textContent || '').replace(/\\s+/g,' ').trim();
-        // CSV escape
-        return '"' + t.replace(/"/g,'""') + '"';
-      }).join(',');
-    }).join('\\n');
-
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth()+1).padStart(2,'0');
-    const d = String(now.getDate()).padStart(2,'0');
-    const hh= String(now.getHours()).padStart(2,'0');
-    const mm= String(now.getMinutes()).padStart(2,'0');
-    const ss= String(now.getSeconds()).padStart(2,'0');
-
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `liquidity-health_${y}${m}${d}_${hh}${mm}${ss}.csv`;
-    document.body.appendChild(a); a.click(); a.remove();
-  }
-
-  /* ===== Wallet adapters ===== */
+  /* ===== WALLET SDK ===== */
   class WalletAdapter { name='Base'; async connect(){throw new Error('not implemented');} async signAndSubmit(_tx){throw new Error('not implemented');} async disconnect(){} }
   class XummAdapter extends WalletAdapter{
     constructor(){ super(); this.name='Xaman'; this.xumm=null; }
     async ensureSDK(){ if(typeof Xumm==='undefined') throw new Error('Xaman SDK not loaded'); if(!XUMM_API_KEY) throw new Error('Xaman API key missing'); if(!this.xumm) this.xumm=new Xumm(XUMM_API_KEY); }
-    async resume(){
-      await this.ensureSDK();
-      const acct = await this.xumm.user.account;
-      if(acct){ return { address: acct }; }
-      return null;
-    }
-    async connect(){
-      await this.ensureSDK();
-      await this.xumm.authorize();
-      const acct=await this.xumm.user.account;
-      if(!acct) throw new Error('No account returned');
-      return { address: acct };
-    }
+    async resume(){ await this.ensureSDK(); const acct = await this.xumm.user.account; return acct ? { address: acct } : null; }
+    async connect(){ await this.ensureSDK(); await this.xumm.authorize(); const acct=await this.xumm.user.account; if(!acct) throw new Error('No account returned'); return { address: acct }; }
     async signAndSubmit(txjson){
       const { resolved, websocket, unsubscribe } = await this.xumm.payload.createAndSubscribe(
         { txjson, options:{ submit:true, expire:300 } },
@@ -631,20 +463,29 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
           if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
         }
       );
-      const res = await resolved;
-      try{ websocket?.close(); }catch{}
-      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      const res = await resolved; try{ websocket?.close(); }catch{} try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
       if(!res?.signed) throw new Error('User rejected');
       return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
     }
     async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
   }
 
-  /* ===== Connect helpers ===== */
   function setAdapter(ad){ state.adapter = ad; updateConnectButtons(); }
-  async function refreshAll(){
-    if(!state.account) return;
-    await refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err'));
+  async function tryResumeWallet(){
+    try{
+      const ad = new XummAdapter();
+      const resumed = await ad.resume();
+      if(resumed && resumed.address){
+        state.account = resumed.address; setAdapter(ad);
+        setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
+        __LS_CHALLENGE = newChallenge6(); announceChallenge();
+        $btnDisconnect.disabled = false;
+        await refreshAll();
+      } else {
+        const cached = localStorage.getItem('xrbc.lastAccount');
+        if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); updateConnectButtons(); }
+      }
+    } catch(e){}
   }
   async function connectWith(AdapterClass){
     try{
@@ -654,38 +495,290 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
       state.account = address; setAdapter(ad);
       localStorage.setItem('xrbc.lastAccount', address);
       setStatus($walletStatus, ad.name+': '+address, 'ok');
-      __LS_CHALLENGE = newChallenge6(); setChallengeBadge(__LS_CHALLENGE);
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
+      $btnDisconnect.disabled = false;
       await refreshAll();
     }catch(e){
       setStatus($walletStatus,(e && e.message) || 'Connect failed','err');
     } finally { updateConnectButtons(); }
   }
-  async function tryResumeWallet(){
-    try{
-      const ad = new XummAdapter();
-      const resumed = await ad.resume();
-      if(resumed && resumed.address){
-        state.account = resumed.address; setAdapter(ad);
-        setStatus($walletStatus, ad.name+': '+resumed.address, 'ok');
-        __LS_CHALLENGE = newChallenge6(); setChallengeBadge(__LS_CHALLENGE);
-        await refreshAll();
-      } else {
-        const cached = localStorage.getItem('xrbc.lastAccount');
-        if(cached){ state.account = cached; setStatus($walletStatus,'Previously connected: '+cached,'ok'); updateConnectButtons(); }
-      }
-    } catch(e){}
-  }
   async function disconnect(){
     try{ await state.adapter?.disconnect?.(); }catch{}
-    state.account=null; state.adapter=null;
+    state.account=null; state.adapter=null; state.offers=[]; setProgress(0);
     localStorage.removeItem('xrbc.lastAccount');
     setChallengeBadge('');
     setStatus($walletStatus,'Status: Not connected');
-    setStatus($healthStatus,''); $healthBody.innerHTML=''; $healthTable.style.display='none'; $healthNote.textContent='Connect wallet to enable scanning.';
-    updateConnectButtons();
+    setStatus($healthStatus,'');
+    setStatus($buyStatus,'');
+    $btnDisconnect.disabled=true; updateConnectButtons();
+    $healthBody && ($healthBody.innerHTML=''); $healthTable && ($healthTable.style.display='none');
+    $healthNote && ($healthNote.textContent='Connect wallet to enable scanning.');
+    stopAutoRefresh();
   }
 
-  /* ===== Quick Buy (XRBC) ===== */
+  /* ===== HEALTH / LEDGER ===== */
+  function savePrevSnap(map){ try{ localStorage.setItem('xrbc.prevHealthSnapshot', JSON.stringify(map)); }catch{} }
+  function loadPrevSnap(){ try{ return JSON.parse(localStorage.getItem('xrbc.prevHealthSnapshot')||'{}'); }catch{ return {}; } }
+  function saveWatchlist(set){ try{ localStorage.setItem('xrbc.watchlist', JSON.stringify([...set])); }catch{} }
+  function loadWatchlist(){ try{ return new Set(JSON.parse(localStorage.getItem('xrbc.watchlist')||'[]')); }catch{ return new Set(); } }
+
+  function tokenKey(hex, issuer){ return (hex||'') + '|' + (issuer||''); }
+
+  function deltaBadge(curr, prev){
+    if(!isFinite(curr) || !isFinite(prev)) return '<span class="delta neutral">•</span>';
+    const d = Number(curr) - Number(prev);
+    if (Math.abs(d) < 1e-9) return '<span class="delta neutral">•</span>';
+    const cls = d>0 ? 'up' : 'down';
+    const sym = d>0 ? '▲' : '▼';
+    const mag = Math.abs(d);
+    // For slippage we show percentage points (already in %). For reserves we show raw.
+    return `<span class="delta ${cls}">${sym} ${mag.toFixed(2)}</span>`;
+  }
+
+  function renderLedgerPill(srv){
+    try{
+      const v = srv?.validated_ledger || {};
+      const idx = v.seq || v.ledger_index || v.base_fee_xrp ? (v.seq||v.ledger_index) : '—';
+      const now = (srv?.time || Date.now());
+      let ago = '—';
+      if (v.age != null) { // rippled server_state includes "age"
+        ago = String(v.age) + 's';
+      }
+      $ledgerPill.textContent = 'Ledger ' + idx + ' · ' + ago;
+    }catch{
+      $ledgerPill.textContent = 'Ledger: —';
+    }
+  }
+
+  async function getAccountInfo(acct){ const r=await call('account_info',{account:acct}); return r?.account_data||{}; }
+
+  async function ammInfoXrpIou(currencyHex, issuer){
+    try{
+      const r = await xrplRequest({ method:'amm_info', params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyHex, issuer} }] });
+      return r?.result?.amm || null;
+    }catch{ return null; }
+  }
+
+  function estSlippageXrpToIou(xrpIn, xrpRes, iouRes){
+    if (xrpIn <= 0 || xrpRes <= 0 || iouRes <= 0) return {dy:0, slip:0};
+    const dy = (iouRes * xrpIn) / (xrpRes + xrpIn);
+    const spot = iouRes / xrpRes;
+    const eff = dy / xrpIn;
+    const slip = Math.max(0, (spot - eff) / spot);
+    return {dy, slip};
+  }
+
+  function scoreHealth({poolExists, xrpRes, fee, slip10, slip100, ledgerFresh}){
+    let score = 0;
+    if (poolExists) score += 1;
+    if (xrpRes >= 500) score += 2; else if (xrpRes >= 100) score += 1;
+    if (fee <= 0.3) score += 1; else if (fee <= 0.5) score += 0; else score -= 1;
+    if (slip10 <= 0.01) score += 2; else if (slip10 <= 0.03) score += 1;
+    if (slip100 <= 0.10) score += 1;
+    if (ledgerFresh) score += 1;
+    let status = "Caution", cls="C";
+    if (score >= 6) { status="Healthy"; cls="H"; }
+    else if (score <= 2) { status="Risk"; cls="R"; }
+    return {score, status, cls};
+  }
+
+  function issuerLink(issuer){
+    // Safe, predictable account link (no guessing token URL formats)
+    return 'https://xrpscan.com/account/' + encodeURIComponent(issuer);
+  }
+
+  function applyFilters(){
+    const onlyRisk = $riskOnly?.checked;
+    const onlyWatch= $watchOnly?.checked;
+    const rows = $healthBody?.querySelectorAll('tr') || [];
+    rows.forEach(tr=>{
+      const isRisk = tr.getAttribute('data-status')==='R';
+      const key = tr.getAttribute('data-key') || '';
+      const inWatch = state.watchlist.has(key);
+      let show = true;
+      if (onlyRisk && !isRisk) show = false;
+      if (onlyWatch && !inWatch) show = false;
+      tr.style.display = show ? '' : 'none';
+    });
+    syncQueryParams();
+  }
+
+  function saveRowsSnapshot(rows){
+    const map = {};
+    rows.forEach(r=>{
+      const k = tokenKey(r.hex, r.issuer);
+      map[k] = { xrpRes: Number(r.xrpRes), slip10: Number(r.slip10Pct), slip100: Number(r.slip100Pct) };
+    });
+    state.prevSnap = map;
+    savePrevSnap(map);
+  }
+
+  async function refreshHealth(){
+    if (!state.account){ $healthNote.textContent='Connect wallet to enable scanning.'; return; }
+    if (state.scanning) return;
+    state.scanning = true; setProgress(8); setStatus($healthStatus,'Fetching trustlines…');
+
+    // ledger freshness
+    const srv = await call('server_state',{}).catch(()=>null);
+    renderLedgerPill(srv);
+    const ledgerFresh = !!(srv && srv.validated_ledger);
+
+    // trustlines
+    const linesR = await call('account_lines',{account:state.account,limit:400}).catch(()=>null);
+    const lines = (linesR && linesR.lines) ? linesR.lines : [];
+
+    $healthBody.innerHTML=''; $healthTable.style.display='none';
+    if (!lines.length){
+      $healthNote.textContent='No trustlines found. You can still hold XRP without trustlines.'; setProgress(0); state.scanning=false; return;
+    }
+    setStatus($healthStatus,`Found ${lines.length} trustlines. Checking pools…`); setProgress(18);
+
+    const rows = [];
+    let i=0;
+    for (const l of lines){
+      i++; if(i%3===0) setProgress(18 + Math.min(70, Math.floor(i/lines.length*70)));
+      const currencyHex = (l.currency||'').toUpperCase();
+      const issuer = l.account || l.issuer;
+      if (!currencyHex || !issuer) continue;
+
+      const amm = await ammInfoXrpIou(currencyHex, issuer);
+      if (!amm){
+        rows.push({
+          key: tokenKey(currencyHex, issuer),
+          label: currencyHex,
+          issuer,
+          hex: currencyHex,
+          pool: 'XRP/IOU',
+          xrpRes: 0,
+          iouRes: 0,
+          feePct: 0,
+          slip10Pct: 0,
+          slip100Pct: 0,
+          score: 0,
+          status: 'No Pool',
+          cls:'R'
+        });
+        continue;
+      }
+
+      let xrpRes = 0;
+      let iouRes = 0;
+      if (typeof amm.amount === 'string') xrpRes = Number(amm.amount) / 1_000_000;
+      else if (amm.amount && typeof amm.amount.value !== 'undefined') xrpRes = Number(amm.amount.value);
+      if (amm.amount2 && typeof amm.amount2.value !== 'undefined') iouRes = Number(amm.amount2.value);
+
+      const feeBps = typeof amm.trading_fee === 'number' ? amm.trading_fee : 30;
+      const feePct = feeBps/100;
+
+      const s10 = estSlippageXrpToIou(10, xrpRes, iouRes);
+      const s100 = estSlippageXrpToIou(100, xrpRes, iouRes);
+
+      const health = scoreHealth({
+        poolExists:true, xrpRes, fee: feePct, slip10: s10.slip, slip100: s100.slip, ledgerFresh
+      });
+
+      rows.push({
+        key: tokenKey(currencyHex, issuer),
+        label: currencyHex,
+        issuer,
+        hex: currencyHex,
+        pool: 'XRP/IOU',
+        xrpRes: xrpRes,
+        iouRes: iouRes,
+        feePct: feePct,
+        slip10Pct: s10.slip*100,
+        slip100Pct: s100.slip*100,
+        score: health.score,
+        status: health.status,
+        cls: health.cls
+      });
+    }
+
+    // render
+    $healthBody.innerHTML = rows.map(r=>{
+      const prev = state.prevSnap[r.key] || {};
+      const dRes = deltaBadge(Number(r.xrpRes), Number(prev.xrpRes));
+      const dS10 = deltaBadge(Number(r.slip10Pct), Number(prev.slip10Pct));
+      const dS100= deltaBadge(Number(r.slip100Pct), Number(prev.slip100Pct));
+      const starred = state.watchlist.has(r.key) ? 'on' : '';
+      return `
+      <tr data-key="${r.key}" data-status="${r.cls}">
+        <td>
+          <span class="icon-star ${starred}" role="button" aria-label="Toggle watch" tabindex="0">★</span>
+        </td>
+        <td class="mono">
+          ${r.label}
+          <div class="hint" style="word-break:anywhere">
+            <a href="${issuerLink(r.issuer)}" target="_blank" rel="noopener" class="icon-link" aria-label="Open issuer on XRPScan">↗ Issuer</a>
+            · <span>${r.issuer}</span>
+          </div>
+        </td>
+        <td>${r.pool}</td>
+        <td>${r.xrpRes.toFixed(2)} XRP / ${r.iouRes.toFixed(2)} ${dRes}</td>
+        <td>${r.feePct.toFixed(2)}%</td>
+        <td>${r.slip10Pct.toFixed(2)}% / ${r.slip100Pct.toFixed(2)}% ${dS10}</td>
+        <td class="mono">${r.score}</td>
+        <td><span class="pill ${r.cls}">${r.status}</span></td>
+      </tr>`;
+    }).join("");
+    $healthTable.style.display='';
+
+    // wire stars
+    $healthBody.querySelectorAll('.icon-star').forEach(star=>{
+      star.addEventListener('click', ()=>{ const tr=star.closest('tr'); const k=tr.getAttribute('data-key'); toggleWatch(k, star); });
+      star.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const tr=star.closest('tr'); const k=tr.getAttribute('data-key'); toggleWatch(k, star); }});
+    });
+
+    state.healthRows = rows;
+    saveRowsSnapshot(rows);
+    applyFilters();
+    setStatus($healthStatus,'Done.','ok');
+    state.lastScanTs = Date.now();
+    updateLastScanUI();
+    setProgress(100);
+    setTimeout(()=>setProgress(0), 400);
+    state.scanning = false;
+  }
+
+  function toggleWatch(k, starEl){
+    if (state.watchlist.has(k)) state.watchlist.delete(k); else state.watchlist.add(k);
+    saveWatchlist(state.watchlist);
+    if (starEl){ starEl.classList.toggle('on'); }
+    applyFilters();
+  }
+
+  /* ===== Auto refresh, last-scan timer ===== */
+  function startAutoRefresh(){
+    stopAutoRefresh();
+    state.scanIntervalMs = Math.max(5000, Number($autoEvery.value||15)*1000);
+    state.scanTimerId = setInterval(()=>{
+      if (document.visibilityState !== 'visible') return;
+      refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err'));
+    }, state.scanIntervalMs);
+  }
+  function stopAutoRefresh(){ if (state.scanTimerId){ clearInterval(state.scanTimerId); state.scanTimerId=null; } }
+  function updateLastScanUI(){
+    if (!state.lastScanTs){ $lastScan.textContent = 'Last scan: —'; return; }
+    const sec = Math.max(0, Math.floor((Date.now()-state.lastScanTs)/1000));
+    const mm = String(Math.floor(sec/60)).padStart(2,'0');
+    const ss = String(sec%60).padStart(2,'0');
+    $lastScan.textContent = 'Last scan: ' + mm + ':' + ss + ' ago';
+  }
+  setInterval(updateLastScanUI, 1000);
+
+  /* ===== Export / Copy JSON ===== */
+  function currentRowsJson(){
+    // Only include currently rendered (after filters) rows
+    const visibleKeys = [...($healthBody.querySelectorAll('tr')||[])].filter(tr=>tr.style.display!=='none').map(tr=>tr.getAttribute('data-key'));
+    const map = new Map(state.healthRows.map(r=>[r.key, r]));
+    return visibleKeys.map(k=>map.get(k)).filter(Boolean);
+  }
+  function download(filename, content, type='application/json'){
+    const blob = new Blob([content], {type}); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  /* ===== Quick Buy: trust, estimate, buy ===== */
   const XRBC_HEX=(XRBC.currencyHex||'').toUpperCase();
   function hexToAsciiLoose(hex){ try{ let out=''; for(let i=0;i<hex.length;i+=2){ const b=parseInt(hex.slice(i,i+2),16); if(!b) break; out+=String.fromCharCode(b);} return out||'XRBC'; }catch{ return 'XRBC'; } }
   const XRBC_CODE=hexToAsciiLoose(XRBC_HEX);
@@ -694,34 +787,64 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
     const r=await call('account_lines',{account:acct,peer:XRBC.issuer,limit:400});
     const lines=r?.lines||[]; return lines.some(l=>((l.currency||'').toUpperCase()===XRBC_CODE.toUpperCase())||((l.currency||'').toUpperCase()===XRBC_HEX));
   }
-
   async function addXRBCTrustLine(){
     if(!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
     setStatus($buyStatus,'Checking trust line…');
     try{
       const exists=await hasXRBCTrustLine(state.account);
       if(exists){ setStatus($buyStatus,'XRBC trust line already exists.','ok'); return; }
-      __LS_CHALLENGE = newChallenge6(); setChallengeBadge(__LS_CHALLENGE);
-      const tx = attachMemos({
-        TransactionType:'TrustSet',
-        Account: state.account,
-        LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" },
-        Flags: 0x00040000 /* tfClearNoRipple: allow rippling */
-      });
-      const res = await state.adapter.signAndSubmit(tx);
-      setStatus($buyStatus,'TrustSet submitted. Wait for validation, then retry buy.','ok');
-      log('tx hash: ' + (res.hash || '(pending)'));
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
+      const tx = { TransactionType: 'TrustSet', Account: state.account, LimitAmount: { currency: XRBC_HEX, issuer: XRBC.issuer, value: "1000000000" }, Flags: 0x00040000, Memos: buildMemos() };
+      await state.adapter.signAndSubmit(tx);
+      setStatus($buyStatus,'TrustSet submitted. Wait for validation then retry buy.','ok');
     }catch(e){ setStatus($buyStatus,'TrustSet error: '+(e.message||e),'err'); }
   }
 
+  async function estimateBuyCost(units){
+    if (!state.account) return null;
+    const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: String(units) };
+    const pfWrap = await xrplRequest({
+      method: 'ripple_path_find',
+      params: [{ source_account: state.account, destination_account: state.account, destination_amount: AMOUNT, source_currencies: [{ currency: "XRP" }] }]
+    }, { timeoutMs: 15000 }).catch(()=>null);
+    const alts = pfWrap?.result?.alternatives || [];
+    if (!alts.length) return null;
+    let bestDrops = Infinity;
+    for (const a of alts){
+      const sa = a.source_amount;
+      const drops = typeof sa === 'string'
+        ? N(sa)
+        : (sa && sa.currency === 'XRP' ? Math.round(N(sa.value) * XRP_TO_DROPS) : Infinity);
+      if (isFinite(drops) && drops < bestDrops) bestDrops = drops;
+    }
+    if (!isFinite(bestDrops) || bestDrops===Infinity) return null;
+    return bestDrops / XRP_TO_DROPS;
+  }
+
+  async function refreshEstimates(){
+    if (!state.account){ $est1.textContent='≈ — XRP'; $est25.textContent='≈ — XRP'; $est50.textContent='≈ — XRP'; $est100.textContent='≈ — XRP'; return; }
+    $est1.textContent='…'; $est25.textContent='…'; $est50.textContent='…'; $est100.textContent='…';
+    try{
+      const [c1,c25,c50,c100] = await Promise.allSettled([1,25,50,100].map(u=>estimateBuyCost(u)));
+      const get = p => (p.status==='fulfilled' && typeof p.value==='number') ? (p.value.toFixed(6)+' XRP') : '—';
+      $est1.textContent   = '≈ ' + get(c1);
+      $est25.textContent  = '≈ ' + get(c25);
+      $est50.textContent  = '≈ ' + get(c50);
+      $est100.textContent = '≈ ' + get(c100);
+    }catch{ $est1.textContent=$est25.textContent=$est50.textContent=$est100.textContent='≈ — XRP'; }
+  }
+
+  const QUICK_BUY_SLIPPAGE_PCT  = 2;
   async function pathFindBuy(acct, valueStr){
     const AMOUNT = { currency: XRBC_HEX, issuer: XRBC.issuer, value: valueStr };
     const pfWrap = await xrplRequest({
-      method:'ripple_path_find',
-      params:[{ source_account:acct, destination_account:acct, destination_amount:AMOUNT, source_currencies:[{currency:"XRP"}] }]
+      method: 'ripple_path_find',
+      params: [{ source_account: acct, destination_account: acct, destination_amount: AMOUNT, source_currencies: [{ currency: "XRP" }] }]
     }, { timeoutMs: 15000 });
-    const alts = pfWrap?.result?.alternatives || [];
-    if (!alts.length) throw new Error('No path found');
+
+    const pf = pfWrap?.result || {};
+    const alts = pf?.alternatives || [];
+    if (!alts.length) throw new Error('No path found for requested amount');
 
     let best = null;
     for (const a of alts){
@@ -732,53 +855,122 @@ Copyright (c) 2025 XRBitcoinCash. All rights reserved.
       if (!isFinite(drops)) continue;
       if (!best || drops < best.drops) best = { alt: a, drops };
     }
-    if (!best) throw new Error('No XRP route');
-    const headroom = Math.ceil(best.drops * 1.02); // 2% cap
-    return { TransactionType:'Payment', Account:acct, Destination:acct, Amount:AMOUNT, SendMax:String(headroom), Paths: best.alt.paths_computed || [] };
+    if (!best) throw new Error('No XRP route available');
+
+    const headroom = Math.ceil(best.drops * (1 + QUICK_BUY_SLIPPAGE_PCT / 100));
+    return {
+      TransactionType: 'Payment',
+      Account: acct,
+      Destination: acct,
+      Amount: AMOUNT,
+      SendMax: String(headroom),
+      Paths: best.alt.paths_computed || [],
+      Memos: buildMemos()
+    };
   }
 
   async function buyXRBC(units){
-    if (!state.account || !state.adapter){ setStatus($buyStatus,'Connect wallet first.','err'); return; }
+    if (!state.account || !state.adapter){ setStatus($buyStatus, 'Connect wallet first.', 'err'); return; }
     try{
-      setStatus($buyStatus,`Preparing to buy ${units} ${XRBC_CODE}…`);
+      setStatus($buyStatus, `Preparing to buy ${units} ${XRBC_CODE}…`);
       const exists = await hasXRBCTrustLine(state.account);
-      if (!exists){ setStatus($buyStatus,'No XRBC trust line. Use “Add XRBC Trust Line” first.','err'); return; }
-
-      __LS_CHALLENGE = newChallenge6(); setChallengeBadge(__LS_CHALLENGE);
-
-      const txRaw = await pathFindBuy(state.account, String(units));
-      const tx = attachMemos(txRaw);
+      if (!exists){ setStatus($buyStatus, 'No XRBC trust line. Use “Add XRBC Trust Line” first.', 'err'); return; }
+      __LS_CHALLENGE = newChallenge6(); announceChallenge();
+      const tx = await pathFindBuy(state.account, String(units));
       const res = await state.adapter.signAndSubmit(tx);
-      setStatus($buyStatus,`Buy submitted. Hash: ${res && res.hash ? res.hash : '(pending)'}`,'ok');
+      setStatus($buyStatus, `Buy submitted. Hash: ${res && res.hash ? res.hash : '(pending)'}`, 'ok');
     }catch(e){
-      setStatus($buyStatus,(e && e.message) || 'Buy failed','err');
+      setStatus($buyStatus, (e && e.message) || 'Buy failed', 'err');
     }
   }
 
-  /* ===== Wire UI ===== */
-  document.getElementById('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
-  document.getElementById('buy1')?.addEventListener('click',()=>buyXRBC(1));
-  document.getElementById('buy25')?.addEventListener('click',()=>buyXRBC(25));
-  document.getElementById('buy50')?.addEventListener('click',()=>buyXRBC(50));
-  document.getElementById('buy100')?.addEventListener('click',()=>buyXRBC(100));
+  /* ===== Querystring presets ===== */
+  function syncQueryParams(){
+    const q = new URLSearchParams(location.search);
+    q.set('network', state.network);
+    if ($riskOnly?.checked) q.set('risk','1'); else q.delete('risk');
+    if ($watchOnly?.checked) q.set('watch','1'); else q.delete('watch');
+    if ($autoRefresh?.checked) q.set('ar', String(Number($autoEvery.value||15))); else q.delete('ar');
+    const url = location.pathname + '?' + q.toString();
+    history.replaceState(null,'',url);
+  }
+  function applyQueryParams(){
+    const q = new URLSearchParams(location.search);
+    const net = q.get('network'); if (net==='testnet'){ state.network='testnet'; $networkSel.value='testnet'; }
+    if (q.get('risk')==='1'){ $riskOnly.checked = true; }
+    if (q.get('watch')==='1'){ $watchOnly.checked = true; }
+    if (q.has('ar')){ $autoRefresh.checked = true; $autoEvery.value = String(Math.max(5, Number(q.get('ar')||15))); }
+  }
 
+  /* ===== Wire UI ===== */
   document.getElementById('btnXumm')?.addEventListener('click',()=>connectWith(XummAdapter));
   document.getElementById('btnDisconnect')?.addEventListener('click',()=>disconnect());
-  document.getElementById('network')?.addEventListener('change',()=>{ state.network = (document.getElementById('network').value==='testnet') ? 'testnet' : 'mainnet'; updateNetUI(); if(state.account){ refreshAll(); } });
+  document.getElementById('network')?.addEventListener('change',()=>{ state.network = document.getElementById('network').value==='testnet' ? 'testnet' : 'mainnet'; updateNetUI(); if(state.account) { refreshAll(); } syncQueryParams(); });
 
   if ($btnHealthScan) $btnHealthScan.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
-  if ($btnHealthRetry) $btnHealthRetry.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
-  if ($probePreset) $probePreset.addEventListener('change', ()=>{ if(state.account){ refreshHealth(); } else { const preset=$probePreset.value==='small'?'1/10':'10/100'; $slipHeader.textContent=`Slippage (${preset.replace('/',' / ')} XRP)`; } });
   if ($riskOnly) $riskOnly.addEventListener('change', applyFilters);
-  if ($hideNoPool) $hideNoPool.addEventListener('change', applyFilters);
-  if ($btnExportCsv) $btnExportCsv.addEventListener('click', downloadCsvFromTable);
+  if ($watchOnly) $watchOnly.addEventListener('change', applyFilters);
+  if ($btnHealthRetry) $btnHealthRetry.addEventListener('click', ()=>{ refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err')); });
+
+  $autoRefresh?.addEventListener('change', ()=>{
+    if ($autoRefresh.checked) startAutoRefresh(); else stopAutoRefresh();
+    syncQueryParams();
+  });
+  $autoEvery?.addEventListener('change', ()=>{
+    if ($autoRefresh.checked){ startAutoRefresh(); } syncQueryParams();
+  });
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') stopAutoRefresh(); else if($autoRefresh.checked) startAutoRefresh(); });
+
+  $('btnTrustXRBC')?.addEventListener('click',()=>addXRBCTrustLine());
+  $('buy1')?.addEventListener('click',()=>buyXRBC(1));
+  $('buy25')?.addEventListener('click',()=>buyXRBC(25));
+  $('buy50')?.addEventListener('click',()=>buyXRBC(50));
+  $('buy100')?.addEventListener('click',()=>buyXRBC(100));
+  $('btnRefreshEst')?.addEventListener('click',()=>refreshEstimates());
+
+  if ($btnCopyChallenge) $btnCopyChallenge.addEventListener('click', async ()=>{ if (!__LS_CHALLENGE){ setStatus($walletStatus,'No code yet — start a sign flow first.'); return; } try { await navigator.clipboard.writeText(__LS_CHALLENGE); setStatus($walletStatus,'Code copied','ok'); } catch { setStatus($walletStatus,'Copy failed (permissions)','err'); } });
+  if ($btnClearLog) $btnClearLog.addEventListener('click', ()=>{ if ($log) $log.textContent = ''; setStatus($walletStatus,'Log cleared'); });
+
+  if ($btnCopyIframe){
+    const pre=$('embedCode');
+    $btnCopyIframe.addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText(pre.textContent); $btnCopyIframe.textContent='Copied'; setTimeout(()=>$btnCopyIframe.textContent='Copy embed code',1200); }
+      catch{
+        const r=document.createRange(); r.selectNode(pre); const sel=window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); sel.removeAllRanges();
+        $btnCopyIframe.textContent='Copied'; setTimeout(()=>$btnCopyIframe.textContent='Copy embed code',1200);
+      }
+    });
+  }
+
+  $btnExportJson?.addEventListener('click', ()=>{
+    const arr = currentRowsJson();
+    download('liquidity-health.json', JSON.stringify(arr, null, 2));
+  });
+  $btnCopyJson?.addEventListener('click', async ()=>{
+    const arr = currentRowsJson();
+    try{ await navigator.clipboard.writeText(JSON.stringify(arr, null, 2)); setStatus($healthStatus,'JSON copied','ok'); } catch { setStatus($healthStatus,'Copy failed','err'); }
+  });
 
   /* ===== Boot ===== */
-  updateNetUI();
+  function updateNetAndUI(){ updateNetUI(); syncQueryParams(); }
+  async function refreshAll(){
+    updateNetUI();
+    if (state.account){
+      state.lastAccountInfo = await getAccountInfo(state.account).catch(()=>null);
+      await refreshHealth().catch(e=>setStatus($healthStatus, e?.message||'Health error','err'));
+      await refreshEstimates().catch(()=>{});
+    }
+  }
+
+  applyQueryParams();
+  updateNetAndUI();
   if (BOOT.autoResume !== false) { tryResumeWallet().finally(()=>updateConnectButtons()); }
   if (BOOT.autoLoadData !== false) { setTimeout(()=>{ if(state.account){ refreshAll(); } }, 400); }
   if (BOOT.refreshOnFocus) {
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && state.account) refreshAll(); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state.account) refreshAll();
+    });
     window.addEventListener('focus', () => { if (state.account) refreshAll(); });
   }
 })();
