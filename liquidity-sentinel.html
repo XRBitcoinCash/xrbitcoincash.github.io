@@ -103,6 +103,10 @@ th .sub{display:block;font-weight:600;color:var(--muted);font-size:12px;margin-t
 .footer{margin-top:16px;color:var(--muted);font-size:12px}
 .logo{display:flex;align-items:center;gap:10px}
 
+/* Token cell + icon */
+.token{display:flex;align-items:flex-start;gap:8px}
+.token .token-icon{width:16px;height:16px;border-radius:4px;border:1px solid var(--line);flex:0 0 auto}
+
 /* Responsive tweaks */
 #healthWrap{overflow:auto}
 #healthTable{min-width:720px}
@@ -310,6 +314,9 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
     "currencyHex": "5852626974636F696E6361736800000000000000"
   },
+  "tokenIcons": {
+    "5852626974636F696E6361736800000000000000|rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw": "/xrbc-nft.png"
+  },
   "boot": { "autoResume": true, "autoLoadData": true, "refreshOnFocus": true }
 }
 </script>
@@ -318,8 +325,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 <script>
 (function(){
   'use strict';
-
-  const FIRST_COMMIT_YEAR = 2025;
 
   /* ===== Embed mode ===== */
   (function initEmbedMode(){
@@ -386,7 +391,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
   const $btnCopyIframe    = $('btnCopyIframe');
 
   /* ===== UTILS ===== */
-  function log(s){ if($log){ $log.textContent += s + '\\n'; $log.scrollTop = $log.scrollHeight; } }
+  function log(s){ if($log){ $log.textContent += s + '\n'; $log.scrollTop = $log.scrollHeight; } }
   function setStatus(node,text,cls){
     if(!node) return; node.textContent=text; node.classList.remove('ok','err'); if(cls) node.classList.add(cls);
     if(node===$walletStatus) log('[wallet] '+text);
@@ -394,8 +399,6 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     else if(node===$buyStatus) log('[buy] '+text);
   }
   const N=v=>Number.isFinite(Number(v))?Number(v):0;
-  const isXRP=a=>typeof a==='string'||(a&&a.currency==='XRP');
-  const fmtDrops=d=>(N(d)/XRP_TO_DROPS).toFixed(6)+' XRP';
 
   function setProgress(pct){ if($progress) $progress.style.width=Math.max(0,Math.min(100,pct))+'%'; }
   function updateNetUI(){
@@ -516,7 +519,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     stopAutoRefresh();
   }
 
-  /* ===== HEALTH / LEDGER ===== */
+  /* ===== Local storage helpers ===== */
   function savePrevSnap(map){ try{ localStorage.setItem('xrbc.prevHealthSnapshot', JSON.stringify(map)); }catch{} }
   function loadPrevSnap(){ try{ return JSON.parse(localStorage.getItem('xrbc.prevHealthSnapshot')||'{}'); }catch{ return {}; } }
   function saveWatchlist(set){ try{ localStorage.setItem('xrbc.watchlist', JSON.stringify([...set])); }catch{} }
@@ -524,6 +527,44 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
 
   function tokenKey(hex, issuer){ return (hex||'') + '|' + (issuer||''); }
 
+  /* ===== Token icon helpers (identicon + allowlist) ===== */
+  function hash32(str){
+    let h=2166136261>>>0;
+    for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; }
+    return h>>>0;
+  }
+  function hsl(h,s,l){ return `hsl(${h%360} ${s}% ${l}%)`; }
+  function makeBlockieDataURL(seed){
+    const h = hash32(seed);
+    const hue = (h>>>0) % 360;
+    const c1 = hsl(hue, 70, 45);
+    const c2 = hsl((hue+180)%360, 60, 20);
+    const sz = 5, cell = 16/5;
+    let rects = `<rect width="16" height="16" rx="3" ry="3" fill="${c2}"/>`;
+    for(let y=0;y<sz;y++){
+      for(let x=0;x<3;x++){
+        const bit = ((h >> (y*5 + x)) & 1);
+        if(bit){
+          const xx = x*cell, yy = y*cell;
+          const mx = (sz-1 - x)*cell;
+          rects += `<rect x="${xx.toFixed(2)}" y="${yy.toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}" fill="${c1}"/>`;
+          if(x!==sz-1-x){
+            rects += `<rect x="${mx.toFixed(2)}" y="${yy.toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}" fill="${c1}"/>`;
+          }
+        }
+      }
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">${rects}</svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  function iconUrlForToken(hex, issuer){
+    const map = (cfg.tokenIcons||{});
+    const key = `${(hex||'').toUpperCase()}|${issuer||''}`;
+    if (map[key]) return map[key];
+    return makeBlockieDataURL(key);
+  }
+
+  /* ===== Health / ledger ===== */
   function deltaBadge(curr, prev){
     if(!isFinite(curr) || !isFinite(prev)) return '<span class="delta neutral">•</span>';
     const d = Number(curr) - Number(prev);
@@ -534,13 +575,14 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     return `<span class="delta ${cls}">${sym} ${mag.toFixed(2)}</span>`;
   }
 
-  function renderLedgerPill(srv){
+  function renderLedgerPill(srvResult){
     try{
-      const v = srv?.validated_ledger || {};
-      const idx = v.seq || v.ledger_index || v.base_fee_xrp ? (v.seq||v.ledger_index) : '—';
-      let ago = '—';
-      if (v.age != null) { ago = String(v.age) + 's'; }
-      $ledgerPill.textContent = 'Ledger ' + idx + ' · ' + ago;
+      // server_state -> result.state.validated_ledger.{seq, age}
+      const v = srvResult?.state?.validated_ledger || srvResult?.validated_ledger || srvResult?.info?.validated_ledger || null;
+      if (!v){ $ledgerPill.textContent = 'Ledger: —'; return; }
+      const idx = (v.seq ?? v.ledger_index ?? '—');
+      const age = (typeof v.age === 'number') ? `${v.age}s` : '—';
+      $ledgerPill.textContent = `Ledger ${idx} · ${age}`;
     }catch{
       $ledgerPill.textContent = 'Ledger: —';
     }
@@ -616,7 +658,7 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
     // ledger freshness
     const srv = await call('server_state',{}).catch(()=>null);
     renderLedgerPill(srv);
-    const ledgerFresh = !!(srv && srv.validated_ledger);
+    const ledgerFresh = !!(srv?.state?.validated_ledger?.seq);
 
     // trustlines
     const linesR = await call('account_lines',{account:state.account,limit:400}).catch(()=>null);
@@ -702,10 +744,15 @@ You receive a limited, revocable, non-exclusive right to access the page and dis
           <span class="icon-star ${starred}" role="button" aria-label="Toggle watch" tabindex="0">★</span>
         </td>
         <td class="mono">
-          ${r.label}
-          <div class="hint" style="word-break:anywhere">
-            <a href="${issuerLink(r.issuer)}" target="_blank" rel="noopener" class="icon-link" aria-label="Open issuer on XRPScan">↗ Issuer</a>
-            · <span>${r.issuer}</span>
+          <div class="token">
+            <img class="token-icon" src="${iconUrlForToken(r.hex, r.issuer)}" alt="" onerror="this.style.display='none'">
+            <div>
+              ${r.label}
+              <div class="hint" style="word-break:anywhere">
+                <a href="${issuerLink(r.issuer)}" target="_blank" rel="noopener" class="icon-link" aria-label="Open issuer on XRPScan">↗ Issuer</a>
+                · <span>${r.issuer}</span>
+              </div>
+            </div>
           </div>
         </td>
         <td>${r.pool}</td>
