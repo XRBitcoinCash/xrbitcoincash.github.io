@@ -1149,44 +1149,54 @@ button, a {
     return BAL;
   }
 
-  (function initPercentChips(){
-    const chips = document.querySelectorAll('.quick-amounts .qa');
-    if (!chips.length) return;
+ (function initPercentChips(){
+  // Support BOTH legacy (.quick-amounts .qa [data-q]) and new (.pct-group .pct-btn "25%") patterns.
+  const chips = document.querySelectorAll('.pct-group .pct-btn, .quick-amounts .qa');
+  if (!chips.length) return;
 
-    async function applyPercent(pct){
-      const side = sideEl?.value || 'buy';
-      await fetchBalances();
+  function parsePct(btn){
+    // Prefer data-q if present; otherwise parse inner text like "25%"
+    if (btn.dataset && btn.dataset.q) return Number(btn.dataset.q);
+    const m = String(btn.textContent || '').match(/(\d+)\s*%/);
+    return m ? Number(m[1]) : 0;
+  }
 
-      if (side === 'sell'){
-        const amt = Math.max(0, BAL.xrbc * (pct/100));
-        if (amountEl){
-          amountEl.value = amt.toFixed(6);
-          amountEl.dispatchEvent(new Event('input'));
-        }
-        return;
-      }
+  async function applyPercent(pct){
+    const side = sideEl?.value || 'buy';
+    await fetchBalances();
 
-      let price = Number(priceEl?.value) || 0;
-      if (!price) { await fillBestPrice(); price = Number(priceEl?.value) || 0; }
-      if (!price || price <= 0) return;
-
-      const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
-      const amt = spendable > 0 ? (spendable / price) : 0;
-
+    if (side === 'sell'){
+      const amt = Math.max(0, BAL.xrbc * (pct/100));
       if (amountEl){
         amountEl.value = amt.toFixed(6);
         amountEl.dispatchEvent(new Event('input'));
       }
+      return;
     }
 
-    chips.forEach(btn => btn.addEventListener('click', async () => {
-      const pct = Number(btn.dataset.q || 0);
-      if (!pct) return;
-      btn.disabled = true;
-      try { await applyPercent(pct); }
-      finally { btn.disabled = false; }
-    }));
-  })();
+    // BUY side: spend XRP → derive XRBC amount at current/best price
+    let price = Number(priceEl?.value) || 0;
+    if (!price) { await fillBestPrice(); price = Number(priceEl?.value) || 0; }
+    if (!price || price <= 0) return;
+
+    const spendable = Math.max(0, (BAL.xrp - RESERVE_BUFFER_XRP)) * (pct/100);
+    const amt = spendable > 0 ? (spendable / price) : 0;
+
+    if (amountEl){
+      amountEl.value = amt.toFixed(6);
+      amountEl.dispatchEvent(new Event('input'));
+    }
+  }
+
+  chips.forEach(btn => btn.addEventListener('click', async () => {
+    const pct = parsePct(btn);
+    if (!pct) return;
+    btn.disabled = true;
+    try { await applyPercent(pct); }
+    finally { btn.disabled = false; }
+  }));
+})();
+
 
   /* Pricing helpers */
   async function getTopOfBook(){
