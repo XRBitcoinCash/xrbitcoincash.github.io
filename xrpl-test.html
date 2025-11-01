@@ -75,8 +75,8 @@ h1,h2,h3{margin:.1em 0}
 .glow-yellow{box-shadow:0 0 0 2px rgba(245,158,11,.25), 0 0 20px rgba(245,158,11,.18)}
 .glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
 .status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
-th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px;table-layout:fixed}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top;word-break:break-word;overflow-wrap:anywhere}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .hint{color:var(--muted);font-size:12.5px}
 .warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
@@ -113,11 +113,12 @@ body.embed header{display:none}
 .hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
 .hero-top .left{justify-self:start}
 .hero-top .center{justify-self:center}
-.hero-top .right{justify-self=end;text-align:right}
+.hero-top .right{justify-self:end;text-align:right}
 
 /* === Stop-Loss Planner emphasis & container === */
 .hint-yellow{color:var(--yellow);font-weight:700}
 
+/* Make the token table always safe on small screens */
 #slTokens{
   border:1px solid var(--line);
   border-left:4px solid #60a5fa;
@@ -125,13 +126,10 @@ body.embed header{display:none}
   box-shadow:0 0 0 2px rgba(37,99,235,.25),0 0 20px rgba(37,99,235,.18);
   border-radius:10px;
   padding:8px;
+  overflow-x:auto;           /* NEW: allow horizontal scroll if needed */
 }
-
-/* Keep table stable & shrinkable */
-#slTokens table{table-layout:fixed;width:100%}
-#slTokens table th,#slTokens table td{
-  min-width:0;word-break:break-word;overflow-wrap:anywhere
-}
+#slTokens table{table-layout:fixed;width:100%;min-width:560px} /* NEW: stable min width */
+#slTokens table th,#slTokens table td{min-width:0;word-break:break-word;overflow-wrap:anywhere}
 
 /* Column color mapping (2=Hex, 3=Issuer, 4=Balance, 5=Amount) */
 #slTokens table thead th:nth-child(2),
@@ -145,30 +143,35 @@ body.embed header{display:none}
 
 /* ===== Mobile-only refinements (desktop unchanged) ===== */
 @media (max-width:560px){
-  #slTokens{overflow:hidden}
-  #slTokens table th,#slTokens table td{padding:6px 8px}
-  #slTokens thead th{white-space:nowrap}
-  #slTokens table thead th:nth-child(5){font-size:12px;line-height:1.15;white-space:nowrap;color:var(--ok);font-weight:800}
-  #slTokens table thead th:nth-child(5)::after{ content:none }
+  #slTokens{overflow-x:auto} /* CHANGED: was hidden */
+  #slTokens table{min-width:480px} /* tighter min width on small phones */
+  #slTokens table th,#slTokens table td{padding:6px 8px;white-space:normal}
+  #slTokens thead th{white-space:normal} /* allow wrapping headers */
+  #slTokens table thead th:nth-child(5){font-size:12px;line-height:1.2;color:var(--ok);font-weight:800}
   #slTokens table thead th:nth-child(4),
   #slTokens table thead th:nth-child(5){text-align:left;padding-left:6px;vertical-align:bottom}
+
+  /* Gentle width guidance, but allow wrap to avoid overflow */
   #slTokens table thead th:nth-child(2),
   #slTokens table tbody td:nth-child(2){width:38%}
   #slTokens table thead th:nth-child(3),
-  #slTokens table tbody td:nth-child(3){width:20%}
+  #slTokens table tbody td:nth-child(3){width:22%}
   #slTokens table thead th:nth-child(4),
   #slTokens table tbody td:nth-child(4){width:18%}
   #slTokens table thead th:nth-child(5),
-  #slTokens table tbody td:nth-child(5){width:24%}
+  #slTokens table tbody td:nth-child(5){width:22%}
+
+  /* Inputs are fully contained */
   #slTokens table tbody td:nth-child(5) > *{
     display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
-    min-width:8ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
-    background:linear-gradient(180deg,#0e1520,#0c131c);overflow-wrap:anywhere;word-break:break-word;vertical-align:top
+    min-width:6ch;padding:4px 8px;border:1px solid var(--line);border-radius:8px;
+    background:linear-gradient(180deg,#0e1520,#0c131c);
+    overflow-wrap:anywhere;word-break:break-word;vertical-align:top
   }
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{
     display:inline-block;box-sizing:border-box;width:100%;max-width:100%;
-    min-width:8ch;padding:6px 10px;font:inherit;color:var(--ink);
+    min-width:6ch;padding:6px 10px;font:inherit;color:var(--ink);
     background:linear-gradient(180deg,#0e1520,#0c131c);border:1px solid var(--line);border-radius:10px
   }
   #slTokens table tbody td:nth-child(3),
@@ -195,7 +198,7 @@ body.embed header{display:none}
 
 /* Mobile landscape planner grid */
 @media (orientation:landscape) and (max-height:560px){
-  #slTokens{overflow:hidden}
+  #slTokens{overflow-x:auto}
   #slTokens .row:has(.hint-yellow){
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -214,17 +217,6 @@ body.embed header{display:none}
   #slTokens table tbody td:nth-child(5) input,
   #slTokens table tbody td:nth-child(5) textarea{box-sizing:border-box;width:100%;max-width:100%;}
 }
-
-/* === Additions for price visibility & presets === */
-.pill{display:inline-block;border:1px solid var(--line);border-radius:9999px;padding:2px 8px;font-size:12px}
-.pricepill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:4px 8px}
-.dim{opacity:.55}
-.sl-summary{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:6px 0 10px}
-.sl-summary .item{display:flex;gap:6px;align-items:center}
-.sl-presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px}
-.sl-presets .btn.small{min-width:auto;padding:4px 8px}
-#slTokens .t-right{text-align:right}
-#slTokens .muted{color:var(--muted);font-size:12px}
   </style>
 
   <!-- Xumm SDK (keep) -->
@@ -529,6 +521,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
   // ===== Sentinel v1 helpers (6-digit code + memos + signing lock)
   const SENTINEL_VERSION = 'v1';
   let __signInFlight = false;
+  let __uiUnlockTimer = null; /* NEW: UI unlock guard */
 
   const $ = id => document.getElementById(id);
   const $walletStatus = $('walletStatus');
@@ -547,6 +540,20 @@ By accessing this page or embedding the widget, you accept the Important terms a
     ];
     ids.forEach(id=>{ const el=$(id); if(el) el.disabled = !!disabled; });
   }
+  /* NEW: lock with auto-unlock safety */
+  function lockUI(){
+    disableWalletButtons(true);
+    clearTimeout(__uiUnlockTimer);
+    __uiUnlockTimer = setTimeout(()=>{
+      disableWalletButtons(false);
+      setStatus($walletStatus,'UI unlocked after no wallet response. You can retry.','err');
+    }, 25000);
+  }
+  function unlockUI(){
+    clearTimeout(__uiUnlockTimer);
+    disableWalletButtons(false);
+  }
+
   function buildPayloadWithSentinel(txjson, ctx){
     const memos = Array.isArray(txjson.Memos) ? txjson.Memos.slice() : [];
     memos.push({ Memo: { MemoType: asciiToHex('XRBC-SENT'), MemoData: asciiToHex(ctx.code) }});
@@ -705,11 +712,11 @@ By accessing this page or embedding the widget, you accept the Important terms a
       return { address: acct };
     }
 
-    // ===== Sentinel-enabled sign & submit (global for ALL actions) =====
+    // ===== Sentinel-enabled sign & submit (with UI safety guard) =====
     async signAndSubmit(txjson){
       if(__signInFlight){ setStatus($walletStatus,'Signing in progress…','err'); throw new Error('Signing in progress'); }
       __signInFlight = true;
-      disableWalletButtons(true);
+      lockUI(); /* NEW */
 
       try{
         await this.ensureSDK();
@@ -722,7 +729,8 @@ By accessing this page or embedding the widget, you accept the Important terms a
           app_id: appIdFromPath(location.pathname)
         };
 
-        setStatus($walletStatus, `Verify code: ${code} — it must match the memo in your Xaman wallet.`, 'ok');
+        // Show only the human code (avoid confusion with hex)
+        setStatus($walletStatus, `Verify code: ${code} in Xaman, then sign.`, 'ok');
 
         const tx = buildPayloadWithSentinel(txjson, ctx);
 
@@ -748,7 +756,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
 
         if(!res?.signed) throw new Error('User rejected');
 
-        setStatus($walletStatus, `Submitted. Code ${code} recorded in memo.`, 'ok');
+        setStatus($walletStatus, `Submitted. Code verified in wallet.`, 'ok');
 
         // refresh all live views after submit (offers + token table)
         try{ if (state.account) await refreshAll(); }catch{}
@@ -759,7 +767,7 @@ By accessing this page or embedding the widget, you accept the Important terms a
         throw e;
       }finally{
         __signInFlight = false;
-        disableWalletButtons(false);
+        unlockUI(); /* NEW */
       }
     }
     // ===== /Sentinel =====
@@ -920,34 +928,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
     return null;
   }
 
-  /* ===== Live price cache + helpers (adds price visibility) ===== */
-  const priceCache = new Map(); // key: code:issuer -> { xrpPx, rlPx, ts }
-
-  async function getPrices(code, issuer){
-    const key = `${code}:${issuer}`;
-    const cached = priceCache.get(key);
-    if (cached && Date.now() - cached.ts < 15_000) return cached; // 15s freshness
-
-    const [xrpPx, rlPx] = await Promise.all([
-      refPriceIOUtoXRP(code, issuer),
-      refPriceIOUtoRLUSD(code, issuer)
-    ]);
-
-    const val = {
-      xrpPx: (typeof xrpPx === 'number' && xrpPx > 0) ? xrpPx : null,
-      rlPx:  (typeof rlPx  === 'number' && rlPx  > 0) ? rlPx  : null,
-      ts: Date.now()
-    };
-    priceCache.set(key, val);
-    return val;
-  }
-  function unitForTarget(tgt){ return tgt === 'RLUSD' ? 'RLUSD' : 'XRP'; }
-  function computeStopPx({ basePx, mode, val }){
-    if (!basePx) return null;
-    if (mode === 'pct') return basePx * (1 - (Number(val)||0)/100);
-    return Number(val)||0;
-  }
-
   // ===== Build offers
   function buildStopOfferXRP({ acct, currencyCode, issuer, amountIOU, stopPriceXrpPerIOU }){
     const TF_SELL = 0x00080000;
@@ -1035,140 +1015,61 @@ By accessing this page or embedding the widget, you accept the Important terms a
     };
   }
 
-  // ===== Refresh planner tokens (with price + value + per-row stop hint)
+  // ===== Refresh planner tokens
   async function refreshSLTokens(){
     if (!state.account){ $slTokens.textContent='Connect wallet first.'; return; }
-
     const toks = await listUserTokens(state.account);
     if (!toks.length){ $slTokens.textContent='No positive IOU balances found.'; return; }
-
-    const tgt  = ($slTarget?.value === 'RLUSD') ? 'RLUSD' : 'XRP';
-    const mode = $slMode?.value || 'pct';
-    const val  = Number($slValue?.value || 0);
-    const unit = unitForTarget(tgt);
-
-    const rows = [];
-    let portfolioTotal = 0;
-
-    for (const t of toks){
-      const disp = tokenDisplay(t.code).label;
-      const prices = await getPrices(t.code, t.issuer);
-      const basePx = (tgt === 'RLUSD') ? prices.rlPx : prices.xrpPx;
-
-      let est = null;
-      if (basePx){ est = basePx * t.balance; portfolioTotal += est; }
-
-      rows.push({
-        disp, code: t.code, issuer: t.issuer, bal: t.balance,
-        basePx, est,
-        noRoute: !basePx
-      });
-    }
 
     const tbl = document.createElement('table');
 
     const thead = document.createElement('thead');
-    thead.innerHTML = `<tr>
-      <th></th>
-      <th>Token / Hex</th>
-      <th>Issuer</th>
-      <th class="t-right">Balance</th>
-      <th class="t-right">Est. price (${unit}/IOU)</th>
-      <th class="t-right">Est. value (${unit})</th>
-      <th>Amt to protect</th>
-    </tr>`;
+    thead.innerHTML = '<tr><th></th><th>Token / Hex</th><th>Issuer</th><th>Balance</th><th>Amt to protect</th></tr>';
     tbl.appendChild(thead);
 
     const tb = document.createElement('tbody');
 
-    for (const r of rows){
+    for (const t of toks){
       const tr = document.createElement('tr');
-      if (r.noRoute) tr.classList.add('dim');
 
-      // Pick
       const tdPick = document.createElement('td');
       const pick = document.createElement('input');
       pick.type = 'checkbox';
       pick.className = 'slPick';
-      pick.disabled = r.noRoute;
       tdPick.appendChild(pick);
       tr.appendChild(tdPick);
 
-      // Label
       const tdLabel = document.createElement('td');
-      tdLabel.className = 'mono'; tdLabel.textContent = r.disp;
+      tdLabel.className = 'mono';
+      tdLabel.textContent = tokenDisplay(t.code).label;
       tr.appendChild(tdLabel);
 
-      // Issuer
       const tdIssuer = document.createElement('td');
-      tdIssuer.className = 'mono'; tdIssuer.style.wordBreak='anywhere';
-      tdIssuer.textContent = r.issuer;
+      tdIssuer.className = 'mono';
+      tdIssuer.style.wordBreak = 'anywhere';
+      tdIssuer.textContent = t.issuer;
       tr.appendChild(tdIssuer);
 
-      // Balance
       const tdBal = document.createElement('td');
-      tdBal.className='t-right';
-      tdBal.textContent = r.bal.toFixed(6);
+      tdBal.textContent = t.balance.toFixed(6);
       tr.appendChild(tdBal);
 
-      // Est price
-      const tdPx = document.createElement('td');
-      tdPx.className='t-right';
-      tdPx.textContent = r.basePx ? r.basePx.toFixed(6) : '—';
-      tr.appendChild(tdPx);
-
-      // Est value
-      const tdVal = document.createElement('td');
-      tdVal.className='t-right';
-      tdVal.textContent = (r.est != null) ? r.est.toFixed(6) : '—';
-      tr.appendChild(tdVal);
-
-      // Amt to protect + per-row "Stop @" hint
       const tdAmt = document.createElement('td');
       const amtInput = document.createElement('input');
       amtInput.type = 'number';
       amtInput.className = 'slAmt';
       amtInput.step = '0.000001';
-      amtInput.value = String(Math.max(0, r.bal).toFixed(6));
+      amtInput.value = String(Math.max(0, t.balance).toFixed(6));
+      amtInput.style.width = '100%';           /* ensure fit */
+      amtInput.style.boxSizing = 'border-box'; /* ensure fit */
       tdAmt.appendChild(amtInput);
-
-      const hint = document.createElement('div');
-      hint.className = 'muted';
-      const stopPx = computeStopPx({ basePx: r.basePx, mode, val });
-      hint.textContent = r.basePx
-        ? `Stop @ ${ (stopPx||0).toFixed(6) } ${unit}/IOU (base ${r.basePx.toFixed(6)})`
-        : 'No price/route — cannot compute stop';
-      tdAmt.appendChild(hint);
-
       tr.appendChild(tdAmt);
+
       tb.appendChild(tr);
     }
 
     tbl.appendChild(tb);
-
-    // Summary + presets
-    const summary = document.createElement('div');
-    summary.className = 'sl-summary';
-    summary.innerHTML = `
-      <div class="item"><span class="pill">Exit: ${unit}</span></div>
-      <div class="item"><span class="pill">Portfolio est: ${(portfolioTotal||0).toFixed(6)} ${unit}</span></div>
-      <div class="item muted">Prices are reference only (AMM/OB); routes & slippage can change.</div>
-    `;
-
-    const presets = document.createElement('div');
-    presets.className = 'sl-presets';
-    [5,10,15,20].forEach(p=>{
-      const b=document.createElement('button');
-      b.className='btn small'; b.type='button'; b.textContent=`-${p}%`;
-      b.addEventListener('click', ()=>{
-        if ($slMode) $slMode.value='pct';
-        if ($slValue) $slValue.value=String(p);
-        refreshSLTokens();
-      });
-      presets.appendChild(b);
-    });
-
-    $slTokens.replaceChildren(summary, presets, tbl);
+    $slTokens.replaceChildren(tbl);
   }
 
   // ===== Stop-Loss plan
@@ -1373,11 +1274,6 @@ By accessing this page or embedding the widget, you accept the Important terms a
     updateNetUI();
     if(state.account) { refreshAll(); }
   });
-
-  /* === Re-render planner on control changes === */
-  $slTarget?.addEventListener('change', ()=>{ if(state.account) refreshSLTokens(); });
-  $slMode  ?.addEventListener('change',  ()=>{ if(state.account) refreshSLTokens(); });
-  $slValue ?.addEventListener('input',   ()=>{ if(state.account) refreshSLTokens(); });
 
   // Boot
   updateNetUI();
