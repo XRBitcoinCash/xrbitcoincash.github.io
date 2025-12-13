@@ -1154,6 +1154,36 @@
   <!-- RESULTS -->
   <section class="card" aria-labelledby="res">
     <h2 id="res">Results</h2>
+  
+
+
+ 
+    
+    <!-- Evidence Pack (local export) -->
+  <div id="evidenceBox" class="hint" style="margin-top:10px;border:1px solid var(--line);border-radius:12px;padding:10px;background:linear-gradient(180deg,#0e1520,#0c131c);">
+    <div class="row center" style="gap:8px;flex-wrap:wrap">
+      <button id="btnEvidenceSnapshot" class="btn small glow-blue" type="button" disabled>
+        Export Snapshot (JSON)
+      </button>
+      <button id="btnEvidenceAuto" class="btn small" type="button" aria-pressed="false" disabled>
+        Auto Receipt: Off
+      </button>
+      <button id="btnEvidenceDownloadLast" class="btn small" type="button" disabled>
+        Download Last Pack
+      </button>
+    </div>
+    <p id="evidenceStatus" class="status" style="margin:8px 0 0 0">Evidence: idle</p>
+    <p class="hint" style="margin:4px 0 0 0">
+      Local-only. No secrets. Includes method/params, response hashes, and (when available) validated tx outcome.
+    </p>
+  </div>
+ 
+    
+    
+  
+    
+    
+    
     <div id="resultBox" class="hint">Receipts and freed reserve will appear here.</div>
     <div class="hint" style="margin-top:10px">
       <div class="row center" style="gap:8px;margin-top:6px">
@@ -1231,6 +1261,21 @@
   const $offersWrap     = $('offersWrap');
   const $resultBox      = $('resultBox');
   const $log            = $('log');
+ 
+  
+  
+   // Evidence Pack UI
+  const $btnEvidenceSnapshot     = $('btnEvidenceSnapshot');
+  const $btnEvidenceAuto         = $('btnEvidenceAuto');
+  const $btnEvidenceDownloadLast = $('btnEvidenceDownloadLast');
+  const $evidenceStatus          = $('evidenceStatus');
+ 
+  
+  
+ 
+  
+  
+  
   const $btnXumm        = $('btnXumm');
   const $btnDisconnect  = $('btnDisconnect');
   const $networkSel     = $('network');
@@ -1314,6 +1359,11 @@
     return PROXY_BASE + (state.network === 'testnet' ? '?network=testnet' : '');
   }
 
+
+  
+  
+
+  
   function updateConnectButtons(){
     const connected = Boolean(state.account && state.adapter);
     if ($btnXumm){
@@ -1327,9 +1377,19 @@
     }
     if ($btnHealthScan){
       $btnHealthScan.disabled = !connected;
+      // Evidence Pack UI enablement (does not require signing; only needs an account)
+    if ($btnEvidenceSnapshot) $btnEvidenceSnapshot.disabled = !Boolean(state.account);
+    if ($btnEvidenceAuto) $btnEvidenceAuto.disabled = !Boolean(state.account && state.adapter);
+    if ($btnEvidenceDownloadLast) $btnEvidenceDownloadLast.disabled = !Evidence.hasLast();
     }
   }
 
+
+  
+  
+  
+
+  
   /* CHALLENGE CODE */
   let __LS_CHALLENGE = null;
 
@@ -1485,6 +1545,335 @@
     }
   }
 
+
+
+  /* =========================
+     EVIDENCE PACK (local) v1
+     ========================= */
+  const Evidence = (function(){
+    const SCHEMA = 'xrbc.sentinel.evidencePack.v1';
+    const VERSION = 'v1';
+    const MAX_STORE_BYTES = 250_000; // prevent huge packs from health scans, etc.
+
+    // Record only when explicitly enabled (snapshot button or auto-receipt).
+    let auto = false;
+    let current = null;
+    let lastPack = null;
+    let pending = [];
+
+    // Method allowlist (keeps packs small and focused)
+    const ALLOW = new Set([
+      'server_state',
+      'ledger',
+      'account_info',
+      'account_lines',
+      'book_offers',
+      'amm_info',
+      'ripple_path_find',
+      'tx'
+    ]);
+
+    function nowIso(){ return new Date().toISOString(); }
+
+    function stableClone(v, seen){
+      if (v === null || typeof v !== 'object') return v;
+      if (seen.has(v)) return '[Circular]';
+      seen.add(v);
+
+      if (Array.isArray(v)) return v.map(x => stableClone(x, seen));
+
+      const out = {};
+      for (const k of Object.keys(v).sort()){
+        out[k] = stableClone(v[k], seen);
+      }
+      return out;
+    }
+
+    function stableStringify(obj){
+      const seen = new WeakSet();
+      return JSON.stringify(stableClone(obj, seen));
+    }
+
+    async function sha256Hex(str){
+      const bytes = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      const arr = Array.from(new Uint8Array(digest));
+      return arr.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function setEvidenceStatus(text, cls){
+      if (!$evidenceStatus) return;
+      $evidenceStatus.textContent = text;
+      $evidenceStatus.classList.remove('ok','err');
+      if (cls) $evidenceStatus.classList.add(cls);
+      log('[evidence] ' + text);
+    }
+
+    function setAuto(on){
+      auto = !!on;
+      if ($btnEvidenceAuto){
+        $btnEvidenceAuto.setAttribute('aria-pressed', auto ? 'true' : 'false');
+        $btnEvidenceAuto.textContent = auto ? 'Auto Receipt: On' : 'Auto Receipt: Off';
+      }
+      setEvidenceStatus('Evidence: auto-receipt ' + (auto ? 'ON' : 'OFF'), auto ? 'ok' : null);
+    }
+
+    function isAuto(){ return auto; }
+    function hasLast(){ return !!lastPack; }
+    function getLast(){ return lastPack; }
+
+    function safePublicMeta(){
+      return {
+        schema: SCHEMA,
+        version: VERSION,
+        createdAt: nowIso(),
+        app: {
+          name: 'XRBC Ecosystem · Liquidity Sentinel',
+          origin: location.origin,
+          path: location.pathname
+        },
+        network: state.network,
+        proxyUrl: PROXY_BASE,
+        subject: {
+          account: state.account || null
+        },
+        xrbc: {
+          issuer: XRBC.issuer || null,
+          currencyHex: XRBC_HEX || null
+        }
+      };
+    }
+
+    function start(kind, extra){
+      current = {
+        ...safePublicMeta(),
+        kind,
+        extra: extra || {},
+        rpc: [],
+        tx: null,
+        wallet: [],
+        anchors: {}
+      };
+      pending = [];
+      setEvidenceStatus('Evidence: recording ' + kind + '…', null);
+      return current;
+    }
+
+    function noteWallet(evt){
+      if (!current) return;
+      current.wallet.push({ at: nowIso(), ...evt });
+    }
+
+    function noteTxIntent(txjson){
+      if (!current) return;
+      current.tx = current.tx || {};
+      current.tx.intent = txjson; // public tx json only; no secrets
+      current.tx.intentAt = nowIso();
+      if (__LS_CHALLENGE) current.tx.challenge = __LS_CHALLENGE;
+    }
+
+    function noteTxHash(hash){
+      if (!current) return;
+      current.tx = current.tx || {};
+      current.tx.hash = hash;
+      current.tx.hashAt = nowIso();
+    }
+
+    function extractAnchorFromServerState(result){
+      try {
+        const v = result && result.validated_ledger;
+        if (v && typeof v.seq === 'number'){
+          return { ledger_index: v.seq, ledger_hash: v.hash || null };
+        }
+      } catch {}
+      return null;
+    }
+
+    function extractAnchorFromTx(result){
+      try {
+        if (result && result.validated && typeof result.ledger_index === 'number'){
+          return { ledger_index: result.ledger_index, ledger_hash: result.ledger_hash || null };
+        }
+      } catch {}
+      return null;
+    }
+
+    async function maybeRecordRpc(payload, data){
+      if (!current) return;
+      const method = payload && payload.method;
+      if (!method || !ALLOW.has(method)) return;
+
+      const params = payload && payload.params && payload.params[0] ? payload.params[0] : null;
+      const result = data && data.result ? data.result : data;
+
+      const resultStr = stableStringify(result);
+      const bytes = resultStr.length;
+
+      const entry = {
+        at: nowIso(),
+        method,
+        params,
+        stored: bytes <= MAX_STORE_BYTES ? 'full' : 'hash-only',
+        bytes
+      };
+
+      // Always hash
+      const p = sha256Hex(resultStr).then(h => { entry.resultSha256 = h; }).catch(() => {});
+      pending.push(p);
+
+      // Store full response only if small enough
+      if (bytes <= MAX_STORE_BYTES){
+        entry.result = result;
+      }
+
+      current.rpc.push(entry);
+
+      // Try to capture a ledger anchor opportunistically
+      if (!current.anchors || !current.anchors.validated){
+        if (method === 'server_state'){
+          const a = extractAnchorFromServerState(result);
+          if (a) current.anchors.validated = a;
+        }
+      }
+      if (method === 'tx'){
+        const a = extractAnchorFromTx(result);
+        if (a) current.anchors.validated = a;
+        current.tx = current.tx || {};
+        current.tx.validated = !!(result && result.validated);
+        if (result && result.meta && result.meta.TransactionResult){
+          current.tx.engineResult = result.meta.TransactionResult;
+        }
+      }
+    }
+
+    async function verifyTx(hash){
+      if (!hash || !current) return;
+      // One-shot verify (keeps UX fast). If not found yet, receipt still exports.
+      try {
+        const r = await xrplRequest({
+          method: 'tx',
+          params: [ { transaction: hash, binary: false } ]
+        }, { timeoutMs: 12000 });
+        // xrplRequest instrumentation will record this automatically
+        // but we still want to attach key tx fields for convenience:
+        const result = r && r.result ? r.result : null;
+        if (result){
+          current.tx = current.tx || {};
+          current.tx.validated = !!result.validated;
+          current.tx.ledger_index = result.ledger_index || null;
+          current.tx.ledger_hash  = result.ledger_hash || null;
+          current.tx.engineResult = (result.meta && result.meta.TransactionResult) || null;
+        }
+      } catch {}
+    }
+
+    async function snapshotNow(){
+      if (!state.account){
+        setEvidenceStatus('Evidence: connect wallet first (need an account).', 'err');
+        return;
+      }
+      start('snapshot', { userAction: 'Export Snapshot' });
+
+      // Anchor + account state snapshot (small + high value)
+      try { await call('server_state', {}); } catch {}
+      try { await call('account_info', { account: state.account }); } catch {}
+      try { await call('account_lines', { account: state.account, limit: 400 }); } catch {}
+
+      // XRBC market context (small, optional)
+      try {
+        await xrplRequest({
+          method: 'amm_info',
+          params: [ { asset:{currency:'XRP'}, asset2:{currency:XRBC_HEX, issuer:XRBC.issuer} } ]
+        }, { timeoutMs: 12000 });
+      } catch {}
+      try {
+        await xrplRequest({
+          method: 'book_offers',
+          params: [ {
+            taker_gets:{currency:'XRP'},
+            taker_pays:{currency:XRBC_HEX, issuer:XRBC.issuer},
+            limit: 1
+          } ]
+        }, { timeoutMs: 12000 });
+      } catch {}
+
+      await finalizeDownload('snapshot');
+    }
+
+    function downloadJson(obj, filename){
+      const blob = new Blob([ JSON.stringify(obj, null, 2) ], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { URL.revokeObjectURL(a.href); } catch {}
+        try { a.remove(); } catch {}
+      }, 0);
+    }
+
+    function buildFilename(kind){
+      const ts = new Date().toISOString().replace(/[:.]/g,'-');
+      const acct = (state.account || 'noacct').slice(0,6);
+      const h = (current && current.tx && current.tx.hash) ? String(current.tx.hash).slice(0,10) : 'nohash';
+      return `xrbc-${kind}-${acct}-${h}-${ts}.json`;
+    }
+
+    async function finalizeDownload(kind){
+      if (!current) return;
+
+      // Ensure hashes are populated
+      try { await Promise.allSettled(pending); } catch {}
+      pending = [];
+
+      // Pack-level hash (canonical)
+      const canonical = stableStringify(current);
+      current.packSha256 = await sha256Hex(canonical);
+
+      const out = current;
+      lastPack = out;
+      current = null;
+
+      downloadJson(out, buildFilename(kind));
+      setEvidenceStatus('Evidence: exported ' + kind + ' pack.', 'ok');
+
+      if ($btnEvidenceDownloadLast) $btnEvidenceDownloadLast.disabled = false;
+      return out;
+    }
+
+    async function downloadLast(){
+      if (!lastPack){
+        setEvidenceStatus('Evidence: no previous pack to download.', 'err');
+        return;
+      }
+      const ts = new Date(lastPack.createdAt).toISOString().replace(/[:.]/g,'-');
+      const acct = (lastPack.subject && lastPack.subject.account ? lastPack.subject.account : 'noacct').slice(0,6);
+      const h = (lastPack.tx && lastPack.tx.hash) ? String(lastPack.tx.hash).slice(0,10) : 'nohash';
+      downloadJson(lastPack, `xrbc-lastpack-${acct}-${h}-${ts}.json`);
+      setEvidenceStatus('Evidence: downloaded last pack.', 'ok');
+    }
+
+    return {
+      setAuto,
+      isAuto,
+      hasLast,
+      start,
+      noteWallet,
+      noteTxIntent,
+      noteTxHash,
+      maybeRecordRpc,
+      verifyTx,
+      snapshotNow,
+      finalizeDownload,
+      downloadLast
+    };
+  })();
+
+
+
+
+  
   /* XRPL PROXY */
   async function xrplRequest(payload, { timeoutMs = 12000 } = {}){
     if (!PROXY_BASE) throw new Error('Proxy URL missing');
@@ -1501,9 +1890,23 @@
         credentials: 'omit'
       });
       if (!res.ok) throw new Error('Proxy HTTP ' + res.status);
-      const data = await res.json();
+     
+      
+      
+      
+      
+        const data = await res.json();
       if (data && data.error) throw new Error('XRPL ' + (data.error.message || 'error'));
+
+      // Evidence Pack: record only when active (snapshot or auto-receipt)
+      try { Evidence.maybeRecordRpc(payload, data).catch(() => {}); } catch {}
+
       return data;
+
+
+
+
+      
     } finally {
       clearTimeout(t);
     }
@@ -2446,6 +2849,9 @@
     });
   }
 
+
+  
+  
   async function addXRBCTrustLine(){
     if (!state.account || !state.adapter){
       setStatus($buyStatus, 'Connect wallet first.', 'err');
@@ -2458,7 +2864,10 @@
         setStatus($buyStatus, 'XRBC trust line already exists.', 'ok');
         return;
       }
-      const baseTx = {
+   
+      
+      
+           const baseTx = {
         TransactionType: 'TrustSet',
         Account: state.account,
         LimitAmount: {
@@ -2468,14 +2877,37 @@
         },
         Flags: 0x00040000
       };
+
+      const wantReceipt = Evidence.isAuto();
+      if (wantReceipt) {
+        Evidence.start('tx', { flow: 'TrustSet XRBC', userAction: 'Add XRBC Trust Line' });
+        Evidence.noteTxIntent(baseTx);
+        try { await call('server_state', {}); } catch {}
+        try { await call('account_info', { account: state.account }); } catch {}
+        try { await call('account_lines', { account: state.account, limit: 400 }); } catch {}
+      }
+
       setChallenge(newChallenge6());
-      await state.adapter.signAndSubmit(attachMemos(baseTx));
+      const res = await state.adapter.signAndSubmit(attachMemos(baseTx));
+
+      if (wantReceipt) {
+        Evidence.noteWallet({ event: 'signed_submitted', via: 'xaman', result: res && res.result, hash: res && res.hash });
+        if (res && res.hash) Evidence.noteTxHash(res.hash);
+        await Evidence.verifyTx(res && res.hash);
+        await Evidence.finalizeDownload('trustset');
+      }
+
       setStatus($buyStatus, 'TrustSet submitted. Wait for validation then retry trade.', 'ok');
+
     } catch(e){
       setStatus($buyStatus, 'TrustSet error: ' + (e.message || e), 'err');
     }
   }
 
+
+  
+  
+  
   async function pathFindTradeXRBC(acct, valueStr){
     const AMOUNT = {
       currency: XRBC_HEX,
@@ -2520,6 +2952,9 @@
     };
   }
 
+
+  
+  
   async function tradeXRBC(units){
     if (!state.account || !state.adapter){
       setStatus($buyStatus, 'Connect wallet first.', 'err');
@@ -2532,19 +2967,70 @@
         setStatus($buyStatus, 'No XRBC trust line. Use "Add XRBC Trust Line" first.', 'err');
         return;
       }
+        
+      
+      
+      
       const baseTx = await pathFindTradeXRBC(state.account, String(units));
+
+      const wantReceipt = Evidence.isAuto();
+      if (wantReceipt) {
+        Evidence.start('tx', { flow: 'Quick Trade XRBC', units: Number(units), userAction: 'Trade XRBC' });
+        Evidence.noteTxIntent(baseTx);
+        try { await call('server_state', {}); } catch {}
+        try { await call('account_info', { account: state.account }); } catch {}
+        try { await call('account_lines', { account: state.account, limit: 400 }); } catch {}
+        // Capture the current quote sources as context (best effort)
+        try {
+          await xrplRequest({
+            method: 'amm_info',
+            params: [ { asset:{currency:'XRP'}, asset2:{currency:XRBC_HEX, issuer:XRBC.issuer} } ]
+          }, { timeoutMs: 12000 });
+        } catch {}
+        try {
+          await xrplRequest({
+            method: 'book_offers',
+            params: [ {
+              taker_gets:{currency:'XRP'},
+              taker_pays:{currency:XRBC_HEX, issuer:XRBC.issuer},
+              limit: 1
+            } ]
+          }, { timeoutMs: 12000 });
+        } catch {}
+      }
+
       setChallenge(newChallenge6());
       const res = await state.adapter.signAndSubmit(attachMemos(baseTx));
+
+      if (wantReceipt) {
+        Evidence.noteWallet({ event: 'signed_submitted', via: 'xaman', result: res && res.result, hash: res && res.hash });
+        if (res && res.hash) Evidence.noteTxHash(res.hash);
+        await Evidence.verifyTx(res && res.hash);
+        // Post-state (best effort)
+        try { await call('account_lines', { account: state.account, limit: 400 }); } catch {}
+        await Evidence.finalizeDownload('trade');
+      }
+
       setStatus(
         $buyStatus,
         'Trade submitted. Hash: ' + (res && res.hash ? res.hash : '(pending)'),
         'ok'
       );
+
+
+
+
+      
     } catch(e){
       setStatus($buyStatus, (e && e.message) || 'Trade failed', 'err');
     }
   }
 
+
+  
+  
+  
+  
   /* Quick Trade quotes: XRBC -> XRP estimates */
   async function updateQuickTradeQuotes(){
     if (!XRBC_HEX || !XRBC.issuer) return;
@@ -2567,6 +3053,9 @@
     }
   }
 
+
+  
+  
   /* Wire UI */
   $('btnTrustXRBC')?.addEventListener('click', () => addXRBCTrustLine());
   $('buy1')?.addEventListener('click',   () => tradeXRBC(1));
@@ -2625,6 +3114,30 @@
     });
   }
 
+
+  
+  
+  // Evidence Pack buttons
+  $btnEvidenceSnapshot?.addEventListener('click', () => {
+    Evidence.snapshotNow().catch(e => {
+      if ($evidenceStatus) $evidenceStatus.textContent = 'Evidence: snapshot error';
+      log('[evidence] snapshot error: ' + (e && e.message || e));
+    });
+  });
+
+  $btnEvidenceAuto?.addEventListener('click', () => {
+    Evidence.setAuto(!Evidence.isAuto());
+  });
+
+  $btnEvidenceDownloadLast?.addEventListener('click', () => {
+    Evidence.downloadLast().catch(() => {});
+  });
+  
+  
+ 
+  
+  
+  
   /* Footer year */
   (function(){
     const y0 = FIRST_COMMIT_YEAR;
