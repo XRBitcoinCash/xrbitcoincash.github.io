@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Extended Token Auditor · XRPL · XRBitcoinCash</title>
+  <link rel="canonical" href="https://xrbitcoincash.com/extended-audit.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
+  <meta name="description" content="Extended XRPL token auditing: liquidity + activity + unique wallets + burst detection scoring. Read-only until you sign in Xaman." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="XRBitcoinCash" />
+  <meta property="og:title" content="Extended Token Auditor · XRPL" />
+  <meta property="og:description" content="Liquidity + activity + unique wallets + burst detection scoring for XRPL tokens in your wallet." />
+  <meta property="og:url" content="https://xrbitcoincash.com/extended-audit.html" />
+  <meta property="og:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Extended Token Auditor · XRPL" />
+  <meta name="twitter:description" content="Liquidity + activity + unique wallets + burst detection scoring for tokens in your wallet." />
+  <meta name="twitter:image" content="https://xrbitcoincash.com/xrbc-nft.png" />
+
+  <link rel="icon" href="/xrbc-nft.png" sizes="any" />
+  <link rel="apple-touch-icon" href="/xrbc-nft.png" />
+
+  <link rel="preconnect" href="https://xaman.app" crossorigin>
+  <link rel="preconnect" href="https://xrbitcoincash-github-io.onrender.com" crossorigin>
+
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src  'self' 'unsafe-inline' https://xumm.app https://xaman.app;
+    style-src   'self' 'unsafe-inline';
+    img-src     'self' data: https:;
+    connect-src 'self' https://xumm.app https://oauth2.xumm.app https://xaman.app https://xrbitcoincash-github-io.onrender.com wss://xumm.app wss://xaman.app;
+    frame-src   'self' https://xumm.app https://oauth2.xumm.app https://xaman.app;
+    base-uri    'self';
+    form-action 'self';
+  ">
+
+  <style>
+:root{
+  --wrap:1100px;--bg:#0b0f14;--panel:#0e1520;--panel2:#0c131c;--ink:#e7edf5;--muted:#9fb0c5;--line:#2b3a4b;
+  --ok:#22c55e;--err:#ef4444;--blue:#2563eb;--yellow:#f59e0b
+}
+*{box-sizing:border-box}html,body{height:100%;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0}
+.container{max-width:var(--wrap);margin:16px auto;padding:0 max(16px, env(safe-area-inset-left))}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-top:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row.center{justify-content:center}
+.row.between{justify-content:space-between}
+.col{display:flex;flex-direction:column;gap:10px;align-items:center}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#0e1520,#0c131c);color:var(--ink);padding:10px 14px;font-weight:800;cursor:pointer;min-height:44px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:normal;max-width:100%}
+.btn.small{font-weight:700;padding:6px 10px;min-height:32px;border-radius:10px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.glow-green{box-shadow:0 0 0 2px rgba(34,197,94,.25), 0 0 20px rgba(34,197,94,.18)}
+.glow-blue{box-shadow:0 0 0 2px rgba(37,99,235,.25), 0 0 20px rgba(37,99,235,.18)}
+.glow-red{box-shadow:0 0 0 2px rgba(239,68,68,.25), 0 0 20px rgba(239,68,68,.18)}
+.status{font-size:13px;color:var(--muted)} .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+.hint{color:var(--muted);font-size:12.5px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.log{max-height:220px;overflow:auto;border:1px solid #1a2433;border-radius:10px;padding:8px;background:#0b111a;font-size:12px;white-space:pre-wrap}
+.warn{border-left:4px solid #d97706;background:linear-gradient(180deg,#231b0c,#1a140a);border:1px solid #3a2f18;border-radius:10px;padding:10px;color:#f3e8d0}
+.pill{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:9999px}
+.H{background:rgba(34,197,94,.12);border-color:#165b34}
+.C{background:rgba(245,158,11,.12);border-color:#8a5a09}
+.R{background:rgba(239,68,68,.12);border-color:#7a2222}
+.hero-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.hero-top .left{justify-self:start}
+.hero-top .center{justify-self:center}
+.hero-top .right{justify-self:end;text-align:right}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid #1a2433;text-align:left;vertical-align:top}
+@media (max-width: 720px){
+  .hero-top{grid-template-columns:1fr auto 1fr}
+}
+  </style>
+
+  <!-- Xaman SDK -->
+  <script src="https://xaman.app/assets/cdn/xumm.min.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+<main class="container" aria-live="polite">
+
+  <section class="card" aria-labelledby="t">
+    <div class="hero-top">
+      <div class="left">
+        <img src="/xrbc-nft.png" alt="XRBC" width="32" height="32"
+             style="border-radius:6px;border:1px solid var(--line)" loading="lazy" decoding="async">
+      </div>
+      <div class="center">
+        <a class="btn glow-blue" href="/index.html" title="Go to Home">Home</a>
+      </div>
+      <div class="right">
+        <div class="hint">XRPL · Extended Audit</div>
+      </div>
+    </div>
+
+    <div class="col" style="margin-top:8px">
+      <h1 id="t" style="margin:0">Extended Token Auditor</h1>
+      <p class="hint" style="margin:0;max-width:900px;text-align:center">
+        Scores tokens using liquidity + activity + unique wallets + burst / concentration penalties.
+        Read-only until you sign in Xaman. Verify every prompt.
+      </p>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <button id="btnXumm" class="btn glow-green" type="button">Connect Xaman</button>
+      <button id="btnDisconnect" class="btn glow-red" type="button" disabled>Disconnect</button>
+      <span id="challengeBadge" class="pill" style="display:none" title="Human challenge code (also memoed)">••••••</span>
+    </div>
+    <p id="walletStatus" class="status">Status: Not connected</p>
+
+    <div class="warn" style="margin-top:10px">
+      <div class="mono" style="font-weight:900">Anti-phishing safety</div>
+      <div class="hint">This page never asks for secrets. Always confirm the domain and transaction details inside Xaman before signing.</div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="gate">
+    <h2 id="gate" style="margin:0 0 8px 0">Access Gate</h2>
+    <div class="hint">Extended audit unlocks when your connected wallet holds at least <span class="mono" id="minXrbcPill">1000</span> XRBC (anti-automation friction).</div>
+    <p id="gateStatus" class="status"></p>
+  </section>
+
+  <section class="card" aria-labelledby="select">
+    <h2 id="select" style="margin:0 0 8px 0">Select token to analyze</h2>
+
+    <div class="row between">
+      <div class="hint">
+        Token list is pulled from your wallet trustlines (positive balances).
+      </div>
+      <div class="row" style="gap:8px">
+        <label class="hint" style="display:flex;gap:8px;align-items:center">
+          Scan last
+          <input id="txLimit" type="number" min="50" max="2000" step="50" value="400" style="width:92px">
+          tx
+        </label>
+        <label class="hint" style="display:flex;gap:8px;align-items:center">
+          Burst window (min)
+          <input id="burstMin" type="number" min="1" max="60" step="1" value="10" style="width:72px">
+        </label>
+        <label class="hint" style="display:flex;gap:8px;align-items:center">
+          Burst threshold (tx)
+          <input id="burstN" type="number" min="3" max="50" step="1" value="6" style="width:72px">
+        </label>
+      </div>
+    </div>
+
+    <div class="row center" style="margin-top:10px">
+      <button id="btnLoadTokens" class="btn glow-blue" type="button" disabled>Load Wallet Tokens</button>
+      <button id="btnAnalyze" class="btn glow-green" type="button" disabled>Analyze Selected Token</button>
+    </div>
+
+    <div id="tokenTableWrap" class="hint" style="margin-top:10px">Connect wallet to load tokens.</div>
+    <p id="tokenStatus" class="status"></p>
+  </section>
+
+  <section class="card" aria-labelledby="out">
+    <h2 id="out" style="margin:0 0 8px 0">Audit result</h2>
+    <div id="resultBox" class="hint">No results yet.</div>
+    <pre id="log" class="log" aria-live="polite"></pre>
+  </section>
+
+</main>
+
+<!-- App configuration (keep immediately before main script) -->
+<script type="application/json" id="app-config">
+{
+  "proxyUrl": "https://xrbitcoincash-github-io.onrender.com",
+  "xummApiKey": "f3efcfc9-90d0-4c06-b632-b4680f24c207",
+  "xrbc": {
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000"
+  },
+  "boot": { "autoResume": true }
+}
+</script>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ===== CONFIG ===== */
+  const cfg = JSON.parse(document.getElementById('app-config').textContent || '{}');
+  const PROXY_BASE   = cfg.proxyUrl || '';
+  const XUMM_API_KEY = cfg.xummApiKey || '';
+  const XRBC         = cfg.xrbc || {};
+  const BOOT         = cfg.boot || {};
+  const XRP_TO_DROPS = 1_000_000;
+
+  /* ===== EXTENDED GATE (concept amount requested) ===== */
+  const EXT_MIN_XRBC = 1000;
+  document.getElementById('minXrbcPill').textContent = String(EXT_MIN_XRBC);
+
+  /* ===== STATE ===== */
+  const state = { account:null, adapter:null, xrbcBalance:0, tokens:[], gateOk:false };
+
+  /* ===== DOM ===== */
+  const $ = id => document.getElementById(id);
+  const $walletStatus = $('walletStatus');
+  const $gateStatus   = $('gateStatus');
+  const $btnXumm      = $('btnXumm');
+  const $btnDisconnect= $('btnDisconnect');
+  const $btnLoadTokens= $('btnLoadTokens');
+  const $btnAnalyze   = $('btnAnalyze');
+  const $tokenTableWrap = $('tokenTableWrap');
+  const $tokenStatus  = $('tokenStatus');
+  const $resultBox    = $('resultBox');
+  const $log          = $('log');
+  const $txLimit      = $('txLimit');
+  const $burstMin     = $('burstMin');
+  const $burstN       = $('burstN');
+  const $challengeBadge = $('challengeBadge');
+
+  /* ===== UTILS ===== */
+  function log(s){
+    if(!$log) return;
+    $log.textContent += s + '\n';
+    $log.scrollTop = $log.scrollHeight;
+  }
+  function setStatus(node,text,cls){
+    if(!node) return;
+    node.textContent = text || '';
+    node.classList.remove('ok','err');
+    if(cls) node.classList.add(cls);
+  }
+  const N=v=>Number.isFinite(Number(v))?Number(v):0;
+
+  function hexToAscii(hex){
+    try{
+      const clean = String(hex||'').replace(/[^0-9A-F]/gi,'').toUpperCase();
+      if(clean.length%2!==0 || clean.length<2) return null;
+      let out='';
+      for(let i=0;i<clean.length;i+=2){
+        const b=parseInt(clean.slice(i,i+2),16);
+        if(!b) break;
+        if(b<32 || b>126) return null;
+        out+=String.fromCharCode(b);
+      }
+      return out || null;
+    }catch{ return null; }
+  }
+  function tokenDisplay(code){
+    const c = String(code||'').toUpperCase();
+    const isHex = /^[0-9A-F]{10,}$/.test(c);
+    if(!isHex) return { ticker:c, hex:null, label:c };
+    const ascii = hexToAscii(c);
+    if(ascii) return { ticker:ascii, hex:c, label:`${ascii} (${c})` };
+    return { ticker:null, hex:c, label:c };
+  }
+  function asciiToHex(s){
+    let out='';
+    for(let i=0;i<s.length;i++) out += s.charCodeAt(i).toString(16).padStart(2,'0');
+    return out.toUpperCase();
+  }
+
+  /* ===== Human challenge (memoed into sign flows) ===== */
+  let __CHALLENGE = null;
+  function newChallenge6(){ return String(Math.floor(100000 + Math.random()*900000)); }
+  function setChallengeBadge(code){
+    if(!$challengeBadge) return;
+    if(!code){ $challengeBadge.style.display='none'; $challengeBadge.textContent=''; return; }
+    $challengeBadge.textContent = code;
+    $challengeBadge.style.display='inline-block';
+  }
+  function buildMemos(){
+    const app = 'XRBC Extended Auditor';
+    const ch  = __CHALLENGE || newChallenge6();
+    __CHALLENGE = ch;
+    return [
+      { Memo: { MemoType: asciiToHex('APP'),       MemoData: asciiToHex(app) } },
+      { Memo: { MemoType: asciiToHex('CHALLENGE'), MemoData: asciiToHex(ch)  } },
+      { Memo: { MemoType: asciiToHex('DOMAIN'),    MemoData: asciiToHex('xrbitcoincash.com') } }
+    ];
+  }
+  function attachMemos(tx){
+    try{
+      const m = buildMemos();
+      tx.Memos = Array.isArray(tx.Memos) ? tx.Memos.concat(m) : m;
+    }catch{}
+    return tx;
+  }
+  function announceChallenge(){
+    if(__CHALLENGE){
+      setChallengeBadge(__CHALLENGE);
+      setStatus($walletStatus, 'Verify code in wallet: ' + __CHALLENGE);
+      log('Verify code in wallet: ' + __CHALLENGE);
+    }
+  }
+
+  /* ===== XRPL PROXY ===== */
+  function proxyUrl(){ return PROXY_BASE; }
+
+  async function xrplRequest(payload,{timeoutMs=12000}={}){
+    if(!PROXY_BASE) throw new Error('Proxy URL missing');
+    const ctrl=new AbortController();
+    const t=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res=await fetch(proxyUrl(),{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload),
+        signal:ctrl.signal,
+        redirect:'error',
+        cache:'no-store',
+        credentials:'omit'
+      });
+      if(!res.ok) throw new Error('Proxy HTTP '+res.status);
+      const data=await res.json();
+      if(data && data.error) throw new Error('XRPL ' + (data.error?.message || 'error'));
+      return data;
+    } finally { clearTimeout(t); }
+  }
+  async function call(method,params){
+    const r = await xrplRequest({ method, params:[{...params, ledger_index:'validated'}] });
+    return r?.result;
+  }
+
+  /* ===== Wallet adapter (Xaman) ===== */
+  class XummAdapter{
+    constructor(){ this.name='Xaman'; this.xumm=null; }
+    async ensureSDK(){
+      if(typeof Xumm==='undefined') throw new Error('Xaman SDK not loaded');
+      if(!XUMM_API_KEY) throw new Error('Xaman API key missing');
+      if(!this.xumm) this.xumm = new Xumm(XUMM_API_KEY);
+    }
+    async resume(){
+      await this.ensureSDK();
+      const acct = await this.xumm.user.account;
+      return acct ? { address: acct } : null;
+    }
+    async connect(){
+      await this.ensureSDK();
+      await this.xumm.authorize();
+      const acct = await this.xumm.user.account;
+      if(!acct) throw new Error('No account returned');
+      return { address: acct };
+    }
+    async signAndSubmit(txjson){
+      const { resolved, websocket, unsubscribe } =
+        await this.xumm.payload.createAndSubscribe(
+          { txjson, options:{ submit:true, expire:300 } },
+          ev => {
+            if (ev?.opened) setStatus($walletStatus,'Open Xaman to review & sign…');
+            if (ev?.signed === false) setStatus($walletStatus,'Canceled in wallet.','err');
+          }
+        );
+      const res = await resolved;
+      try{ websocket?.close(); }catch{}
+      try{ typeof unsubscribe==='function' && unsubscribe(); }catch{}
+      if(!res?.signed) throw new Error('User rejected');
+      return { hash: res?.txid || res?.id || '(pending)', result:'submitted' };
+    }
+    async disconnect(){ try{ await this.xumm?.logout(); }catch{} }
+  }
+
+  function updateButtons(){
+    const connected = Boolean(state.account && state.adapter);
+    if($btnXumm){ $btnXumm.disabled = connected; $btnXumm.style.display = connected ? 'none' : ''; }
+    if($btnDisconnect){ $btnDisconnect.disabled = !connected; $btnDisconnect.style.display = connected ? '' : 'none'; }
+    $btnLoadTokens.disabled = !connected || !state.gateOk;
+    $btnAnalyze.disabled    = !connected || !state.gateOk || !state.tokens.length;
+  }
+
+  /* ===== XRBC helpers ===== */
+  const XRBC_HEX = String(XRBC.currencyHex||'').toUpperCase();
+  const XRBC_ASCII = hexToAscii(XRBC_HEX) || 'XRBC';
+
+  async function getXRBCBalance(acct){
+    const r = await call('account_lines', { account: acct, peer: XRBC.issuer, limit: 400 });
+    const lines = r?.lines || [];
+    const line = lines.find(l=>{
+      const c = String(l.currency||'').toUpperCase();
+      return (c === XRBC_ASCII.toUpperCase()) || (c === XRBC_HEX);
+    });
+    return Math.max(0, Number(line?.balance || 0));
+  }
+
+  async function refreshGate(){
+    if(!state.account){
+      state.gateOk = false;
+      state.xrbcBalance = 0;
+      setStatus($gateStatus,'Connect wallet to check unlock.');
+      updateButtons();
+      return;
+    }
+    setStatus($gateStatus,'Checking XRBC balance…');
+    try{
+      const bal = await getXRBCBalance(state.account);
+      state.xrbcBalance = bal;
+      if(bal >= EXT_MIN_XRBC){
+        state.gateOk = true;
+        setStatus($gateStatus, `Unlocked: ${bal.toFixed(6)} XRBC held (min ${EXT_MIN_XRBC}).`, 'ok');
+      }else{
+        state.gateOk = false;
+        const need = Math.max(0, EXT_MIN_XRBC - bal);
+        setStatus($gateStatus, `Locked: ${bal.toFixed(6)} XRBC held. Need ${need.toFixed(6)} more.`, '');
+      }
+    }catch(e){
+      state.gateOk = false;
+      setStatus($gateStatus, 'Gate check failed: ' + (e?.message || e), 'err');
+    }
+    updateButtons();
+  }
+
+  /* ===== Token list (wallet) ===== */
+  async function listUserTokens(acct){
+    const out = [];
+    const r = await call('account_lines', { account: acct, limit: 400 });
+    for(const l of (r?.lines || [])){
+      const bal = Number(l.balance || 0);
+      if(!(bal > 0)) continue;
+      out.push({
+        code: String(l.currency||'').toUpperCase(),
+        issuer: l.account || l.issuer || '',
+        balance: bal
+      });
+    }
+    return out;
+  }
+
+  function renderTokenTable(tokens){
+    if(!tokens.length){
+      $tokenTableWrap.textContent = 'No positive IOU balances found.';
+      return;
+    }
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const trh = document.createElement('tr');
+    ['Pick','Token','Issuer','Balance'].forEach(h=>{
+      const th=document.createElement('th'); th.textContent=h; trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    tokens.forEach((t,idx)=>{
+      const tr=document.createElement('tr');
+
+      const tdPick=document.createElement('td');
+      const rb=document.createElement('input');
+      rb.type='radio';
+      rb.name='tokpick';
+      rb.value=String(idx);
+      rb.checked = idx===0;
+      tdPick.appendChild(rb);
+      tr.appendChild(tdPick);
+
+      const tdTok=document.createElement('td');
+      tdTok.className='mono';
+      tdTok.textContent = tokenDisplay(t.code).label;
+      tr.appendChild(tdTok);
+
+      const tdIss=document.createElement('td');
+      tdIss.className='mono';
+      tdIss.style.wordBreak='anywhere';
+      tdIss.textContent = t.issuer;
+      tr.appendChild(tdIss);
+
+      const tdBal=document.createElement('td');
+      tdBal.textContent = t.balance.toFixed(6);
+      tr.appendChild(tdBal);
+
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+
+    $tokenTableWrap.replaceChildren(table);
+  }
+
+  function getSelectedToken(){
+    const rb = document.querySelector('input[name="tokpick"]:checked');
+    if(!rb) return null;
+    const idx = Number(rb.value);
+    return state.tokens[idx] || null;
+  }
+
+  /* ===== Liquidity metrics (AMM) ===== */
+  async function ammInfoXrpIou(currencyHex, issuer){
+    try{
+      const r = await xrplRequest({
+        method:'amm_info',
+        params:[{ asset:{currency:'XRP'}, asset2:{currency:currencyHex, issuer} }]
+      });
+      return r?.result?.amm || null;
+    }catch{ return null; }
+  }
+  function estSlippageXrpToIou(xrpIn, xrpRes, iouRes){
+    if (xrpIn <= 0 || xrpRes <= 0 || iouRes <= 0) return {dy:0, slip:0};
+    const dy = (iouRes * xrpIn) / (xrpRes + xrpIn);
+    const spot = iouRes / xrpRes;
+    const eff  = dy / xrpIn;
+    const slip = Math.max(0, (spot - eff) / spot);
+    return {dy, slip};
+  }
+  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+  function logNorm(x, max){
+    // 0..1 based on log scale
+    const a = Math.log(1 + Math.max(0, x));
+    const b = Math.log(1 + Math.max(1, max));
+    return clamp01(a / b);
+  }
+
+  function liquidityComponent({xrpRes, feePct, slip10, slip100}){
+    // Reserves up, fee down, slippage down = better
+    const r = logNorm(xrpRes, 5000);                 // reserves scale (0..1)
+    const f = 1 - clamp01(feePct / 1.0);            // 0%..1% mapped, >1% treated as worst
+    const s10 = 1 - clamp01(slip10 / 0.10);         // <=10% slip ok-ish
+    const s100= 1 - clamp01(slip100 / 0.25);        // <=25% slip ok-ish
+    return clamp01(0.40*r + 0.20*f + 0.20*s10 + 0.20*s100);
+  }
+
+  /* ===== Activity scan (account_tx) ===== */
+  async function accountTx(account, limit){
+    // returns array of tx objects, newest-first
+    const r = await call('account_tx', {
+      account,
+      limit: Math.max(10, Math.min(2000, Number(limit||400))),
+      forward: false
+    });
+    const txs = (r?.transactions || []).map(x => x?.tx).filter(Boolean);
+    return txs;
+  }
+
+  function iouMatches(obj, currencyHex, issuer){
+    if(!obj || typeof obj !== 'object') return false;
+    const cur = String(obj.currency || '').toUpperCase();
+    const iss = String(obj.issuer || '').trim();
+    return (cur === String(currencyHex||'').toUpperCase()) && (iss === String(issuer||'').trim());
+  }
+
+  function txTouchesToken(tx, currencyHex, issuer){
+    // heuristic: checks common fields where IOUs appear
+    try{
+      const a = tx.Amount;
+      const sm= tx.SendMax;
+      const tg= tx.TakerGets;
+      const tp= tx.TakerPays;
+
+      if(iouMatches(a,  currencyHex, issuer)) return true;
+      if(iouMatches(sm, currencyHex, issuer)) return true;
+      if(iouMatches(tg, currencyHex, issuer)) return true;
+      if(iouMatches(tp, currencyHex, issuer)) return true;
+
+      // TrustSet LimitAmount uses IOU too
+      if(iouMatches(tx.LimitAmount, currencyHex, issuer)) return true;
+
+      return false;
+    }catch{
+      return false;
+    }
+  }
+
+  function rippleDateToUnixSeconds(rippleEpochSeconds){
+    // Ripple epoch starts 2000-01-01T00:00:00Z
+    return Number(rippleEpochSeconds) + 946684800;
+  }
+
+  function burstAndConcentrationMetrics(txs, burstWindowMin, burstThreshold){
+    // txs assumed newest-first
+    const byAcct = new Map();
+    for(const tx of txs){
+      const acct = String(tx.Account || '').trim();
+      if(!acct) continue;
+      const t = Number(tx.date);
+      if(!Number.isFinite(t)) continue;
+      const unix = rippleDateToUnixSeconds(t);
+      const arr = byAcct.get(acct) || [];
+      arr.push(unix);
+      byAcct.set(acct, arr);
+    }
+
+    let total = 0;
+    let maxShare = 0;
+    let burstTxCount = 0;
+
+    const windowSec = Math.max(60, Number(burstWindowMin||10) * 60);
+    const thr = Math.max(3, Number(burstThreshold||6));
+
+    for(const [acct, times] of byAcct.entries()){
+      times.sort((a,b)=>a-b);
+      const c = times.length;
+      total += c;
+
+      // concentration share
+      // maxShare computed after total known; do second pass
+      // burst detection: max count within window
+      let i=0, best=1;
+      for(let j=0;j<times.length;j++){
+        while(times[j] - times[i] > windowSec) i++;
+        best = Math.max(best, j - i + 1);
+      }
+      if(best >= thr) burstTxCount += c;
+    }
+
+    // concentration penalty: top wallet share of tx
+    for(const [acct, times] of byAcct.entries()){
+      const share = total ? (times.length / total) : 0;
+      if(share > maxShare) maxShare = share;
+    }
+
+    const uniqueWallets = byAcct.size;
+    const burstShare = total ? (burstTxCount / total) : 0;
+
+    return {
+      totalTx: total,
+      uniqueWallets,
+      burstShare,    // 0..1
+      top1Share: maxShare // 0..1
+    };
+  }
+
+  function scoreToken({liqComp, activityTx, uniqueWallets, burstShare, top1Share, scanLimit}){
+    // Components (0..1)
+    const A = logNorm(activityTx, Math.max(50, scanLimit));       // activity scaled
+    const U = clamp01(uniqueWallets / Math.max(1, Math.min(activityTx, scanLimit))); // diversity ratio
+    const B = clamp01(burstShare / 0.50);                         // if >=50% of activity is bursty => max penalty
+    const C = clamp01((top1Share - 0.20) / 0.60);                 // top1Share <=20% => no penalty; >=80% => max
+
+    // Weights: liquidity + diversity are primary; activity supports; burst/concentration penalize
+    const raw =
+      (0.40 * liqComp) +
+      (0.25 * U) +
+      (0.15 * A) -
+      (0.12 * B) -
+      (0.08 * C);
+
+    const score = Math.round(100 * clamp01(raw));
+    let status='Caution', cls='C';
+    if(score >= 75){ status='Healthy'; cls='H'; }
+    else if(score <= 35){ status='Risk'; cls='R'; }
+
+    return { score, status, cls, parts:{liqComp,A,U,B,C} };
+  }
+
+  /* ===== MAIN ANALYZE ===== */
+  async function analyzeSelected(){
+    const tok = getSelectedToken();
+    if(!tok) return;
+
+    const scanLimit = Math.max(50, Math.min(2000, Number($txLimit.value||400)));
+    const burstMin  = Math.max(1,  Math.min(60,   Number($burstMin.value||10)));
+    const burstThr  = Math.max(3,  Math.min(50,   Number($burstN.value||6)));
+
+    const currencyHex = String(tok.code||'').toUpperCase();
+    const issuer = String(tok.issuer||'').trim();
+    const label = tokenDisplay(currencyHex).label;
+
+    setStatus($tokenStatus, 'Analyzing '+label+'…');
+    log('--- analyze '+label+' ---');
+
+    // 1) Liquidity (AMM XRP/IOU)
+    const amm = await ammInfoXrpIou(currencyHex, issuer);
+    let xrpRes=0, iouRes=0, feePct=0, slip10=1, slip100=1;
+    let ammAccount = null;
+
+    if(amm){
+      // reserve parse (XRP usually drops string; IOU usually .value)
+      if (typeof amm.amount === 'string') xrpRes = Number(amm.amount) / XRP_TO_DROPS;
+      else if (amm.amount && typeof amm.amount.value !== 'undefined') xrpRes = Number(amm.amount.value);
+
+      if (amm.amount2 && typeof amm.amount2.value !== 'undefined') iouRes = Number(amm.amount2.value);
+
+      const feeBps = (typeof amm.trading_fee === 'number') ? amm.trading_fee : 30;
+      feePct = feeBps / 100;
+
+      const s10 = estSlippageXrpToIou(10,  xrpRes, iouRes);
+      const s100= estSlippageXrpToIou(100, xrpRes, iouRes);
+      slip10 = s10.slip;
+      slip100= s100.slip;
+
+      // AMM account sometimes exists in amm_info payload
+      ammAccount = amm.account || amm.amm_account || null;
+    }
+
+    const liqComp = liquidityComponent({xrpRes, feePct, slip10, slip100});
+
+    // 2) Activity sampling source
+    // Prefer AMM account if present; otherwise use issuer (still yields useful activity signal)
+    const activityAccount = ammAccount || issuer;
+
+    // 3) Fetch recent txs and filter those that touch token
+    const rawTxs = await accountTx(activityAccount, scanLimit);
+    const tokenTxs = rawTxs.filter(tx => txTouchesToken(tx, currencyHex, issuer));
+
+    // 4) Burst + concentration + unique wallets
+    const m = burstAndConcentrationMetrics(tokenTxs, burstMin, burstThr);
+
+    // 5) Score
+    const s = scoreToken({
+      liqComp,
+      activityTx: m.totalTx,
+      uniqueWallets: m.uniqueWallets,
+      burstShare: m.burstShare,
+      top1Share: m.top1Share,
+      scanLimit
+    });
+
+    // 6) Render output (safe DOM only)
+    $resultBox.replaceChildren();
+
+    const h = document.createElement('div');
+    h.innerHTML = ''; // ensure clean
+    const title = document.createElement('div');
+    title.className='mono';
+    title.style.fontWeight='900';
+    title.textContent = `${label} · ${issuer.slice(0,6)}…${issuer.slice(-4)}`;
+
+    const pill = document.createElement('span');
+    pill.className = 'pill ' + s.cls;
+    pill.style.marginLeft = '8px';
+    pill.textContent = `${s.status} · Score ${s.score}/100`;
+
+    const top = document.createElement('div');
+    top.appendChild(title);
+    top.appendChild(pill);
+
+    const metrics = document.createElement('div');
+    metrics.className = 'hint';
+    metrics.style.marginTop = '8px';
+    metrics.textContent =
+      `Liquidity: XRP reserves ${xrpRes ? xrpRes.toFixed(2) : '—'} · fee ${amm ? feePct.toFixed(2)+'%' : '—'} · slippage 10/100 XRP ${amm ? (slip10*100).toFixed(2)+'% / '+(slip100*100).toFixed(2)+'%' : '—'} · activity source ${activityAccount.slice(0,6)}…${activityAccount.slice(-4)}`;
+
+    const act = document.createElement('div');
+    act.className = 'hint';
+    act.style.marginTop = '6px';
+    act.textContent =
+      `Activity sample: ${m.totalTx} token-touch tx (last ${scanLimit} on source). Unique wallets: ${m.uniqueWallets}. Burst share: ${(m.burstShare*100).toFixed(1)}%. Top wallet share: ${(m.top1Share*100).toFixed(1)}%.`;
+
+    const parts = document.createElement('div');
+    parts.className = 'hint';
+    parts.style.marginTop = '10px';
+    parts.textContent =
+      `Score breakdown: Liquidity ${(s.parts.liqComp*100).toFixed(0)} · Activity ${(s.parts.A*100).toFixed(0)} · Unique ${(s.parts.U*100).toFixed(0)} · Burst penalty ${(s.parts.B*100).toFixed(0)} · Concentration penalty ${(s.parts.C*100).toFixed(0)}.`;
+
+    $resultBox.appendChild(top);
+    $resultBox.appendChild(metrics);
+    $resultBox.appendChild(act);
+    $resultBox.appendChild(parts);
+
+    setStatus($tokenStatus, 'Done.', 'ok');
+    log(`score=${s.score} status=${s.status} liqComp=${s.parts.liqComp.toFixed(3)} A=${s.parts.A.toFixed(3)} U=${s.parts.U.toFixed(3)} B=${s.parts.B.toFixed(3)} C=${s.parts.C.toFixed(3)}`);
+  }
+
+  /* ===== UI actions ===== */
+  $btnLoadTokens.addEventListener('click', async ()=>{
+    if(!state.account) return;
+    if(!state.gateOk) return;
+
+    setStatus($tokenStatus, 'Loading wallet tokens…');
+    try{
+      const toks = await listUserTokens(state.account);
+      state.tokens = toks;
+      renderTokenTable(toks);
+      setStatus($tokenStatus, `Loaded ${toks.length} token(s).`, 'ok');
+    }catch(e){
+      state.tokens = [];
+      $tokenTableWrap.textContent = 'Failed to load tokens.';
+      setStatus($tokenStatus, 'Error: ' + (e?.message || e), 'err');
+    }
+    updateButtons();
+  });
+
+  $btnAnalyze.addEventListener('click', async ()=>{
+    if(!state.account || !state.gateOk) return;
+    if(!state.tokens.length) return;
+    try{
+      await analyzeSelected();
+    }catch(e){
+      setStatus($tokenStatus, 'Analyze error: ' + (e?.message || e), 'err');
+      log('Analyze error: ' + (e?.message || e));
+    }
+  });
+
+  $btnXumm.addEventListener('click', async ()=>{
+    try{
+      setStatus($walletStatus,'Connecting…');
+      const ad = new XummAdapter();
+      const r = await ad.connect();
+      state.account = r.address;
+      state.adapter = ad;
+
+      __CHALLENGE = newChallenge6();
+      announceChallenge();
+
+      setStatus($walletStatus, 'Xaman: ' + state.account, 'ok');
+      await refreshGate();
+
+      $tokenTableWrap.textContent = 'Click “Load Wallet Tokens”.';
+      setStatus($tokenStatus,'');
+      updateButtons();
+    }catch(e){
+      setStatus($walletStatus, (e?.message || 'Connect failed'), 'err');
+      state.account=null; state.adapter=null;
+      await refreshGate();
+    }
+    updateButtons();
+  });
+
+  $btnDisconnect.addEventListener('click', async ()=>{
+    try{ await state.adapter?.disconnect?.(); }catch{}
+    state.account=null;
+    state.adapter=null;
+    state.tokens=[];
+    state.gateOk=false;
+    state.xrbcBalance=0;
+
+    setChallengeBadge('');
+    $tokenTableWrap.textContent='Connect wallet to load tokens.';
+    $resultBox.textContent='No results yet.';
+    $log.textContent='';
+
+    setStatus($walletStatus,'Status: Not connected');
+    setStatus($tokenStatus,'');
+    await refreshGate();
+    updateButtons();
+  });
+
+  /* ===== Boot ===== */
+  (async function boot(){
+    updateButtons();
+    if(BOOT.autoResume !== false){
+      try{
+        const ad = new XummAdapter();
+        const resumed = await ad.resume();
+        if(resumed?.address){
+          state.account = resumed.address;
+          state.adapter = ad;
+
+          __CHALLENGE = newChallenge6();
+          announceChallenge();
+
+          setStatus($walletStatus, 'Xaman: ' + state.account, 'ok');
+          await refreshGate();
+
+          $tokenTableWrap.textContent = 'Click “Load Wallet Tokens”.';
+        }
+      }catch{}
+    }
+    updateButtons();
+  })();
+
+})();
+</script>
+</body>
+</html>
