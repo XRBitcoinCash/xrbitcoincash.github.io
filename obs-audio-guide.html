@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBS Separate Audio Tracks for Arma Reforger and Microphone</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: Arial, sans-serif; max-width: 850px; margin: 40px auto; padding: 0 20px 50px; line-height: 1.6; }
+  h1, h2 { line-height: 1.25; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+  th, td { border: 1px solid #888; padding: 10px; text-align: left; }
+  th { background: rgba(127,127,127,.18); }
+  .note { border-left: 4px solid #888; padding: 10px 12px; margin: 18px 0; background: rgba(127,127,127,.1); }
+</style>
+</head>
+<body>
+<h1>OBS Separate Audio Tracks: Arma Reforger and Microphone</h1>
+
+<h2>Recommended track layout</h2>
+<table>
+<tr><th>OBS Track</th><th>Audio</th></tr>
+<tr><td>Track 1</td><td>Arma Reforger + microphone</td></tr>
+<tr><td>Track 2</td><td>Arma Reforger only</td></tr>
+<tr><td>Track 3</td><td>Microphone only</td></tr>
+</table>
+
+<h2>OBS setup</h2>
+<ol>
+<li>Open <strong>Settings → Audio</strong> and disable general <strong>Desktop Audio</strong> to prevent duplicated audio.</li>
+<li>In the Sources panel, click <strong>+</strong> and add <strong>Application Audio Capture</strong>.</li>
+<li>Select the Arma Reforger application and name the source <strong>Arma Reforger Audio</strong>.</li>
+<li>Add the microphone separately using <strong>Audio Input Capture</strong>.</li>
+<li>Open <strong>Settings → Output</strong> and change Output Mode to <strong>Advanced</strong>.</li>
+<li>Under Recording, use <strong>MKV</strong> and enable Tracks 1, 2, and 3.</li>
+<li>Open <strong>Advanced Audio Properties</strong> from the Audio Mixer.</li>
+</ol>
+
+<h2>Track assignments</h2>
+<table>
+<tr><th>Audio Source</th><th>Track 1</th><th>Track 2</th><th>Track 3</th></tr>
+<tr><td>Arma Reforger Audio</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+<tr><td>Microphone</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+</table>
+
+<h2>Clipchamp limitation</h2>
+<p>Clipchamp will normally treat the OBS recording as one video with one accessible audio stream. It generally does not place the embedded OBS tracks on separate timeline lanes.</p>
+<p>Using <strong>Detach audio</strong> only separates the currently selected audio from the video. It does not divide the Arma Reforger audio and microphone audio into separate tracks.</p>
+
+<div class="note"><strong>Best practice:</strong> Keep Track 1 as the complete game-and-microphone mix so Clipchamp can play the recording normally. Tracks 2 and 3 can be used later in an editor that supports embedded multitrack audio.</div>
+
+<h2>Editing the tracks separately</h2>
+<p>To use the separate tracks in Clipchamp, first extract Track 2 and Track 3 into individual WAV, MP3, or AAC files, then import and align them with the video.</p>
+<p>A multitrack editor such as DaVinci Resolve is generally easier because it can directly recognize the separate OBS audio tracks.</p>
+
+<h2>Important Arma Reforger limitation</h2>
+<p>Arma Reforger voice chat and game sounds normally come from the same application audio source. Track 2 can separate the game from your microphone, but it cannot completely isolate player voices from gunshots, engines, and environmental sounds.</p>
+</body>
+</html>
