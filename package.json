@@ -1,15 +1,20 @@
 {
   "name": "xrbitcoincash",
-  "version": "1.0.0",
-  "description": "XRBitcoinCash proxy + frontend",
+  "version": "1.0.1",
+  "description": "XRBitcoinCash XRPL, chat, and support email backend",
   "main": "xrpl-proxy/server.js",
   "scripts": {
     "start": "node xrpl-proxy/server.js"
   },
+  "engines": {
+    "node": ">=18.18"
+  },
   "dependencies": {
-    "express": "^4.19.2",
-    "cors": "^2.8.5",
+    "axios": "^1.7.7",
     "body-parser": "^1.20.2",
-    "node-fetch": "^3.3.2"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^9.0.5"
   }
 }
