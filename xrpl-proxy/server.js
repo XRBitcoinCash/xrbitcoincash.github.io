@@ -1,9 +1,8 @@
-// xrpl-proxy/server.js — secure XRPL + Chat + Support Email proxy
+// xrpl-proxy/server.js — secure XRPL + Chat + Resend Support Email proxy
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -14,22 +13,30 @@ app.set("trust proxy", 1);
 const XRPL_RPC = "https://s1.ripple.com:51234";
 
 // ===== OpenAI config (set in Render env) =====
-const OPENAI_KEY = process.env.OPENAI_API_KEY || "";
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
-const OPENAI_BASE =
-  process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
-
-// ===== Support email config (set in Render env) =====
-const SUPPORT_EMAIL_USER = String(
-  process.env.SUPPORT_EMAIL_USER || ""
+const OPENAI_KEY = String(process.env.OPENAI_API_KEY || "").trim();
+const OPENAI_MODEL = String(
+  process.env.OPENAI_MODEL || "gpt-4o-mini"
 ).trim();
 
-const SUPPORT_EMAIL_APP_PASSWORD = String(
-  process.env.SUPPORT_EMAIL_APP_PASSWORD || ""
-).replace(/\s+/g, "");
+const OPENAI_BASE = String(
+  process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
+).replace(/\/+$/, "");
+
+// ===== Resend support email config (set in Render env) =====
+const RESEND_API_KEY = String(
+  process.env.RESEND_API_KEY || ""
+).trim();
+
+const RESEND_API_URL = "https://api.resend.com/emails";
 
 const SUPPORT_EMAIL_TO = String(
-  process.env.SUPPORT_EMAIL_TO || SUPPORT_EMAIL_USER
+  process.env.SUPPORT_EMAIL_TO ||
+    "xrbitcoincash@gmail.com"
+).trim();
+
+const SUPPORT_EMAIL_FROM = String(
+  process.env.SUPPORT_EMAIL_FROM ||
+    "XRBitcoinCash Support <support@xrbitcoincash.com>"
 ).trim();
 
 const SUPPORT_ALLOWED_ORIGINS = new Set(
@@ -58,15 +65,24 @@ const SUPPORT_ISSUE_TYPES = new Set([
   "General project question"
 ]);
 
-let supportTransporter = null;
+class SupportValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "SupportValidationError";
+  }
+}
 
 // ===== Middleware =====
 
-// Preserve the existing public CORS behavior for XRPL and chat routes.
-// The support route performs an additional strict origin check.
+// Existing public CORS behavior is preserved for XRPL and chat.
+// The support route also performs its own strict origin check.
 app.use(cors());
 
-app.use(express.json({ limit: "1mb" }));
+app.use(
+  express.json({
+    limit: "1mb"
+  })
+);
 
 app.use((req, _res, next) => {
   console.log(`[REQ] ${req.method} ${req.path}`);
@@ -76,25 +92,37 @@ app.use((req, _res, next) => {
 // ===== Shared helpers =====
 
 async function xrplRpc(body) {
-  const response = await axios.post(XRPL_RPC, body, {
-    headers: {
-      "Content-Type": "application/json"
-    },
-    timeout: 20000
-  });
+  const response = await axios.post(
+    XRPL_RPC,
+    body,
+    {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      timeout: 20000
+    }
+  );
 
   return response.data;
 }
 
 function cleanText(value, maxLength) {
-  return String(value == null ? "" : value)
+  return String(
+    value == null
+      ? ""
+      : value
+  )
     .replace(/\u0000/g, "")
     .trim()
     .slice(0, maxLength);
 }
 
 function escapeHtml(value) {
-  return String(value == null ? "" : value)
+  return String(
+    value == null
+      ? ""
+      : value
+  )
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -103,46 +131,30 @@ function escapeHtml(value) {
 }
 
 function isReplyEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(
+    value
+  );
 }
 
 function isXHandle(value) {
-  return /^@[A-Za-z0-9_]{1,15}$/.test(value);
+  return /^@[A-Za-z0-9_]{1,15}$/.test(
+    value
+  );
 }
 
 function supportEmailConfigured() {
   return Boolean(
-    SUPPORT_EMAIL_USER &&
-      SUPPORT_EMAIL_APP_PASSWORD &&
-      SUPPORT_EMAIL_TO
+    RESEND_API_KEY &&
+      SUPPORT_EMAIL_TO &&
+      SUPPORT_EMAIL_FROM
   );
 }
 
-function getSupportTransporter() {
-  if (!supportEmailConfigured()) {
-    return null;
-  }
-
-  if (!supportTransporter) {
-    supportTransporter = nodemailer.createTransport({
-      service: "gmail",
-      pool: true,
-      maxConnections: 1,
-      maxMessages: 50,
-      auth: {
-        user: SUPPORT_EMAIL_USER,
-        pass: SUPPORT_EMAIL_APP_PASSWORD
-      },
-      disableFileAccess: true,
-      disableUrlAccess: true
-    });
-  }
-
-  return supportTransporter;
-}
-
 function supportOriginAllowed(req) {
-  const origin = cleanText(req.get("origin"), 300);
+  const origin = cleanText(
+    req.get("origin"),
+    300
+  );
 
   return Boolean(
     origin &&
@@ -150,7 +162,11 @@ function supportOriginAllowed(req) {
   );
 }
 
-function supportRateLimit(req, res, next) {
+function supportRateLimit(
+  req,
+  res,
+  next
+) {
   const now = Date.now();
 
   const ip = cleanText(
@@ -160,41 +176,70 @@ function supportRateLimit(req, res, next) {
     120
   );
 
-  // Periodically remove expired entries.
-  if (supportRateBuckets.size > 5000) {
-    for (const [key, bucket] of supportRateBuckets.entries()) {
-      if (now >= bucket.resetAt) {
-        supportRateBuckets.delete(key);
+  if (
+    supportRateBuckets.size >
+    5000
+  ) {
+    for (
+      const [
+        key,
+        bucket
+      ] of supportRateBuckets.entries()
+    ) {
+      if (
+        now >=
+        bucket.resetAt
+      ) {
+        supportRateBuckets.delete(
+          key
+        );
       }
     }
   }
 
-  const bucket = supportRateBuckets.get(ip);
+  const bucket =
+    supportRateBuckets.get(ip);
 
-  if (!bucket || now >= bucket.resetAt) {
-    supportRateBuckets.set(ip, {
-      count: 1,
-      resetAt: now + SUPPORT_RATE_WINDOW_MS
-    });
+  if (
+    !bucket ||
+    now >= bucket.resetAt
+  ) {
+    supportRateBuckets.set(
+      ip,
+      {
+        count: 1,
+        resetAt:
+          now +
+          SUPPORT_RATE_WINDOW_MS
+      }
+    );
 
     return next();
   }
 
-  if (bucket.count >= SUPPORT_RATE_MAX) {
+  if (
+    bucket.count >=
+    SUPPORT_RATE_MAX
+  ) {
     res.set(
       "Retry-After",
       String(
         Math.ceil(
-          (bucket.resetAt - now) / 1000
+          (
+            bucket.resetAt -
+            now
+          ) / 1000
         )
       )
     );
 
-    return res.status(429).json({
-      ok: false,
-      message:
-        "Too many support requests. Please wait before trying again."
-    });
+    return res
+      .status(429)
+      .json({
+        ok: false,
+        message:
+          "Too many support requests. Please wait before trying again."
+      });
   }
 
   bucket.count += 1;
@@ -202,7 +247,9 @@ function supportRateLimit(req, res, next) {
   return next();
 }
 
-function validateSupportRequest(body) {
+function validateSupportRequest(
+  body
+) {
   const data = {
     issueType: cleanText(
       body?.issueType,
@@ -245,17 +292,26 @@ function validateSupportRequest(body) {
     ),
 
     securityAcknowledged:
-      body?.securityAcknowledged === true,
+      body?.securityAcknowledged ===
+      true,
 
     formStartedAt:
-      Number(body?.formStartedAt),
+      Number(
+        body?.formStartedAt
+      ),
 
     submittedAt:
-      Number(body?.submittedAt)
+      Number(
+        body?.submittedAt
+      )
   };
 
-  if (!SUPPORT_ISSUE_TYPES.has(data.issueType)) {
-    throw new Error(
+  if (
+    !SUPPORT_ISSUE_TYPES.has(
+      data.issueType
+    )
+  ) {
+    throw new SupportValidationError(
       "Choose a valid issue type."
     );
   }
@@ -263,23 +319,32 @@ function validateSupportRequest(body) {
   if (
     !data.replyContact ||
     (
-      !isReplyEmail(data.replyContact) &&
-      !isXHandle(data.replyContact)
+      !isReplyEmail(
+        data.replyContact
+      ) &&
+      !isXHandle(
+        data.replyContact
+      )
     )
   ) {
-    throw new Error(
+    throw new SupportValidationError(
       "Enter a valid reply email address or X handle."
     );
   }
 
-  if (data.problem.length < 20) {
-    throw new Error(
+  if (
+    data.problem.length <
+    20
+  ) {
+    throw new SupportValidationError(
       "Describe the problem using at least 20 characters."
     );
   }
 
-  if (!data.securityAcknowledged) {
-    throw new Error(
+  if (
+    !data.securityAcknowledged
+  ) {
+    throw new SupportValidationError(
       "The security acknowledgment is required."
     );
   }
@@ -287,13 +352,22 @@ function validateSupportRequest(body) {
   const now = Date.now();
 
   if (
-    !Number.isFinite(data.formStartedAt) ||
-    data.formStartedAt > now ||
-    now - data.formStartedAt < 2000 ||
-    now - data.formStartedAt >
-      24 * 60 * 60 * 1000
+    !Number.isFinite(
+      data.formStartedAt
+    ) ||
+    data.formStartedAt >
+      now ||
+    now -
+      data.formStartedAt <
+      2000 ||
+    now -
+      data.formStartedAt >
+      24 *
+        60 *
+        60 *
+        1000
   ) {
-    throw new Error(
+    throw new SupportValidationError(
       "The form session could not be verified. Reload the page and try again."
     );
   }
@@ -307,49 +381,373 @@ function makeSupportRequestId() {
     .slice(0, 10)
     .replace(/-/g, "");
 
-  const random = crypto
-    .randomBytes(4)
-    .toString("hex")
-    .toUpperCase();
+  const random =
+    crypto
+      .randomBytes(4)
+      .toString("hex")
+      .toUpperCase();
 
   return `XRBC-${date}-${random}`;
 }
 
+function buildSupportEmail(
+  data,
+  requestId,
+  userAgent
+) {
+  const subjectPage =
+    data.pageName
+      ? ` — ${data.pageName
+          .replace(
+            /[\r\n]+/g,
+            " "
+          )
+          .slice(0, 80)}`
+      : "";
+
+  const subject =
+    `[${requestId}] ` +
+    `XRBitcoinCash Support — ` +
+    `${data.issueType}` +
+    `${subjectPage}`;
+
+  const text = [
+    "XRBitcoinCash Support Request",
+    "==============================",
+    "",
+    `Reference: ${requestId}`,
+    `Issue type: ${data.issueType}`,
+    `Reply contact: ${data.replyContact}`,
+    `Page or xApp: ${
+      data.pageName ||
+      "Not supplied"
+    }`,
+    `Transaction hash or public XRPL address: ${
+      data.publicEvidence ||
+      "Not supplied"
+    }`,
+    `Source page: ${
+      data.pageUrl ||
+      "Not supplied"
+    }`,
+    `Form source: ${
+      data.source ||
+      "Not supplied"
+    }`,
+    "",
+    "Problem",
+    "-------",
+    data.problem,
+    "",
+    "Security acknowledgment: confirmed.",
+    `Browser user agent: ${userAgent}`
+  ].join("\n");
+
+  const html = `
+    <h2>
+      XRBitcoinCash Support Request
+    </h2>
+
+    <p>
+      <strong>
+        Reference:
+      </strong>
+      ${escapeHtml(
+        requestId
+      )}
+    </p>
+
+    <table
+      cellpadding="7"
+      cellspacing="0"
+      border="1"
+      style="border-collapse:collapse"
+    >
+      <tr>
+        <th align="left">
+          Issue type
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.issueType
+          )}
+        </td>
+      </tr>
+
+      <tr>
+        <th align="left">
+          Reply contact
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.replyContact
+          )}
+        </td>
+      </tr>
+
+      <tr>
+        <th align="left">
+          Page or xApp
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.pageName ||
+              "Not supplied"
+          )}
+        </td>
+      </tr>
+
+      <tr>
+        <th align="left">
+          Public evidence
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.publicEvidence ||
+              "Not supplied"
+          )}
+        </td>
+      </tr>
+
+      <tr>
+        <th align="left">
+          Source page
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.pageUrl ||
+              "Not supplied"
+          )}
+        </td>
+      </tr>
+
+      <tr>
+        <th align="left">
+          Form source
+        </th>
+
+        <td>
+          ${escapeHtml(
+            data.source ||
+              "Not supplied"
+          )}
+        </td>
+      </tr>
+    </table>
+
+    <h3>
+      Problem
+    </h3>
+
+    <p style="white-space:pre-wrap">
+      ${escapeHtml(
+        data.problem
+      )}
+    </p>
+
+    <p>
+      <strong>
+        Security acknowledgment:
+      </strong>
+      confirmed.
+    </p>
+  `;
+
+  return {
+    subject,
+    text,
+    html
+  };
+}
+
+async function sendSupportEmailWithResend({
+  data,
+  requestId,
+  subject,
+  text,
+  html
+}) {
+  const emailPayload = {
+    from:
+      SUPPORT_EMAIL_FROM,
+
+    to: [
+      SUPPORT_EMAIL_TO
+    ],
+
+    subject,
+
+    text,
+
+    html,
+
+    headers: {
+      "X-XRBC-Support-ID":
+        requestId
+    }
+  };
+
+  /*
+   * When the user supplies an
+   * email address, the Reply
+   * button will answer that address.
+   *
+   * X handles remain visible in
+   * the message body but are not
+   * placed into reply_to.
+   */
+  if (
+    isReplyEmail(
+      data.replyContact
+    )
+  ) {
+    emailPayload.reply_to =
+      data.replyContact;
+  }
+
+  const response =
+    await axios.post(
+      RESEND_API_URL,
+      emailPayload,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${RESEND_API_KEY}`,
+
+          "Content-Type":
+            "application/json",
+
+          "User-Agent":
+            "XRBitcoinCash-Support/1.0",
+
+          "Idempotency-Key":
+            requestId
+        },
+
+        timeout:
+          30000,
+
+        validateStatus:
+          () => true
+      }
+    );
+
+  if (
+    response.status <
+      200 ||
+    response.status >=
+      300
+  ) {
+    const resendMessage =
+      cleanText(
+        response.data
+          ?.message ||
+          response.data
+            ?.error ||
+          `Resend returned HTTP ${response.status}.`,
+        500
+      );
+
+    const error =
+      new Error(
+        resendMessage
+      );
+
+    error.code =
+      cleanText(
+        response.data
+          ?.name ||
+          response.data
+            ?.code ||
+          "RESEND_API_ERROR",
+        100
+      );
+
+    error.responseCode =
+      response.status;
+
+    throw error;
+  }
+
+  const resendEmailId =
+    cleanText(
+      response.data?.id,
+      200
+    );
+
+  if (!resendEmailId) {
+    const error =
+      new Error(
+        "Resend accepted the request but did not return an email ID."
+      );
+
+    error.code =
+      "INVALID_RESEND_RESPONSE";
+
+    throw error;
+  }
+
+  return resendEmailId;
+}
+
 // ===== Health =====
 
-app.get("/healthz", (_req, res) => {
-  res.json({
-    ok: true,
-    ts: Date.now(),
-    supportEmailConfigured:
-      supportEmailConfigured()
-  });
-});
+app.get(
+  "/healthz",
+  (_req, res) => {
+    res.json({
+      ok: true,
+
+      ts:
+        Date.now(),
+
+      supportEmailProvider:
+        "resend",
+
+      supportEmailConfigured:
+        supportEmailConfigured()
+    });
+  }
+);
 
 // ===== Generic XRPL passthrough =====
 
-app.post("/", async (req, res) => {
-  try {
-    const data = await xrplRpc(
-      req.body
-    );
+app.post(
+  "/",
+  async (req, res) => {
+    try {
+      const data =
+        await xrplRpc(
+          req.body
+        );
 
-    res.json(data);
-  } catch (err) {
-    console.error(
-      "generic proxy error:",
-      err?.response?.status,
-      err?.message
-    );
+      res.json(data);
+    } catch (err) {
+      console.error(
+        "generic proxy error:",
+        err?.response
+          ?.status,
+        err?.message
+      );
 
-    res.status(502).json({
-      error: "Proxy request failed",
-      detail:
-        err?.message ||
-        String(err)
-    });
+      res
+        .status(502)
+        .json({
+          error:
+            "Proxy request failed",
+
+          detail:
+            err?.message ||
+            String(err)
+        });
+    }
   }
-});
+);
 
 // ===== Ledger info =====
 
@@ -357,28 +755,37 @@ app.get(
   "/api/xrpl/ledger",
   async (_req, res) => {
     try {
-      const data = await xrplRpc({
-        method: "ledger",
-        params: [
-          {
-            ledger_index: "validated"
-          }
-        ]
-      });
+      const data =
+        await xrplRpc({
+          method:
+            "ledger",
+
+          params: [
+            {
+              ledger_index:
+                "validated"
+            }
+          ]
+        });
 
       res.json(data);
     } catch (err) {
       console.error(
         "ledger error",
-        err?.message || err
+        err?.message ||
+          err
       );
 
-      res.status(502).json({
-        error: "Ledger fetch failed",
-        detail:
-          err?.message ||
-          String(err)
-      });
+      res
+        .status(502)
+        .json({
+          error:
+            "Ledger fetch failed",
+
+          detail:
+            err?.message ||
+            String(err)
+        });
     }
   }
 );
@@ -392,53 +799,70 @@ app.get(
       const account =
         req.params.acct;
 
-      const data = await xrplRpc({
-        method: "account_info",
-        params: [
-          {
-            account,
-            ledger_index:
-              "validated"
-          }
-        ]
-      });
+      const data =
+        await xrplRpc({
+          method:
+            "account_info",
+
+          params: [
+            {
+              account,
+
+              ledger_index:
+                "validated"
+            }
+          ]
+        });
 
       res.json(data);
     } catch (err) {
       console.error(
         "account error",
-        err?.message || err
+        err?.message ||
+          err
       );
 
-      res.status(502).json({
-        error:
-          "Account fetch failed",
-        detail:
-          err?.message ||
-          String(err)
-      });
+      res
+        .status(502)
+        .json({
+          error:
+            "Account fetch failed",
+
+          detail:
+            err?.message ||
+            String(err)
+        });
     }
   }
 );
 
-// ===== XRBitcoinCash support email =====
+// ===== XRBitcoinCash support email through Resend HTTPS =====
 
 app.post(
   "/api/support/email",
   supportRateLimit,
   async (req, res) => {
     res.set({
-      "Cache-Control": "no-store",
+      "Cache-Control":
+        "no-store",
+
       "X-Content-Type-Options":
         "nosniff"
     });
 
-    if (!supportOriginAllowed(req)) {
-      return res.status(403).json({
-        ok: false,
-        message:
-          "This support endpoint only accepts requests from the official XRBitcoinCash website."
-      });
+    if (
+      !supportOriginAllowed(
+        req
+      )
+    ) {
+      return res
+        .status(403)
+        .json({
+          ok: false,
+
+          message:
+            "This support endpoint only accepts requests from the official XRBitcoinCash website."
+        });
     }
 
     const requestId =
@@ -452,233 +876,112 @@ app.post(
 
       /*
        * Hidden spam honeypot.
-       * Bots that fill this field receive
-       * a neutral success response, but no
-       * email is sent.
+       * Bots filling this field
+       * receive a neutral success
+       * response, but no email is sent.
        */
       if (data.website) {
-        return res.status(202).json({
-          ok: true,
-          requestId
-        });
+        return res
+          .status(202)
+          .json({
+            ok: true,
+            requestId
+          });
       }
 
-      const transporter =
-        getSupportTransporter();
+      if (
+        !supportEmailConfigured()
+      ) {
+        return res
+          .status(503)
+          .json({
+            ok: false,
 
-      if (!transporter) {
-        return res.status(503).json({
-          ok: false,
-          message:
-            "The support email service is not configured yet."
-        });
+            message:
+              "The support email service is not configured yet."
+          });
       }
-
-      const subjectPage =
-        data.pageName
-          ? ` — ${data.pageName
-              .replace(
-                /[\r\n]+/g,
-                " "
-              )
-              .slice(0, 80)}`
-          : "";
-
-      const subject =
-        `[${requestId}] ` +
-        `XRBitcoinCash Support — ` +
-        `${data.issueType}` +
-        `${subjectPage}`;
 
       const userAgent =
         cleanText(
-          req.get("user-agent"),
+          req.get(
+            "user-agent"
+          ),
           350
-        ) || "Not supplied";
+        ) ||
+        "Not supplied";
 
-      const textBody = [
-        "XRBitcoinCash Support Request",
-        "==============================",
-        "",
-        `Reference: ${requestId}`,
-        `Issue type: ${data.issueType}`,
-        `Reply contact: ${data.replyContact}`,
-        `Page or xApp: ${
-          data.pageName ||
-          "Not supplied"
-        }`,
-        `Transaction hash or public XRPL address: ${
-          data.publicEvidence ||
-          "Not supplied"
-        }`,
-        `Source page: ${
-          data.pageUrl ||
-          "Not supplied"
-        }`,
-        `Form source: ${
-          data.source ||
-          "Not supplied"
-        }`,
-        "",
-        "Problem",
-        "-------",
-        data.problem,
-        "",
-        "Security acknowledgment: confirmed.",
-        `Browser user agent: ${userAgent}`
-      ].join("\n");
-
-      const htmlBody = `
-        <h2>XRBitcoinCash Support Request</h2>
-
-        <p>
-          <strong>Reference:</strong>
-          ${escapeHtml(requestId)}
-        </p>
-
-        <table
-          cellpadding="7"
-          cellspacing="0"
-          border="1"
-          style="border-collapse:collapse"
-        >
-          <tr>
-            <th align="left">
-              Issue type
-            </th>
-            <td>
-              ${escapeHtml(
-                data.issueType
-              )}
-            </td>
-          </tr>
-
-          <tr>
-            <th align="left">
-              Reply contact
-            </th>
-            <td>
-              ${escapeHtml(
-                data.replyContact
-              )}
-            </td>
-          </tr>
-
-          <tr>
-            <th align="left">
-              Page or xApp
-            </th>
-            <td>
-              ${escapeHtml(
-                data.pageName ||
-                  "Not supplied"
-              )}
-            </td>
-          </tr>
-
-          <tr>
-            <th align="left">
-              Public evidence
-            </th>
-            <td>
-              ${escapeHtml(
-                data.publicEvidence ||
-                  "Not supplied"
-              )}
-            </td>
-          </tr>
-
-          <tr>
-            <th align="left">
-              Source page
-            </th>
-            <td>
-              ${escapeHtml(
-                data.pageUrl ||
-                  "Not supplied"
-              )}
-            </td>
-          </tr>
-
-          <tr>
-            <th align="left">
-              Form source
-            </th>
-            <td>
-              ${escapeHtml(
-                data.source ||
-                  "Not supplied"
-              )}
-            </td>
-          </tr>
-        </table>
-
-        <h3>Problem</h3>
-
-        <p style="white-space:pre-wrap">
-          ${escapeHtml(data.problem)}
-        </p>
-
-        <p>
-          <strong>
-            Security acknowledgment:
-          </strong>
-          confirmed.
-        </p>
-      `;
-
-      await transporter.sendMail({
-        from:
-          `"XRBitcoinCash Website Support" ` +
-          `<${SUPPORT_EMAIL_USER}>`,
-
-        to: SUPPORT_EMAIL_TO,
-
-        replyTo:
-          isReplyEmail(
-            data.replyContact
-          )
-            ? data.replyContact
-            : undefined,
-
+      const {
         subject,
-
-        text: textBody,
-
-        html: htmlBody,
-
-        headers: {
-          "X-XRBC-Support-ID":
-            requestId
-        }
-      });
-
-      return res.status(200).json({
-        ok: true,
-        requestId
-      });
-    } catch (err) {
-      const message = cleanText(
-        err?.message ||
-          "Unknown error",
-        500
-      );
-
-      const isValidationError =
-        /choose|enter|describe|required|verified|security acknowledgment/i.test(
-          message
+        text,
+        html
+      } =
+        buildSupportEmail(
+          data,
+          requestId,
+          userAgent
         );
 
-      if (!isValidationError) {
+      const resendEmailId =
+        await sendSupportEmailWithResend({
+          data,
+          requestId,
+          subject,
+          text,
+          html
+        });
+
+      console.log(
+        "[support email sent]",
+        {
+          requestId,
+          provider:
+            "resend",
+          resendEmailId
+        }
+      );
+
+      return res
+        .status(200)
+        .json({
+          ok: true,
+          requestId,
+          provider:
+            "resend"
+        });
+    } catch (err) {
+      const isValidationError =
+        err instanceof
+          SupportValidationError;
+
+      const message =
+        cleanText(
+          err?.message ||
+            "Unknown error",
+          500
+        );
+
+      if (
+        !isValidationError
+      ) {
         console.error(
           "[support email error]",
           {
             requestId,
+
+            provider:
+              "resend",
+
             code:
-              err?.code || "",
+              err?.code ||
+              "",
+
             responseCode:
               err?.responseCode ||
+              err?.response
+                ?.status ||
               "",
+
             message
           }
         );
@@ -688,10 +991,11 @@ app.post(
         .status(
           isValidationError
             ? 400
-            : 500
+            : 502
         )
         .json({
           ok: false,
+
           message:
             isValidationError
               ? message
@@ -707,12 +1011,17 @@ app.post(
   "/chat",
   async (req, res) => {
     try {
-      const { messages } =
+      const {
+        messages
+      } =
         req.body || {};
 
       if (
-        !Array.isArray(messages) ||
-        messages.length === 0
+        !Array.isArray(
+          messages
+        ) ||
+        messages.length ===
+          0
       ) {
         return res
           .status(400)
@@ -731,15 +1040,21 @@ app.post(
           });
       }
 
-      // Limit to last 10 messages for safety.
       const trimmed =
         messages.slice(-10);
 
       const payload = {
-        model: OPENAI_MODEL,
-        messages: trimmed,
-        temperature: 0.6,
-        max_tokens: 600
+        model:
+          OPENAI_MODEL,
+
+        messages:
+          trimmed,
+
+        temperature:
+          0.6,
+
+        max_tokens:
+          600
       };
 
       const response =
@@ -750,40 +1065,54 @@ app.post(
             headers: {
               Authorization:
                 `Bearer ${OPENAI_KEY}`,
+
               "Content-Type":
                 "application/json"
             },
-            timeout: 30000,
+
+            timeout:
+              30000,
+
             validateStatus:
               () => true
           }
         );
 
-      if (response.status === 401) {
+      if (
+        response.status ===
+        401
+      ) {
         return res
           .status(502)
           .json({
             error:
               "OpenAI auth failed (401)",
-            detail:
-              response.data
-          });
-      }
 
-      if (response.status === 429) {
-        return res
-          .status(502)
-          .json({
-            error:
-              "OpenAI rate limit / insufficient quota (429)",
             detail:
               response.data
           });
       }
 
       if (
-        response.status < 200 ||
-        response.status >= 300
+        response.status ===
+        429
+      ) {
+        return res
+          .status(502)
+          .json({
+            error:
+              "OpenAI rate limit / insufficient quota (429)",
+
+            detail:
+              response.data
+          });
+      }
+
+      if (
+        response.status <
+          200 ||
+        response.status >=
+          300
       ) {
         console.error(
           "[OpenAI error]",
@@ -796,8 +1125,10 @@ app.post(
           .json({
             error:
               "Upstream OpenAI error",
+
             status:
               response.status,
+
             detail:
               response.data
           });
@@ -816,45 +1147,51 @@ app.post(
           });
       }
 
-      res.json(response.data);
+      res.json(
+        response.data
+      );
     } catch (err) {
       console.error(
         "[chat proxy error]",
-        err?.message || err
+        err?.message ||
+          err
       );
 
-      res.status(502).json({
-        error:
-          "Chat proxy request failed",
-        detail:
-          err?.message ||
-          String(err)
-      });
+      res
+        .status(502)
+        .json({
+          error:
+            "Chat proxy request failed",
+
+          detail:
+            err?.message ||
+            String(err)
+        });
     }
   }
 );
 
 // ===== Environment check =====
-// This route never returns password or API-key values.
+// This route never returns passwords or API-key values.
 
 app.get(
   "/env-check",
   (_req, res) => {
     res.json({
       hasOpenAIKey:
-        Boolean(OPENAI_KEY),
+        Boolean(
+          OPENAI_KEY
+        ),
 
       model:
         OPENAI_MODEL,
 
-      hasSupportEmailUser:
-        Boolean(
-          SUPPORT_EMAIL_USER
-        ),
+      supportEmailProvider:
+        "resend",
 
-      hasSupportEmailAppPassword:
+      hasResendApiKey:
         Boolean(
-          SUPPORT_EMAIL_APP_PASSWORD
+          RESEND_API_KEY
         ),
 
       hasSupportEmailDestination:
@@ -862,8 +1199,16 @@ app.get(
           SUPPORT_EMAIL_TO
         ),
 
+      hasSupportEmailSender:
+        Boolean(
+          SUPPORT_EMAIL_FROM
+        ),
+
       supportEmailConfigured:
         supportEmailConfigured(),
+
+      supportEmailFrom:
+        SUPPORT_EMAIL_FROM,
 
       supportAllowedOrigins:
         Array.from(
@@ -876,54 +1221,77 @@ app.get(
 // ===== 404 fallback =====
 
 app.use((req, res) => {
-  res.status(404).json({
-    error: "Not found",
-    path: req.path,
-    method: req.method
-  });
+  res
+    .status(404)
+    .json({
+      error:
+        "Not found",
+
+      path:
+        req.path,
+
+      method:
+        req.method
+    });
 });
 
 // ===== Boot log =====
 
 function printRoutes() {
   const routes = [];
-  const stack =
-    app._router?.stack || [];
 
-  stack.forEach((middleware) => {
-    if (middleware.route) {
-      routes.push(
-        `${Object.keys(
-          middleware.route.methods
-        )
-          .join(",")
-          .toUpperCase()} ${
-          middleware.route.path
-        }`
-      );
-    } else if (
-      middleware.name ===
-        "router" &&
-      middleware.handle?.stack
-    ) {
-      middleware.handle.stack.forEach(
-        (routeLayer) => {
-          if (routeLayer.route) {
-            routes.push(
-              `${Object.keys(
-                routeLayer.route
-                  .methods
-              )
-                .join(",")
-                .toUpperCase()} ${
-                routeLayer.route.path
-              }`
-            );
+  const stack =
+    app._router?.stack ||
+    [];
+
+  stack.forEach(
+    (middleware) => {
+      if (
+        middleware.route
+      ) {
+        routes.push(
+          `${Object.keys(
+            middleware.route
+              .methods
+          )
+            .join(",")
+            .toUpperCase()} ${
+            middleware.route
+              .path
+          }`
+        );
+      } else if (
+        middleware.name ===
+          "router" &&
+        middleware.handle
+          ?.stack
+      ) {
+        middleware.handle.stack.forEach(
+          (
+            routeLayer
+          ) => {
+            if (
+              routeLayer.route
+            ) {
+              routes.push(
+                `${Object.keys(
+                  routeLayer
+                    .route
+                    .methods
+                )
+                  .join(",")
+                  .toUpperCase()} ${
+                  routeLayer
+                    .route
+                    .path
+                }`
+              );
+            }
           }
-        }
-      );
+        );
+      }
     }
-  });
+  );
 
   console.log(
     "[ROUTES]",
@@ -933,17 +1301,23 @@ function printRoutes() {
 
 // ===== Start =====
 
-app.listen(PORT, () => {
-  console.log(
-    `✅ XRBC Secure XRPL/Chat/Support proxy running on port ${PORT}`
-  );
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `✅ XRBC Secure XRPL/Chat/Support proxy running on port ${PORT}`
+    );
 
-  console.log(
-    `[SUPPORT EMAIL] configured=${supportEmailConfigured()} recipient=${
-      SUPPORT_EMAIL_TO ||
-      "not configured"
-    }`
-  );
+    console.log(
+      `[SUPPORT EMAIL] provider=resend configured=${supportEmailConfigured()} sender=${
+        SUPPORT_EMAIL_FROM ||
+        "not configured"
+      } recipient=${
+        SUPPORT_EMAIL_TO ||
+        "not configured"
+      }`
+    );
 
-  printRoutes();
-});
+    printRoutes();
+  }
+);
