@@ -1,7 +1,21 @@
-Contact: mailto:security@xrbitcoincash.com
-Preferred-Languages: en
-Encryption: https://xrbitcoincash.com/pgp-key.txt
-Policy: https://xrbitcoincash.com/security-policy.html
-Canonical: https://xrbitcoincash.com/.well-known/security.txt
-Expires: 2026-08-22T00:00:00Z
+# XRBitcoinCash coordinated vulnerability disclosure contact
+#
+# Scope: all official XRBitcoinCash-operated websites, XRPL/Xaman xApps,
+# APIs and proxies, XRBC and connected-token tools, auditors, risk and
+# bridge-monitoring interfaces, tokenization and NFT tools, support systems,
+# public metadata, and other services published under xrbitcoincash.com.
+#
+# Reports involving third-party platforms should also be sent to the
+# applicable provider when the issue is outside XRBitcoinCash-controlled code.
+# Never include an XRPL family seed, private key, recovery phrase, Xaman
+# passcode, API secret, password, or other secret credential in a report.
 
+Contact: mailto:security@xrbitcoincash.com
+Contact: https://xrbitcoincash.com/support.html#support-form
+Contact: mailto:xrbitcoincash@gmail.com?subject=XRBitcoinCash%20Security%20Report
+
+Expires: 2027-08-01T00:00:00Z
+Encryption: https://xrbitcoincash.com/pgp-key.txt
+Preferred-Languages: en
+Canonical: https://xrbitcoincash.com/.well-known/security.txt
+Policy: https://xrbitcoincash.com/security-policy.html
