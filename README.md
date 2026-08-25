@@ -32,15 +32,16 @@ Always verify the complete issuer, currency value, network, destination, amounts
 
 ## Working ecosystem
 
-- **XRBC trading portal** — XRBC/XRP market information, trust-line preparation, order handling, and Xaman review.
-- **Liquidity Sentinel** — public pool conditions, estimated slippage, wallet-specific liquidity review, and open-order management.
-- **Advanced Auditor** — accounts, issued assets, trust lines, and validated ledger evidence.
-- **Token Risk Lens** — liquidity, exit capacity, concentration, order-book quality, issuer authority, and data confidence.
-- **Value Path** — comparison of AMMs, order books, paths, bridges, and price movement.
-- **Watchtower** — monitoring of liquidity, issuer controls, trust-line conditions, and material changes.
-- **Bridge Integrity Monitor** — bridge-related public evidence and integrity signals.
-- **Institutional Readiness** — evidence, controls, disclosures, and operational-posture review.
-- **Asset Tokenization Auditor** — free and advanced workflows for local hashing, evidence preparation, metadata, and reviewed XLS-20 actions.
+- **[XRBC trading portal](https://xrbitcoincash.com/)** — XRBC/XRP market information, trust-line preparation, order handling, and Xaman review.
+- **[Liquidity Sentinel](https://xrbitcoincash.com/xrbc-ecosystem.html)** — public pool conditions, estimated slippage, wallet-specific liquidity review, and open-order management.
+- **[Advanced Auditor](https://xrbitcoincash.com/extended-audit.html)** — accounts, issued assets, trust lines, and validated ledger evidence.
+- **[Token Risk Lens](https://xrbitcoincash.com/risk-lens.html)** — liquidity, exit capacity, concentration, order-book quality, issuer authority, and data confidence.
+- **[Value Path](https://xrbitcoincash.com/value-path.html)** — comparison of AMMs, order books, paths, bridges, and price movement.
+- **[Watchtower](https://xrbitcoincash.com/watchtower.html)** — monitoring of liquidity, issuer controls, trust-line conditions, and material changes.
+- **[Bridge Integrity Monitor](https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html)** — bridge-related public evidence and integrity signals.
+- **[Institutional Readiness](https://xrbitcoincash.com/xrbc-readiness.html)** — evidence, controls, disclosures, and operational-posture review.
+- **[Asset Tokenization Auditor](https://xrbitcoincash.com/asset-tokenization-auditor.html)** — free local hashing and evidence-preparation workflows.
+- **[Advanced Asset Tokenization](https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html)** — gated metadata, evidence-pack, readiness, and reviewed XLS-20 workflows.
 
 Start at the [main portal](https://xrbitcoincash.com/) or open the [ecosystem workspace](https://xrbitcoincash.com/xrbc-ecosystem.html).
 
