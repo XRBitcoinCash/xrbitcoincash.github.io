@@ -1,173 +1,101 @@
-Here’s a clean, drop-in **README.md** update that keeps your vibe while centering the new security/stress-test focus and the future-pairs caveat.
+# XRBitcoinCash (XRBC)
+
+**Non-custodial XRP Ledger tools for trading, liquidity, risk, auditing, routing, bridge monitoring, and tokenization evidence.**
+
+[Live Portal](https://xrbitcoincash.com/) · [Ecosystem Tools](https://xrbitcoincash.com/xrbc-ecosystem.html) · [Technical White Paper](https://xrbitcoincash.com/whitepaper.html) · [Support](https://xrbitcoincash.com/support.html) · [X](https://x.com/XRbitcoincash)
+
+## What XRBitcoinCash is
+
+XRBitcoinCash began as an issued currency on XRP Ledger Mainnet on January 5, 2022. It has developed into a connected, evidence-oriented XRPL tool ecosystem built around one principle:
+
+> **Understand the ledger before you act.**
+
+The public interfaces help users inspect liquidity, issuer controls, trust lines, order books, automated market makers, transaction paths, concentration, bridge conditions, tokenization evidence, and validated XRP Ledger activity.
+
+Wallet actions are reviewed and authorized independently in Xaman. Private keys never enter the XRBitcoinCash website, and the project does not take custody of user assets.
+
+## XRBC identity
+
+| Field | Value |
+| --- | --- |
+| Network | XRP Ledger Mainnet |
+| Symbol | `XRBC` |
+| Issuer | `rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw` |
+| Currency HEX | `5852626974636F696E6361736800000000000000` |
+| Launch date | January 5, 2022 |
+| Design supply | 21,000,000 XRBC |
+| Primary domain | `xrbitcoincash.com` |
+| Signing model | Xaman wallet-side authorization |
+| Custody | User controlled |
+
+Always verify the complete issuer, currency value, network, destination, amounts, flags, and memos inside the signing wallet. A ticker, logo, directory listing, or social profile is not sufficient proof of asset identity.
+
+## Working ecosystem
+
+- **XRBC trading portal** — XRBC/XRP market information, trust-line preparation, order handling, and Xaman review.
+- **Liquidity Sentinel** — public pool conditions, estimated slippage, wallet-specific liquidity review, and open-order management.
+- **Advanced Auditor** — accounts, issued assets, trust lines, and validated ledger evidence.
+- **Token Risk Lens** — liquidity, exit capacity, concentration, order-book quality, issuer authority, and data confidence.
+- **Value Path** — comparison of AMMs, order books, paths, bridges, and price movement.
+- **Watchtower** — monitoring of liquidity, issuer controls, trust-line conditions, and material changes.
+- **Bridge Integrity Monitor** — bridge-related public evidence and integrity signals.
+- **Institutional Readiness** — evidence, controls, disclosures, and operational-posture review.
+- **Asset Tokenization Auditor** — free and advanced workflows for local hashing, evidence preparation, metadata, and reviewed XLS-20 actions.
+
+Start at the [main portal](https://xrbitcoincash.com/) or open the [ecosystem workspace](https://xrbitcoincash.com/xrbc-ecosystem.html).
+
+## Security model
+
+- No seed phrase or private-key entry.
+- Wallet actions require independent review in Xaman.
+- XRPL Mainnet, issuer, and currency identity are displayed for verification.
+- Public ledger reads are separated from transaction preparation.
+- Transaction requests use bounded amounts, limits, flags, and verification information where applicable.
+- The user can reject every transaction.
+- XRPL transactions are irreversible once validated.
+
+Responsible-disclosure information is published at [`/.well-known/security.txt`](https://xrbitcoincash.com/.well-known/security.txt).
+
+## Evidence before action
+
+The ecosystem distinguishes public-ledger facts from interpretation. A validated XRPL transaction can establish that specified data was recorded by a particular account at a ledger time. It does not automatically prove that every linked statement is true.
+
+Tokenization and NFT records do not independently establish authenticity, ownership, legal title, custody, appraisal, regulatory approval, intellectual-property rights, or court admissibility. Those conclusions may require original records, registries, contracts, witnesses, custody evidence, expert testimony, and jurisdiction-specific legal review.
+
+## Repository role
+
+This repository contains the public GitHub Pages implementation and earlier XRBitcoinCash web tooling. The canonical live platform and current user-facing documentation are published at [xrbitcoincash.com](https://xrbitcoincash.com/).
+
+The broader public project source is also available through the [XRBitcoinCash GitLab project](https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project).
+
+Important discovery files include:
+
+- `sitemap.xml` and `robots.txt`
+- `.well-known/xrp-ledger.toml`
+- `.well-known/security.txt`
+- `ai/` provenance and machine-readable discovery resources
+- Public HTML, CSS, JavaScript, metadata, and policy pages
+
+## Contributing and review
+
+Technical, security, usability, accessibility, documentation, and XRPL-specific review is welcome.
+
+When reporting a problem:
+
+1. Identify the exact page or workflow.
+2. Describe the expected and observed behavior.
+3. Include a public transaction hash or public XRPL address only when relevant.
+4. Never submit a seed phrase, family seed, secret number, private key, recovery phrase, password, or signing credential.
+5. Use the official [support page](https://xrbitcoincash.com/support.html).
+
+## Risk and legal notice
+
+XRBC is not marketed as an investment and does not represent equity, debt, guaranteed value, yield, dividends, governance rights, or ownership in an entity. The project does not guarantee price, profit, liquidity, routing, execution, loss protection, legal recognition, or regulatory treatment.
+
+This repository and the linked interfaces are technical and informational. They are not legal, tax, investment, brokerage, custody, or financial advice. Users are responsible for verifying every transaction and complying with applicable laws.
 
 ---
 
-# XRBitcoinCash (XRBC) — Code, Faith & Ledger
-
-> *"Le registre ne dort jamais.
-> Entre les blocs, une promesse chuchotée."*
-> (*The ledger never sleeps.
-> Between the blocks, a whispered promise.*)
-
----
-
-## ⧉ Introduction
-
-XRBitcoinCash (**XRBC**) isn’t just another IOU on XRPL.
-It is a **security-first experiment** in scarcity, legality, and cryptography — now explicitly **stress-testing the XAMAN (Xumm) wallet flow** and **XRPL primitives** while refining a safe, auditable way to trade **XRBC ↔ XRP**.
-
-This repository is both:
-
-* a **functional toolkit** — wallet connection, trustlines, AMM helper, order book, footer/legal anchors.
-* a **cryptic monument** — commits as glyphs; source as poem; clarity as a defensive posture.
-
----
-
-## ⧉ Token Parameters
-
-* **Symbol**: `XRBC`
-* **Issuer**: `rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw` *(blackholed, immutable, beyond temptation)*
-* **Currency Code**: `5852626974636F696E6361736800000000000000`
-* **Total Supply**: **21,000,000** — because legends matter.
-* **Domain**: **xrbitcoincash.com**
-* **Anchors**:
-
-  * `/.well-known/xrp-ledger.toml` (identity manifest)
-  * `/.well-known/security.txt` (responsible disclosure)
-  * `/pgp-key.txt` (cryptographic anchoring)
-
----
-
-## ⧉ What’s new (security & UX)
-
-* **Mobile-only signing**: All orders/trustlines are signed **in XAMAN on mobile**.
-  Desktop “Place Limit Order” is **read-only** and opens a **QR modal to the verified trade page**.
-* **URL verification**: QR/modal copy emphasizes **checking `https://xrbitcoincash.com`** before signing.
-* **Trustline first**: Guided TrustSet flow; XRBC constants (issuer/currency) are **hard-coded & audited**.
-* **AMM “Best Price” helper**: Estimates include the **LP-voted AMM fee** and potential slippage.
-  (Fee is **not a site fee**; it’s governed by LPs and may vary by pool conditions.)
-* **Safer client**: No `eval`, no dynamic script injection, minimal localStorage (public address only),
-  state cleared on disconnect, and reduced-motion respected for the animated background.
-* **Desktop footer/layout**: Mobile-first sizing and better readability, without overflow on small screens.
-
----
-
-## ⧉ Stress testing scope
-
-**Wallet / XAMAN (Xumm) flows**
-
-* Deep-link & QR handoff reliability, payload lifecycle (`createAndSubscribe`), cancel/reject paths.
-* Resume logic after app-switch; **idempotent** UI updates when the page regains focus/visibility.
-* Session hygiene: only the **public account** may be cached; cleared on disconnect.
-
-**XRPL primitives**
-
-* `ledger` (validated), `book_offers` (dual-sided view), `amm_info` (reserves + fee).
-* Periodic refresh with defensive UI, error surfaces, and conservative fallbacks.
-
----
-
-## ⧉ Repository Map
-
-* **`index.html`** — Home portal.
-* **`trade.html`** — XRBC/XRP **AMM + Orderbook** with **mobile-only signing** and desktop QR gating.
-* **`/css/xrbc-trade.css`** — Dark Aurora theme, responsive footer, reduced-motion support.
-* **`nfts.html`** — NFT utilities with inline legal cues.
-* **`compliance.html`** — Compliance & Legal Center (SEC/MiCA/FCA/MAS/FinCEN notes + TOML checker).
-* **`whitepaper.html`** — Vision + cryptographic ethos.
-* **`privacy.html`, `terms.html`, `security-policy.html`** — Legal anchors.
-* **`secure-xrpl.js` / inline scripts** — Minimal proxy bridge, typed transaction shapes.
-
----
-
-## ⧉ Security & Trust (current posture)
-
-* ✅ **Immutable issuer** (blackhole sealed).
-* ✅ **Trustline verification** before meaningful actions.
-* ✅ **Mobile-only signing**; desktop order button shows QR to the verified mobile page.
-* ✅ **Constant transaction shapes** (XRPL `OfferCreate`, `TrustSet`); typed amounts/drops conversions.
-* ✅ **No secrets in client**; **no key requests ever**; only public address may be cached locally.
-* ✅ **Explicit URL hygiene** messaging (anti-phishing).
-* ✅ **Reduced-motion** honored; **accessible** modal semantics & contrast targets.
-* ✅ **No trackers/analytics** embedded in the trading page.
-
-> *“Clarity as defense.
-> Openness as shield.”*
-
----
-
-## ⧉ AMM Fee & Slippage — plain-English
-
-* XRBC↔XRP trades pay a **small AMM pool fee** chosen by the **liquidity providers (LPs)**, not this site.
-* The fee exists to **compensate LPs** and **discourage short-lived arbitrage** that can drain pools.
-* Our **Best Price** helper and totals already **include** the current AMM fee and estimate slippage.
-* Some wallets/apps may also show a **separate service fee** — that is **wallet/app specific**.
-
-*(The exact LP-voted fee can vary by pool governance. Copy is intentionally conservative and accurate.)*
-
----
-
-## ⧉ Compliance & Lawful-Good stance
-
-* **SEC Readiness Checklist** and **Jurisdictional Matrix** (MiCA, FCA, MAS, FinCEN, etc.).
-* **Risk disclosures** baked into the UI; exportable for audits.
-* **security.txt** + public channels for responsible disclosure.
-* Client is **auditable**, un-obfuscated HTML/JS/CSS.
-
----
-
-## ⧉ Roadmap: more pairs, but security first
-
-We do plan to add **additional trading pairs**, however **not** before a deeper security & regulatory pass:
-
-* Per-pair **allow-list** and issuer verification.
-* **Feature flags** to enable pairs gradually after review.
-* **Slippage caps**, **price-impact warnings**, and **size/rate limits** to reduce toxic order flow.
-* Consistent **mobile-only signing** and QR gating across all pairs.
-* Clear **fee disclosure** per pair (LP fee vs. any wallet/app service fee).
-* Updated compliance notes per jurisdiction where relevant.
-
----
-
-## ⧉ Threat model (condensed)
-
-* **Phishing/Impersonation** → Mobilized signing, URL checks, issuer/currency constants.
-* **Payload Tampering** → Static transaction schema; no eval; minimal, explicit DOM updates.
-* **State Desync** → Focus/visibility refresh; retry windows; non-blocking status messaging.
-* **User Error** → Trustline first; explicit totals; fee/slippage explainer; conservative helper text.
-
----
-
-## ⧉ Disclaimers
-
-* This repository = **code + poetry**; **not** financial advice.
-* XRPL transactions are **final**; responsibility remains with the user.
-* Compliance tools are **advisory scaffolds**, not legal determinations.
-* AMM, order book, and UI are **experimental** presentations of XRPL primitives.
-
-> *"Entre loi et rêve, nous écrivons."*
-> (*Between law and dream, we write.*)
-
----
-
-## ⧉ Commit Log as Oracle
-
-Commits are meant to read like a ledger-poem while signaling engineering rigor:
-
-* `sec(flow): enforce mobile-only signing; desktop QR gating for orders`
-* `feat(trade): AMM helper includes LP fee + slippage, safer defaults`
-* `ux(a11y): modal roles, reduced-motion background, footer responsive`
-* `docs(readme): stress-testing scope for XAMAN & XRPL; roadmap for pairs`
-* `chore(anchors): update /.well-known & legal pages`
-
-> *"Chaque commit, une strophe.
-> Chaque diff, une confession."*
-
----
-
-### Contributing
-
-Security first. Please prefer `sec:`, `feat:`, `fix:`, `docs:`, `chore:` prefixes and keep diffs auditable.
-Responsible disclosures via **`/.well-known/security.txt`**.
-
----
+**Explore:** https://xrbitcoincash.com/  
+**White paper:** https://xrbitcoincash.com/whitepaper.html  
+**Support:** https://xrbitcoincash.com/support.html
