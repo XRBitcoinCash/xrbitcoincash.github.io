@@ -2,7 +2,8 @@
 // XRBitcoinCash Developer API v1. Read-only; no wallet secrets or transaction submission.
 const crypto = require('node:crypto');
 const core = require('./api-core.cjs');
-const VERSION = '1.0.0';
+const {createSupply} = require('./supply.cjs');
+const VERSION = '1.1.0';
 const SITE = 'https://xrbitcoincash.com';
 const BASE = 'https://xrbitcoincash-github-io.onrender.com/api/v1';
 const XRBC = Object.freeze({currency:'5852626974636F696E6361736800000000000000',issuer:'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw'});
@@ -22,6 +23,7 @@ const TOOLS = [
   ['xrbc-ecosystem','XRBC Ecosystem',0,'Project identity, public market data and tool discovery.','catalog']
 ].map(([id,name,minimumXrbc,description,scope])=>({id,name,minimumXrbc:String(minimumXrbc),description,scope,url:`${SITE}/${id}.html`}));
 class ApiError extends Error { constructor(status,code,message,details){super(message);Object.assign(this,{status,code,details});} }
+class SupplyScalar { constructor(value, basis, ledger){Object.assign(this,{value,basis,ledger});} }
 const bad = message => {throw new ApiError(400,'invalid_request',message);};
 const sha = value=>crypto.createHash('sha256').update(value).digest();
 function address(value){
@@ -183,7 +185,7 @@ function createApi(options={}){
       // still bind those responses to our independently validated checkpoint. Gates require true.
       const validationKnown=r.validated===true||(r.validated===undefined&&['book_offers','gateway_balances'].includes(method));
       if(params.ledger_hash&&(!validationKnown||r.ledger_hash!==params.ledger_hash||Number(r.ledger_index)!==ledgerIndexes.get(params.ledger_hash)))throw new ApiError(502,'ledger_mismatch','Upstream response did not match the pinned validated ledger.');
-      if(params.account&&['account_lines','gateway_balances','account_tx'].includes(method)&&r.account!==params.account)throw new ApiError(502,'account_mismatch','Upstream account identity did not match.');
+      if(params.account&&['account_lines','account_objects','gateway_balances','account_tx'].includes(method)&&r.account!==params.account)throw new ApiError(502,'account_mismatch','Upstream account identity did not match.');
       if(method==='account_info'&&r.account_data?.Account!==params.account)throw new ApiError(502,'account_mismatch','Upstream account identity did not match.');
       return r;
     }finally{activeRpc--;}
@@ -214,6 +216,7 @@ function createApi(options={}){
   }
   const envelope=(data,l)=>{if(l&&(now()-Date.parse(l.closedAt))/1000>60)throw new ApiError(503,'stale_ledger','The ledger aged beyond 60 seconds while collecting evidence.');return {data,meta:{apiVersion:VERSION,network:'XRPL Mainnet',source:l?rpcUrl:'XRBitcoinCash API',fetchedAt:new Date(now()).toISOString(),...(l?{ledger:{...l,ageSeconds:Math.max(0,Math.floor((now()-Date.parse(l.closedAt))/1000))}}:{}),amounts:'Exact ledger amounts are decimal strings. Estimates are explicitly labeled.',custody:'Read-only. No signing, submission or custody.'}};};
   const publicMarket=m=>{const {_rawPool,_rawSell,...out}=m;return {...out,spotPriceXrp:m.pool.exists&&Number(m.pool.reserves[0])>0?estimate(Number(m.pool.reserves[1])/Number(m.pool.reserves[0])):null,priceType:'AMM reserve ratio; not last traded price.',volume24h:null,circulatingSupply:null,marketCap:null,limitations:['Order books are bounded to 100 offers per direction.','24-hour volume requires a complete, durable trade history collector.']};};
+  const supply=createSupply({rpc,memo,policy:options.supplyPolicy||require('./supply-policy.json'),asset:XRBC,address,decimal,compare,sumDecimals,ApiError});
   async function quoteCandidates(from,to,value,l,wallet){
     if(same(from,to))bad('Input and output assets must differ.');const parsed=decimal(value,{positive:true});if(from.currency==='XRP'&&parsed.s>6)bad('XRP input must use whole drops (at most six decimal places).');const input=approximate(parsed.text);if(input>1e15||input<1e-12)bad('Quote input must be between 1e-12 and 1e15 units.');
     async function leg(a,b,n){const [p,book]=await Promise.all([getPool(a,b,l),rpc('book_offers',{taker_gets:b,taker_pays:a,limit:100,ledger_hash:l.hash})]);const pool=poolData(p,a,b),model=fundedBook(book,a,b,wallet);return [ammQuote(pool,n,a,b),simulateBook(model,n)].filter(x=>x&&Number(x.output)>0).map(x=>({...x,from:a,to:b}));}
@@ -244,7 +247,7 @@ function createApi(options={}){
     return data;
   }
   async function route(req,path,q,body){
-    if(req.method==='GET'&&path==='/')return envelope({name:'XRBitcoinCash Developer API',version:VERSION,docs:SITE+'/developers.html',openapi:BASE+'/openapi.json',tools:BASE+'/tools',mode:'read_only'});
+    if(req.method==='GET'&&path==='/')return envelope({name:'XRBitcoinCash Developer API',version:VERSION,docs:SITE+'/developers.html',openapi:BASE+'/openapi.json',tools:BASE+'/tools',supply:BASE+'/supply/xrbc',metrics:BASE+'/metrics/xrbc',mode:'read_only'});
     if(req.method==='GET'&&path==='/openapi.json')return require('./openapi.json');
     if(req.method==='GET'&&path==='/status'){const [l,auth]=await Promise.all([ledger(),authenticationHealth()]);return envelope({status:'operational',...auth,bridgeLiveFeed:'unconfigured',continuousMonitoring:false},l);}
     if(req.method==='GET'&&path==='/tools')return envelope(TOOLS.map(t=>({...t,access:Number(t.minimumXrbc)>0?'signed_wallet_and_holdings':'public'})));
@@ -252,7 +255,22 @@ function createApi(options={}){
     if(req.method==='GET'&&path==='/ledger'){const l=await ledger();return envelope(l,l);}
     if(req.method==='GET'&&path==='/market/xrbc'){const l=await ledger();return envelope(publicMarket(await market(XRBC,l)),l);}
     if(req.method==='GET'&&path==='/market/xrbc/quote'){const side=q.get('side')||'buy';if(!['buy','sell'].includes(side))bad('side must be buy or sell.');const l=await ledger();return envelope(await quoteCandidates(side==='buy'?XRP:XRBC,side==='buy'?XRBC:XRP,q.get('amount')||'25',l),l);}
-    if(req.method==='GET'&&path==='/supply/xrbc'){const l=await ledger();const r=await rpc('gateway_balances',{account:XRBC.issuer,ledger_hash:l.hash,strict:true});const amount=r.obligations?.[XRBC.currency];return envelope({asset:XRBC,outstandingObligations:amount===undefined?'0':decimal(amount).text,hotwalletExclusions:[],circulatingSupply:null,maxSupply:null,meaning:'Issuer obligations returned by gateway_balances with no hot-wallet exclusions; not verified circulating or maximum supply.'},l);}
+    if(req.method==='GET'&&/^\/supply\/xrbc(?:\/(?:total|circulating|max))?$/.test(path)){
+      const l=await ledger(),data=await supply.snapshot(l),result=envelope(data,l);
+      if(path==='/supply/xrbc')return result;
+      const field=path.split('/').at(-1),value=data[{total:'totalSupply',circulating:'circulatingSupply',max:'maxSupply'}[field]];
+      if(value===null)throw new ApiError(503,'supply_unverified',field==='circulating'?'Circulating supply requires a project-reviewed allocation/exclusion policy.':'The declared maximum is below observed total supply. Review the supply policy.',{supply:BASE+'/supply/xrbc'});
+      return new SupplyScalar(value,field==='max'?'project-declared':field==='circulating'?'project-reviewed-policy':'ledger-reported',l);
+    }
+    if(req.method==='GET'&&path==='/metrics/xrbc'){
+      const l=await ledger(),[s,m]=await Promise.all([supply.snapshot(l),market(XRBC,l)]),prices=publicMarket(m);
+      const valuation=value=>value===null||prices.spotPriceXrp===null?null:estimate(Number(value)*Number(prices.spotPriceXrp));
+      return envelope({symbol:'XRBC',asset:XRBC,supply:s,market:prices,
+        estimatedMarketCapXrp:valuation(s.circulatingSupply),estimatedFullyDilutedValueXrp:valuation(s.maxSupply),
+        valuationBasis:'Estimates use the current XRBC/XRP AMM reserve ratio; not an executable or last-traded price. FDV uses the project-declared maximum.',
+        marketCapUsd:null,volume24h:null,priceChange24h:null,
+        unavailableMetrics:'Verified USD market capitalization and 24-hour volume/change require independent price inputs and complete durable trade history.'},l);
+    }
     if(req.method==='GET'&&path==='/liquidity'){const a=queryAsset(q);if(a.currency==='XRP')bad('Select an issued asset for an XRP pool.');const l=await ledger(),pool=poolData(await getPool(a,XRP,l),a);return envelope({asset:a,pool,analysis:sentinel({asset:a,pool},(now()-Date.parse(l.closedAt))/1000)},l);}
     if(req.method==='GET'&&path==='/readiness'){const l=await ledger(),m=await market(XRBC,l);return envelope({ledgerFresh:true,market:publicMarket(m),networkAndMarketTelemetryOnly:true,integrationEvidenceIndex:null,institutionalAdoption:null,reviewUrl:SITE+'/xrbc-readiness.html'},l);}
     if(req.method==='GET'&&path==='/bridges/status')return envelope({operationalState:'unverified',favorableRankingAllowed:false,liveScore:null,reasons:['No pinned publisher keys or authenticated live proxy are configured.','Durable replay history and current evidence coverage are not established.'],toolUrl:SITE+'/xrpl-bridge-integrity-monitor.html'});
@@ -302,13 +320,14 @@ function createApi(options={}){
     throw new ApiError(404,'not_found','Endpoint not found. See /api/v1/tools and /api/v1/openapi.json.');
   }
   async function handler(req,res,next){
-    const requestId=crypto.randomUUID();res.setHeader('X-Request-Id',requestId);res.setHeader('Cache-Control','no-store');res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');res.setHeader('Access-Control-Allow-Methods','GET, POST, DELETE, OPTIONS');res.setHeader('Access-Control-Expose-Headers','Retry-After, X-Request-Id');res.setHeader('X-Content-Type-Options','nosniff');
+    const requestId=crypto.randomUUID();res.setHeader('X-Request-Id',requestId);res.setHeader('Cache-Control','no-store');res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');res.setHeader('Access-Control-Allow-Methods','GET, POST, DELETE, OPTIONS');res.setHeader('Access-Control-Expose-Headers','Retry-After, X-Request-Id, X-XRBC-Supply-Basis, X-XRPL-Ledger-Index, X-XRPL-Ledger-Hash, Link');res.setHeader('X-Content-Type-Options','nosniff');
     if(req.method==='OPTIONS'){res.statusCode=204;return res.end();}
     let acquired=false;
     try{
       req.xrbcClientIp=req.ip||req.socket?.remoteAddress||'unknown';rate('ip:'+req.xrbcClientIp,60);if(activeJobs>=8)throw new ApiError(503,'busy','API request capacity reached.');activeJobs++;acquired=true;
       if(String(req.url).length>2048)bad('URL is too long.');let body=req.body||{};if(Buffer.byteLength(JSON.stringify(body))>32768)throw new ApiError(413,'body_too_large','Maximum request body is 32 KiB.');if(!body||typeof body!=='object'||Array.isArray(body))bad('Use a JSON object.');
       const url=new URL(req.url,'http://api.local');const out=await route(req,url.pathname.replace(/\/$/,'')||'/',url.searchParams,body);
+      if(out instanceof SupplyScalar){res.statusCode=200;res.setHeader('Content-Type','text/plain; charset=utf-8');res.setHeader('X-XRBC-Supply-Basis',out.basis);res.setHeader('X-XRPL-Ledger-Index',String(out.ledger.index));res.setHeader('X-XRPL-Ledger-Hash',out.ledger.hash);res.setHeader('Link',`<${BASE}/supply/xrbc>; rel="describedby"`);return res.end(out.value);}
       res.statusCode=200;res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify(out));
     }catch(error){const e=error instanceof ApiError?error:new ApiError(500,'internal_error','Request could not be completed.');res.statusCode=e.status;res.setHeader('Content-Type','application/json; charset=utf-8');if(e.status===429||e.status===503)res.setHeader('Retry-After',String(e.details?.retryAfter||15));res.end(JSON.stringify({error:{code:e.code,message:e.message,...(e.details?{details:e.details}:{})},meta:{apiVersion:VERSION,requestId}}));}
     finally{if(acquired)activeJobs--;}

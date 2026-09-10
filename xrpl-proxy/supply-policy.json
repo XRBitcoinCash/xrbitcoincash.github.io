@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "asset": {
+    "currency": "5852626974636F696E6361736800000000000000",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+  },
+  "declaredMaxSupply": "21000000",
+  "maxSupplySource": "https://xrbitcoincash.com/whitepaper.html",
+  "circulation": {
+    "reviewStatus": "pending",
+    "reviewedAt": null,
+    "evidenceUrl": null,
+    "exclusions": []
+  }
+}
