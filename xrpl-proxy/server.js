@@ -2074,6 +2074,18 @@ module.exports={install,createService,digest};
 })();
 // ===== End Live Coin Watch market references =====
 
+// ===== XRBitcoinCash Developer API v1 =====
+app.use('/api/v1', require('./api-v1.cjs').createApi({ rpcUrl: XRPL_RPC }));
+app.use('/api/v1', (error, req, res, next) => {
+  if (!error) return next();
+  const status = error.type === 'entity.too.large' ? 413 : error.type === 'entity.parse.failed' ? 400 : 500;
+  res.status(status).set('Cache-Control', 'no-store').json({
+    error: { code: status === 413 ? 'body_too_large' : status === 400 ? 'invalid_json' : 'internal_error',
+      message: status === 400 ? 'Use a valid JSON object.' : status === 413 ? 'Request body is too large.' : 'Request could not be completed.' },
+    meta: { apiVersion: '1.0.0' }
+  });
+});
+
 // ===== 404 fallback =====
 
 app.use((req, res) => {

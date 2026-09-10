@@ -1,0 +1,2185 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "XRBitcoinCash Developer API",
+    "version": "1.0.0",
+    "description": "Read-only XRPL data, trade previews, settlement evidence and wallet-protected tool services. 60 requests/IP/minute; 12 protected requests/session/minute; one protected job/session; five-minute sessions. Single-process deployment. Source-derived estimates are not endorsements, executable prices or guarantees.",
+    "contact": {
+      "name": "XRBitcoinCash",
+      "url": "https://xrbitcoincash.com/support.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://xrbitcoincash-github-io.onrender.com/api/v1",
+      "description": "Production target — becomes available after deploying this API release."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public data"
+    },
+    {
+      "name": "Trading"
+    },
+    {
+      "name": "Settlement"
+    },
+    {
+      "name": "Tokenization"
+    },
+    {
+      "name": "Wallet access"
+    },
+    {
+      "name": "Protected analytics"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "API discovery",
+        "description": "API version, documentation and discovery URLs.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "OpenAPI document",
+        "description": "This OpenAPI 3.1 document.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_openapi_json",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "OpenAPI 3.1 document"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "summary": "Service and ledger status",
+        "description": "Checks a recent validated ledger. Reports wallet authentication configuration and bridge-feed availability separately.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_status",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools": {
+      "get": {
+        "summary": "Tool catalog and access thresholds",
+        "description": "All twelve tools, human UI URLs, v1 scope, and XRBC minimum holdings. Inclusion is not a claim of complete browser-model parity.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_tools",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/project": {
+      "get": {
+        "summary": "Exact XRBC identity",
+        "description": "Currency and issuer, website and explorer links. No listing, endorsement, maximum supply or circulating supply is asserted.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_project",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ledger": {
+      "get": {
+        "summary": "Validated ledger checkpoint",
+        "description": "Recent validated mainnet ledger hash, index, close time and age. Rejects ledgers older than 60 seconds.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_ledger",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/market/xrbc": {
+      "get": {
+        "summary": "XRBC/XRP market snapshot",
+        "description": "Direct AMM reserves and fees; up to 100 funded offers each way. spotPriceXrp is an estimated reserve ratio, not a last trade. volume24h, circulatingSupply and marketCap are null.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_market_xrbc",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/market/xrbc/quote": {
+      "get": {
+        "summary": "Public XRBC trade preview",
+        "description": "Direct XRBC/XRP AMM and order-book alternatives. The amount is XRP for buy or XRBC for sell. Quote estimates do not execute trades and exclude transfer fees and eligibility checks.",
+        "tags": [
+          "Trading"
+        ],
+        "operationId": "get_market_xrbc_quote",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "side",
+            "in": "query",
+            "required": false,
+            "description": "buy or sell; defaults to buy.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "buy",
+                "sell"
+              ]
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "required": false,
+            "description": "Positive decimal amount in input-asset units; defaults to 25.",
+            "schema": {
+              "type": "string",
+              "description": "Exact decimal string; never a JSON floating-point amount.",
+              "example": "25.5"
+            }
+          }
+        ]
+      }
+    },
+    "/supply/xrbc": {
+      "get": {
+        "summary": "Outstanding issuer obligations",
+        "description": "Exact gateway_balances obligations, with no hot-wallet exclusions. This is not circulating or maximum supply.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_supply_xrbc",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/liquidity": {
+      "get": {
+        "summary": "Liquidity Sentinel pool health",
+        "description": "Source-derived 0–7 score, direct XRP pool reserves, fees and modeled 10/100 XRP impacts. No AMM means a null score, not a zero-risk result.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_liquidity",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "description": "Omit both asset parameters to select XRBC.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "issuer",
+            "in": "query",
+            "required": false,
+            "description": "Required when a non-XRP currency is supplied.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/readiness": {
+      "get": {
+        "summary": "Live readiness telemetry",
+        "description": "Validated ledger freshness and XRBC market telemetry. Reviewed institutional integration evidence and adoption conclusions are not calculated by this endpoint.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_readiness",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bridges/status": {
+      "get": {
+        "summary": "Bridge evidence availability",
+        "description": "Reports unverified state and withholds ranking until authenticated publisher keys, live evidence and durable replay continuity are configured.",
+        "tags": [
+          "Public data"
+        ],
+        "operationId": "get_bridges_status",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokenization/plan": {
+      "post": {
+        "summary": "Tokenization evidence planning",
+        "description": "Ten-field completeness and a conservative architecture suggestion. Only SHA-256 strings are accepted as file evidence metadata; original documents and referenced URLs are not fetched. No minting.",
+        "tags": [
+          "Tokenization"
+        ],
+        "operationId": "post_tokenization_plan",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanningRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/settlement/destination": {
+      "get": {
+        "summary": "Destination account evidence",
+        "description": "Destination-tag and deposit-authorization flags plus one exact-asset trustline. This does not establish payment eligibility.",
+        "tags": [
+          "Settlement"
+        ],
+        "operationId": "get_settlement_destination",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "account",
+            "in": "query",
+            "required": true,
+            "description": "Destination classic address.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "description": "Omit both asset parameters to select XRBC.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "issuer",
+            "in": "query",
+            "required": false,
+            "description": "Required when a non-XRP currency is supplied.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/transactions/{hash}": {
+      "get": {
+        "summary": "Validated transaction receipt",
+        "description": "Validated status, transaction result and actual delivered payment amount. Failed validated transactions are reported as unsuccessful. A historical partial payment with unavailable delivery metadata has delivered:null.",
+        "tags": [
+          "Settlement"
+        ],
+        "operationId": "get_transactions_hash_",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Fa-f0-9]{64}$"
+            }
+          }
+        ]
+      }
+    },
+    "/settlement/verify": {
+      "post": {
+        "summary": "Match a receipt to an invoice",
+        "description": "Exact destination, optional tag/InvoiceID, asset identity and delivered amount comparison. Requires a validated successful Payment. Omitted tag and InvoiceID expect absence. Integrators must persist accepted transaction hashes to prevent duplicate credit.",
+        "tags": [
+          "Settlement"
+        ],
+        "operationId": "post_settlement_verify",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettlementRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/challenges": {
+      "post": {
+        "summary": "Create a Xaman sign-in challenge",
+        "description": "Server-created mainnet SignIn. Return fields include challengeId, private challengeSecret, signInUrl and expiresAt. Open signInUrl in Xaman; never expose challengeSecret in the URL. Requires XAMAN_API_KEY and XAMAN_API_SECRET on the server.",
+        "tags": [
+          "Wallet access"
+        ],
+        "operationId": "post_auth_challenges",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChallengeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sessions": {
+      "post": {
+        "summary": "Verify a signature and issue access",
+        "description": "Call after wallet approval. Server retrieves its own payload and verifies application, UUID, account, mainnet constraint, expiry and private challenge secret. Returns data.accessToken (Bearer), expiresIn:300. Challenges are consumed once.",
+        "tags": [
+          "Wallet access"
+        ],
+        "operationId": "post_auth_sessions",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid, rejected or expired challenge/signature."
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Wallet signature is pending or verification is already running."
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/session": {
+      "delete": {
+        "summary": "Revoke the current session",
+        "description": "Deletes this five-minute in-memory bearer session. Other sessions are not affected.",
+        "tags": [
+          "Wallet access"
+        ],
+        "operationId": "delete_auth_session",
+        "security": [
+          {
+            "WalletBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or invalid signed-wallet session."
+          },
+          "403": {
+            "description": "Missing tool scope or insufficient fresh XRBC holdings."
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/quote": {
+      "post": {
+        "summary": "Value Path trade alternatives",
+        "description": "Requires 400 XRBC and value-path scope. Direct AMM/book alternatives plus XRP intermediary routes for issued-asset pairs; bounded depth, partial fills and individual legs are returned. No route splitting, pathfinding or guaranteed execution. Quote expires in 15 seconds.",
+        "tags": [
+          "Trading"
+        ],
+        "operationId": "post_trade_quote",
+        "security": [
+          {
+            "WalletBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or invalid signed-wallet session."
+          },
+          "403": {
+            "description": "Missing tool scope or insufficient fresh XRBC holdings."
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bridges/evidence-check": {
+      "post": {
+        "summary": "Check submitted bridge arithmetic",
+        "description": "Requires 10 XRBC and bridge scope. Exact same-asset reserve/liability comparison and submitted timestamp freshness. Caller claims are not independently verified; favorable ranking remains disabled.",
+        "tags": [
+          "Protected analytics"
+        ],
+        "operationId": "post_bridges_evidence_check",
+        "security": [
+          {
+            "WalletBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or invalid signed-wallet session."
+          },
+          "403": {
+            "description": "Missing tool scope or insufficient fresh XRBC holdings."
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BridgeRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/{tool}/report": {
+      "get": {
+        "summary": "Protected single-asset tool report",
+        "description": "Rechecks exact current XRBC holdings before analytics. Extended (50): issuer/market and bounded participation evidence; Forensics (150): concentration and validated pool/issuer events; Risk Lens (150): issuer/holder/exposure evidence; Watchtower (1000): current balanced threshold snapshot; Advanced (2500): core 3.0.0 warning points and incomplete evidence coverage. Full Extended/Risk Lens/Forensics browser scores are deliberately null. Advanced external-provider evidence is unavailable. Holder calculations and quote estimates are approximate.",
+        "tags": [
+          "Protected analytics"
+        ],
+        "operationId": "get_tools_tool_report",
+        "security": [
+          {
+            "WalletBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success. Ledger amounts use decimal strings; estimates are explicitly labeled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or invalid signed-wallet session."
+          },
+          "403": {
+            "description": "Missing tool scope or insufficient fresh XRBC holdings."
+          },
+          "404": {
+            "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate or concurrency limit. Honor Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Upstream, capacity, stale ledger, incomplete access proof or configuration unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tool",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "extended-audit",
+                "sentinel-forensics",
+                "risk-lens",
+                "watchtower",
+                "asset-tokenization-auditor-advanced"
+              ]
+            }
+          },
+          {
+            "name": "currency",
+            "in": "query",
+            "required": false,
+            "description": "Omit both asset parameters to select XRBC.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "issuer",
+            "in": "query",
+            "required": false,
+            "description": "Required when a non-XRP currency is supplied.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Asset": {
+        "type": "object",
+        "required": [
+          "currency"
+        ],
+        "properties": {
+          "currency": {
+            "type": "string",
+            "description": "XRP, a case-sensitive three-character code, or 40 hex characters."
+          },
+          "issuer": {
+            "type": "string",
+            "description": "Checksum-valid classic address; required except for XRP."
+          }
+        },
+        "example": {
+          "currency": "5852626974636F696E6361736800000000000000",
+          "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+        }
+      },
+      "Ledger": {
+        "type": "object",
+        "required": [
+          "hash",
+          "index",
+          "closedAt"
+        ],
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ageSeconds": {
+            "type": "integer"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "network": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "description": "Fixed XRPL source URL for ledger data; XRBitcoinCash API for local computations and discovery."
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/Ledger"
+          },
+          "amounts": {
+            "type": "string"
+          },
+          "custody": {
+            "type": "string"
+          }
+        }
+      },
+      "Response": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "description": "Endpoint-specific data; unknown measurements are null. See endpoint description and examples."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "meta"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "apiVersion": {
+                "type": "string"
+              },
+              "requestId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ChallengeRequest": {
+        "type": "object",
+        "required": [
+          "account",
+          "tools"
+        ],
+        "properties": {
+          "account": {
+            "type": "string"
+          },
+          "tools": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "enum": [
+                "extended-audit",
+                "sentinel-forensics",
+                "risk-lens",
+                "value-path",
+                "watchtower",
+                "asset-tokenization-auditor-advanced",
+                "xrpl-bridge-integrity-monitor"
+              ]
+            }
+          }
+        }
+      },
+      "SessionRequest": {
+        "type": "object",
+        "required": [
+          "challengeId",
+          "challengeSecret"
+        ],
+        "properties": {
+          "challengeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "challengeSecret": {
+            "type": "string",
+            "writeOnly": true
+          }
+        }
+      },
+      "QuoteRequest": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "amount"
+        ],
+        "properties": {
+          "from": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Exact decimal string; never a JSON floating-point amount.",
+            "example": "25.5"
+          }
+        }
+      },
+      "Invoice": {
+        "type": "object",
+        "required": [
+          "destination",
+          "asset",
+          "amount"
+        ],
+        "properties": {
+          "destination": {
+            "type": "string"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Exact decimal string; never a JSON floating-point amount.",
+            "example": "25.5"
+          },
+          "destinationTag": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "invoiceId": {
+            "type": "string",
+            "pattern": "^[A-Fa-f0-9]{64}$"
+          }
+        }
+      },
+      "SettlementRequest": {
+        "type": "object",
+        "required": [
+          "hash",
+          "invoice"
+        ],
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^[A-Fa-f0-9]{64}$"
+          },
+          "invoice": {
+            "$ref": "#/components/schemas/Invoice"
+          }
+        }
+      },
+      "PlanningRequest": {
+        "type": "object",
+        "required": [
+          "project"
+        ],
+        "properties": {
+          "project": {
+            "type": "object",
+            "required": [
+              "asset",
+              "representedRight",
+              "parties",
+              "evidence"
+            ],
+            "properties": {
+              "asset": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "externalId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "representedRight": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "proof",
+                      "collectible",
+                      "receipt",
+                      "fractional",
+                      "debt",
+                      "revenue",
+                      "redemption",
+                      "payment",
+                      "certificate",
+                      "access",
+                      "license"
+                    ]
+                  },
+                  "holderReceives": {
+                    "type": "string"
+                  },
+                  "holderDoesNotReceive": {
+                    "type": "string"
+                  }
+                },
+                "description": "Use type for the intended right. This v1 service is not the full browser template taxonomy."
+              },
+              "parties": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "type": "string"
+                  },
+                  "issuer": {
+                    "type": "string"
+                  },
+                  "registry": {
+                    "type": "string"
+                  },
+                  "attestor": {
+                    "type": "string"
+                  }
+                }
+              },
+              "evidence": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[A-Fa-f0-9]{64}$"
+                        }
+                      }
+                    }
+                  },
+                  "registryReference": {
+                    "type": "string"
+                  },
+                  "verificationUrl": {
+                    "type": "string"
+                  },
+                  "attestationReference": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "BridgeRequest": {
+        "type": "object",
+        "required": [
+          "asset",
+          "reserve",
+          "liability",
+          "observedAt"
+        ],
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/Asset"
+          },
+          "reserve": {
+            "type": "string",
+            "description": "Nonnegative reserve in the same units as liability.",
+            "example": "25.5"
+          },
+          "liability": {
+            "type": "string",
+            "description": "Positive liability in the same units as reserve.",
+            "example": "25.5"
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "WalletBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Opaque five-minute token from a verified server-created Xaman SignIn. Never use a wallet seed or Xaman API secret here."
+      }
+    }
+  }
+}
