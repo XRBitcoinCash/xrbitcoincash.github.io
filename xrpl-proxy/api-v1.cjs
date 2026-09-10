@@ -47,7 +47,7 @@ function decimal(value,{positive=false}={}){
 }
 function compare(a,b){a=decimal(a);b=decimal(b);const s=Math.max(a.s,b.s),x=a.n*10n**BigInt(s-a.s),y=b.n*10n**BigInt(s-b.s);return x<y?-1:x>y?1:0;}
 function sumDecimals(values){let n=0n,s=0;for(const v of values){const d=decimal(v),next=Math.max(s,d.s);n=n*10n**BigInt(next-s)+d.n*10n**BigInt(next-d.s);s=next;}return decimal(n.toString()+'e-'+s).text;}
-function asset(value=XRBC){
+function asset(value){
   if(!value||typeof value!=='object'||Array.isArray(value))bad('Asset must contain currency and issuer (except XRP).');
   const c=value.currency;if(c==='XRP'){if(value.issuer)bad('XRP has no issuer.');return XRP;}
   if(typeof c!=='string'||!(/^[a-zA-Z0-9?!@#$%^&*<>(){}[\]|]{3}$/.test(c)||/^[a-fA-F0-9]{40}$/.test(c)))bad('Currency must be a 3-character code or 40-character hex code.');

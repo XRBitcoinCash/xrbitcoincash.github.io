@@ -1142,6 +1142,16 @@
               }
             }
           },
+          "409": {
+            "description": "Transaction has not been validated. No settlement confirmation is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "429": {
             "description": "Rate or concurrency limit. Honor Retry-After.",
             "headers": {
@@ -1215,6 +1225,16 @@
           },
           "404": {
             "description": "Endpoint or transaction unavailable in this server’s history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Transaction has not been validated. No settlement confirmation is returned.",
             "content": {
               "application/json": {
                 "schema": {
