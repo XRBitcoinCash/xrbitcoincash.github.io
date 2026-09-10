@@ -180,7 +180,7 @@
     "/status": {
       "get": {
         "summary": "Service and ledger status",
-        "description": "Checks a recent validated ledger. Reports wallet authentication configuration and bridge-feed availability separately.",
+        "description": "Checks a recent validated ledger and performs a cached, read-only Xaman ping. walletAuthentication reports credential presence; walletAuthenticationVerified confirms that Xaman accepted the configured application identity. walletAuthenticationCheckedAt is the ping timestamp. No wallet signature is requested. Bridge-feed availability is reported separately.",
         "tags": [
           "Public data"
         ],

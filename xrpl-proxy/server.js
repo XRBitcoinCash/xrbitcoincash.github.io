@@ -3,6 +3,8 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const crypto = require("crypto");
+const { rateLimit } = require("express-rate-limit");
+const rpcPolicy = require("./rpc-policy.cjs");
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -88,6 +90,13 @@ app.use((req, _res, next) => {
   console.log(`[REQ] ${req.method} ${req.path}`);
   next();
 });
+
+// Public evidence traffic is bounded separately from signed-wallet API sessions.
+const publicReadLimit = rateLimit({
+  windowMs: 60000, limit: 180, standardHeaders: true, legacyHeaders: false,
+  message: {result:{status:'error',error:'rate_limit',error_message:'Public request limit reached. Honor Retry-After.'}}
+});
+app.use('/api/xrpl', publicReadLimit);
 
 // ===== Shared helpers =====
 
@@ -719,6 +728,8 @@ app.get(
 
 app.post(
   "/",
+  publicReadLimit,
+  rpcPolicy.middleware,
   async (req, res) => {
     try {
       const data =

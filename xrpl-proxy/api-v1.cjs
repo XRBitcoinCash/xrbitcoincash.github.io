@@ -194,6 +194,19 @@ function createApi(options={}){
   async function getPool(a,b,l){try{return await rpc('amm_info',{asset:a,asset2:b,ledger_hash:l.hash});}catch(e){if(['actNotFound','ammNotFound','objectNotFound'].includes(e.details?.upstreamCode))return {};throw e;}}
   async function market(a,l,wallet){if(a.currency==='XRP')bad('Select an issued asset for an XRP market.');return memo(`market:${key(a)}:${l.hash}:${wallet||''}`,10000,async()=>{const [rawPool,sell,buy]=await Promise.all([getPool(a,XRP,l),rpc('book_offers',{taker_gets:XRP,taker_pays:a,limit:100,ledger_hash:l.hash}),rpc('book_offers',{taker_gets:a,taker_pays:XRP,limit:100,ledger_hash:l.hash})]);return {asset:a,quoteAsset:XRP,pool:poolData(rawPool,a),sell:fundedBook(sell,a,XRP,wallet),buy:fundedBook(buy,XRP,a,wallet),_rawPool:rawPool,_rawSell:sell};});}
   async function xaman(path,body){if(!configured())throw new ApiError(503,'authentication_unconfigured','Wallet access is not configured on this deployment.');return jsonFetch('https://xumm.app/api/v1/platform/'+path,{method:body?'POST':'GET',headers:{'content-type':'application/json','x-api-key':env.XAMAN_API_KEY,'x-api-secret':env.XAMAN_API_SECRET},...(body?{body:JSON.stringify(body)}:{})});}
+  async function authenticationHealth(){
+    if(!configured())return {walletAuthentication:'unconfigured',walletAuthenticationVerified:false,walletAuthenticationCheckedAt:null};
+    return memo('xaman:health',30000,async()=>{
+      let verified=false;
+      try{
+        const ping=await xaman('ping');
+        verified=ping.pong===true&&ping.auth?.application?.uuidv4===env.XAMAN_API_KEY&&
+          (ping.auth.application.disabled===undefined||ping.auth.application.disabled===0);
+      }catch{/* Never publish upstream authentication errors or credential material. */}
+      return {walletAuthentication:'configured',walletAuthenticationVerified:verified,
+        walletAuthenticationCheckedAt:new Date(now()).toISOString()};
+    });
+  }
   function bearer(req){const match=/^Bearer ([A-Za-z0-9_-]{43})$/.exec(String(req.headers.authorization||''));if(!match)throw new ApiError(401,'authentication_required','Provide Authorization: Bearer followed by your session token.');return match[1];}
   function session(req){const token=bearer(req);cleanup(sessions);const s=sessions.get(sha(token).toString('hex'));if(!s)throw new ApiError(401,'authentication_required','Provide a valid signed-wallet bearer session.');return s;}
   async function gate(req,tool){const s=session(req);if(!s.tools.includes(tool.id))throw new ApiError(403,'scope_denied','This session does not include the requested tool.');rate('session:'+s.id,12);if(s.busy)throw new ApiError(429,'session_busy','Only one protected request may run per session.');s.busy=true;
@@ -233,7 +246,7 @@ function createApi(options={}){
   async function route(req,path,q,body){
     if(req.method==='GET'&&path==='/')return envelope({name:'XRBitcoinCash Developer API',version:VERSION,docs:SITE+'/developers.html',openapi:BASE+'/openapi.json',tools:BASE+'/tools',mode:'read_only'});
     if(req.method==='GET'&&path==='/openapi.json')return require('./openapi.json');
-    if(req.method==='GET'&&path==='/status'){const l=await ledger();return envelope({status:'operational',walletAuthentication:configured()?'configured':'unconfigured',bridgeLiveFeed:'unconfigured',continuousMonitoring:false},l);}
+    if(req.method==='GET'&&path==='/status'){const [l,auth]=await Promise.all([ledger(),authenticationHealth()]);return envelope({status:'operational',...auth,bridgeLiveFeed:'unconfigured',continuousMonitoring:false},l);}
     if(req.method==='GET'&&path==='/tools')return envelope(TOOLS.map(t=>({...t,access:Number(t.minimumXrbc)>0?'signed_wallet_and_holdings':'public'})));
     if(req.method==='GET'&&path==='/project')return envelope({name:'XRBitcoinCash',symbol:'XRBC',asset:XRBC,website:SITE,explorer:`https://bithomp.com/explorer/${XRBC.issuer}`,listingStatus:'No listing or endorsement is asserted by this API.',maxSupply:null,circulatingSupply:null});
     if(req.method==='GET'&&path==='/ledger'){const l=await ledger();return envelope(l,l);}
