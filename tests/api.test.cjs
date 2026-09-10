@@ -79,7 +79,15 @@ test('partial payments with unknown delivery and validated failures cannot match
 test('advanced outstanding-holder sums remain exact, evidence stays incomplete without external source',async()=>{const f=fixture(),{token}=await f.signIn(['asset-tokenization-auditor-advanced']);const r=await f.request('/tools/asset-tokenization-auditor-advanced/report',{token});assert.equal(r.status,200);assert.equal(r.body.data.holders.issuedBalance,'9007199254740993');assert.equal(r.body.data.analysis.complete,false);});
 test('bridge check handles zero reserves without claiming independent verification',async()=>{const f=fixture(),{token}=await f.signIn(['xrpl-bridge-integrity-monitor']);const r=await f.request('/bridges/evidence-check',{method:'POST',token,body:{asset:XRP,reserve:'0',liability:'1',observedAt:new Date(EPOCH).toISOString()}});assert.equal(r.status,200);assert.equal(r.body.data.reserveCoversLiability,false);assert.equal(r.body.data.independentlyVerified,false);});
 test('public rate limit is bounded and returns retry guidance',async()=>{const f=fixture();let r;for(let i=0;i<61;i++)r=await f.request('/project');assert.equal(r.status,429);assert(r.headers['retry-after']);});
-test('OpenAPI routes and portal catalog agree with the release inventory',()=>{const root=path.resolve(__dirname,'..'),spec=JSON.parse(fs.readFileSync(root+'/xrpl-proxy/openapi.json'));assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,22);assert.equal(api.TOOLS.length,12);});
+test('OpenAPI routes and portal catalog agree with the release inventory',()=>{
+ const root=path.resolve(__dirname,'..'),spec=JSON.parse(fs.readFileSync(root+'/xrpl-proxy/openapi.json'));
+ assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,22);assert.equal(api.TOOLS.length,12);
+ for(const [endpoint,method] of [['/transactions/{hash}','get'],['/settlement/verify','post']]){
+  const conflict=spec.paths[endpoint][method].responses['409'];
+  assert.match(conflict.description,/not been validated/i);
+  assert.equal(conflict.content['application/json'].schema.$ref,'#/components/schemas/Error');
+ }
+});
 
 test('read-only authentication health verifies app identity and caches concurrent pings',async()=>{
  const f=fixture();const responses=await Promise.all([f.request('/status'),f.request('/status')]);
@@ -91,4 +99,19 @@ test('missing, invalid, disabled or unavailable Xaman credentials never report v
   const f=fixture(config),r=await f.request('/status');assert.equal(r.status,200);assert.equal(r.body.data.walletAuthenticationVerified,false);assert(!JSON.stringify(r).includes('private'));
   if(config.noAuth)assert.equal(f.pingCount(),0);
  }
+});
+test('required body assets never silently default to XRBC',async()=>{
+ const f=fixture();
+ const {token}=await f.signIn(['value-path','xrpl-bridge-integrity-monitor']);
+ for(const body of [{to:XRP,amount:'1'},{from:XRP,amount:'1'}]){
+  const r=await f.request('/trade/quote',{method:'POST',body,token});
+  assert.equal(r.status,400);assert.equal(r.body.error.code,'invalid_request');
+ }
+ const bridge=await f.request('/bridges/evidence-check',{method:'POST',token,body:{reserve:'1',liability:'1',observedAt:new Date(EPOCH).toISOString()}});
+ assert.equal(bridge.status,400);assert.equal(bridge.body.error.code,'invalid_request');
+ const receipt=await f.request('/settlement/verify',{method:'POST',body:{hash:TXHASH,invoice:{destination:XRBC.issuer,amount:'0.10000000000000001'}}});
+ assert.equal(receipt.status,400);assert.equal(receipt.body.error.code,'invalid_request');
+ assert(!f.rpcCalls.some(c=>c.method==='tx'),'an incomplete invoice must be rejected before receipt lookup');
+ const publicDefault=await f.request('/liquidity');
+ assert.equal(publicDefault.status,200);assert.deepEqual(publicDefault.body.data.asset,XRBC);
 });

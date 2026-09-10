@@ -2,7 +2,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
-const axios = require('../xrpl-proxy/node_modules/axios/dist/node/axios.cjs');
+const {createRequire} = require('node:module');
+const axios = createRequire(require.resolve('../xrpl-proxy/server.js'))('axios');
 test('deployed Express stack preserves public reads and rejects unsafe or unsigned requests', async () => {
   // Exercise the real middleware and routes, with the external ledger transport mocked.
   const originalPost = axios.post, originalListen = http.Server.prototype.listen, originalLog = console.log;

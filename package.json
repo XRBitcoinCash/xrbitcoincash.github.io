@@ -4,7 +4,8 @@
   "description": "XRBitcoinCash XRPL, chat, and support email backend",
   "main": "xrpl-proxy/server.js",
   "scripts": {
-    "start": "node xrpl-proxy/server.js"
+    "start": "node xrpl-proxy/server.js",
+    "test": "node --test tests/*.test.cjs"
   },
   "engines": {
     "node": ">=18.18"
@@ -14,7 +15,11 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^9.0.5"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }
