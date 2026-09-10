@@ -1996,6 +1996,84 @@ module.exports={install,createService,digest};
 })();
 // ===== END XRBC OPTIONAL LP RECEIPTS 0.1.12 =====
 
+// ===== Live Coin Watch market references · 2026-09-10 =====
+// Read-only, fixed upstream and assets. Never expose LIVECOINWATCH_API_KEY.
+(() => {
+  const API_URL = 'https://api.livecoinwatch.com/coins/map';
+  const CODES = ['XRP', 'BTC', 'ETH'];
+  const TTL = 60_000;
+  const STALE_LIMIT = 5 * 60_000;
+  let snapshot = null;
+  let pending = null;
+  let retryAfter = 0;
+
+  const positive = value => typeof value === 'number' && Number.isFinite(value) && value > 0;
+  const nonnegative = value => typeof value === 'number' && Number.isFinite(value) && value >= 0;
+
+  async function updateSnapshot() {
+    const apiKey = String(process.env.LIVECOINWATCH_API_KEY || '').trim();
+    if (!apiKey) throw new Error('Market reference is not configured');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+        body: JSON.stringify({ currency: 'USD', codes: CODES, sort: 'rank', order: 'ascending', offset: 0, limit: 0, meta: false }),
+        signal: controller.signal,
+        redirect: 'error'
+      });
+      if (!response.ok) {
+        if (response.status === 429) retryAfter = Date.now() + 15 * 60_000;
+        if (response.status === 401 || response.status === 403) retryAfter = Date.now() + 5 * 60_000;
+        throw new Error('Market reference unavailable');
+      }
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error('Invalid market reference');
+      const coins = CODES.map(code => {
+        const row = rows.find(item => item && item.code === code);
+        if (!row || !positive(row.rate)) throw new Error('Incomplete market reference');
+        return {
+          code, priceUsd: row.rate,
+          change24hPct: positive(row.delta?.day) ? (row.delta.day - 1) * 100 : null,
+          volume24hUsd: nonnegative(row.volume) ? row.volume : null,
+          marketCapUsd: nonnegative(row.cap) ? row.cap : null
+        };
+      });
+      snapshot = { provider: 'Live Coin Watch', currency: 'USD', fetchedAt: new Date().toISOString(), coins };
+      retryAfter = 0;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  app.get('/api/market/livecoinwatch', async (req, res) => {
+    // Query parameters cannot expand the request, bypass the shared cache, or change the upstream.
+    res.set('X-Content-Type-Options', 'nosniff');
+    if (Object.keys(req.query || {}).length) {
+      return res.status(400).set('Cache-Control', 'no-store').json({ error: 'This endpoint has no query parameters.' });
+    }
+    const now = Date.now();
+    if ((!snapshot || now - Date.parse(snapshot.fetchedAt) >= TTL) && now >= retryAfter) {
+      if (!pending) {
+        pending = updateSnapshot().catch(() => {
+          // Do not log upstream headers, provider error bodies, or API credentials.
+          retryAfter = Math.max(retryAfter, Date.now() + TTL);
+        }).finally(() => { pending = null; });
+      }
+      await pending;
+    }
+    const ageMs = snapshot ? Math.max(0, Date.now() - Date.parse(snapshot.fetchedAt)) : Infinity;
+    if (!snapshot || ageMs > STALE_LIMIT) {
+      return res.status(503).set('Retry-After', '60').set('Cache-Control', 'no-store').json({
+        provider: 'Live Coin Watch', error: 'Market reference temporarily unavailable.'
+      });
+    }
+    return res.set('Cache-Control', 'no-store').json({ ...snapshot, stale: ageMs >= TTL, ageSeconds: Math.floor(ageMs / 1000) });
+  });
+})();
+// ===== End Live Coin Watch market references =====
+
 // ===== 404 fallback =====
 
 app.use((req, res) => {
@@ -2099,3 +2177,4 @@ app.listen(
     printRoutes();
   }
 );
+
