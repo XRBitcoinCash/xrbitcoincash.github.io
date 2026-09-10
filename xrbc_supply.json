@@ -1,38 +1,13 @@
-from flask import Flask, jsonify
-import requests
-
-app = Flask(__name__)
-
-PROXY_URL = "https://YOUR_REAL_PROXY/xrpl"
-ISSUER_ACCOUNT = "rREAL_ISSUER_ADDRESS"
-CURRENCY_CODE = "XRBC"
-TOTAL_SUPPLY = 1000000000  # replace with real total issued amount
-
-def fetch_trust_lines():
-    payload = {
-        "method": "account_lines",
-        "params": [{"account": ISSUER_ACCOUNT, "ledger_index": "validated"}]
-    }
-    try:
-        resp = requests.post(PROXY_URL, json=payload)
-        resp.raise_for_status()
-        return resp.json().get("result", {}).get("lines", [])
-    except Exception as e:
-        print(f"Error fetching trust lines: {e}")
-        return []
-
-def calculate_circulating(lines):
-    return sum(float(line.get("balance", 0)) for line in lines if line.get("currency") == CURRENCY_CODE)
-
-@app.route("/api/v1/supply", methods=["GET"])
-def supply():
-    lines = fetch_trust_lines()
-    circulating = calculate_circulating(lines)
-    return jsonify({
-        "total_supply": TOTAL_SUPPLY,
-        "circulating_supply": circulating
-    })
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
+{
+  "status": "legacy-example-retired",
+  "name": "XRBitcoinCash",
+  "symbol": "XRBC",
+  "documentation": "https://github.com/XRBitcoinCash/xrbitcoincash.github.io/blob/main/docs/tracker-supply-api.md",
+  "apiBase": "https://xrbitcoincash-github-io.onrender.com/api/v1",
+  "supplyPath": "/supply/xrbc",
+  "totalSupplyPath": "/supply/xrbc/total",
+  "circulatingSupplyPath": "/supply/xrbc/circulating",
+  "declaredMaxSupplyPath": "/supply/xrbc/max",
+  "metricsPath": "/metrics/xrbc",
+  "note": "This is a discovery manifest, not a numeric supply feed. API v1.1.0 must be deployed before using its new routes. Circulating supply requires a reviewed allocation policy; unknown supply never becomes zero."
+}

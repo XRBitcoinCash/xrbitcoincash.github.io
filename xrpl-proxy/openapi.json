@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "XRBitcoinCash Developer API",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Read-only XRPL data, trade previews, settlement evidence and wallet-protected tool services. 60 requests/IP/minute; 12 protected requests/session/minute; one protected job/session; five-minute sessions. Single-process deployment. Source-derived estimates are not endorsements, executable prices or guarantees.",
     "contact": {
       "name": "XRBitcoinCash",
@@ -625,8 +625,8 @@
     },
     "/supply/xrbc": {
       "get": {
-        "summary": "Outstanding issuer obligations",
-        "description": "Exact gateway_balances obligations, with no hot-wallet exclusions. This is not circulating or maximum supply.",
+        "summary": "Tracker supply, component balances and provenance",
+        "description": "Decimal strings at one validated ledger. Total includes unfrozen obligations, frozen balances and exact-issuer escrow. Circulating supply remains null until the project reviews its allocation/exclusion policy; an empty unreviewed list is not proof of full circulation. Maximum supply is a sourced project declaration, not a verified immutable ledger cap. See docs/tracker-supply-api.md in the backend repository.",
         "tags": [
           "Public data"
         ],
@@ -690,6 +690,46 @@
               }
             }
           }
+        }
+      }
+    },
+    "/supply/xrbc/{metric}": {
+      "get": {
+        "summary": "Single numeric supply value for tracker forms",
+        "description": "Plain decimal text with no JSON envelope, commas or rounding in this service. total is current outstanding issued supply including frozen and escrow balances. circulating requires a project-reviewed exclusion policy. max is the project-declared 21,000,000 design cap, withheld if observed total exceeds it. Unknown values return a non-200 JSON error, never zero. Review the full /supply/xrbc methodology before using a numeric feed.",
+        "operationId": "get_supply_xrbc_scalar",
+        "tags": ["Public data"],
+        "security": [],
+        "parameters": [{"name":"metric","in":"path","required":true,"schema":{"type":"string","enum":["total","circulating","max"]}}],
+        "responses": {
+          "200": {
+            "description": "Bare nonnegative decimal text. Decimal-capable parsing is recommended; JavaScript Number can lose precision.",
+            "headers": {
+              "X-XRBC-Supply-Basis": {"schema":{"type":"string","enum":["ledger-reported","project-reviewed-policy","project-declared"]}},
+              "X-XRPL-Ledger-Index": {"schema":{"type":"integer"}},
+              "X-XRPL-Ledger-Hash": {"schema":{"type":"string"}},
+              "Link": {"description":"Full supply methodology endpoint with rel=describedby.","schema":{"type":"string"}}
+            },
+            "content": {"text/plain":{"schema":{"type":"string","pattern":"^[0-9]+(?:\\.[0-9]+)?$","example":"20999999.999999996"}}}
+          },
+          "429": {"description":"Rate limit; honor Retry-After.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},
+          "502": {"description":"Invalid or inconsistent upstream supply evidence.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},
+          "503": {"description":"Unreviewed supply, contradictory cap, incomplete inventory, stale ledger, invalid policy or unavailable upstream. Honor Retry-After; do not interpret as zero.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}
+        }
+      }
+    },
+    "/metrics/xrbc": {
+      "get": {
+        "summary": "Tracker supply and current XRBC/XRP market evidence",
+        "description": "Supply and AMM/book snapshots are pinned to one validated ledger. Provides decimal-string supply components and explicitly estimated XRP-denominated market capitalization/FDV from the AMM reserve ratio. Market-cap estimate is null without reviewed circulation; FDV uses the declared cap. USD market cap, 24-hour volume and price change remain null rather than being inferred from incomplete market history. Public aggregate evidence only; advanced wallet-protected analytics are unchanged.",
+        "operationId": "get_metrics_xrbc",
+        "tags": ["Public data"],
+        "security": [],
+        "responses": {
+          "200": {"description":"Source-labeled snapshot with data.supply, data.market and explicitly named estimate fields.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Response"}}}},
+          "429": {"description":"Rate limit; honor Retry-After.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},
+          "502": {"description":"Invalid or inconsistent upstream evidence.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}},
+          "503": {"description":"Unavailable upstream, stale ledger or incomplete supply inventory.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Error"}}}}
         }
       }
     },

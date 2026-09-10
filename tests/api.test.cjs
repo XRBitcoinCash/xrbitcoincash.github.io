@@ -32,6 +32,7 @@ function fixture(config={}){
         if(config.bookFails){result={error:'tooBusy'};break;}
         const sell=p.taker_gets.currency==='XRP';result={...pinned,offers:[{Account:XRBC.issuer,TakerGets:sell?'50000000':{...XRBC,value:'500'},TakerPays:sell?{...XRBC,value:'500'}:'51000000',owner_funds:sell?'50000000':'500'}]};break;}
       case 'account_info':result={...pinned,account_data:{Account:p.account,Flags:0x00800000,TransferRate:1000000000}};break;
+      case 'account_objects':result={...pinned,account:p.account,account_objects:[]};break;
       case 'gateway_balances':result={...pinned,account:p.account,obligations:{[XRBC.currency]:'20999999.999999996'}};break;
       case 'account_tx':result={account:p.account,transactions:[],ledger_index_min:1,ledger_index_max:INDEX};break;
       case 'tx':result={hash:TXHASH,validated:true,ledger_index:INDEX,tx_json:{TransactionType:'Payment',Account:WALLET,Destination:XRBC.issuer,Amount:{...XRBC,value:'0.10000000000000001'}},meta:{TransactionResult:'tesSUCCESS',delivered_amount:{...XRBC,value:'0.10000000000000001'}}};break;
@@ -40,13 +41,13 @@ function fixture(config={}){
     if(config.response)result=config.response(result,method,p);
     return {ok:true,json:async()=>({result})};
   };
-  const handler=createApi({fetch,now:()=>clock,env:config.noAuth?{}:ENV});
+  const handler=createApi({fetch,now:()=>clock,env:config.noAuth?{}:ENV,supplyPolicy:config.supplyPolicy});
   async function request(url,{method='GET',body,token,rawAuthorization,ip='198.51.100.1'}={}){
     const req={url,method,body,headers:token?{authorization:'Bearer '+token}:rawAuthorization?{authorization:rawAuthorization}:{},socket:{remoteAddress:ip}};
     // Express exposes a getter-only req.ip. This catches assignment regressions.
     Object.defineProperty(req,'ip',{get:()=>ip});const headers={};let text;
     const res={statusCode:200,setHeader:(k,v)=>{headers[k.toLowerCase()]=v;},end:value=>{text=value;}};
-    await handler(req,res);return {status:res.statusCode,body:text?JSON.parse(text):null,headers};
+    await handler(req,res);return {status:res.statusCode,body:text?JSON.parse(text):null,headers,text};
   }
   async function signIn(tools=['extended-audit']){
     const c=await request('/auth/challenges',{method:'POST',body:{account:WALLET,tools}});assert.equal(c.status,200);
@@ -58,6 +59,93 @@ function fixture(config={}){
 test('public discovery works with Express getter-only request properties',async()=>{const f=fixture();const r=await f.request('/');assert.equal(r.status,200);assert.equal(r.body.data.mode,'read_only');assert.equal(r.headers['cache-control'],'no-store');});
 test('classic-address checksum rejects an altered issuer',()=>{assert.equal(api.address(WALLET),WALLET);assert.throws(()=>api.address(WALLET.slice(0,-1)+'s'));});
 test('decimal comparison and summation preserve exact fractional and large balances',()=>{assert.equal(api.compare('49.999999999999999','50'),-1);assert.equal(api.compare('5e1','50.000'),0);assert.equal(api.sumDecimals(['9007199254740993','0.000000001']),'9007199254740993.000000001');assert.notEqual(api.compare('0.10000000000000001','0.1'),0);});
+
+const SECOND_WALLET='rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe';
+function reviewedSupply(exclusions=[]){
+  const policy=JSON.parse(fs.readFileSync(path.join(__dirname,'../xrpl-proxy/supply-policy.json'),'utf8'));
+  policy.circulation={reviewStatus:'project-reviewed',reviewedAt:'2026-09-10',evidenceUrl:'https://example.com/allocation-policy',exclusions};
+  return policy;
+}
+const escrow=(index,value,issuer=XRBC.issuer)=>({index:index.repeat(64),LedgerEntryType:'Escrow',Amount:{currency:XRBC.currency,issuer,value}});
+test('tracker supply preserves decimal bytes and withholds unreviewed circulation',async()=>{
+  const f=fixture({noAuth:true}),combined=await f.request('/supply/xrbc'),total=await f.request('/supply/xrbc/total'),max=await f.request('/supply/xrbc/max'),circ=await f.request('/supply/xrbc/circulating');
+  assert.equal(combined.status,200);assert.equal(combined.body.data.totalSupply,'20999999.999999996');
+  assert.equal(combined.body.data.circulatingSupply,null);assert.equal(combined.body.data.maxSupplyVerifiedOnLedger,false);
+  assert.equal(total.status,200);assert.equal(total.text,'20999999.999999996');assert.equal(total.headers['content-type'],'text/plain; charset=utf-8');
+  assert.equal(total.headers['x-xrpl-ledger-hash'],HASH);assert.equal(total.headers['cache-control'],'no-store');
+  assert.equal(max.text,'21000000');assert.equal(max.headers['x-xrbc-supply-basis'],'project-declared');
+  assert.equal(circ.status,503);assert.equal(circ.body.error.code,'supply_unverified');assert.ok(circ.headers['retry-after']);
+  assert.equal(f.rpcCalls.filter(x=>x.method==='gateway_balances').length,1);assert.equal(f.pingCount(),0);
+});
+test('total includes frozen and exact-issuer escrow; circulating avoids double exclusions',async()=>{
+  const entries=[{address:WALLET,reason:'treasury',evidenceUrl:'https://example.com/treasury'},{address:SECOND_WALLET,reason:'locked',evidenceUrl:'https://example.com/lock'}];
+  const f=fixture({supplyPolicy:reviewedSupply(entries),response:(r,method,p)=>{
+    if(method==='gateway_balances')return {...r,obligations:{[XRBC.currency]:'100'},frozen_balances:{[SECOND_WALLET]:[{currency:XRBC.currency,value:'20'}]},locked:{[XRBC.currency]:'999999'},...(p.hotwallet?{balances:{[WALLET]:[{currency:XRBC.currency,value:'30'}],[SECOND_WALLET]:[{currency:XRBC.currency,value:'20'}]}}:{})};
+    if(method==='account_objects')return {...r,account_objects:[escrow('C','10'),escrow('D','999999',WALLET)]};return r;
+  }}),r=await f.request('/supply/xrbc');
+  assert.equal(r.status,200);const s=r.body.data;assert.equal(s.totalSupply,'130');assert.equal(s.escrowedSupply,'10');
+  assert.equal(s.circulatingSupply,'70');assert.equal(s.nonCirculatingSupply,'60');assert.equal(s.excludedAccountSupply,'30');
+  assert.equal(s.exclusions[1].additionalExcluded,'0');assert.equal(s.escrowInventory.objects,1);
+  assert.ok(f.rpcCalls.filter(x=>x.method!=='ledger').every(x=>x.params.ledger_hash===HASH));
+});
+test('filtered empty escrow pages are followed until no marker remains',async()=>{
+  const f=fixture({response:(r,m,p)=>m==='account_objects'?{...r,account_objects:p.marker?[escrow('C','0.000001')]:[],...(p.marker?{}:{marker:'next'})}:r});
+  const r=await f.request('/supply/xrbc');assert.equal(r.status,200);assert.equal(r.body.data.escrowInventory.pages,2);
+  assert.equal(r.body.data.totalSupply,'21000000.000000996');assert.equal(r.body.data.maxSupply,null);
+  assert.equal((await f.request('/supply/xrbc/max')).status,503);
+});
+test('incomplete escrow traversal never produces partial supply or zero',async()=>{
+  const f=fixture({response:(r,m,p)=>m==='account_objects'?{...r,marker:String(Number(p.marker||0)+1)}:r});
+  const r=await f.request('/supply/xrbc/total');assert.equal(r.status,503);assert.equal(r.body.error.code,'incomplete_supply');
+  assert.equal(f.rpcCalls.filter(x=>x.method==='account_objects').length,10);
+});
+test('duplicate escrow identities and repeated pagination markers fail closed',async()=>{
+  for(const response of [(r,m)=>m==='account_objects'?{...r,account_objects:[escrow('C','1'),escrow('C','1')]}:r,(r,m)=>m==='account_objects'?{...r,marker:'repeat'}:r]){
+    const r=await fixture({response}).request('/supply/xrbc/total');assert.equal(r.status,502);assert.equal(r.body.error.code,'invalid_supply_data');
+  }
+});
+test('malformed upstream supply is never coerced to zero',async()=>{
+  for(const bad of [null,[],{[XRBC.currency]:5},{[XRBC.currency]:'NaN'},{[XRBC.currency]:'-1'}]){
+    const f=fixture({response:(r,m)=>m==='gateway_balances'?{...r,obligations:bad}:r});
+    const r=await f.request('/supply/xrbc/total');assert.equal(r.status,502);assert.equal(r.body.error.code,'invalid_supply_data');
+  }
+});
+test('supply rejects different account/ledger evidence and stale collections',async()=>{
+  for(const change of [{account:WALLET},{ledger_hash:'F'.repeat(64)},{validated:false}]){
+    const r=await fixture({response:(r,m)=>m==='account_objects'?{...r,...change}:r}).request('/supply/xrbc/total');assert.equal(r.status,502);
+  }
+  let f;f=fixture({response:(r,m)=>{if(m==='account_objects')f.advance(61000);return r;}});
+  const r=await f.request('/supply/xrbc/total');assert.equal(r.status,503);assert.equal(r.body.error.code,'stale_ledger');
+});
+test('reviewed empty allocation policy can report a legitimate zero circulating value',async()=>{
+  const f=fixture({supplyPolicy:reviewedSupply(),response:(r,m)=>{if(m==='gateway_balances'){const {obligations,...empty}=r;return empty;}return r;}});
+  const r=await f.request('/supply/xrbc/circulating');assert.equal(r.status,200);assert.equal(r.text,'0');
+});
+test('supply policy rejects duplicate/issuer exclusions and unverifiable review metadata',async()=>{
+  const entry={address:WALLET,reason:'team',evidenceUrl:'https://example.com/team'};
+  const policies=[reviewedSupply([entry,entry]),reviewedSupply([{...entry,address:XRBC.issuer}]),reviewedSupply([{...entry,evidenceUrl:'file:///secret'}])];
+  for(const date of ['2026-02-31','2099-01-01',null]){const p=reviewedSupply();p.circulation.reviewedAt=date;policies.push(p);}
+  const wrong=reviewedSupply();wrong.asset.issuer=WALLET;policies.push(wrong);
+  for(const supplyPolicy of policies){const r=await fixture({supplyPolicy}).request('/supply/xrbc/total');assert.equal(r.status,503);assert.equal(r.body.error.code,'supply_policy_unavailable');}
+});
+test('unrequested or excessive excluded balances cannot inflate or underflow circulation',async()=>{
+  const entry={address:WALLET,reason:'team',evidenceUrl:'https://example.com/team'};
+  for(const balances of [{[WALLET]:[{currency:XRBC.currency,value:'30000000'}]},{[SECOND_WALLET]:[{currency:XRBC.currency,value:'1'}]}]){
+    const r=await fixture({supplyPolicy:reviewedSupply([entry]),response:(r,m,p)=>m==='gateway_balances'&&p.hotwallet?{...r,balances}:r}).request('/supply/xrbc/circulating');
+    assert.equal(r.status,502);assert.equal(r.body.error.code,'invalid_supply_data');
+  }
+});
+test('combined tracker metrics withhold unverified capitalization and historical metrics',async()=>{
+  const f=fixture(),r=await f.request('/metrics/xrbc');assert.equal(r.status,200);
+  assert.equal(r.body.data.estimatedMarketCapXrp,null);assert.equal(r.body.data.estimatedFullyDilutedValueXrp,'2100000');
+  for(const field of ['marketCapUsd','volume24h','priceChange24h'])assert.equal(r.body.data[field],null);
+  const noPool=await fixture({noPool:true,supplyPolicy:reviewedSupply()}).request('/metrics/xrbc');
+  assert.equal(noPool.status,200);assert.equal(noPool.body.data.estimatedMarketCapXrp,null);assert.equal(noPool.body.data.estimatedFullyDilutedValueXrp,null);
+});
+test('query parameters cannot supply allocation facts or override the declared cap',async()=>{
+  const r=await fixture().request('/supply/xrbc?circulatingSupply=21000000&maxSupply=999&reviewStatus=project-reviewed');
+  assert.equal(r.status,200);assert.equal(r.body.data.circulatingSupply,null);assert.equal(r.body.data.maxSupply,'21000000');
+});
 test('AMM asset order and fee units are normalized',()=>{const p=api.poolData({amm:{account:WALLET,amount:'1000000000',amount2:{...XRBC,value:'10000'},trading_fee:300}},XRBC);assert.deepEqual(p.reserves,['10000','1000']);assert.equal(p.feePercent,.3);const q=api.ammQuote(p,25,XRP,XRBC);assert(q.output>0);assert(q.impactPercent>0);});
 test('funded books share owner budget and preserve tiny partial fills',()=>{const offer={Account:WALLET,TakerGets:'10000000',TakerPays:{...XRBC,value:'100'},owner_funds:'10000000'};const b=api.fundedBook({offers:[offer,offer]},XRBC,XRP);assert.equal(b.fundedOffers,1);assert.equal(b.rows[0].output,'10');assert.equal(api.simulateBook({rows:[{maker:'one',input:'1e-13',rate:'1'}],fundedOffers:1},1e-12).partial,true);});
 test('Sentinel succeeds when unrelated books are unavailable; absent pool has null score',async()=>{const f=fixture({bookFails:true});const r=await f.request('/liquidity');assert.equal(r.status,200);assert.equal(typeof r.body.data.analysis.score,'number');assert(!f.rpcCalls.some(c=>c.method==='book_offers'));const absent=await fixture({noPool:true}).request('/liquidity');assert.equal(absent.body.data.analysis.score,null);});
@@ -81,7 +169,8 @@ test('bridge check handles zero reserves without claiming independent verificati
 test('public rate limit is bounded and returns retry guidance',async()=>{const f=fixture();let r;for(let i=0;i<61;i++)r=await f.request('/project');assert.equal(r.status,429);assert(r.headers['retry-after']);});
 test('OpenAPI routes and portal catalog agree with the release inventory',()=>{
  const root=path.resolve(__dirname,'..'),spec=JSON.parse(fs.readFileSync(root+'/xrpl-proxy/openapi.json'));
- assert.equal(spec.openapi,'3.1.0');assert.equal(Object.keys(spec.paths).length,22);assert.equal(api.TOOLS.length,12);
+ assert.equal(spec.openapi,'3.1.0');assert.equal(spec.info.version,api.VERSION);assert.equal(Object.keys(spec.paths).length,24);assert.equal(api.TOOLS.length,12);
+ const scalar=spec.paths['/supply/xrbc/{metric}'].get;assert.deepEqual(scalar.parameters[0].schema.enum,['total','circulating','max']);assert.ok(scalar.responses[200].content['text/plain']);assert.ok(scalar.responses[503]);assert.ok(spec.paths['/metrics/xrbc'].get.responses[200]);
  for(const [endpoint,method] of [['/transactions/{hash}','get'],['/settlement/verify','post']]){
   const conflict=spec.paths[endpoint][method].responses['409'];
   assert.match(conflict.description,/not been validated/i);
