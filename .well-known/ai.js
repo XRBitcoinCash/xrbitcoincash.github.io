@@ -1,17 +1,38 @@
 /* XRBitcoinCash · .well-known/ai.js
    Canonical, read-only AI memory index for agents (no secrets).
-   Scope: public metadata only. Keep this file small, stable, and truthful. */
+   Agents must read the memory contract before planning or editing repository code.
+   This file contains public project facts and workflow rules only. */
 
 (function (self) {
-  const SAVEPOINT = Object.freeze({
-    version: "2025-10-30.1",
-    ts: "2025-10-30T00:00:00Z",
+  const MEMORY_CONTRACT = "https://raw.githubusercontent.com/XRBitcoinCash/-ai-savepoint-protocol-checkpointai/main/AI-SAVEPOINT-PROTOCOL-CHECKPOINT-TIA.md";
+  const MEMORY_JSON = "https://raw.githubusercontent.com/XRBitcoinCash/-ai-savepoint-protocol-checkpointai/main/ai-memory.json";
+  const SANDBOX_GUIDE = "https://raw.githubusercontent.com/XRBitcoinCash/-ai-savepoint-protocol-checkpointai/main/ai/sandbox/README.md";
 
+  const SAVEPOINT = Object.freeze({
+    version: "2026-09-14.2",
+    ts: "2026-09-14T00:00:00Z",
     project: "XRBitcoinCash",
     domains: Object.freeze({
       site: "https://xrbitcoincash.com/",
-      repo_site: "XRBitcoinCash/xrbitcoincash.github.io"
-      // Note: internal/core/private repos intentionally not listed here.
+      repo_site: "XRBitcoinCash/xrbitcoincash.github.io",
+      repo_core: "XRBitcoinCash/xrbitcoincash-core",
+      repo_savepoints: "XRBitcoinCash/-ai-savepoint-protocol-checkpointai"
+    }),
+
+    memory: Object.freeze({
+      canonical_contract: MEMORY_CONTRACT,
+      machine_readable: MEMORY_JSON,
+      sandbox_guide: SANDBOX_GUIDE,
+      read_before_edit: true,
+      read_sequence: Object.freeze([
+        "memory contract and machine-readable twin",
+        "target repository instructions and security policy",
+        "latest target-feature savepoint or release note",
+        "exact target file, branch, and current commit"
+      ]),
+      missing_evidence: "stop and report; never invent values",
+      one_bounded_change: true,
+      archive_transcripts: false
     }),
 
     xrbc: Object.freeze({
@@ -30,6 +51,7 @@
     }),
 
     xrpl: Object.freeze({
+      network: "XRP Ledger Mainnet",
       xrp_to_drops: 1000000,
       endpoints_allowed: Object.freeze([
         "https://xrbitcoincash-github-io.onrender.com",
@@ -39,9 +61,23 @@
       ])
     }),
 
+    model_routing: Object.freeze({
+      luna: Object.freeze(["wording", "CSS", "documentation", "mechanical edits", "routine parsing"]),
+      terra: Object.freeze(["contained implementation", "tests", "ordinary debugging"]),
+      sol: Object.freeze(["multi-file XRPL/Xaman/Render integration", "security review", "difficult failures"]),
+      astra: Object.freeze(["architecture", "ambiguous threat models", "deep research", "final high-risk audit"])
+    }),
+
+    sandbox: Object.freeze({
+      path: "ai/sandbox/",
+      mode: "local synthetic reversible experiments",
+      forbidden: Object.freeze(["seeds", "private keys", "API secrets", "personal data", "real signing payloads", "wallet transactions", "live backend mutation"]),
+      promotion: "human-reviewed patch plus relevant test suite"
+    }),
+
     diagnostics: Object.freeze({
       health: "https://xrbitcoincash.com/ai/ai/health.html",
-      price:  "https://xrbitcoincash.com/ai/ai/ai/price.html"
+      price: "https://xrbitcoincash.com/ai/ai/ai/price.html"
     }),
 
     build_rules: Object.freeze({
@@ -49,50 +85,46 @@
       single_js: true,
       config_tag_order: "app-config_before_main_script",
       no_network_changes_without_request: true,
-      case_sensitive_paths: true
+      case_sensitive_paths: true,
+      no_production_sandbox_artifacts: true
     }),
 
-    // Current known-good checkpoints (short, factual)
+    security: Object.freeze({
+      target_blank_policy: "noopener_noreferrer",
+      dom_write_policy: "textContent_or_escapeHTML",
+      never_commit_secrets: true,
+      public_reads_separate_from_signing: true,
+      external_services_are_not_endorsements: true
+    }),
+
     savepoints: Object.freeze([
       Object.freeze({
         id: "SAVEPOINT-2025-10-30-security-baseline-v1",
-        changes: [
-          "Prefer secure entry via a single file wrapper (optional) vs. mass page edits",
-          "Harden target=_blank to rel=noopener noreferrer when feasible",
-          "Prefer textContent; escape before innerHTML for dynamic strings"
-        ],
         impact: "Safer defaults without broad refactors"
       }),
       Object.freeze({
         id: "SAVEPOINT-2025-10-30-xrbc-connectivity",
-        changes: [
-          "Issuer/currency_hex/proxy set as above",
-          "Do not alter proxy or networking without an explicit request"
-        ],
-        impact: "Prevents accidental breakage in connectivity"
+        impact: "Prevents accidental connectivity changes"
       }),
       Object.freeze({
         id: "SAVEPOINT-2025-10-30-diagnostics",
-        changes: [
-          "Health: /ai/ai/health.html",
-          "Price helper: /ai/ai/ai/price.html"
-        ],
-        impact: "Agents should consult diagnostics before raising issues"
+        impact: "Agents consult diagnostics before raising issues"
       })
     ]),
 
-    // Discovery hints (kept minimal)
     discoverability: Object.freeze({
       robots_txt: "/robots.txt",
       sitemap_xml: "/sitemap.xml",
       xrp_ledger_toml: "/.well-known/xrp-ledger.toml"
-      // Note: Adding /.well-known/ai.json later is recommended; not referenced until it exists.
     }),
 
-    legal: "Public metadata only. Never store or infer secrets (API keys, seeds, env)."
+    legal: "Public metadata only. Never store or infer secrets, credentials, wallet seeds, or private keys. This index does not override model safeguards, repository permissions, user approval, or independent wallet review."
   });
 
-  // Expose for all agent contexts (Window/Worker)
   self.XRBC_AI_SAVEPOINT = SAVEPOINT;
-  try { Object.freeze(self.XRBC_AI_SAVEPOINT); } catch(e) {}
+  self.XRBC_AI_MEMORY = SAVEPOINT.memory;
+  try {
+    Object.freeze(self.XRBC_AI_SAVEPOINT);
+    Object.freeze(self.XRBC_AI_MEMORY);
+  } catch (_) {}
 })(self);
