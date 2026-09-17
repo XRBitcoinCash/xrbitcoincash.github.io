@@ -1,0 +1,110 @@
+/* Progressive enhancement: no layout overrides until the script succeeds. */
+body.xrbc-app-ready { --ui-bg:#0b1019; --ui-panel:#131b28; --ui-border:#2a3545; --ui-muted:#b0bdd0; --ui-blue:#91b9ff; background:var(--ui-bg); color:#edf3fc; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; margin:0; }
+.xrbc-app-ready *, .xrbc-app-ready *::before, .xrbc-app-ready *::after { box-sizing:border-box; }
+.xrbc-app-ready a { color:var(--ui-blue); }
+.xrbc-app-ready .wrap { margin:0 0 0 232px !important; padding:20px 24px !important; width:auto !important; max-width:none !important; min-width:0; }
+.xrbc-ui-sidebar { position:fixed; inset:0 auto 0 0; width:232px; z-index:100; padding:24px 16px; overflow-y:auto; background:#101724; border-right:1px solid var(--ui-border); }
+.xrbc-ui-brand { display:flex; gap:10px; align-items:center; color:#f5f8ff !important; font-weight:700; font-size:16px; text-decoration:none; margin-bottom:28px; }
+.xrbc-ui-brand-mark { display:grid; place-items:center; flex:0 0 34px; height:34px; border:1px solid #658eff; border-radius:10px; color:#a8c4ff; font-size:20px; }
+.xrbc-ui-brand small { display:block; color:var(--ui-muted); font-size:11px; font-weight:400; margin-top:2px; }
+.xrbc-ui-nav { display:flex; flex-direction:column; gap:4px; }
+.xrbc-ui-nav a { display:block; padding:10px 12px; min-height:44px; border-radius:7px; text-decoration:none; font-size:14px; color:#ccd7e8; }
+.xrbc-ui-nav a:hover { background:#1b2739; color:white; }
+.xrbc-ui-nav a[aria-current="page"] { background:#22375a; color:#f4f7ff; box-shadow:inset 3px 0 0 #91b9ff; font-weight:650; }
+.xrbc-ui-nav-label { padding:22px 12px 6px; color:var(--ui-muted); font-size:11px; text-transform:uppercase; letter-spacing:.1em; }
+.xrbc-ui-more { margin:18px 0 0; padding-top:14px; border-top:1px solid var(--ui-border); color:var(--ui-muted); }
+.xrbc-ui-more > summary { cursor:pointer; padding:8px 12px; font-size:13px; }
+.xrbc-ui-more nav { position:static !important; display:flex; flex-direction:column; padding:10px 12px; gap:8px; background:none; border:0; }
+.xrbc-ui-more nav a { font-size:13px; text-decoration:none; }
+.xrbc-ui-more nav h3 { font-size:12px; margin:10px 0 0; }
+.xrbc-app-ready .top-trustbar { position:static !important; display:block; width:auto; margin:24px 8px 0; padding:12px 0 0; color:var(--ui-muted); font-size:10px; line-height:1.7; text-align:left; border:0; border-top:1px solid var(--ui-border); background:none; white-space:normal; }
+.xrbc-ui-header { display:flex; align-items:center; gap:14px; padding:0 0 18px; margin:0 0 18px; border-bottom:1px solid var(--ui-border); }
+.xrbc-ui-heading { flex:1; min-width:0; }
+.xrbc-ui-header h1 { margin:0; font-size:clamp(17px,1.7vw,24px); line-height:1.3; font-weight:650; letter-spacing:-.03em; color:#f1f5fd; }
+.xrbc-ui-header p { margin:4px 0 0; font-size:13px; color:var(--ui-muted); }
+.xrbc-ui-wallet-link { border:1px solid #5274a7; border-radius:7px; padding:9px 13px; font-size:13px; text-decoration:none; white-space:nowrap; }
+.xrbc-ui-view { min-width:0; scroll-margin-top:16px; }
+.xrbc-ui-view[hidden], .xrbc-ui-backdrop[hidden] { display:none !important; }
+#xrbc-ui-overview { display:grid; grid-template-columns:minmax(0,1fr) 290px; gap:16px; align-items:start; }
+#xrbc-ui-overview > #walletDebug { grid-column:1 / -1; }
+.xrbc-app-ready .panel, .xrbc-app-ready .cta, .xrbc-app-ready .hero-card, .xrbc-app-ready .xrbc-card { border:1px solid var(--ui-border); border-radius:10px; background:var(--ui-panel); box-shadow:none; color:#edf3fc; }
+.xrbc-ui-view > .panel { margin:0 0 16px; padding:16px; min-width:0; }
+.xrbc-app-ready #xrbc-market { padding:16px; margin:0; }
+.xrbc-app-ready h2 { font-size:18px; line-height:1.35; margin:0 0 8px; color:#edf3fc; }
+.xrbc-app-ready h3 { color:#e3ebf7; }
+.xrbc-app-ready p { overflow-wrap:break-word; }
+.xrbc-app-ready .market-header { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 10px; align-items:start; }
+.xrbc-app-ready .market-header > div:first-child { flex:1 1 220px; }
+.xrbc-app-ready .market-header p { font-size:12px; line-height:1.45; color:var(--ui-muted); margin:4px 0 0; }
+.xrbc-app-ready .market-controls { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+.xrbc-app-ready .market-controls .market-pill { font-size:10px; }
+.xrbc-app-ready .market-clockbar { display:flex; flex-wrap:wrap; gap:6px 14px; margin:0 0 12px; font-size:10px; color:var(--ui-muted); }
+.xrbc-app-ready .market-stat-grid, .xrbc-ui-extra-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0; }
+.xrbc-app-ready .stat-card { border:1px solid var(--ui-border); border-radius:7px; padding:10px 12px; background:#101825; min-width:0; box-shadow:none; }
+.xrbc-app-ready .stat-card .stat-label, .xrbc-app-ready .stat-card small { font-size:11px; color:var(--ui-muted); }
+.xrbc-app-ready .stat-card .stat-value { font-size:20px; line-height:1.25; margin:4px 0; overflow-wrap:anywhere; }
+.xrbc-app-ready .stat-card .stat-note, .xrbc-app-ready .stat-card p { font-size:11px; color:var(--ui-muted); margin:4px 0 0; }
+.xrbc-ui-disclosure { margin:0 0 12px; border:1px solid var(--ui-border); border-radius:8px; background:var(--ui-panel); min-width:0; }
+.xrbc-ui-disclosure > summary { padding:12px 14px; cursor:pointer; font-size:13px; color:#dce7f8; min-height:44px; }
+.xrbc-ui-disclosure[open] > summary { border-bottom:1px solid var(--ui-border); }
+.xrbc-ui-disclosure-content { padding:12px; min-width:0; }
+.xrbc-ui-disclosure-content > .panel { margin:0; box-shadow:none; border:0; background:transparent; padding:4px; }
+.xrbc-ui-stat-details { margin:8px 0 12px; border:0; background:transparent; }
+.xrbc-ui-stat-details > summary { padding:8px 0; font-size:12px; }
+.xrbc-ui-stat-details[open] > summary { border:0; }
+.xrbc-ui-extra-stats { padding-bottom:8px; }
+.xrbc-app-ready .chart-shell { margin-top:8px; padding:12px; background:#0e1622; border:1px solid var(--ui-border); border-radius:8px; min-width:0; }
+.xrbc-app-ready .chart-header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; align-items:center; margin:0 0 10px; }
+.xrbc-app-ready .chart-header h3 { font-size:14px; margin:0; }
+.xrbc-app-ready .chart-header p { font-size:11px; margin:4px 0 0; color:var(--ui-muted); }
+.xrbc-app-ready .chart-stage { height:260px !important; min-height:260px !important; }
+.xrbc-app-ready .chart-viewport { min-height:260px !important; min-width:0; max-width:100%; overflow-x:auto; }
+.xrbc-ui-range { display:flex; flex-direction:column; gap:3px; color:var(--ui-muted); font-size:10px; }
+.xrbc-ui-range select { min-height:36px; min-width:84px; border:1px solid #536886; border-radius:6px; background:#17243a; color:white; padding:5px 9px; font:inherit; font-size:12px; }
+.xrbc-ui-chart-details { margin:10px 0 0; background:transparent; }
+.xrbc-ui-chart-details .chart-toolbar, .xrbc-ui-chart-details .chart-nav, .xrbc-ui-chart-details .chart-footer-actions { display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; }
+.xrbc-ui-chart-details .chart-insights, .xrbc-ui-chart-details .chart-mini { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.xrbc-ui-chart-details .history-inline-facts { display:flex; flex-wrap:wrap; gap:8px; }
+.xrbc-ui-chart-details .chart-legend { font-size:11px; margin-top:10px; }
+.xrbc-app-ready #wallet.cta { display:flex; flex-direction:column; gap:14px; padding:16px; margin:0; min-width:0; }
+.xrbc-app-ready .wallet-copy { min-width:0; }
+.xrbc-app-ready .wallet-title { font-size:17px; }
+.xrbc-app-ready .wallet-note { font-size:12px; line-height:1.55; color:var(--ui-muted); overflow-wrap:anywhere; }
+.xrbc-app-ready #wallet .toolbar { display:grid; grid-template-columns:1fr; gap:8px; margin:12px 0; }
+.xrbc-app-ready .btn, .xrbc-app-ready button { border:1px solid #4b6384; background:#1b2b44; color:#edf3fc; border-radius:6px; padding:8px 11px; min-height:36px; font:inherit; font-size:12px; line-height:1.4; cursor:pointer; box-shadow:none; text-decoration:none; }
+.xrbc-app-ready #wallet .btn { min-height:42px; text-align:center; font-size:13px; }
+.xrbc-app-ready #connectBtn { background:#2453b4; border-color:#477adf; color:white; font-weight:650; }
+.xrbc-app-ready .btn:hover, .xrbc-app-ready button:hover { filter:brightness(1.17); }
+.xrbc-app-ready #wallet .qr { position:static; width:100%; min-width:0; padding:12px 8px 0; border:0; border-top:1px solid var(--ui-border); background:none; text-align:center; }
+.xrbc-app-ready #wallet .qr-shell { width:176px; max-width:100%; height:auto; min-height:0; margin:10px auto; padding:8px; border-radius:8px; background:white; }
+.xrbc-app-ready #wallet .qr-shell img, .xrbc-app-ready #wallet .qr-shell canvas { max-width:100%; width:160px; height:auto; object-fit:contain; }
+.xrbc-app-ready .qr-label { font-size:11px; color:var(--ui-muted); }
+.xrbc-app-ready #openInXaman { margin:8px 0; }
+.xrbc-app-ready .history-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
+.xrbc-app-ready .history-card, .xrbc-app-ready .history-table-wrap, .xrbc-app-ready .table-wrap { min-width:0; max-width:100%; overflow-x:auto; }
+.xrbc-app-ready table { font-size:12px; max-width:100%; }
+.xrbc-app-ready #issuer-meta { overflow-x:auto; }
+.xrbc-app-ready .hero-card { padding:20px; margin:0; }
+.xrbc-app-ready .hero-card h2 { font-size:24px; }
+.xrbc-app-ready .promo-grid, .xrbc-app-ready .micro-grid { gap:12px; margin:16px 0; }
+.xrbc-app-ready footer { margin:18px 0 0; padding:14px 0; font-size:11px; color:var(--ui-muted); border-top:1px solid var(--ui-border); }
+.xrbc-app-ready :is(a,button,summary,select):focus-visible { outline:3px solid #b9d1ff; outline-offset:3px; }
+.xrbc-ui-toggle, .xrbc-ui-close { display:none; }
+.xrbc-ui-backdrop { position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.65) !important; border:0 !important; border-radius:0 !important; }
+@media(min-width:1600px) { .xrbc-app-ready .chart-viewport { min-height:310px !important; } .xrbc-app-ready .market-stat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .xrbc-app-ready .chart-stage { height:310px !important; min-height:310px !important; } }
+@media(max-width:1099px) { .xrbc-app-ready .wrap { margin-left:0 !important; padding:18px !important; } .xrbc-ui-sidebar { transform:translateX(-100%); width:260px; visibility:hidden; } .xrbc-ui-menu-open .xrbc-ui-sidebar { transform:translateX(0); visibility:visible; } .xrbc-ui-menu-open { overflow:hidden; } .xrbc-ui-toggle, .xrbc-ui-close { display:block; } .xrbc-ui-close { margin:-12px 0 16px; } #xrbc-ui-overview { grid-template-columns:minmax(0,1fr) 270px; } }
+@media(max-width:760px) { .xrbc-app-ready .chart-viewport { min-height:220px !important; } .xrbc-app-ready .wrap { padding:12px !important; } .xrbc-ui-header { gap:10px; margin-bottom:12px; padding-bottom:12px; } .xrbc-ui-header h1 { font-size:17px; } .xrbc-ui-wallet-link { font-size:11px; padding:9px; } #xrbc-ui-overview { grid-template-columns:minmax(0,1fr); gap:12px; } .xrbc-app-ready #xrbc-market { padding:12px; } .xrbc-app-ready .market-header > div:first-child { flex-basis:100%; } .xrbc-app-ready .market-header p { font-size:11px; } .xrbc-app-ready .market-clockbar { font-size:9px; gap:3px 10px; } .xrbc-app-ready .stat-card { padding:8px 10px; } .xrbc-app-ready .stat-card .stat-value { font-size:18px; } .xrbc-app-ready .chart-shell { padding:10px; } .xrbc-app-ready .chart-stage { height:220px !important; min-height:220px !important; } .xrbc-app-ready .btn, .xrbc-app-ready button, .xrbc-ui-range select { min-height:44px; } .xrbc-app-ready #wallet.cta { display:grid; grid-template-columns:minmax(0,1fr) 130px; align-items:start; gap:12px; padding:12px; } .xrbc-app-ready #wallet .qr { padding:0; border:0; } .xrbc-app-ready #wallet .qr-shell { width:130px; padding:6px; } .xrbc-app-ready #wallet .qr-shell img, .xrbc-app-ready #wallet .qr-shell canvas { width:118px; } .xrbc-app-ready #wallet .qr-label { font-size:10px; } .xrbc-app-ready .hero-layout, .xrbc-app-ready .promo-grid, .xrbc-app-ready .micro-grid { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:360px) { .xrbc-ui-wallet-link { display:none; } .xrbc-app-ready #wallet.cta { grid-template-columns:minmax(0,1fr); } .xrbc-app-ready #wallet .qr-shell { width:176px; } .xrbc-app-ready #wallet .qr-shell img, .xrbc-app-ready #wallet .qr-shell canvas { width:160px; } }
+@media(prefers-reduced-motion:reduce) { .xrbc-app-ready *, .xrbc-app-ready *::before, .xrbc-app-ready *::after { scroll-behavior:auto !important; animation:none !important; transition:none !important; } }
+
+/* Connection help is closed initially; an existing wallet action or QR update opens it. */
+.xrbc-app-ready #wallet .xrbc-ui-wallet-help { width:100%; margin:0; }
+.xrbc-app-ready #wallet .xrbc-ui-wallet-help > summary { padding:10px 8px; font-size:12px; }
+.xrbc-app-ready #wallet .xrbc-ui-wallet-help .qr { width:100%; border:0; padding:0; }
+@media(max-width:760px) { .xrbc-app-ready #wallet.cta { display:flex; flex-direction:column; align-items:stretch; } .xrbc-app-ready #wallet .qr-shell { width:176px; } .xrbc-app-ready #wallet .qr-shell img, .xrbc-app-ready #wallet .qr-shell canvas { width:160px; } }
+@media(max-width:360px) { .xrbc-app-ready .chart-viewport, .xrbc-app-ready .chart-stage { min-height:180px !important; } .xrbc-app-ready .chart-stage { height:180px !important; } }
+
+.xrbc-ui-wallet-panel { min-width:0; }
+.xrbc-ui-wallet-panel > summary { display:none; }
+@media(min-width:1280px) { .xrbc-app-ready .market-stat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media(max-width:760px) { .xrbc-ui-wallet-panel { border:1px solid var(--ui-border); border-radius:8px; background:var(--ui-panel); } .xrbc-ui-wallet-panel > summary { display:list-item; padding:12px; cursor:pointer; min-height:44px; font-size:13px; } .xrbc-app-ready .xrbc-ui-wallet-panel #wallet.cta { border:0; border-top:1px solid var(--ui-border); border-radius:0 0 8px 8px; } }
