@@ -1,0 +1,62 @@
+name: Sync production homepage from GitLab
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-home-from-gitlab.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xrbc-home-production-sync
+  cancel-in-progress: true
+
+jobs:
+  sync-home:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out GitHub Pages repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download the validated GitLab Pages homepage build
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://xrbitcoincash-project-15389d.gitlab.io'
+          curl --fail --location --retry 4 --retry-delay 2 "$base/" -o index.html.next
+          curl --fail --location --retry 4 --retry-delay 2 "$base/xrbc-home-compact.css" -o xrbc-home-compact.css.next
+          curl --fail --location --retry 4 --retry-delay 2 "$base/xrbc-home-compact.js" -o xrbc-home-compact.js.next
+          curl --fail --location --retry 4 --retry-delay 2 "$base/xrbc-liquidity-model.js" -o xrbc-liquidity-model.js.next
+
+          test -s index.html.next
+          test -s xrbc-home-compact.css.next
+          test -s xrbc-home-compact.js.next
+          test -s xrbc-liquidity-model.js.next
+          grep -q 'data-xrbc-compact="style"' index.html.next
+          grep -q 'data-xrbc-compact="script"' index.html.next
+          grep -q 'data-xrbc-compact="liquidity-model"' index.html.next
+          grep -q 'xrbc-liquidity-impact' xrbc-liquidity-model.js.next
+
+          mv index.html.next index.html
+          mv xrbc-home-compact.css.next xrbc-home-compact.css
+          mv xrbc-home-compact.js.next xrbc-home-compact.js
+          mv xrbc-liquidity-model.js.next xrbc-liquidity-model.js
+
+      - name: Commit production homepage only when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add index.html xrbc-home-compact.css xrbc-home-compact.js xrbc-liquidity-model.js
+          if git diff --cached --quiet; then
+            echo 'GitHub Pages homepage is already synchronized.'
+            exit 0
+          fi
+          git config user.name 'XRBC Production Sync'
+          git config user.email 'xrbitcoincash@users.noreply.github.com'
+          git commit -m 'Sync live homepage from GitLab Pages'
+          git push origin HEAD:main
