@@ -3,7 +3,7 @@
 const crypto = require('node:crypto');
 const core = require('./api-core.cjs');
 const {createSupply} = require('./supply.cjs');
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 const SITE = 'https://xrbitcoincash.com';
 const BASE = 'https://xrbitcoincash-github-io.onrender.com/api/v1';
 const XRBC = Object.freeze({currency:'5852626974636F696E6361736800000000000000',issuer:'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw'});
@@ -195,17 +195,25 @@ function createApi(options={}){
   // Read-only XRPL Media Desk feed. Every upstream endpoint is fixed here;
   // the browser never supplies a fetch URL and returned links are sanitized.
   const MEDIA_NEWS_ENDPOINTS=Object.freeze([
-    {id:'xrp-ledger',priority:0,format:'json',url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger'},
-    {id:'xrp',priority:1,format:'json',url:'https://cryptocurrency.cv/api/search?q=xrp'},
-    {id:'ripple',priority:2,format:'json',url:'https://cryptocurrency.cv/api/search?q=ripple'},
-    {id:'rlusd',priority:3,format:'json',url:'https://cryptocurrency.cv/api/search?q=rlusd'},
-    {id:'xaman',priority:4,format:'json',url:'https://cryptocurrency.cv/api/search?q=xaman'},
-    {id:'latest',priority:10,format:'json',url:'https://cryptocurrency.cv/api/news?limit=40'},
-    {id:'google-xrpl',priority:0,format:'rss',url:'https://news.google.com/rss/search?q=%22XRP%20Ledger%22&hl=en-US&gl=US&ceid=US:en'},
-    {id:'google-xrp',priority:1,format:'rss',url:'https://news.google.com/rss/search?q=XRP&hl=en-US&gl=US&ceid=US:en'},
-    {id:'google-ripple',priority:2,format:'rss',url:'https://news.google.com/rss/search?q=Ripple%20XRP&hl=en-US&gl=US&ceid=US:en'},
-    {id:'google-xaman',priority:4,format:'rss',url:'https://news.google.com/rss/search?q=Xaman%20XRP%20Ledger&hl=en-US&gl=US&ceid=US:en'},
-    {id:'google-crypto',priority:11,format:'rss',url:'https://news.google.com/rss/search?q=cryptocurrency&hl=en-US&gl=US&ceid=US:en'}
+    {id:'xrp-ledger',priority:0,format:'json',source:'XRPL / XRP',url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger'},
+    {id:'xrp',priority:1,format:'json',source:'XRPL / XRP',url:'https://cryptocurrency.cv/api/search?q=xrp'},
+    {id:'ripple',priority:2,format:'json',source:'XRPL / XRP',url:'https://cryptocurrency.cv/api/search?q=ripple'},
+    {id:'rlusd',priority:3,format:'json',source:'XRPL / XRP',url:'https://cryptocurrency.cv/api/search?q=rlusd'},
+    {id:'xaman',priority:4,format:'json',source:'XRPL / XRP',url:'https://cryptocurrency.cv/api/search?q=xaman'},
+    {id:'latest',priority:10,format:'json',source:'Crypto news',url:'https://cryptocurrency.cv/api/news?limit=40'},
+
+    {id:'google-xrpl',priority:0,format:'rss',source:'Google News · XRPL',url:'https://news.google.com/rss/search?q=%22XRP%20Ledger%22&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-xrp',priority:1,format:'rss',source:'Google News · XRP',url:'https://news.google.com/rss/search?q=XRP&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-ripple',priority:2,format:'rss',source:'Google News · Ripple',url:'https://news.google.com/rss/search?q=Ripple%20XRP&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-xaman',priority:4,format:'rss',source:'Google News · Xaman',url:'https://news.google.com/rss/search?q=Xaman%20XRP%20Ledger&hl=en-US&gl=US&ceid=US:en'},
+
+    {id:'coindesk',priority:7,format:'rss',source:'CoinDesk',url:'https://www.coindesk.com/arc/outboundfeeds/rss/'},
+    {id:'decrypt',priority:8,format:'rss',source:'Decrypt',url:'https://decrypt.co/feed'},
+    {id:'cointelegraph',priority:9,format:'rss',source:'Cointelegraph',url:'https://cointelegraph.com/rss'},
+
+    {id:'yt-xrplf',priority:0,format:'youtube',source:'XRP Ledger Foundation',url:'https://www.youtube.com/feeds/videos.xml?channel_id=UC6zTJdNCBI-TKMt5ubNc_Gg'},
+    {id:'yt-ripple',priority:2,format:'youtube',source:'Ripple',url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCjok1uTSBUgvRYQaASz6YWw'},
+    {id:'yt-wendy',priority:6,format:'youtube',source:'CryptoWendyO',url:'https://www.youtube.com/feeds/videos.xml?channel_id=UCla2jS8BrfLJj7kbKyy5_ew'}
   ]);
   let mediaNewsSnapshot=null;
   const mediaClean=(value,max=500)=>String(value??'')
@@ -228,36 +236,90 @@ function createApi(options={}){
   function mediaXmlText(value,max=500){
     let raw=String(value??'');
     if(raw.startsWith('<![CDATA[')&&raw.endsWith(']]>'))raw=raw.slice(9,-3);
+    raw=mediaDecodeXml(raw);
     raw=raw.replace(new RegExp('<[^>]*>','g'),' ');
-    return mediaClean(mediaDecodeXml(raw),max);
+    return mediaClean(raw,max);
   }
   function mediaTag(block,tag){
-    const match=String(block||'').match(new RegExp('<'+tag+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+tag+'>','i'));
+    const match=String(block||'').match(new RegExp('<'+tag.replace(':','\\:')+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+tag.replace(':','\\:')+'>','i'));
     return match?match[1]:'';
   }
+  function mediaTagAttr(block,tag,attr){
+    const match=String(block||'').match(new RegExp('<'+tag.replace(':','\\:')+'\\b[^>]*\\b'+attr+'=["\\\']([^"\\\']+)["\\\'][^>]*>','i'));
+    return match?mediaDecodeXml(match[1]):'';
+  }
+  function mediaHtmlImage(raw){
+    const decoded=mediaDecodeXml(String(raw||''));
+    const match=decoded.match(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i);
+    return match?mediaUrl(match[1],{image:true}):null;
+  }
+  function mediaRssImage(block){
+    const candidates=[
+      mediaTagAttr(block,'media:content','url'),
+      mediaTagAttr(block,'media:thumbnail','url'),
+      mediaTagAttr(block,'enclosure','url'),
+      mediaHtmlImage(mediaTag(block,'description')),
+      mediaHtmlImage(mediaTag(block,'content:encoded'))
+    ];
+    for(const candidate of candidates){
+      const image=mediaUrl(candidate,{image:true});
+      if(image)return image;
+    }
+    return null;
+  }
   function parseMediaRss(xml,endpoint){
-    if(typeof xml!=='string'||!xml.trim()||xml.length>2000000)throw new Error('media_invalid_rss');
+    if(typeof xml!=='string'||!xml.trim()||xml.length>3000000)throw new Error('media_invalid_rss');
     const blocks=xml.match(new RegExp('<item\\b[\\s\\S]*?<\\/item>','gi'))||[];
     const rows=[];
     for(const block of blocks.slice(0,50)){
-      const source=mediaXmlText(mediaTag(block,'source'),90)||'News source';
+      const rssSource=mediaXmlText(mediaTag(block,'source'),90);
+      const source=rssSource||endpoint.source||'News source';
       let title=mediaXmlText(mediaTag(block,'title'),280);
       const suffix=' - '+source;
       if(title.endsWith(suffix))title=title.slice(0,-suffix.length).trim();
-      const link=mediaUrl(mediaXmlText(mediaTag(block,'link'),1000));
+      const link=mediaUrl(mediaXmlText(mediaTag(block,'link'),1200));
       if(!title||!link)continue;
       const rawDate=mediaXmlText(mediaTag(block,'pubDate'),100);
       const parsed=Date.parse(rawDate);
       rows.push({
         title,
         link,
-        description:mediaXmlText(mediaTag(block,'description'),420),
+        description:mediaXmlText(mediaTag(block,'description')||mediaTag(block,'content:encoded'),420),
         pubDate:Number.isFinite(parsed)&&parsed<=now()+300000?new Date(parsed).toISOString():null,
         source,
         timeAgo:'',
-        image:null,
+        image:mediaRssImage(block),
         matchedBy:endpoint.id,
-        priority:endpoint.priority
+        priority:endpoint.priority,
+        kind:'article',
+        videoId:null
+      });
+    }
+    return rows;
+  }
+  function parseYoutubeAtom(xml,endpoint){
+    if(typeof xml!=='string'||!xml.trim()||xml.length>3000000)throw new Error('media_invalid_youtube');
+    const blocks=xml.match(new RegExp('<entry\\b[\\s\\S]*?<\\/entry>','gi'))||[];
+    const rows=[];
+    for(const block of blocks.slice(0,15)){
+      const videoId=mediaXmlText(mediaTag(block,'yt:videoId'),40);
+      const title=mediaXmlText(mediaTag(block,'title')||mediaTag(block,'media:title'),280);
+      if(!/^[A-Za-z0-9_-]{11}$/.test(videoId)||!title)continue;
+      const publishedRaw=mediaXmlText(mediaTag(block,'published'),100);
+      const parsed=Date.parse(publishedRaw);
+      const image=mediaUrl(mediaTagAttr(block,'media:thumbnail','url'),{image:true})||mediaUrl('https://i.ytimg.com/vi/'+videoId+'/hqdefault.jpg',{image:true});
+      rows.push({
+        title,
+        link:'https://www.youtube.com/watch?v='+videoId,
+        description:mediaXmlText(mediaTag(block,'media:description'),420),
+        pubDate:Number.isFinite(parsed)&&parsed<=now()+300000?new Date(parsed).toISOString():null,
+        source:endpoint.source||'YouTube',
+        timeAgo:'',
+        image,
+        matchedBy:endpoint.id,
+        priority:endpoint.priority,
+        kind:'video',
+        videoId
       });
     }
     return rows;
@@ -278,7 +340,9 @@ function createApi(options={}){
       timeAgo:mediaClean(row.timeAgo,40),
       image:mediaUrl(row.image||row.imageUrl||row.urlToImage||row.thumbnail||row.image_url,{image:true}),
       matchedBy:endpoint.id,
-      priority:endpoint.priority
+      priority:endpoint.priority,
+      kind:mediaClean(row.kind||'article',20)==='video'?'video':'article',
+      videoId:/^[A-Za-z0-9_-]{11}$/.test(String(row.videoId||''))?String(row.videoId):null
     };
   }
   async function mediaNews(){
@@ -289,7 +353,7 @@ function createApi(options={}){
           response=await fetcher(endpoint.url,{
             method:'GET',
             headers:{
-              accept:endpoint.format==='rss'?'application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.5':'application/json',
+              accept:['rss','youtube'].includes(endpoint.format)?'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.5':'application/json',
               'user-agent':'XRBitcoinCash-Media/1.1'
             },
             signal:AbortSignal.timeout(9000),
@@ -301,6 +365,11 @@ function createApi(options={}){
           let xml;
           try{xml=await response.text();}catch{throw new Error('media_invalid_rss');}
           return {endpoint,rows:parseMediaRss(xml,endpoint),normalized:true};
+        }
+        if(endpoint.format==='youtube'){
+          let xml;
+          try{xml=await response.text();}catch{throw new Error('media_invalid_youtube');}
+          return {endpoint,rows:parseYoutubeAtom(xml,endpoint),normalized:true};
         }
         let data;
         try{data=await response.json();}catch{throw new Error('media_invalid_json');}
@@ -323,7 +392,7 @@ function createApi(options={}){
       articles.sort((a,b)=>a.priority-b.priority||(Date.parse(b.pubDate||0)-Date.parse(a.pubDate||0)));
       const result={
         version:2,
-        provider:successful.some(item=>item.endpoint.format==='rss')?'XRBC multi-source media':'cryptocurrency.cv',
+        provider:successful.some(item=>item.endpoint.format!=='json')?'XRBC rich multi-source media':'cryptocurrency.cv',
         fetchedAt:new Date(now()).toISOString(),
         stale:false,
         successfulSources:successful.map(item=>item.endpoint.id),
