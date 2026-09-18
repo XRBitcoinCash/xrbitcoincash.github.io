@@ -13,6 +13,20 @@ function fixture(config={}){
   let clock=EPOCH,created,pingCalls=0,accountBalance=config.balance||'2500',rpcCalls=[];
   const pinned={validated:true,ledger_hash:HASH,ledger_index:INDEX};
   const fetch=async(url,init)=>{
+    if(url.startsWith('https://cryptocurrency.cv/')){
+      if(config.mediaFails)throw new Error('media unavailable');
+      const u=new URL(url),query=(u.searchParams.get('q')||'').toLowerCase();
+      const label=query||'latest';
+      const title=query.includes('xrp ledger')?'XRPL amendment reaches validator vote':
+        query==='xrp'?'XRP liquidity update from major venue':
+        query==='ripple'?'Ripple publishes new XRP ecosystem update':
+        query==='rlusd'?'RLUSD expands on XRP Ledger':
+        query==='xaman'?'Xaman releases wallet update':
+        'Bitcoin and Ethereum lead wider crypto market';
+      const article={title,link:'https://example.com/'+encodeURIComponent(label),description:'Fixture article for '+label,pubDate:new Date(clock-60000).toISOString(),source:query?'Fixture XRPL News':'Fixture Market News',timeAgo:'1m ago'};
+      const data=config.mediaResponse?config.mediaResponse({url:u,query,article}):{articles:[article],totalCount:1,fetchedAt:new Date(clock).toISOString()};
+      return {ok:true,json:async()=>data};
+    }
     if(url.includes('xumm.app')){
       if(url.endsWith('/ping')){pingCalls++;if(config.pingFails)throw new Error('private upstream auth detail');return {ok:true,json:async()=>config.ping||{pong:true,auth:{application:{uuidv4:ENV.XAMAN_API_KEY,disabled:0}}}};}
       if(init.method==='POST'){created=JSON.parse(init.body);return {ok:true,json:async()=>({uuid:'22222222-2222-4222-8222-222222222222',next:{always:'https://xumm.app/sign/example'}})};}
@@ -56,7 +70,19 @@ function fixture(config={}){
   }
   return {request,signIn,rpcCalls,pingCount:()=>pingCalls,setBalance:v=>{accountBalance=v;},advance:ms=>{clock+=ms;}};
 }
-test('public discovery works with Express getter-only request properties',async()=>{const f=fixture();const r=await f.request('/');assert.equal(r.status,200);assert.equal(r.body.data.mode,'read_only');assert.equal(r.headers['cache-control'],'no-store');});
+test('public discovery works with Express getter-only request properties',async()=>{const f=fixture();const r=await f.request('/');assert.equal(r.status,200);assert.equal(r.body.data.mode,'read_only');assert.equal(r.body.data.media,'https://xrbitcoincash-github-io.onrender.com/api/v1/media/news');assert.equal(r.headers['cache-control'],'no-store');});
+test('public media feed aggregates XRPL searches before wider crypto without ledger calls',async()=>{
+  const f=fixture(),r=await f.request('/media/news');
+  assert.equal(r.status,200);assert.equal(r.body.data.version,1);assert.equal(r.body.data.provider,'cryptocurrency.cv');
+  assert.equal(r.body.data.articles[0].matchedBy,'xrp-ledger');
+  assert(r.body.data.articles.some(a=>a.matchedBy==='latest'));
+  assert.equal(f.rpcCalls.length,0);
+});
+test('public media feed rejects query expansion and fails closed when every fixed upstream is unavailable',async()=>{
+  assert.equal((await fixture().request('/media/news?q=bitcoin')).status,400);
+  const down=await fixture({mediaFails:true}).request('/media/news');
+  assert.equal(down.status,503);assert.equal(down.body.error.code,'media_unavailable');
+});
 test('classic-address checksum rejects an altered issuer',()=>{assert.equal(api.address(WALLET),WALLET);assert.throws(()=>api.address(WALLET.slice(0,-1)+'s'));});
 test('decimal comparison and summation preserve exact fractional and large balances',()=>{assert.equal(api.compare('49.999999999999999','50'),-1);assert.equal(api.compare('5e1','50.000'),0);assert.equal(api.sumDecimals(['9007199254740993','0.000000001']),'9007199254740993.000000001');assert.notEqual(api.compare('0.10000000000000001','0.1'),0);});
 
