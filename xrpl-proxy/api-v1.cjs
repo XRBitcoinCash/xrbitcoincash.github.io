@@ -191,6 +191,100 @@ function createApi(options={}){
     }finally{activeRpc--;}
   }
   async function memo(k,ttl,fn){cleanup(cache);const hit=cache.get(k);if(hit)return hit.value;if(inflight.has(k))return inflight.get(k);if(inflight.size>=100)throw new ApiError(503,'busy','Cache fill capacity reached.');const pending=fn().then(value=>{if(cache.size>=300)cache.delete(cache.keys().next().value);cache.set(k,{value,expires:now()+ttl});return value;}).finally(()=>inflight.delete(k));inflight.set(k,pending);return pending;}
+
+  // Read-only XRPL Media Desk feed. Every upstream endpoint is fixed here;
+  // the browser never supplies a fetch URL and returned links are sanitized.
+  const MEDIA_NEWS_ENDPOINTS=Object.freeze([
+    {id:'xrp-ledger',priority:0,url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger'},
+    {id:'xrp',priority:1,url:'https://cryptocurrency.cv/api/search?q=xrp'},
+    {id:'ripple',priority:2,url:'https://cryptocurrency.cv/api/search?q=ripple'},
+    {id:'rlusd',priority:3,url:'https://cryptocurrency.cv/api/search?q=rlusd'},
+    {id:'xaman',priority:4,url:'https://cryptocurrency.cv/api/search?q=xaman'},
+    {id:'latest',priority:10,url:'https://cryptocurrency.cv/api/news?limit=40'}
+  ]);
+  let mediaNewsSnapshot=null;
+  const mediaClean=(value,max=500)=>String(value??'')
+    .replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g,' ')
+    .replace(/\s+/g,' ').trim().slice(0,max);
+  function mediaUrl(value,{image=false}={}){
+    try{
+      const u=new URL(String(value||''));
+      if(image)return u.protocol==='https:'?u.href:null;
+      return ['https:','http:'].includes(u.protocol)?u.href:null;
+    }catch{return null;}
+  }
+  function normalizeMediaArticle(row,endpoint){
+    if(!row||typeof row!=='object')return null;
+    const title=mediaClean(row.title,280),link=mediaUrl(row.link||row.url);
+    if(!title||!link)return null;
+    const rawDate=row.pubDate||row.publishedAt||row.date||null;
+    const parsed=rawDate?Date.parse(rawDate):NaN;
+    const pubDate=Number.isFinite(parsed)&&parsed<=now()+300000?new Date(parsed).toISOString():null;
+    return {
+      title,
+      link,
+      description:mediaClean(row.description||row.summary||row.excerpt,420),
+      pubDate,
+      source:mediaClean(row.source||row.sourceName||row.publisher||'News source',90)||'News source',
+      timeAgo:mediaClean(row.timeAgo,40),
+      image:mediaUrl(row.image||row.imageUrl||row.urlToImage||row.thumbnail||row.image_url,{image:true}),
+      matchedBy:endpoint.id,
+      priority:endpoint.priority
+    };
+  }
+  async function mediaNews(){
+    const refresh=async()=>{
+      const settled=await Promise.allSettled(MEDIA_NEWS_ENDPOINTS.map(async endpoint=>{
+        let response;
+        try{
+          response=await fetcher(endpoint.url,{
+            method:'GET',
+            headers:{accept:'application/json','user-agent':'XRBitcoinCash-Media/1.0'},
+            signal:AbortSignal.timeout(9000),
+            redirect:'follow'
+          });
+        }catch{throw new Error('media_upstream_unavailable');}
+        if(!response?.ok)throw new Error('media_upstream_unavailable');
+        let data;
+        try{data=await response.json();}catch{throw new Error('media_invalid_json');}
+        const rows=Array.isArray(data?.articles)?data.articles:Array.isArray(data?.results)?data.results:[];
+        return {endpoint,rows};
+      }));
+      const successful=settled.filter(item=>item.status==='fulfilled').map(item=>item.value);
+      if(!successful.length)throw new ApiError(503,'media_unavailable','Live media sources are temporarily unavailable.');
+      const seenLinks=new Set(),seenTitles=new Set(),articles=[];
+      for(const group of successful){
+        for(const row of group.rows.slice(0,50)){
+          const article=normalizeMediaArticle(row,group.endpoint);
+          if(!article)continue;
+          const linkKey=article.link.toLowerCase(),titleKey=article.title.toLowerCase();
+          if(seenLinks.has(linkKey)||seenTitles.has(titleKey))continue;
+          seenLinks.add(linkKey);seenTitles.add(titleKey);articles.push(article);
+        }
+      }
+      if(!articles.length)throw new ApiError(503,'media_empty','Live media sources returned no usable headlines.');
+      articles.sort((a,b)=>a.priority-b.priority||(Date.parse(b.pubDate||0)-Date.parse(a.pubDate||0)));
+      const result={
+        version:1,
+        provider:'cryptocurrency.cv',
+        fetchedAt:new Date(now()).toISOString(),
+        stale:false,
+        successfulSources:successful.map(item=>item.endpoint.id),
+        attemptedSources:MEDIA_NEWS_ENDPOINTS.map(item=>item.id),
+        articles:articles.slice(0,60).map(({priority,...article})=>article)
+      };
+      mediaNewsSnapshot=result;
+      return result;
+    };
+    try{return await memo('media:news:v1',120000,refresh);}
+    catch(error){
+      const age=mediaNewsSnapshot?now()-Date.parse(mediaNewsSnapshot.fetchedAt):Infinity;
+      if(mediaNewsSnapshot&&Number.isFinite(age)&&age<=15*60*1000){
+        return {...mediaNewsSnapshot,stale:true,ageSeconds:Math.max(0,Math.floor(age/1000))};
+      }
+      throw error;
+    }
+  }
   async function ledger(fresh=false){const fetchLedger=async()=>{const r=await rpc('ledger',{ledger_index:'validated',transactions:false,expand:false});const l=r.ledger,hash=r.ledger_hash||l?.ledger_hash,index=Number(r.ledger_index||l?.ledger_index),close=Number(l?.close_time);if(r.validated!==true||!/^[a-f0-9]{64}$/i.test(hash||'')||!Number.isInteger(index)||!Number.isFinite(close))throw new ApiError(503,'unvalidated_ledger','A validated ledger snapshot is unavailable.');const closedAt=(close+946684800)*1000,age=(now()-closedAt)/1000;if(age>60||age< -10)throw new ApiError(503,'stale_ledger','The validated ledger is not recent enough.');if(ledgerIndexes.size>=100)ledgerIndexes.delete(ledgerIndexes.keys().next().value);ledgerIndexes.set(hash,index);return {hash,index,closedAt:new Date(closedAt).toISOString()};};return fresh?fetchLedger():memo('ledger',3000,fetchLedger);}
   async function lines(account,peer,l,maxPages=5){const items=[],seen=new Set();let marker,pages=0;do{const r=await rpc('account_lines',{account,...(peer?{peer}:{}),ledger_hash:l.hash,limit:400,...(marker?{marker}:{})});if(!Array.isArray(r.lines))throw new ApiError(502,'invalid_upstream','Trustlines are unavailable.');for(const row of r.lines){if(peer&&row.account!==peer)throw new ApiError(502,'peer_mismatch','Upstream trustline issuer did not match.');const k=core.canonicalCurrency(row.currency)+'.'+row.account;if(seen.has(k))throw new ApiError(502,'duplicate_trustline','Trustline pagination returned a duplicate identity.');seen.add(k);items.push(row);}marker=r.marker;pages++;}while(marker&&pages<maxPages);return {items,pages,complete:!marker};}
   async function getPool(a,b,l){try{return await rpc('amm_info',{asset:a,asset2:b,ledger_hash:l.hash});}catch(e){if(['actNotFound','ammNotFound','objectNotFound'].includes(e.details?.upstreamCode))return {};throw e;}}
@@ -247,7 +341,8 @@ function createApi(options={}){
     return data;
   }
   async function route(req,path,q,body){
-    if(req.method==='GET'&&path==='/')return envelope({name:'XRBitcoinCash Developer API',version:VERSION,docs:SITE+'/developers.html',openapi:BASE+'/openapi.json',tools:BASE+'/tools',supply:BASE+'/supply/xrbc',metrics:BASE+'/metrics/xrbc',mode:'read_only'});
+    if(req.method==='GET'&&path==='/')return envelope({name:'XRBitcoinCash Developer API',version:VERSION,docs:SITE+'/developers.html',openapi:BASE+'/openapi.json',tools:BASE+'/tools',supply:BASE+'/supply/xrbc',metrics:BASE+'/metrics/xrbc',media:BASE+'/media/news',mode:'read_only'});
+    if(req.method==='GET'&&path==='/media/news'){if([...q.keys()].length)bad('The media endpoint has no query parameters.');return envelope(await mediaNews());}
     if(req.method==='GET'&&path==='/openapi.json')return require('./openapi.json');
     if(req.method==='GET'&&path==='/status'){const [l,auth]=await Promise.all([ledger(),authenticationHealth()]);return envelope({status:'operational',...auth,bridgeLiveFeed:'unconfigured',continuousMonitoring:false},l);}
     if(req.method==='GET'&&path==='/tools')return envelope(TOOLS.map(t=>({...t,access:Number(t.minimumXrbc)>0?'signed_wallet_and_holdings':'public'})));
