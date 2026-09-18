@@ -4,7 +4,7 @@
   <!-- =========================================================
        XRBitcoinCash canonical XML sitemap
        Domain: https://xrbitcoincash.com/
-       Updated: 2026-09-10
+       Updated: 2026-09-18
 
        Policy:
        - Canonical public URLs only.
@@ -19,7 +19,7 @@
   <!-- Core project -->
   <url>
     <loc>https://xrbitcoincash.com/</loc>
-    <lastmod>2026-09-01</lastmod>
+    <lastmod>2026-09-18</lastmod>
   </url>
   <url>
     <loc>https://xrbitcoincash.com/markets/</loc>
