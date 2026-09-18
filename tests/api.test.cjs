@@ -13,6 +13,28 @@ function fixture(config={}){
   let clock=EPOCH,created,pingCalls=0,accountBalance=config.balance||'2500',rpcCalls=[];
   const pinned={validated:true,ledger_hash:HASH,ledger_index:INDEX};
   const fetch=async(url,init)=>{
+    if(url.startsWith('https://news.google.com/rss/')){
+      if(config.mediaFails)throw new Error('media unavailable');
+      const u=new URL(url),query=(u.searchParams.get('q')||'').toLowerCase();
+      const label=query.includes('xrp ledger')?'google-xrpl':
+        query==='xrp'?'google-xrp':
+        query.includes('ripple')?'google-ripple':
+        query.includes('xaman')?'google-xaman':'google-crypto';
+      const source=label==='google-crypto'?'Fixture Crypto News':'Fixture XRP News';
+      const title=label==='google-xrpl'?'XRPL validator release reaches production':
+        label==='google-xrp'?'XRP market infrastructure expands':
+        label==='google-ripple'?'Ripple publishes XRP ecosystem research':
+        label==='google-xaman'?'Xaman ships new XRP Ledger wallet tooling':
+        'Wider cryptocurrency market update';
+      const xml='<?xml version="1.0"?><rss><channel><item>'+
+        '<title>'+title+' - '+source+'</title>'+
+        '<link>https://example.com/rss/'+label+'</link>'+
+        '<pubDate>'+new Date(clock-30000).toUTCString()+'</pubDate>'+
+        '<source>'+source+'</source>'+
+        '<description><![CDATA[Fixture RSS article for '+label+']]></description>'+
+        '</item></channel></rss>';
+      return {ok:true,text:async()=>xml};
+    }
     if(url.startsWith('https://cryptocurrency.cv/')){
       if(config.mediaFails)throw new Error('media unavailable');
       const u=new URL(url),query=(u.searchParams.get('q')||'').toLowerCase();
@@ -71,11 +93,14 @@ function fixture(config={}){
   return {request,signIn,rpcCalls,pingCount:()=>pingCalls,setBalance:v=>{accountBalance=v;},advance:ms=>{clock+=ms;}};
 }
 test('public discovery works with Express getter-only request properties',async()=>{const f=fixture();const r=await f.request('/');assert.equal(r.status,200);assert.equal(r.body.data.mode,'read_only');assert.equal(r.body.data.media,'https://xrbitcoincash-github-io.onrender.com/api/v1/media/news');assert.equal(r.headers['cache-control'],'no-store');});
-test('public media feed aggregates XRPL searches before wider crypto without ledger calls',async()=>{
+test('public media feed aggregates JSON and RSS XRPL sources before wider crypto without ledger calls',async()=>{
   const f=fixture(),r=await f.request('/media/news');
-  assert.equal(r.status,200);assert.equal(r.body.data.version,1);assert.equal(r.body.data.provider,'cryptocurrency.cv');
-  assert.equal(r.body.data.articles[0].matchedBy,'xrp-ledger');
+  assert.equal(r.status,200);assert.equal(r.body.data.version,2);assert.equal(r.body.data.provider,'XRBC multi-source media');
+  assert(r.body.data.articles.some(a=>a.matchedBy==='xrp-ledger'));
+  assert(r.body.data.articles.some(a=>a.matchedBy==='google-xrpl'));
+  assert(r.body.data.articles.some(a=>a.matchedBy==='google-xrp'));
   assert(r.body.data.articles.some(a=>a.matchedBy==='latest'));
+  assert(r.body.data.articles.length>=10);
   assert.equal(f.rpcCalls.length,0);
 });
 test('public media feed rejects query expansion and fails closed when every fixed upstream is unavailable',async()=>{
