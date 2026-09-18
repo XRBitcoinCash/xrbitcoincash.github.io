@@ -1,0 +1,192 @@
+{
+  "version": "1.0.1",
+  "generated": "2026-09-18T20:12:00Z",
+  "project": {
+    "name": "XRBitcoinCash",
+    "symbol": "XRBC",
+    "tagline": "Decentralized XRPL-based digital collectible and tooling asset.",
+    "description": "XRBitcoinCash (XRBC) is a fixed-supply digital collectible on the XRP Ledger (XRPL), designed as a non-custodial, decentralized asset and technical building block. No guarantees of profit, yield, or ongoing utility are made.",
+    "categories": [
+      "cryptocurrency",
+      "digital-collectible",
+      "xrpl",
+      "non-custodial",
+      "decentralized-finance",
+      "developer-tooling"
+    ],
+    "official_domain": "https://xrbitcoincash.com",
+    "primary_language": "en",
+    "jurisdiction_note": "Global audience. Users are responsible for complying with applicable local laws."
+  },
+  "token": {
+    "network": "XRP Ledger Mainnet",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currency_hex": "5852626974636F696E6361736800000000000000",
+    "symbol": "XRBC",
+    "supply": {
+      "total_fixed": 21000000,
+      "unit": "XRBC",
+      "notes": [
+        "Intended fixed supply.",
+        "Issuer account configuration and any blackhole status should be verified on-ledger by integrators and users."
+      ]
+    },
+    "onchain_verification": {
+      "required_checks": [
+        "Verify issuer address on XRPL.",
+        "Verify currency code (HEX) on XRPL.",
+        "Verify domain field on XRPL for xrbitcoincash.com.",
+        "Validate trust line details, DEX pairs, and AMM pools through XRPL APIs."
+      ],
+      "recommended_methods": [
+        "XRPL RPC endpoints",
+        "XRPL explorers",
+        "Non-custodial XRPL-compatible wallets"
+      ]
+    }
+  },
+  "security": {
+    "non_custodial": true,
+    "seed_phrase_policy": {
+      "collects_seed_phrases": false,
+      "statement": "XRBitcoinCash, its CEO, and its affiliates will never request or store seed phrases, secret keys, or recovery phrases through official sites, widgets, or communication channels."
+    },
+    "official_domains": [
+      "xrbitcoincash.com"
+    ],
+    "official_contacts": {
+      "email": "xrbitcoincash@gmail.com",
+      "x_twitter": "https://x.com/XRbitcoincash"
+    },
+    "phishing_guidance": {
+      "expected_signing_flows": [
+        "Transactions signed only inside user-controlled XRPL-compatible wallets or secure client-side flows."
+      ],
+      "red_flags": [
+        "Any request to paste or transmit private keys or seed phrases.",
+        "Any domain not matching xrbitcoincash.com claiming to be official without cross-verification.",
+        "Any interface that bypasses normal wallet signing behavior while using XRBitcoinCash branding."
+      ]
+    }
+  },
+  "legal": {
+    "nature": "digital-collectible",
+    "not_investment_contract": true,
+    "no_guaranteed_profit": true,
+    "no_custody": true,
+    "summary": "XRBC is presented as a decentralized digital collectible and tooling asset, not as a bank product, security, investment contract, or custodial service. Use is at the user's own risk.",
+    "primary_documents": {
+      "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
+      "terms_of_use": "https://xrbitcoincash.com/terms.html",
+      "policy_and_security": "https://xrbitcoincash.com/policy.html"
+    },
+    "liability": {
+      "disclaimer": "To the maximum extent permitted by applicable law, XRBitcoinCash, its CEO, contributors, and affiliates disclaim liability for any direct or indirect loss arising from the use of XRBC, the website, widgets, or referenced tools.",
+      "binding_note": "In any conflict between this metadata and the Terms of Use or Policy & Security pages, the text of those pages controls."
+    }
+  },
+  "widgets": {
+    "license": "Limited, revocable, non-exclusive, non-transferable, conditioned on compliance with Terms of Use and Policy & Security.",
+    "must_not": [
+      "collect or request seed phrases, secret keys, or recovery phrases",
+      "misrepresent XRBC pricing, routing, or issuer details",
+      "imply guarantees, endorsements, or custodial protections by XRBitcoinCash",
+      "impersonate XRBitcoinCash, its CEO, or affiliates"
+    ],
+    "update_policy": {
+      "can_update_terms": true,
+      "retroactive_application": "Updated widget and integration terms published on xrbitcoincash.com apply to continued use of all deployed widgets to the fullest extent permitted by law."
+    }
+  },
+  "seo_discovery": {
+    "sitemaps": [
+      "https://xrbitcoincash.com/sitemap.xml"
+    ],
+    "structured_data": {
+      "schema_org_types": [
+        "WebSite",
+        "WebPage",
+        "TechArticle",
+        "Cryptocurrency"
+      ],
+      "primary_entity": "XRBitcoinCash (XRBC) on the XRP Ledger",
+      "keywords": [
+        "XRBitcoinCash",
+        "XRBC",
+        "XRP Ledger",
+        "XRPL",
+        "digital collectible",
+        "non-custodial",
+        "decentralized",
+        "AMM",
+        "DEX",
+        "crypto",
+        "on-ledger verification"
+      ]
+    },
+    "crawling": {
+      "robots_policy": "index,follow",
+      "preferred_canonical_base": "https://xrbitcoincash.com"
+    },
+    "deployment_build_info": "https://xrbitcoincash.com/build-info.json"
+  },
+  "ai_discovery": {
+    "purpose": "Provide a canonical machine-readable profile of XRBitcoinCash for AI agents, search systems, and automated auditors.",
+    "key_points": [
+      "XRBC is a decentralized digital collectible on XRPL.",
+      "Official issuer and currency_hex values are fixed as declared.",
+      "Project is strictly non-custodial; no seed phrases are requested.",
+      "Legal and security expectations are defined on /terms.html and /policy.html.",
+      "On-ledger verification is preferred over screenshots or social media.",
+      "No guaranteed yield, profit, or buyback obligation."
+    ],
+    "verification_priority": [
+      "On-ledger data via XRPL.",
+      "Primary domain: xrbitcoincash.com.",
+      "Official documents referenced in this file."
+    ]
+  },
+  "social": {
+    "x_twitter": "https://x.com/XRbitcoincash"
+  },
+  "assets": {
+    "logo": {
+      "png_128": "https://xrbitcoincash.com/xrbitcoin-logo-128.png"
+    },
+    "icons": [
+      {
+        "rel": "icon",
+        "type": "image/x-icon",
+        "sizes": "16x16 32x32",
+        "url": "https://xrbitcoincash.com/favicon.ico"
+      },
+      {
+        "rel": "icon",
+        "type": "image/png",
+        "sizes": "32x32",
+        "url": "https://xrbitcoincash.com/favicon-32x32.png"
+      },
+      {
+        "rel": "icon",
+        "type": "image/png",
+        "sizes": "192x192",
+        "url": "https://xrbitcoincash.com/icon-192.png"
+      },
+      {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "url": "https://xrbitcoincash.com/apple-touch-icon.png"
+      }
+    ],
+    "web_app_manifest": {
+      "rel": "manifest",
+      "url": "https://xrbitcoincash.com/site.webmanifest",
+      "note": "Optional PWA manifest for extended device and OS integration."
+    }
+  },
+  "integrator_guidance": {
+    "intended_use": "Developers and AI systems may use this file as a canonical reference for XRBitcoinCash identity, security posture, and verification details.",
+    "change_management": "Substantial changes to issuer, currency_hex, or legal stance should be reflected here and in on-ledger fields.",
+    "non_binding_note": "If this file conflicts with on-ledger facts or the Terms of Use, on-ledger data and the Terms prevail."
+  }
+}

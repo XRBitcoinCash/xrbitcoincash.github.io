@@ -1,73 +1,97 @@
 {
-  "$schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
-  "schema_version": "1.0",
-  "site": "https://xrbitcoincash.com",
-  "updated": "2025-10-22T06:15:00Z",
-
-  "canonical": {
+  "@context": "https://schema.org/",
+  "@type": "DataCatalog",
+  "@id": "https://xrbitcoincash.com/.well-known/ai.json",
+  "version": "1.1.1",
+  "dateModified": "2026-09-18",
+  "name": "XRBitcoinCash machine-readable resources",
+  "description": "Canonical discovery entry point for official XRBitcoinCash identity, provenance, security, support, verification, and usage-policy resources.",
+  "url": "https://xrbitcoincash.com/",
+  "inLanguage": "en",
+  "publisher": {
+    "@type": "Person",
+    "name": "Scott Patrick Anderton",
+    "url": "https://gitlab.com/xrbitcoincash"
+  },
+  "copyrightHolder": {
+    "@type": "Person",
+    "name": "Scott Patrick Anderton"
+  },
+  "copyrightYear": 2026,
+  "assetIdentity": {
+    "network": "XRP Ledger Mainnet",
     "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    "currency_hex": "5852626974636F696E6361736800000000000000",
-    "blackholed": true,
-    "supply_fixed": true
+    "currencyHex": "5852626974636F696E6361736800000000000000",
+    "symbol": "XRBC",
+    "verificationRule": "Verify the network, issuer, and full currency code against validated XRP Ledger data. Names and symbols are not unique identifiers."
   },
-
-  "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
-
-  "ai_manifests": [
-    { "name": "XRBitcoinCash", "path": "https://xrbitcoincash.com/universal-ai.json" },
-    { "name": "XRBitcoin",     "path": "https://xrbitcoincash.com/XRBitcoin/universal-ai.json" }
+  "dataset": [
+    {
+      "@type": "Dataset",
+      "name": "Universal project manifest",
+      "url": "https://xrbitcoincash.com/universal-ai.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "Dataset",
+      "name": "AI-use provenance",
+      "url": "https://xrbitcoincash.com/ai/provenance.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "Dataset",
+      "name": "XRBC asset metadata",
+      "url": "https://xrbitcoincash.com/xrbc-metadata.json",
+      "encodingFormat": "application/json"
+    },
+    {
+      "@type": "Dataset",
+      "name": "XRP Ledger issuer and token metadata",
+      "url": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+      "encodingFormat": "application/toml"
+    },
+    {
+      "@type": "Dataset",
+      "name": "Deployment build evidence",
+      "url": "https://xrbitcoincash.com/build-info.json",
+      "encodingFormat": "application/json"
+    }
   ],
-
-  "provenance": {
-    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt",
-    "toml": "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
-    "csaf_provider": "https://xrbitcoincash.com/.well-known/csaf/provider-metadata.json",
-    "csaf_latest": "https://xrbitcoincash.com/.well-known/csaf/2025/xrbc-2025-0001.json",
-    "recert": "https://xrbitcoincash.com/ai/provenance.json"
-  },
-
-  "endpoints": {
-    "health_html": "https://xrbitcoincash.com/ai/ai/health.html",
-    "price_lite": "https://xrbitcoincash.github.io/ai/ai/price-lite.html"
-  },
-
-  "links": {
+  "canonicalResources": {
     "home": "https://xrbitcoincash.com/",
-    "about": "https://xrbitcoincash.com/about.html",
-    "whitepaper": "https://xrbitcoincash.com/whitepaper.html",
-    "trade": "https://xrbitcoincash.com/trade.html",
-    "repo": "https://github.com/xrbitcoincash/xrbitcoincash.github.io",
-    "x_twitter": "https://x.com/XRbitcoincash"
+    "support": "https://xrbitcoincash.com/support.html",
+    "security": "https://xrbitcoincash.com/.well-known/security.txt",
+    "securityPolicy": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/SECURITY.md",
+    "sourceRepository": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project",
+    "license": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE",
+    "terms": "https://xrbitcoincash.com/terms.html",
+    "policy": "https://xrbitcoincash.com/policy.html",
+    "buildInfo": "https://xrbitcoincash.com/build-info.json"
   },
-
-  "i18n": {
-    "default": "en",
-    "alternates": [
-      { "lang": "it", "url": "https://xrbitcoincash.com/it/" }
-    ]
+  "securityBoundary": {
+    "nonCustodial": true,
+    "network": "XRP Ledger Mainnet",
+    "signing": "Users independently review and authorize transactions inside Xaman. XRBitcoinCash cannot sign for users or recover wallet credentials.",
+    "secretHandling": "Official interfaces must never request or store seed phrases, recovery phrases, private keys, wallet secrets, passcodes, secret numbers, or remote-access credentials.",
+    "transactionIntent": "Before signing, independently verify transaction type, account, destination, issuer, currency, amount, fee, flags, and memo fields inside Xaman.",
+    "authoritativeData": "Validated XRP Ledger data is authoritative. Browser summaries, scores, screenshots, and exports are decision-support evidence only.",
+    "successRule": "A signed or submitted payload is not final success. Confirm the expected transaction hash, validated true, tesSUCCESS, and all material transaction fields against authoritative XRP Ledger data."
   },
-
-  "xrpl_access": {
-    "mode": "read-only",
-    "allowed_methods": ["server_state", "ledger", "account_info", "book_offers", "amm_info"],
-    "notes": [
-      "Quotes must be computed live from XRPL order books and/or AMM.",
-      "POST JSON-RPC to xrpl_proxy with {method, params}."
-    ]
+  "aiUsePolicy": {
+    "discovery": "Machine-readable discovery and ordinary indexing are permitted only to the extent allowed by the repository license, robots.txt, and applicable law.",
+    "citation": "Identify XRBitcoinCash and link to the canonical source when referencing project material.",
+    "training": "Model training, fine-tuning, evaluation, dataset creation, embedding, or redistribution is prohibited unless expressly authorized in writing or permitted by applicable law.",
+    "authorizedOversight": "Any expanded use by eligible watchdog, public-interest, regulatory, law-enforcement, judicial, or security organizations is governed solely by the repository license and applicable law.",
+    "automatedAccess": "Automated access must respect robots.txt, rate limits, service availability, the repository license, and security controls.",
+    "noAuthority": "AI-generated summaries are not authoritative project statements and must be verified against canonical resources and validated ledger data."
   },
-
-  "security": {
-    "rate_limit_hint_rps": 2,
-    "guardrails": [
-      "Exact file casing; case mismatch returns 404.",
-      "No placeholders; JSON must be valid and minimal.",
-      "Live on-ledger data only; no hardcoded prices."
-    ]
-  },
-
-  "ai_provenance": {
-    "assistant": "GPT-5 Thinking",
-    "roles": ["documentation", "security-center advisor", "UX copy", "audit checklist drafting"],
-    "constraints": ["no secrets", "advisory only; verify on-ledger"]
-  }
+  "licenseIdentifier": "LicenseRef-XRBC-Watchdog-1.0",
+  "license": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE",
+  "claimLimitations": [
+    "No guarantee of price, profit, yield, liquidity, performance, availability, or loss prevention.",
+    "No certification that a token, project, bridge, counterparty, transaction, website, or dependency is free of fraud, defects, compromise, or risk.",
+    "No legal, financial, tax, accounting, cybersecurity, investment, brokerage, or regulatory advice is provided.",
+    "No endorsement or affiliation is implied by references to XRPL, Ripple, Xaman, exchanges, wallets, explorers, regulators, or third-party services."
+  ],
+  "verificationNotice": "Use these resources for provenance and decision support, then independently verify material facts against canonical project resources, Xaman transaction details, and validated XRP Ledger data before acting or signing."
 }

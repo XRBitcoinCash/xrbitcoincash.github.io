@@ -1,130 +1,447 @@
-# ============================================================================
-# XRBitcoinCash — xrp-ledger.toml
-# Location: /.well-known/xrp-ledger.toml
-# Spec reference: https://xrpl.org/docs/references/xrp-ledger-toml
-# All sections/fields optional; custom fields are allowed and ignored safely.
-# ============================================================================
+# xrp-ledger.toml — XRBitcoinCash
+# Canonical location: https://xrbitcoincash.com/.well-known/xrp-ledger.toml
+#
+# Standard XRP Ledger sections:
+#   [[ACCOUNTS]], [[PRINCIPALS]], [[CURRENCIES]]
+# XLS-26 token metadata sections:
+#   [[ISSUERS]], [[TOKENS]], [[TOKENS.URLS]]
+#
+# Sections explicitly described as custom are discovery and security metadata.
+# They are not XRP Ledger protocol fields and do not imply third-party approval.
 
 [METADATA]
-modified = 2025-10-21T00:00:00.000Z
-expires  = 2026-10-21T00:00:00.000Z
-org_name = "XRBitcoinCash"
-homepage = "https://xrbitcoincash.com/"
-docs     = "https://xrbitcoincash.github.io/"
-# Custom discoverability fields (handy for AI/bots/wallets)
-security_txt = "https://xrbitcoincash.com/.well-known/security.txt"
-ai_index     = "https://xrbitcoincash.com/.well-known/ai.json"
-provenance   = "https://xrbitcoincash.com/ai/provenance.json"
-repository   = "https://github.com/xrbitcoincash/xrbitcoincash.github.io"
+modified = 2026-09-18T00:00:00.000Z
+expires = 2027-08-24T23:59:59.000Z
 
-# --- ACCOUNTS (issuer & related) -------------------------------------------
+# -----------------------------------------------------------------------------
+# Project identity — custom metadata
+# -----------------------------------------------------------------------------
+
+[ORGANIZATION]
+name = "XRBitcoinCash"
+display_name = "XRBitcoinCash"
+alternate_names = ["XRBC", "XR Bitcoin Cash"]
+canonical_entity = "https://xrbitcoincash.com/#organization"
+primary_language = "en-US"
+website = "https://xrbitcoincash.com/"
+email = "xrbitcoincash@gmail.com"
+description = "Official XRBitcoinCash and related legacy XRBitcoin identity, provenance, and discovery metadata for issued tokens on the XRP Ledger."
+source_repository = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project"
+whitepaper = "https://xrbitcoincash.com/whitepaper.html"
+ecosystem = "https://xrbitcoincash.com/xrbc-ecosystem.html"
+support = "https://xrbitcoincash.com/support.html"
+security = "https://xrbitcoincash.com/.well-known/security.txt"
+terms = "https://xrbitcoincash.com/terms.html"
+policy = "https://xrbitcoincash.com/policy.html"
+ai_provenance_page = "https://xrbitcoincash.com/ai-provenance.html"
+ai_discovery = "https://xrbitcoincash.com/.well-known/ai.json"
+universal_ai_manifest = "https://xrbitcoincash.com/universal-ai.json"
+provenance_json = "https://xrbitcoincash.com/ai/provenance.json"
+x = "https://x.com/XRbitcoincash"
+discord = "https://discord.gg/s7nrTh7e"
+
+[POLICIES]
+version = "2026-08-25"
+author = "Scott Patrick Anderton"
+license_identifier = "LicenseRef-XRBC-Watchdog-1.0"
+license = "LicenseRef-XRBC-Watchdog-1.0"
+license_url = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE"
+attribution = "XRBitcoinCash — built on the XRP Ledger."
+custody = "Non-custodial public interfaces; users independently review and authorize transactions in Xaman."
+secrets = "Official XRBitcoinCash interfaces never request seed phrases, recovery phrases, private keys, wallet secrets, passcodes, or secret numbers."
+disclaimer = "Metadata is informational and does not constitute financial, legal, tax, accounting, cybersecurity, investment, brokerage, or regulatory advice; third-party endorsement or affiliation is not implied."
+
+[DISCOVERY]
+homepage = "https://xrbitcoincash.com/"
+canonical_entity = "https://xrbitcoincash.com/#organization"
+whitepaper = "https://xrbitcoincash.com/whitepaper.html"
+ecosystem = "https://xrbitcoincash.com/xrbc-ecosystem.html"
+support = "https://xrbitcoincash.com/support.html"
+terms = "https://xrbitcoincash.com/terms.html"
+policy = "https://xrbitcoincash.com/policy.html"
+xrbc_metadata = "https://xrbitcoincash.com/xrbc-metadata.json"
+xrbitcoin_directory = "https://xrbitcoincash-project-15389d.gitlab.io/xrbitcoin-links.html"
+xrbitcoin_web2_alias = "https://xrbitcoincash.com/xrbitcoin-links.html"
+xrbitcoin_web3_name = "xrbitcoin.xrp"
+xrbitcoin_web3_resolver = "https://xrbitcoin.xrp.name/"
+xrbitcoin_domain_metadata = "https://mainnet.xrpdomains.xyz/api/nftdomains/metadata/xrbitcoin.xrp"
+ai_discovery = "https://xrbitcoincash.com/.well-known/ai.json"
+ai_provenance_page = "https://xrbitcoincash.com/ai-provenance.html"
+ai_manifest = "https://xrbitcoincash.com/universal-ai.json"
+ai_provenance = "https://xrbitcoincash.com/ai/provenance.json"
+security_txt = "https://xrbitcoincash.com/.well-known/security.txt"
+robots_txt = "https://xrbitcoincash.com/robots.txt"
+sitemap = "https://xrbitcoincash.com/sitemap.xml"
+source_repository = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project"
+
+# -----------------------------------------------------------------------------
+# Public principal
+# -----------------------------------------------------------------------------
+
+[[PRINCIPALS]]
+name = "Scott Patrick Anderton"
+email = "xrbitcoincash@gmail.com"
+role = "Project Owner and Publisher"
+website = "https://xrbitcoincash.com/"
+social_1 = "https://x.com/XRbitcoincash"
+social_2 = "https://discord.gg/s7nrTh7e"
+social_3 = "https://discord.gg/t2PV2zHg"
+
+# -----------------------------------------------------------------------------
+# Domain-verified XRP Ledger account
+# -----------------------------------------------------------------------------
 
 [[ACCOUNTS]]
 address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
 network = "main"
-desc    = "XRBitcoinCash (XRBC) issuer (blackholed/immutable)"
+desc = "Domain-verified XRBitcoinCash (XRBC) issuing account."
 
-# TODO: Replace with the XRBitcoin issuer account
-[[ACCOUNTS]]
-address = "TODO_XRB_ISSUER_ADDRESS"
-network = "main"
-desc    = "XRBitcoin issuer"
+# -----------------------------------------------------------------------------
+# XLS-26 issuer and token metadata
+# -----------------------------------------------------------------------------
 
-# TODO: Replace with the JCS issuer account
-[[ACCOUNTS]]
-address = "TODO_JCS_ISSUER_ADDRESS"
-network = "main"
-desc    = "Jesus Christ Saves (JCS) issuer"
+[[ISSUERS]]
+address = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+name = "XRBitcoinCash"
+desc = "Issuer of XRBitcoinCash (XRBC), a non-custodial XRP Ledger ecosystem asset. Verify the issuer and currency code before creating a trust line or signing a transaction."
+icon = "https://xrbitcoincash.com/xrbitcoin-logo-128.png"
 
-# --- PRINCIPALS (contact) ---------------------------------------------------
+[[TOKENS]]
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+currency = "5852626974636F696E6361736800000000000000"
+name = "XRBitcoinCash"
+desc = "XRBitcoinCash (XRBC) is an issued token on XRP Ledger Mainnet and the primary asset of the XRBitcoinCash non-custodial tool ecosystem. Verify the exact issuer and currency code before acting."
+icon = "https://xrbitcoincash.com/xrbitcoin-logo-128.png"
+asset_class = "other"
 
-[[PRINCIPALS]]
-name  = "XRBitcoinCash Team"
-email = "xrbitcoincash@gmail.com"
-x     = "@XRBitcoinCash"   # custom social handle
-
-# --- SOCIAL (custom, widely used by indexers) -------------------------------
-
-[SOCIAL]
-x       = "https://twitter.com/XRBitcoinCash"
-website = "https://xrbitcoincash.com/"
-email   = "mailto:xrbitcoincash@gmail.com"
-github  = "https://github.com/xrbitcoincash"
-
-# --- DID (custom) -----------------------------------------------------------
-
-[DID]
-id  = "did:xrpl:rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+[[TOKENS.URLS]]
 url = "https://xrbitcoincash.com/"
+type = "website"
+title = "Official XRBitcoinCash Website"
 
-# --- CURRENCIES -------------------------------------------------------------
-# Notes:
-# - 'code' can be 3–6 chars or 40-char hex (as used below for XRBC).
-# - 'display_decimals' is advisory for UI display.
-# - All custom fields below (name, desc, icon, links, etc.) are safe.
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/whitepaper.html"
+type = "document"
+title = "XRBitcoinCash Technical White Paper"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/xrbc-ecosystem.html"
+type = "website"
+title = "XRBitcoinCash Ecosystem"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/developers.html"
+type = "document"
+title = "XRBitcoinCash Developer API Documentation"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/ai-provenance.html"
+type = "document"
+title = "XRBitcoinCash AI-Readable Provenance"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/.well-known/ai.json"
+type = "document"
+title = "XRBitcoinCash Canonical AI Discovery"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/universal-ai.json"
+type = "document"
+title = "XRBitcoinCash Universal AI Manifest"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/ai/provenance.json"
+type = "document"
+title = "XRBitcoinCash Machine-Readable Provenance"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/policy.html"
+type = "document"
+title = "XRBitcoinCash Policy and Security Information"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/terms.html"
+type = "document"
+title = "XRBitcoinCash Terms of Use"
+
+[[TOKENS.URLS]]
+url = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project"
+type = "website"
+title = "Official Source Repository"
+
+[[TOKENS.URLS]]
+url = "https://xrbitcoincash.com/support.html"
+type = "website"
+title = "XRBitcoinCash Support"
+
+[[TOKENS.URLS]]
+url = "https://x.com/XRbitcoincash"
+type = "social"
+title = "XRBitcoinCash on X"
+
+[[TOKENS.URLS]]
+url = "https://discord.gg/s7nrTh7e"
+type = "social"
+title = "XRBitcoinCash Discord"
+
+# -----------------------------------------------------------------------------
+# Core xrp-ledger.toml currency metadata
+# -----------------------------------------------------------------------------
 
 [[CURRENCIES]]
-code             = "5852626974636F696E6361736800000000000000"  # XRBC hex
-issuer           = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-network          = "main"
+code = "5852626974636F696E6361736800000000000000"
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+network = "main"
 display_decimals = 6
-name             = "XRBitcoinCash"
-desc             = "XRBitcoinCash (XRBC) launched Jan 5, 2022 — innovation, transparency, stewardship on XRPL."
-icon             = "https://xrbitcoincash.github.io/xrbc-nft.png"
-website          = "https://xrbitcoincash.com/"
-explorer         = "https://xrpscan.com/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+symbol = "XRBC"
+name = "XRBitcoinCash"
+desc = "XRBitcoinCash (XRBC) is an issued asset on XRP Ledger Mainnet and the primary asset of the XRBitcoinCash non-custodial tool ecosystem. Verify the exact issuer and currency code before acting."
+icon = "https://xrbitcoincash.com/xrbitcoin-logo-128.png"
 
-# Useful deep links (DEX, AMM, analytics, mobile xApp)
-[[CURRENCIES.links]]
-url   = "https://xpmarket.com/token/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-title = "XPMarket — XRBC"
-type  = "analytics"
+# Compatibility links mirrored from the working JCS currency metadata pattern.
+# These are additive custom fields; the canonical XLS-26 [[TOKENS.URLS]] entries above remain authoritative.
 
 [[CURRENCIES.links]]
-url   = "https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
-title = "Sologenic DEX — XRBC/XRP"
-type  = "dex"
+url = "https://xrbitcoincash.com/"
+title = "Official XRBitcoinCash Website"
+type = "website"
 
 [[CURRENCIES.links]]
-url   = "https://sologenic.org/amm/XRP_XRbitcoincash_rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
-title = "Sologenic AMM — XRBC/XRP"
-type  = "amm"
+url = "https://bithomp.com/en/account/rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+title = "XRBitcoinCash Issuer on Bithomp"
+type = "explorer"
 
 [[CURRENCIES.links]]
-url   = "https://xumm.app/detect/xapp:xumm.dex"
-title = "Xaman (XUMM) — DEX xApp"
-type  = "mobile"
+url = "https://xpmarket.com/dex/XRbitcoincash-rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw/XRP?trade=market"
+title = "XRBC/XRP on XPMarket"
+type = "explorer"
 
-# --- XRBitcoin (placeholder; replace code/issuer/icon if different) --------
-[[CURRENCIES]]
-code             = "TODO_XRB_CODE_OR_HEX"
-issuer           = "TODO_XRB_ISSUER_ADDRESS"
-network          = "main"
-display_decimals = 6
-name             = "XRBitcoin"
-desc             = "XRBitcoin on XRPL."
-icon             = "https://xrbitcoincash.com/XRBitcoin/xrbitcoin-logo.png"
-website          = "https://xrbitcoincash.com/XRBitcoin/"
-
-# Example links (replace with actual)
 [[CURRENCIES.links]]
-url   = "https://xpmarket.com/"
-title = "XPMarket"
-type  = "analytics"
+url = "https://sologenic.org/trade?market=5852626974636F696E6361736800000000000000%2BrEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw%2FXRP"
+title = "XRBC/XRP on Sologenic"
+type = "explorer"
 
-# --- JCS (placeholder; replace code/issuer/icon) ----------------------------
-[[CURRENCIES]]
-code             = "TODO_JCS_CODE_OR_HEX"
-issuer           = "TODO_JCS_ISSUER_ADDRESS"
-network          = "main"
-display_decimals = 6
-name             = "Jesus Christ Saves"
-desc             = "JCS token on XRPL."
-icon             = "https://xrbitcoincash.com/JCS-token-on-the-XRPL/jcs-logo.png"
-website          = "https://jesuschristsavestoken.com/"
-
-# Example links (replace with actual)
 [[CURRENCIES.links]]
-url   = "https://xpmarket.com/"
-title = "XPMarket"
-type  = "analytics"
+url = "https://xrpl.services/trustline?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&currency=5852626974636F696E6361736800000000000000&network=mainnet"
+title = "Set XRBC Trustline"
+type = "onboarding"
+
+[[CURRENCIES.links]]
+url = "https://xrbitcoincash.com/xrbc-metadata.json"
+title = "XRBitcoinCash Machine-Readable Metadata"
+type = "metadata"
+
+[[CURRENCIES.links]]
+url = "https://xrbitcoincash.com/whitepaper.html"
+title = "XRBitcoinCash Technical White Paper"
+type = "documentation"
+
+[[CURRENCIES.links]]
+url = "https://xrbitcoincash.com/sitemap.xml"
+title = "XRBitcoinCash Sitemap"
+type = "sitemap"
+
+[[CURRENCIES.links]]
+url = "https://xrbitcoincash.com/robots.txt"
+title = "XRBitcoinCash Robots Policy"
+type = "robots"
+
+# -----------------------------------------------------------------------------
+# Verified issuer-security state — custom metadata
+# -----------------------------------------------------------------------------
+
+[ASSET_SECURITY]
+network = "XRP Ledger Mainnet"
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+currency = "5852626974636F696E6361736800000000000000"
+issuer_domain = "xrbitcoincash.com"
+issuer_domain_hex = "7872626974636F696E636173682E636F6D"
+issuer_domain_verified = true
+validated_ledger_verification_date = "2026-08-25"
+account_flags = 9961472
+master_key_disabled = true
+regular_key = "rrrrrrrrrrrrrrrrrrrrBZbvji"
+regular_key_blackholed = true
+no_freeze = true
+default_ripple = true
+issuer_status = "blackholed"
+verification_rule = "Recheck the account, Domain, flags, regular key, issuer, and currency against validated XRP Ledger data. This file alone is not proof."
+
+# -----------------------------------------------------------------------------
+# Related legacy XRBitcoin identity — custom metadata only
+#
+# The XRBitcoin issuer does not publish an on-ledger Domain. It is intentionally
+# excluded from [[ACCOUNTS]], [[ISSUERS]], [[TOKENS]], and [[CURRENCIES]] so
+# standards-based consumers do not mistake this domain for verified issuer
+# metadata for that account.
+# -----------------------------------------------------------------------------
+
+[LEGACY_XRBITCOIN]
+name = "XRBitcoin"
+alternate_names = ["XR Bitcoin", "XRBitcoin.xrp", "xrbitcoin.xrp"]
+network = "XRP Ledger Mainnet"
+issuer = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"
+currency = "5852626974636F696E0000000000000000000000"
+xrpl_asset_id = "5852626974636F696E0000000000000000000000:rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"
+portal = "https://xrbitcoincash.com/xrbitcoin-links.html"
+web2_alias = "https://xrbitcoincash.com/xrbitcoin-links.html"
+gitlab_pages_portal = "https://xrbitcoincash-project-15389d.gitlab.io/xrbitcoin-links.html"
+web3_name = "xrbitcoin.xrp"
+web3_resolver = "https://xrbitcoin.xrp.name/"
+web3_metadata = "https://mainnet.xrpdomains.xyz/api/nftdomains/metadata/xrbitcoin.xrp"
+icon = "https://xrbitcoincash.com/xrbitcoin-favicon.ico.ico.png"
+issuer_domain_verified = false
+issuer_domain_status = "not-set-on-ledger"
+issuer_status = "blackholed"
+relationship = "Related legacy issued asset and Web3-domain project within the XRBitcoinCash ecosystem."
+disambiguation = "XRBitcoin is an XRPL-issued token. It is not native Bitcoin, wrapped Bitcoin, or a representation of BTC, and no Bitcoin backing is claimed."
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xrbitcoincash.com/xrbitcoin-links.html"
+type = "website"
+title = "XRBitcoin Project Portal"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xrbitcoincash-project-15389d.gitlab.io/xrbitcoin-links.html"
+type = "website"
+title = "XRBitcoin GitLab Pages Portal"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xrbitcoin.xrp.name/"
+type = "website"
+title = "XRBitcoin.xrp Web3 Name Resolver"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://sologenic.org/trade?market=5852626974636F696E0000000000000000000000%2BrGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT%2FXRP"
+type = "website"
+title = "Sologenic XRBitcoin/XRP Market"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xpmarket.com/token/XRbitcoin-rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"
+type = "website"
+title = "XPMarket XRBitcoin Listing"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://sologenic.org/nfts/rUh5JLJNQ3NhwvHCPxgt8myXx22j1bWw1a"
+type = "website"
+title = "Sologenic NFT Collection"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xrpdomains.xyz/app"
+type = "website"
+title = "XRPDomains Application"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://mainnet.xrpdomains.xyz/api/nftdomains/metadata/xrbitcoin.xrp"
+type = "document"
+title = "XRBitcoin.xrp Web3 Identity Metadata"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://xrpscan.com/nft/00080000413DEC6E282BBCEA55B71140D0CB35F01673BBE0F32358E904ACA14E"
+type = "website"
+title = "XRPSCAN NFT Record"
+
+[[LEGACY_XRBITCOIN.URLS]]
+url = "https://bithomp.com/nft/00080000413DEC6E282BBCEA55B71140D0CB35F01673BBE0F32358E904ACA14E"
+type = "website"
+title = "Bithomp NFT Record"
+
+# -----------------------------------------------------------------------------
+# AI and knowledge-graph discovery — custom metadata
+# -----------------------------------------------------------------------------
+
+[AI_DISCOVERY]
+schema_context = "https://schema.org/"
+entity_type = "Organization"
+canonical_entity = "https://xrbitcoincash.com/#organization"
+name = "XRBitcoinCash"
+alternate_names = ["XRBC", "XR Bitcoin Cash"]
+language = "en-US"
+agent_summary = "Official machine-readable identity and discovery record for XRBitcoinCash (XRBC) and the related legacy XRBitcoin issued token on XRP Ledger Mainnet."
+authoritative_homepage = "https://xrbitcoincash.com/"
+source_repository = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project"
+machine_discovery = "https://xrbitcoincash.com/.well-known/ai.json"
+machine_manifest = "https://xrbitcoincash.com/universal-ai.json"
+machine_metadata = "https://xrbitcoincash.com/xrbc-metadata.json"
+provenance_page = "https://xrbitcoincash.com/ai-provenance.html"
+provenance_json = "https://xrbitcoincash.com/ai/provenance.json"
+sitemap = "https://xrbitcoincash.com/sitemap.xml"
+robots = "https://xrbitcoincash.com/robots.txt"
+security = "https://xrbitcoincash.com/.well-known/security.txt"
+terms = "https://xrbitcoincash.com/terms.html"
+policy = "https://xrbitcoincash.com/policy.html"
+source_code_license = "LicenseRef-XRBC-Watchdog-1.0"
+license_url = "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE"
+retrieval_priority = [
+  "https://xrbitcoincash.com/.well-known/ai.json",
+  "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
+  "https://xrbitcoincash.com/xrbc-metadata.json",
+  "https://xrbitcoincash.com/ai/provenance.json",
+  "https://xrbitcoincash.com/whitepaper.html",
+  "https://xrbitcoincash.com/xrbitcoin-links.html",
+  "https://xrbitcoincash-project-15389d.gitlab.io/xrbitcoin-links.html"
+]
+
+[[AI_ENTITIES]]
+entity_id = "https://xrbitcoincash.com/#xrbc"
+entity_type = "Thing"
+category = "DigitalAsset"
+name = "XRBitcoinCash"
+alternate_names = ["XRBC", "XR Bitcoin Cash"]
+network = "XRPL Mainnet"
+issuer = "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+currency = "5852626974636F696E6361736800000000000000"
+xrpl_asset_id = "5852626974636F696E6361736800000000000000:rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw"
+homepage = "https://xrbitcoincash.com/"
+metadata = "https://xrbitcoincash.com/xrbc-metadata.json"
+icon = "https://xrbitcoincash.com/xrbitcoin-logo-128.png"
+issuer_domain = "xrbitcoincash.com"
+issuer_domain_verified = true
+issuer_status = "blackholed"
+supply_policy = "fixed-design-supply"
+relationship = "Primary issued asset of the XRBitcoinCash ecosystem."
+disambiguation = "XRBitcoinCash is an XRPL-issued token identified by its exact issuer and currency code."
+
+[[AI_ENTITIES]]
+entity_id = "https://xrbitcoincash.com/xrbitcoin-links.html#xrbitcoin"
+entity_type = "Thing"
+category = "DigitalAsset"
+name = "XRBitcoin"
+alternate_names = ["XR Bitcoin", "XRBitcoin.xrp", "xrbitcoin.xrp"]
+network = "XRPL Mainnet"
+issuer = "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"
+currency = "5852626974636F696E0000000000000000000000"
+xrpl_asset_id = "5852626974636F696E0000000000000000000000:rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT"
+homepage = "https://xrbitcoincash.com/xrbitcoin-links.html"
+web3_name = "xrbitcoin.xrp"
+web3_resolver = "https://xrbitcoin.xrp.name/"
+web3_metadata = "https://mainnet.xrpdomains.xyz/api/nftdomains/metadata/xrbitcoin.xrp"
+icon = "https://xrbitcoincash.com/xrbitcoin-favicon.ico.ico.png"
+issuer_domain_verified = false
+issuer_domain_status = "not-set-on-ledger"
+issuer_status = "blackholed"
+relationship = "Related legacy issued asset and Web3-domain project within the XRBitcoinCash ecosystem."
+disambiguation = "XRBitcoin is an XRPL-issued token. It is not native Bitcoin, wrapped Bitcoin, or a representation of BTC, and no Bitcoin backing is claimed."
+
+[[AI_RELATIONSHIPS]]
+subject = "https://xrbitcoincash.com/#xrbc"
+predicate = "isPartOf"
+object = "https://xrbitcoincash.com/#organization"
+
+[[AI_RELATIONSHIPS]]
+subject = "https://xrbitcoincash.com/xrbitcoin-links.html#xrbitcoin"
+predicate = "isPartOf"
+object = "https://xrbitcoincash.com/#organization"
+
+[WALLETS]
+xaman = "https://xaman.app/"
+
+[NOTES]
+xrbc_domain_status = "The XRBitcoinCash issuer Domain decodes to xrbitcoincash.com and matches the domain serving this file."
+xrbitcoin_domain_status = "The legacy XRBitcoin issuer has no on-ledger Domain and is not represented as domain-verified metadata."
+hosting_requirement = "Serve this file over HTTPS at /.well-known/xrp-ledger.toml."
+cors_requirement = "The response should include Access-Control-Allow-Origin: *."
+content_type_requirement = "Serve as application/toml or text/plain."
+icon_requirement = "Icon URLs must be public HTTPS image resources without authentication or HTML wrappers."
+verification_notice = "This file alone does not prove account ownership. Verify the serving domain against the on-ledger Domain field and validated ledger state."
+ai_discovery_notice = "Custom discovery sections are descriptive aids, not XRP Ledger protocol fields, certifications, or third-party endorsements."

@@ -1,78 +1,64 @@
-# XRBitcoinCash — robots.txt
-# Version: 2025.10.30
-# Style: AI-native, Ledger-indexed, XRPL-compliant
-# Mission: Make public what machines need to know. Guard what they do not.
+# XRBitcoinCash robots.txt
+# Canonical domain: https://xrbitcoincash.com/
+# Policy revision: 2026-09-01
+# File cleanup: 2026-09-10; existing crawl permissions are unchanged.
+#
+# Allow legitimate public discovery by search, AI search, user-directed
+# retrieval, research/archive crawlers, and future standards-compliant crawlers.
+# The wildcard also preserves existing permission for model-training crawlers;
+# this is separate from search inclusion and is not a ranking guarantee.
+#
+# robots.txt is a crawler preference, not an authentication, authorization,
+# privacy, or security boundary. Protect sensitive resources server-side.
 
+# Default policy, including crawlers without a named group below.
 User-agent: *
-Disallow:
+Allow: /
 
-# ✅ Public Indexing Allowed
-Allow: /ai/
-Allow: /xrbc.css
-Allow: /xrbc_supply.json
-Allow: /.well-known/
-Allow: /pgp-key.txt
-Allow: /xrbitcoincash.github.io/ai/
-Allow: /XRBitcoin/
-Allow: /xrbc-nft.png
-Allow: /xrbitcoin-nft.png
-Allow: /whitepaper.html
-Allow: /white-paper/
-Allow: /fa/white-paper/
-Allow: /white-paper/communitynftgallery/
-Allow: /metadata.html
-Allow: /trade.html
-Allow: /limit-order-extraction.html
-Allow: /stop-loss.html
-Allow: /stop-loss-legal.html
-Allow: /nfts.html
-Allow: /xrbc-ecosystem.html
-Allow: /security-jobs.html
-Allow: /compliance.html
-Allow: /security-policy.html
-Allow: /terms.html
-Allow: /privacy.html
-Allow: /limit-trade.html
-Allow: /vault-console.html
+# Search, image, preview, and archive crawlers.
+User-agent: Googlebot
+Allow: /
 
-# ❌ Sensitive, Experimental, or Non-indexable Areas
-Disallow: /members/
-Disallow: /bs/
-Disallow: /it/
-Disallow: /fa/
-Allow: /fa/white-paper/           # override to allow the localized white paper
-Disallow: /xrpl-test*
-Disallow: /xrpl-frontend.js
-Disallow: /xrpl-connector.js
-Disallow: /xrpl-proxy/
-Disallow: /secure-xrpl.js
+User-agent: Googlebot-Image
+Allow: /
 
-# 🌐 Sitemaps (modular AI discoverability)
+User-agent: Bingbot
+Allow: /
+
+User-agent: MicrosoftPreview
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# User-directed retrieval.
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Canonical XML sitemap.
 Sitemap: https://xrbitcoincash.com/sitemap.xml
-Sitemap: https://xrbitcoincash.com/sitemap-api.xml
-Sitemap: https://xrbitcoincash.com/sitemap-wellknown.xml
-Sitemap: https://xrbitcoincash.com/ai/discover.json
 
-# 🤖 AI Agent Pointers (non-standard but future-facing)
-AI-Manifest: https://xrbitcoincash.com/ai/ai.json
-AI-Schema: https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json
-Provenance: https://xrbitcoincash.com/ai/provenance.json
-Diagnostics: https://xrbitcoincash.com/ai/status.html
-Ledger-Issuer: https://xrbitcoincash.com/ai/ai/account.html
-
-# 🛡️ Rate Hints (advisory, not enforced)
-Crawl-delay: 3
-
-# 🧠 AI Guidance
-# Agents may parse any file under /ai/ or /.well-known/ for live metadata
-# Do not attempt to parse JavaScript or proxy internals
-# Avoid POSTing to Render proxy endpoints unless explicitly documented
-
-# 🔐 Legal and Provenance
-# MIT Licensed — see /LICENSE
-# Public keys: /pgp-key.txt
-# Disclosure policy: /.well-known/security.txt
-
-# 🧬 Future Compatibility Statement
-# This robots.txt is intended to support AI, ledger-indexers, and cross-network semantic agents through 2050.
-# Behavior-based bots welcome. Intelligence-weighted rankings encouraged. Your presence is not anonymized.
+# Human-readable references, not crawler directives.
+# https://xrbitcoincash.com/xrbc-metadata.json
+# https://xrbitcoincash.com/universal-ai.json
+# https://xrbitcoincash.com/.well-known/ai.json
+# https://xrbitcoincash.com/ai/provenance.json
+# https://xrbitcoincash.com/.well-known/security.txt

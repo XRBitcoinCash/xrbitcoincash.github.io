@@ -1,21 +1,19 @@
-# XRBitcoinCash coordinated vulnerability disclosure contact
-#
-# Scope: all official XRBitcoinCash-operated websites, XRPL/Xaman xApps,
-# APIs and proxies, XRBC and connected-token tools, auditors, risk and
-# bridge-monitoring interfaces, tokenization and NFT tools, support systems,
-# public metadata, and other services published under xrbitcoincash.com.
-#
-# Reports involving third-party platforms should also be sent to the
-# applicable provider when the issue is outside XRBitcoinCash-controlled code.
-# Never include an XRPL family seed, private key, recovery phrase, Xaman
-# passcode, API secret, password, or other secret credential in a report.
+# XRBitcoinCash security.txt
+# RFC 9116 vulnerability-disclosure contact
 
-Contact: mailto:security@xrbitcoincash.com
-Contact: https://xrbitcoincash.com/support.html#support-form
-Contact: mailto:xrbitcoincash@gmail.com?subject=XRBitcoinCash%20Security%20Report
-
-Expires: 2027-08-01T00:00:00Z
-Encryption: https://xrbitcoincash.com/pgp-key.txt
+Contact: mailto:xrbitcoincash@gmail.com
+Contact: https://xrbitcoincash.com/support.html
+Expires: 2027-08-24T23:59:59Z
 Preferred-Languages: en
 Canonical: https://xrbitcoincash.com/.well-known/security.txt
-Policy: https://xrbitcoincash.com/security-policy.html
+Policy: https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/SECURITY.md
+
+# Report security vulnerabilities privately.
+# Do not publish exploitable findings in GitLab issues or merge requests.
+# Never submit wallet seeds, private keys, recovery phrases, passcodes,
+# authentication codes, encryption keys, or remote-access credentials.
+
+# Canonical machine-readable project identity:
+# https://xrbitcoincash.com/.well-known/ai.json
+# https://xrbitcoincash.com/xrbc-metadata.json
+# https://xrbitcoincash.com/.well-known/xrp-ledger.toml

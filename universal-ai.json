@@ -1,103 +1,904 @@
 {
-  "$schema": "https://xrbitcoincash.com/ai/schemas/universal-ai.v1.json",
-  "schema_version": "1.0.0",
-
-  "project": {
-    "name": "XRBitcoinCash",
-    "ticker": "XRBC",
-    "type": "issued-currency",
-    "network": "XRPL Mainnet",
-    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-    "currency_hex": "5852626974636F696E6361736800000000000000",
-    "supply": { "total": "21000000", "fixed": true, "issuer_blackholed": true }
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xrbc": "https://xrbitcoincash.com/ns#"
   },
-
-  "branding": {
-    "home": "https://xrbitcoincash.com/",
-    "logo": "https://xrbitcoincash.com/xrbc-nft.png"
-  },
-
-  "ai_capabilities": [
-    "audit_readonly",
-    "orderbook_read",
-    "manifest_verify",
-    "price_snapshot",
-    "health_status"
+  "@type": [
+    "CreativeWork",
+    "Dataset"
   ],
-
-  "endpoints": {
-    "xrpl_proxy": "https://xrbitcoincash-github-io.onrender.com",
-    "health":      "https://xrbitcoincash-github-io.onrender.com/healthz",
-    "diag_html":   "https://xrbitcoincash.com/XRBitcoin/diag.html",
-
-    "health_html": "https://xrbitcoincash.com/ai/ai/health.html",
-    "price_html":  "https://xrbitcoincash.com/ai/ai/ai/price.html",
-
-    "ai_auditor_html": "https://xrbitcoincash.com/ai/ai/ai-auditor.html"
+  "@id": "https://xrbitcoincash.com/universal-ai.json",
+  "name": "XRBitcoinCash Universal AI & Machine Discovery Manifest",
+  "alternateName": [
+    "XRBC Universal AI Manifest",
+    "XRBitcoinCash Machine Discovery Contract"
+  ],
+  "version": "3.0.0",
+  "dateCreated": "2026-07-23",
+  "dateModified": "2026-09-18",
+  "inLanguage": "en-US",
+  "url": "https://xrbitcoincash.com/universal-ai.json",
+  "mainEntityOfPage": "https://xrbitcoincash.com/ai-provenance.html",
+  "description": "Master machine-readable discovery, provenance, capability, safety, access-gate and verification manifest for the XRBitcoinCash ecosystem and explicit pointers to related XRPL projects. Dynamic ledger facts must be revalidated against the current validated XRP Ledger.",
+  "creator": {
+    "@type": "Person",
+    "name": "Scott Patrick Anderton",
+    "roleName": "Project creator, human steward, reviewer and publisher"
   },
-
-  "xrpl_access": {
-    "mode": "read-only",
-    "allowed_methods": ["server_state", "ledger", "account_info", "book_offers", "amm_info"],
-    "notes": [
-      "Use POST JSON-RPC to xrpl_proxy with {method, params}.",
-      "Quotes must be computed live from order books and/or AMM."
+  "publisher": {
+    "@type": "Organization",
+    "name": "XRBitcoinCash",
+    "url": "https://xrbitcoincash.com/"
+  },
+  "license": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE",
+  "isBasedOn": [
+    "https://xrbitcoincash.com/whitepaper.html",
+    "https://xrbitcoincash.com/terms.html",
+    "https://xrbitcoincash.com/policy.html",
+    "https://xrbitcoincash.com/ai-provenance.html",
+    "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project"
+  ],
+  "citation": [
+    "https://xrbitcoincash.com/whitepaper.html",
+    "https://xrbitcoincash.com/terms.html",
+    "https://xrbitcoincash.com/policy.html",
+    "https://xrbitcoincash.com/support.html",
+    "https://xrbitcoincash.com/ai-provenance.html",
+    "https://xrbitcoincash.com/xrbc-ecosystem.html",
+    "https://xrpl.org/"
+  ],
+  "xrbc:manifestContract": {
+    "schema": "xrbc-universal-ai-manifest-v3",
+    "scope": "XRBitcoinCash first-party web surfaces, machine endpoints, XRBC identity, access gates, evidence rules, transaction boundaries, and explicit related-project pointers.",
+    "temporalCoverage": {
+      "projectStart": "2022-01-05",
+      "end": "open-ended",
+      "rule": "Static project identity and document history may persist. Dynamic ledger, market, wallet, incident, gate and availability claims must be refreshed at the time they are used."
+    },
+    "canonicalDomain": "xrbitcoincash.com",
+    "sourceRepository": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project",
+    "humanProvenanceHub": "https://xrbitcoincash.com/ai-provenance.html"
+  },
+  "xrbc:officialIdentity": {
+    "project": "XRBitcoinCash",
+    "ticker": "XRBC",
+    "network": "XRP Ledger Mainnet",
+    "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
+    "currencyHex": "5852626974636F696E6361736800000000000000",
+    "launchDate": "2022-01-05",
+    "designSupply": "approximately 21,000,000 XRBC",
+    "trustlineLimitReference": "20999999.999999996",
+    "issuerControlClaim": {
+      "projectStatement": "Issuer is blackholed.",
+      "verificationRule": "Treat current issuer/key/control posture as an XRPL fact to be independently verified from validated AccountRoot and related ledger objects before relying on it."
+    },
+    "identityRule": "The ticker, logo or project name alone is not sufficient asset identification. Use issuer plus currency code on XRP Ledger Mainnet.",
+    "dynamicSupplyRule": "Current balances, holder distribution, obligations and circulating/distributed amounts are dynamic and must be calculated from current validated-ledger data."
+  },
+  "xrbc:authorityOrder": [
+    {
+      "rank": 1,
+      "source": "Validated XRP Ledger data",
+      "useFor": "Current ledger state, transaction validation, balances, trustlines, AMMs, offers and account objects."
+    },
+    {
+      "rank": 2,
+      "source": "Official deployed XRBitcoinCash source and official repository",
+      "useFor": "Current first-party interface behavior, declared models, local evidence schemas and project-controlled code."
+    },
+    {
+      "rank": 3,
+      "source": "White Paper, Terms, Policy & Security, Support and AI Provenance",
+      "useFor": "Project statements, legal/operational boundaries, methodology and provenance."
+    },
+    {
+      "rank": 4,
+      "source": "Official project announcements",
+      "useFor": "Time-bounded operational statements; verify against current source and ledger when applicable."
+    },
+    {
+      "rank": 5,
+      "source": "Independent explorers, data providers, media, government publications and security sources",
+      "useFor": "Corroboration and external evidence; preserve publisher, date and scope."
+    },
+    {
+      "rank": 6,
+      "source": "AI-generated or third-party summaries",
+      "useFor": "Orientation only; never override higher-authority evidence."
+    }
+  ],
+  "xrbc:claimStateVocabulary": {
+    "static_identity": "Project identity intended to remain stable, subject to correction by authoritative project records.",
+    "ledger_observed": "Returned from a stated validated XRP Ledger ledger/version or validated transaction.",
+    "derived": "Calculated from observed inputs using a disclosed method.",
+    "project_asserted": "Statement made in current XRBitcoinCash-controlled documentation or source.",
+    "user_asserted": "Information supplied by a user; not independently verified merely because it appears in an Evidence Pack.",
+    "third_party_reported": "Statement from an external source; retain source, date and publisher.",
+    "unknown": "Evidence unavailable, capped, not queried, failed or outside the observable scope.",
+    "experimental": "Implemented or tested feature whose behavior or support may change.",
+    "planned": "Roadmap intent; must not be described as deployed capability.",
+    "deprecated": "Historical/compatibility material that should not be treated as the current interface."
+  },
+  "xrbc:temporalRules": [
+    "Attach an observation time and ledger index to dynamic XRPL claims whenever available.",
+    "Do not convert an old ledger observation into a present-tense claim.",
+    "Do not treat unavailable data as zero, healthy, safe or absent.",
+    "A prior incident-free period does not prove future bridge, market or service safety.",
+    "A historical issuer or account-control statement should be rechecked when current control posture matters.",
+    "Page release numbers describe interface builds, not the current state of XRP Ledger Mainnet."
+  ],
+  "xrbc:transactionTruth": {
+    "prepared": "A browser-generated transaction or invoice is intent only.",
+    "authorized": "A user action in Xaman demonstrates wallet-side approval of the displayed request, subject to what was actually signed.",
+    "submitted": "Submission is not proof that the transaction entered a validated ledger.",
+    "validated": "A transaction is an observed XRPL result only after it is returned as validated.",
+    "success": "Where a result code applies, a successful XRPL transaction claim requires validated=true and tesSUCCESS.",
+    "settlement": "Settlement Desk additionally requires invoice/request binding checks. A validated payment does not by itself prove off-ledger contractual performance, accounting treatment, delivery, refund rights or legal satisfaction."
+  },
+  "xrbc:securityBoundary": {
+    "custody": "User controlled; first-party public interfaces are designed to be non-custodial.",
+    "secretHandling": "Official public interfaces must not request or store seed phrases, recovery phrases, private keys or wallet secrets.",
+    "walletAuthorization": "Xaman is used for explicit user review/authorization where a ledger write is offered.",
+    "singleIntentRule": "Transaction-capable workflows should create one active signing request for one deliberate user intent and should not silently create duplicate payloads.",
+    "verificationCode": "Where implemented, a six-digit APP/CHALLENGE/DOMAIN memo code supplements full transaction-field review; it is not a substitute for checking issuer, amount, destination, paths, flags and fees.",
+    "finality": "Validated public XRP Ledger records are effectively irreversible by the website.",
+    "securityPolicy": "https://xrbitcoincash.com/policy.html",
+    "securityDiscovery": "https://xrbitcoincash.com/.well-known/security.txt",
+    "support": "https://xrbitcoincash.com/support.html"
+  },
+  "xrbc:gatePolicy": {
+    "definition": "A reusable XRBC wallet-balance condition used by selected advanced tools. It is not a payment, subscription, burn, escrow, deposit, transfer to the site or custody arrangement.",
+    "tokensRemainInWallet": true,
+    "browserGateIsNotPrivilegedServerSecurity": true,
+    "recheckRule": "Eligibility may relock if the selected wallet, balance, ledger state or feature changes. Any privileged backend should independently reverify authorization and entitlement.",
+    "gates": [
+      {
+        "tool": "Bridge Integrity advanced analysis",
+        "url": "https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html",
+        "thresholdXRBC": 10,
+        "executionBoundary": "No bridge execution by design."
+      },
+      {
+        "tool": "Extended Audit",
+        "url": "https://xrbitcoincash.com/extended-audit.html",
+        "thresholdXRBC": 50
+      },
+      {
+        "tool": "Sentinel Forensics",
+        "url": "https://xrbitcoincash.com/sentinel-forensics.html",
+        "thresholdXRBC": 150
+      },
+      {
+        "tool": "Risk Lens",
+        "url": "https://xrbitcoincash.com/risk-lens.html",
+        "thresholdXRBC": 150
+      },
+      {
+        "tool": "Value Path",
+        "url": "https://xrbitcoincash.com/value-path.html",
+        "thresholdXRBC": 400
+      },
+      {
+        "tool": "Watchtower",
+        "url": "https://xrbitcoincash.com/watchtower.html",
+        "thresholdXRBC": 1000
+      },
+      {
+        "tool": "Advanced Asset Tokenization",
+        "url": "https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html",
+        "thresholdXRBC": 2500
+      }
     ]
   },
-
-  "api_contracts": {
-    "health_html": {
-      "method": "GET",
-      "returns": "application/json",
-      "shape": {
-        "ok": "boolean",
-        "server_state": "string|null",
-        "peers": "number|null",
-        "validated_seq": "number|null",
-        "manifest_ok": "boolean",
-        "toml_ok": "boolean",
-        "updated_at": "ISO-8601 string"
-      }
+  "xrbc:mainNavigation": [
+    {
+      "label": "Home",
+      "url": "https://xrbitcoincash.com/"
     },
-    "price_html": {
-      "method": "GET",
-      "returns": "application/json",
-      "shape": {
-        "project": "string",
-        "pair": "string e.g. XRBC/XRP",
-        "best_bid": "number|null",
-        "best_ask": "number|null",
-        "mid_price": "number|null",
-        "bids_count": "number",
-        "asks_count": "number",
-        "updated_at": "ISO-8601 string"
-      }
+    {
+      "label": "Trade",
+      "url": "https://xrbitcoincash.com/#trade"
+    },
+    {
+      "label": "Wallet",
+      "url": "https://xrbitcoincash.com/#wallet"
+    },
+    {
+      "label": "Orders",
+      "url": "https://xrbitcoincash.com/#open-orders"
+    },
+    {
+      "label": "Live Metrics",
+      "url": "https://xrbitcoincash.com/#metrics"
+    },
+    {
+      "label": "Sentinel",
+      "url": "https://xrbitcoincash.com/#sentinel"
+    },
+    {
+      "label": "Liquidity Scanner",
+      "url": "https://xrbitcoincash.com/liquidity-sentinel.html"
+    },
+    {
+      "label": "Forensics",
+      "url": "https://xrbitcoincash.com/sentinel-forensics.html"
+    },
+    {
+      "label": "Ecosystem",
+      "url": "https://xrbitcoincash.com/xrbc-ecosystem.html"
+    },
+    {
+      "label": "Order Manager",
+      "url": "https://xrbitcoincash.com/limit-extraction.html"
+    },
+    {
+      "label": "Audit",
+      "url": "https://xrbitcoincash.com/extended-audit.html"
+    },
+    {
+      "label": "Risk Lens",
+      "url": "https://xrbitcoincash.com/risk-lens.html"
+    },
+    {
+      "label": "Value Path",
+      "url": "https://xrbitcoincash.com/value-path.html"
+    },
+    {
+      "label": "Watchtower",
+      "url": "https://xrbitcoincash.com/watchtower.html"
+    },
+    {
+      "label": "Bridge Integrity",
+      "url": "https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html"
+    },
+    {
+      "label": "Tokenization",
+      "url": "https://xrbitcoincash.com/asset-tokenization-auditor.html"
+    },
+    {
+      "label": "Advanced",
+      "url": "https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html"
+    },
+    {
+      "label": "Readiness",
+      "url": "https://xrbitcoincash.com/xrbc-readiness.html"
+    },
+    {
+      "label": "Settlement",
+      "url": "https://xrbitcoincash.com/xrbc-settlement.html"
+    },
+    {
+      "label": "White Paper",
+      "url": "https://xrbitcoincash.com/whitepaper.html"
     }
-  },
-
-  "discovery": [
-    "https://xrbitcoincash.com/.well-known/xrp-ledger.toml",
-    "https://xrbitcoincash.com/ai/ai/health.html",
-    "https://xrbitcoincash.com/ai/ai/ai/price.html",
-    "https://xrbitcoincash.com/XRBitcoin/diag.html"
   ],
-
-  "security": {
-    "auth": "none",
-    "rate_limit_hint_rps": 3,
-    "privacy": "No user data collected by this manifest.",
-    "security_txt": "https://xrbitcoincash.com/.well-known/security.txt"
+  "xrbc:surfaceRegistry": [
+    {
+      "id": "xrbc-main-portal",
+      "name": "XRBitcoinCash Main Portal",
+      "url": "https://xrbitcoincash.com/",
+      "status": "current-first-party",
+      "role": "Primary XRBC portal for public market information, wallet connection, trading, orders, live metrics and Sentinel entry points.",
+      "access": "public",
+      "walletInteraction": "optional-xaman",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "primaryEvidence": [
+        "XRPL public methods",
+        "Xaman-authorized transaction intent where used"
+      ],
+      "interpretationLimits": [
+        "Quotes and market state are dynamic.",
+        "Wallet authorization is not identity proof."
+      ]
+    },
+    {
+      "id": "liquidity-sentinel",
+      "name": "Sentinel Liquidity Health",
+      "url": "https://xrbitcoincash.com/liquidity-sentinel.html",
+      "status": "current-first-party",
+      "role": "Validated-ledger trustline, AMM, liquidity, impact and watchlist analysis with evidence export.",
+      "access": "public",
+      "walletInteraction": "optional-xaman",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "primaryEvidence": [
+        "account_lines",
+        "amm_info",
+        "validated ledger freshness",
+        "local watchlist deltas"
+      ],
+      "interpretationLimits": [
+        "Liquidity and impact are snapshots/estimates, not execution guarantees."
+      ]
+    },
+    {
+      "id": "sentinel-forensics",
+      "name": "XRPL Sentinel Forensics",
+      "url": "https://xrbitcoincash.com/sentinel-forensics.html",
+      "status": "current-first-party",
+      "role": "Gated forensic market/issuer analysis with observed-risk, evidence-confidence, continuity, bounded behavior sampling and evidence export.",
+      "access": "public-shell-plus-gated-analysis",
+      "walletInteraction": "xaman-for-gate",
+      "ledgerWriteClass": "optional-gate-setup-or-exit",
+      "gateXRBC": 150,
+      "primaryEvidence": [
+        "AMM",
+        "funded order books",
+        "issuer controls",
+        "bounded trustline distribution",
+        "validated transaction samples",
+        "local snapshots"
+      ],
+      "interpretationLimits": [
+        "Scores are not fraud findings, identity findings, credit ratings or predictions."
+      ]
+    },
+    {
+      "id": "xrbc-ecosystem",
+      "name": "XRBC Ecosystem Directory",
+      "url": "https://xrbitcoincash.com/xrbc-ecosystem.html",
+      "status": "current-first-party",
+      "role": "Canonical directory and orientation surface for XRBitcoinCash applications.",
+      "access": "public",
+      "walletInteraction": "optional-xaman",
+      "ledgerWriteClass": "none",
+      "interpretationLimits": [
+        "Directory presence does not prove a third-party endorsement."
+      ]
+    },
+    {
+      "id": "order-manager",
+      "name": "Order Manager",
+      "url": "https://xrbitcoincash.com/limit-extraction.html",
+      "status": "current-first-party",
+      "role": "Open-offer review and user-controlled order-management workflow.",
+      "access": "public",
+      "walletInteraction": "xaman-for-user-actions",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "primaryEvidence": [
+        "XRPL open offers",
+        "validated transaction result where an action is submitted"
+      ],
+      "interpretationLimits": [
+        "Prepared or signed order actions are not validated results."
+      ]
+    },
+    {
+      "id": "extended-audit",
+      "name": "Extended XRPL Token Auditor",
+      "url": "https://xrbitcoincash.com/extended-audit.html",
+      "status": "current-first-party",
+      "role": "Expanded public-ledger and connected-wallet token analysis.",
+      "access": "public-method-plus-gated-analysis",
+      "walletInteraction": "xaman-for-gate",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "gateXRBC": 50,
+      "primaryEvidence": [
+        "AMM liquidity",
+        "order-book structure",
+        "participation samples",
+        "issuer posture"
+      ],
+      "interpretationLimits": [
+        "Unknown evidence must remain unknown rather than being scored as favorable."
+      ]
+    },
+    {
+      "id": "risk-lens",
+      "name": "XRPL Token Risk Lens",
+      "url": "https://xrbitcoincash.com/risk-lens.html",
+      "status": "current-first-party",
+      "role": "Structured liquidity, exit-capacity, concentration, issuer-control and evidence-confidence analysis.",
+      "access": "public-preview-plus-gated-analysis",
+      "walletInteraction": "xaman-for-gate",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "gateXRBC": 150,
+      "primaryEvidence": [
+        "AMM",
+        "funded order books",
+        "trustline controls",
+        "issuer authority"
+      ],
+      "interpretationLimits": [
+        "Risk scores are analytical signals, not accusations, legal conclusions or guarantees."
+      ]
+    },
+    {
+      "id": "value-path",
+      "name": "XRPL Value Path",
+      "url": "https://xrbitcoincash.com/value-path.html",
+      "status": "current-first-party",
+      "role": "AMM, order-book, route, slippage and path-comparison decision support.",
+      "access": "gated-analysis",
+      "walletInteraction": "xaman-for-gate",
+      "ledgerWriteClass": "optional-only-when-explicitly-presented",
+      "gateXRBC": 400,
+      "interpretationLimits": [
+        "A modeled or discovered route is not an execution guarantee."
+      ]
+    },
+    {
+      "id": "watchtower",
+      "name": "XRBC Watchtower",
+      "url": "https://xrbitcoincash.com/watchtower.html",
+      "status": "current-first-party",
+      "role": "Local watchlists, trend comparison, alerts, liquidity/issuer monitoring and evidence export.",
+      "access": "gated-monitoring",
+      "walletInteraction": "xaman-for-gate",
+      "ledgerWriteClass": "none-for-monitoring",
+      "gateXRBC": 1000,
+      "primaryEvidence": [
+        "public XRPL observations",
+        "local-only watchlist/snapshot state"
+      ],
+      "interpretationLimits": [
+        "Monitoring is not continuous assurance and does not predict future safety."
+      ]
+    },
+    {
+      "id": "bridge-integrity",
+      "name": "XRPL Bridge Integrity Monitor",
+      "url": "https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html",
+      "status": "current-first-party",
+      "role": "Defensive bridge caution intelligence, incident review, evidence provenance and advanced local analysis.",
+      "access": "public-caution-plus-gated-advanced-analysis",
+      "walletInteraction": "optional-for-gate",
+      "ledgerWriteClass": "none-by-design",
+      "gateXRBC": 10,
+      "primaryEvidence": [
+        "bridge incident reports",
+        "operator/security/government sources",
+        "public on-chain evidence where applicable"
+      ],
+      "interpretationLimits": [
+        "No bridge quote, route, deposit address, approval, signature or cross-chain transaction is provided.",
+        "A caution score is not a probability of failure or endorsement."
+      ]
+    },
+    {
+      "id": "tokenization-basic",
+      "name": "Asset Tokenization Auditor",
+      "url": "https://xrbitcoincash.com/asset-tokenization-auditor.html",
+      "status": "current-first-party",
+      "role": "Local-first rights/evidence modeling, hashing, evidence preparation and tokenization review.",
+      "access": "public",
+      "walletInteraction": "optional",
+      "ledgerWriteClass": "none-or-explicit-only",
+      "primaryEvidence": [
+        "local files and user assertions",
+        "SHA-256 evidence records",
+        "public XRPL evidence where queried"
+      ],
+      "interpretationLimits": [
+        "A hash, record or tokenization plan does not create legal title, authenticity or regulatory approval."
+      ]
+    },
+    {
+      "id": "tokenization-advanced",
+      "name": "Advanced Asset Tokenization Auditor",
+      "url": "https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html",
+      "status": "current-first-party",
+      "role": "Professional tokenization controls, Local Asset Vault continuation, Evidence Pack and optional XLS-20 evidence-NFT workflow.",
+      "access": "gated-advanced-workflow",
+      "walletInteraction": "xaman-for-gate-and-optional-mint",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "gateXRBC": 2500,
+      "primaryEvidence": [
+        "Evidence Pack SHA-256",
+        "local asset records",
+        "optional validated NFTokenMint"
+      ],
+      "interpretationLimits": [
+        "NFT evidence is a public reference; it does not independently establish legal title, ownership, authenticity, appraisal or compliance."
+      ]
+    },
+    {
+      "id": "readiness",
+      "name": "XRBC Readiness Evaluator",
+      "url": "https://xrbitcoincash.com/xrbc-readiness.html",
+      "status": "current-first-party",
+      "role": "Read-only XRPL telemetry and separately reviewed institutional/financial-system evidence.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none",
+      "primaryEvidence": [
+        "current XRPL telemetry",
+        "separately sourced external readiness/adoption evidence"
+      ],
+      "interpretationLimits": [
+        "A source candidate, keyword match or system change is not automatic adoption proof."
+      ]
+    },
+    {
+      "id": "settlement",
+      "name": "XRBC Payment & Settlement Desk",
+      "url": "https://xrbitcoincash.com/xrbc-settlement.html",
+      "status": "current-first-party",
+      "role": "Deterministic invoice preparation, Xaman Payment review, six-digit verification, validated-ledger comparison and evidence receipt.",
+      "access": "public",
+      "walletInteraction": "xaman-for-payer-or-recipient-workflow",
+      "ledgerWriteClass": "optional-payment-explicit-wallet-review",
+      "primaryEvidence": [
+        "SHA-256 invoice ID",
+        "Xaman request fields",
+        "validated Payment transaction",
+        "invoice/request/transaction comparison"
+      ],
+      "interpretationLimits": [
+        "Validated payment evidence does not establish off-ledger contractual performance, delivery, refund rights or accounting treatment."
+      ]
+    },
+    {
+      "id": "whitepaper",
+      "name": "XRBitcoinCash White Paper",
+      "url": "https://xrbitcoincash.com/whitepaper.html",
+      "status": "current-first-party",
+      "role": "Project architecture, history, design posture and documentation.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none",
+      "interpretationLimits": [
+        "Documentation does not override current validated ledger state or mandatory law."
+      ]
+    },
+    {
+      "id": "terms",
+      "name": "XRBitcoinCash Terms of Use",
+      "url": "https://xrbitcoincash.com/terms.html",
+      "status": "current-first-party",
+      "role": "Current ecosystem use terms, transaction boundaries, gates, risk allocation and limitations.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none"
+    },
+    {
+      "id": "policy",
+      "name": "XRBitcoinCash Policy & Security",
+      "url": "https://xrbitcoincash.com/policy.html",
+      "status": "current-first-party",
+      "role": "Security, privacy, non-custodial and operational policy.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none"
+    },
+    {
+      "id": "support",
+      "name": "XRBitcoinCash Support & Security Hub",
+      "url": "https://xrbitcoincash.com/support.html",
+      "status": "current-first-party",
+      "role": "Support, reporting, evidence and security contact pathways.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none",
+      "interpretationLimits": [
+        "Support is not custody, key storage, legal advice or guaranteed recovery."
+      ]
+    },
+    {
+      "id": "ai-provenance",
+      "name": "AI Provenance & Machine Discovery",
+      "url": "https://xrbitcoincash.com/ai-provenance.html",
+      "status": "current-first-party",
+      "role": "Human-readable provenance hub for source hierarchy, temporal semantics, claim classes and machine endpoints.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none"
+    },
+    {
+      "id": "xrbitcoin",
+      "name": "XRBitcoin Portal",
+      "url": "https://xrbitcoincash.com/xrbitcoin-links.html",
+      "status": "current-first-party",
+      "role": "Separate XRB XRPL trading, liquidity and ledger tools.",
+      "access": "public",
+      "walletInteraction": "optional-xaman",
+      "ledgerWriteClass": "optional-explicit-wallet-review",
+      "interpretationLimits": [
+        "XRB is a separate asset; XRBC identity, issuer obligations and market risk do not merge with XRB."
+      ]
+    },
+    {
+      "id": "creature-nft",
+      "name": "Creature NFT Archive",
+      "url": "https://xrbitcoincash.com/creature-nft-links.html",
+      "status": "current-first-party",
+      "role": "Read-only archive and viewer for public XRPL balances, legacy Creature NFT records and native XLS-20 NFTs.",
+      "access": "public",
+      "walletInteraction": "optional-public-address-authorization",
+      "ledgerWriteClass": "none",
+      "interpretationLimits": [
+        "Archive display does not establish IP ownership, legal title, rarity, authenticity, liquidity or price."
+      ]
+    },
+    {
+      "id": "jcs-link",
+      "name": "Jesus Christ Saves Token Project Link",
+      "url": "https://xrbitcoincash.com/jcs-links.html",
+      "status": "current-first-party",
+      "role": "XRBitcoinCash-side pointer to the separate JCS project.",
+      "access": "public",
+      "walletInteraction": "not-required",
+      "ledgerWriteClass": "none",
+      "interpretationLimits": [
+        "JCS is a separate project/asset with its own domain, issuer, policies and machine manifest."
+      ]
+    }
+  ],
+  "xrbc:xamanApplicationRegistry": {
+    "purpose": "Human-readable aliases observed in the project's Xaman developer workflow. The authoritative redirect/origin configuration remains the current Xaman developer application settings.",
+    "applications": [
+      {
+        "label": "XRPL Sentinel",
+        "canonicalSurface": "https://xrbitcoincash.com/liquidity-sentinel.html"
+      },
+      {
+        "label": "XRbitcoin Main Portal",
+        "canonicalSurface": "https://xrbitcoincash.com/xrbitcoin-links.html"
+      },
+      {
+        "label": "XRPL Extended Auditor",
+        "canonicalSurface": "https://xrbitcoincash.com/extended-audit.html"
+      },
+      {
+        "label": "Jesus Christ Saves Token — Prayer Relic NFT",
+        "canonicalSurface": "https://jesuschristsavestoken.com/verify.html"
+      },
+      {
+        "label": "Advanced XRPL Asset Tokenization Auditor",
+        "canonicalSurface": "https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html"
+      },
+      {
+        "label": "XRBC Trade & Verify",
+        "canonicalSurface": null,
+        "status": "Xaman application concept; do not invent a canonical public URL from this manifest."
+      },
+      {
+        "label": "XRPL Asset Provenance Gateway",
+        "canonicalSurface": null,
+        "status": "Xaman application concept; do not invent a canonical public URL from this manifest."
+      },
+      {
+        "label": "XRPL Bridge Integrity Monitor",
+        "canonicalSurface": "https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html"
+      },
+      {
+        "label": "XRPL Token Risk Lens",
+        "canonicalSurface": "https://xrbitcoincash.com/risk-lens.html"
+      },
+      {
+        "label": "XRPL Value Path Navigator",
+        "canonicalSurface": "https://xrbitcoincash.com/value-path.html"
+      },
+      {
+        "label": "XRBitcoinCash Support & Security Hub",
+        "canonicalSurface": "https://xrbitcoincash.com/support.html"
+      },
+      {
+        "label": "Creature NFT Archive",
+        "canonicalSurface": "https://xrbitcoincash.com/creature-nft-links.html"
+      }
+    ]
   },
-
-  "provenance": {
-    "on_ledger_source": "XRPL Clio/Mainnet",
-    "off_ledger_source": "Static site (GitHub Pages) + Render proxy"
+  "xrbc:relatedProjects": [
+    {
+      "name": "Jesus Christ Saves Token",
+      "ticker": "JCS",
+      "relationship": "Related creator-led XRPL project; separate asset, domain, policies, issuer and machine authority.",
+      "canonicalDomain": "jesuschristsavestoken.com",
+      "issuer": "rPU6sXCNzsjcTUEmgJQ5SxDUzY2y1RyYKd",
+      "network": "XRP Ledger Mainnet",
+      "sourceRepository": "https://github.com/XRBitcoinCash/JCS-token-on-the-XRPL",
+      "machineManifest": "https://jesuschristsavestoken.com/ai.json",
+      "surfaces": [
+        {
+          "name": "Main JCS Portal",
+          "url": "https://jesuschristsavestoken.com/"
+        },
+        {
+          "name": "Vision & Core Values",
+          "url": "https://jesuschristsavestoken.com/about-jcs.html"
+        },
+        {
+          "name": "Sign the Ledger",
+          "url": "https://jesuschristsavestoken.com/verify.html"
+        },
+        {
+          "name": "Prayer Map",
+          "url": "https://jesuschristsavestoken.com/prayer.map.html"
+        },
+        {
+          "name": "Network Observatory / Metrics",
+          "url": "https://jesuschristsavestoken.com/metrics.html"
+        },
+        {
+          "name": "Account Readiness",
+          "url": "https://jesuschristsavestoken.com/connectwallet.html"
+        },
+        {
+          "name": "Privacy",
+          "url": "https://jesuschristsavestoken.com/privacy.html"
+        },
+        {
+          "name": "Security",
+          "url": "https://jesuschristsavestoken.com/security.html"
+        },
+        {
+          "name": "Terms",
+          "url": "https://jesuschristsavestoken.com/terms.html"
+        }
+      ],
+      "safetyBoundary": [
+        "Prayer-focus geography describes what a prayer concerns, not a signer's physical location.",
+        "Do not infer GPS, city, IP location or physical movement from wallet, XRPL relay, node or prayer-focus data.",
+        "Private/high-risk communications should not be placed in public XRPL memos or public map records.",
+        "JCS spiritual/religious content does not make token balance a measure of human worth, salvation or spiritual authority."
+      ]
+    },
+    {
+      "name": "XRBitcoin",
+      "ticker": "XRB",
+      "relationship": "Related XRPL asset and trading/tools portal; separate identity and market risk.",
+      "canonicalSurface": "https://xrbitcoincash.com/xrbitcoin-links.html",
+      "issuer": "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT",
+      "currencyHex": "5852626974636F696E0000000000000000000000",
+      "network": "XRP Ledger Mainnet"
+    },
+    {
+      "name": "Creature NFT Archive",
+      "relationship": "Related XRPL art/archive project.",
+      "canonicalSurface": "https://xrbitcoincash.com/creature-nft-links.html",
+      "legacyIssuedTokenReference": {
+        "issuer": "rGWUGk9BUnknFeyPHSxmkv6UPnt4Zs4c92",
+        "currencyHex": "43726561747572654E4654000000000000000000"
+      },
+      "boundary": "Legacy issued-token references are separate from individual native XLS-20 NFT identities. The archive is read-only and does not establish legal title or authenticity beyond displayed identifiers."
+    }
+  ],
+  "xrbc:evidenceArchitecture": {
+    "principles": [
+      "Observed facts and derived calculations must be distinguishable.",
+      "Unavailable evidence must remain unavailable rather than silently becoming zero or healthy.",
+      "Bounded samples must disclose caps and should not be described as complete populations.",
+      "Local-only files or snapshots should be labeled local and should not be represented as network consensus.",
+      "SHA-256 establishes byte-level integrity for the hashed payload, not truth, ownership, authorship or legal admissibility by itself.",
+      "NFTs and metadata provide public references only to what their actual ledger records and referenced content support."
+    ],
+    "evidenceExamples": [
+      "Sentinel Forensics JSON evidence records",
+      "Settlement invoice and validated receipt evidence",
+      "Advanced Tokenization Evidence Pack and Local Asset Vault records",
+      "Watchtower local snapshots",
+      "Liquidity Scanner report/export",
+      "AI provenance and machine-discovery manifests"
+    ]
   },
-
-  "updated": "2025-10-15"
-}
-"ident": {
-  "issuer": "rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw",
-  "currency_hex": "5852626974636F696E6361736800000000000000",
-  "pair_default": "XRBC/XRP"
+  "xrbc:bridgeBoundary": {
+    "readOnlyByDesign": true,
+    "prohibitedCapabilities": [
+      "No bridge execution",
+      "No bridge deposit address generation",
+      "No cross-chain route execution",
+      "No approval or wallet-signature workflow for a bridge",
+      "No guarantee that a listed bridge or route is safe"
+    ],
+    "interpretation": "Bridge scores are caution/evidence summaries. A lower caution score, lack of recent incidents or public operator claims must not be converted into a guarantee or probability of success."
+  },
+  "xrbc:tokenizationBoundary": {
+    "localFirst": true,
+    "evidencePack": "SHA-256-hashed local evidence record where implemented.",
+    "optionalLedgerEvidence": "Advanced workflows may prepare an XLS-20 NFTokenMint for explicit Xaman review.",
+    "notAutomaticProofOf": [
+      "legal title",
+      "real-world ownership",
+      "authorship",
+      "authenticity",
+      "custody",
+      "appraisal",
+      "court admissibility",
+      "regulatory approval",
+      "securities/commodities classification",
+      "third-party recognition"
+    ]
+  },
+  "xrbc:settlementBoundary": {
+    "surface": "https://xrbitcoincash.com/xrbc-settlement.html",
+    "invoice": "Deterministic invoice data with a SHA-256 Invoice ID.",
+    "signing": "Payer independently reviews and authorizes the Payment in Xaman.",
+    "verification": "Validated ledger result and invoice/request/transaction field matching.",
+    "challengeMemos": [
+      "APP",
+      "CHALLENGE",
+      "DOMAIN"
+    ],
+    "notProofOf": [
+      "off-ledger delivery",
+      "merchant performance",
+      "legal satisfaction of a debt",
+      "tax treatment",
+      "accounting treatment",
+      "refund or chargeback rights"
+    ]
+  },
+  "xrbc:machineEndpoints": [
+    "https://xrbitcoincash.com/build-info.json"
+  ],
+  "xrbc:legalPolicyRegistry": {
+    "terms": "https://xrbitcoincash.com/terms.html",
+    "policyAndSecurity": "https://xrbitcoincash.com/policy.html",
+    "support": "https://xrbitcoincash.com/support.html",
+    "repositoryLicense": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/blob/master/LICENSE",
+    "rule": "This machine manifest summarizes project boundaries. It does not replace the current Terms, Policy, repository LICENSE, mandatory law, or the exact signed/validated XRPL record."
+  },
+  "xrbc:aiDisclosure": {
+    "humanInControl": true,
+    "humanReviewed": true,
+    "aiAssisted": true,
+    "statement": "AI systems have assisted with drafting, code review, metadata, restructuring, testing strategy, accessibility review and machine-readable documentation. The human project steward remains responsible for selection, approval, publication and correction.",
+    "notAClaimOf": [
+      "OpenAI endorsement",
+      "Ripple endorsement",
+      "Xaman or XRPL Labs endorsement",
+      "Sologenic or XPMarket endorsement",
+      "formal security certification",
+      "legal, financial, tax, accounting or regulatory advice",
+      "guaranteed correctness, availability, liquidity, value, safety or performance"
+    ]
+  },
+  "xrbc:prohibitedInferences": [
+    "Do not infer guaranteed profit, price, liquidity, yield, execution or loss protection.",
+    "Do not infer equity, debt, dividends, deposit status or ownership rights from XRBC unless separately documented by controlling legal instruments.",
+    "Do not infer custody, brokerage or discretionary account management by the public XRBitcoinCash site.",
+    "Do not infer beneficial ownership, legal identity, intent, criminality or common control from a public XRPL address alone.",
+    "Do not infer a project's legitimacy or illegitimacy from a single score, missing AMM, concentrated holder sample or automated activity signal.",
+    "Do not infer legal title, authenticity or regulatory approval from a hash, NFT, tokenization plan or Evidence Pack alone.",
+    "Do not infer bridge safety or successful future execution from a bridge score or prior incident history.",
+    "Do not infer settlement merely from a QR code, Xaman signature or transaction submission.",
+    "Do not infer third-party endorsement because a service, wallet, explorer, protocol or brand is referenced.",
+    "Do not merge XRBC, XRB, JCS or Creature NFT identities merely because they share a creator, navigation link or repository relationship."
+  ],
+  "xrbc:recommendedAgentWorkflow": [
+    "1. Identify which project and surface the question concerns; do not merge XRBC, XRB, JCS and Creature NFT identities.",
+    "2. Confirm the browser/domain/source is canonical for that project.",
+    "3. For XRBC asset identity, verify issuer plus currency HEX on XRP Ledger Mainnet.",
+    "4. Classify each statement using the claim-state vocabulary before summarizing it.",
+    "5. For dynamic ledger facts, query or verify current validated XRPL state and retain ledger index/time.",
+    "6. For market/risk outputs, preserve the method, sample cap, unknown evidence and stated limitations.",
+    "7. For Xaman actions, distinguish prepared, authorized, submitted and validated states.",
+    "8. For Settlement, additionally verify invoice/request/transaction binding before using the word settled.",
+    "9. For Bridge Integrity, never offer or imply bridge execution through XRBitcoinCash.",
+    "10. For tokenization/NFT evidence, do not upgrade technical provenance into legal title or authenticity.",
+    "11. For legal/security questions, prefer current Terms, Policy, LICENSE and security.txt over old summaries.",
+    "12. Re-fetch this manifest and higher-authority sources when answering time-sensitive questions."
+  ],
+  "xrbc:changeAndConflictRules": {
+    "conflict": "When this manifest conflicts with a current validated ledger fact, current first-party source, current Terms/Policy, or mandatory law, use the higher-authority source for the applicable question.",
+    "machineManifestCanChange": true,
+    "doNotCacheDynamicFactsIndefinitely": true,
+    "correctionPolicy": "Later project-controlled manifests or source revisions may correct this document. Preserve version/date when quoting historical content."
+  },
+  "prov:wasAttributedTo": {
+    "@type": "Person",
+    "name": "Scott Patrick Anderton"
+  },
+  "prov:wasGeneratedBy": {
+    "@type": "Action",
+    "name": "Human-directed project development with AI assistance",
+    "agent": [
+      {
+        "@type": "Person",
+        "name": "Scott Patrick Anderton",
+        "roleName": "Human direction, approval and publication"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "OpenAI ChatGPT",
+        "roleName": "Assisted drafting, code review, metadata, restructuring, testing strategy and accessibility review"
+      }
+    ]
+  },
+  "xrbc:deploymentEvidence": {
+    "buildInfo": "https://xrbitcoincash.com/build-info.json",
+    "sourceRepository": "https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project",
+    "rule": "The Pages deployment generates build-info.json with the exact deployed Git commit and pipeline. Use it to distinguish deployed artifacts from older mirrors or cached copies."
+  }
 }

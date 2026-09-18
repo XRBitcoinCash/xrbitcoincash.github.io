@@ -1,76 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Homepage -->
+  <!-- =========================================================
+       XRBitcoinCash canonical XML sitemap
+       Domain: https://xrbitcoincash.com/
+       Updated: 2026-09-10
+
+       Policy:
+       - Canonical public URLs only.
+       - No test, legacy duplicate, query-string, fragment, JSON,
+         manifest, image, or private/workspace URLs.
+       - lastmod is included only where an exact meaningful content
+         modification date is known.
+       - changefreq and priority are intentionally omitted because
+         major search engines do not use them as ranking signals.
+       ========================================================= -->
+
+  <!-- Core project -->
   <url>
     <loc>https://xrbitcoincash.com/</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-09-01</lastmod>
   </url>
-
-  <!-- Core Pages -->
   <url>
-    <loc>https://xrbitcoincash.com/about.html</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <loc>https://xrbitcoincash.com/markets/</loc>
+    <lastmod>2026-09-01</lastmod>
   </url>
   <url>
     <loc>https://xrbitcoincash.com/whitepaper.html</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <!-- REPLACED dex.html → trade.html -->
-  <url>
-    <loc>https://xrbitcoincash.com/trade.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://xrbitcoincash.com/nfts.html</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Added core tool pages -->
-  <url><loc>https://xrbitcoincash.com/limit-order-extraction.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/stop-loss.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/stop-loss-legal.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/xrbc-ecosystem.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/security-jobs.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/limit-trade.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/vault-console.html</loc></url>
-
-  <!-- Policy/Docs -->
-  <url><loc>https://xrbitcoincash.com/privacy.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/terms.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/security-policy.html</loc></url>
-  <url><loc>https://xrbitcoincash.com/compliance.html</loc></url>
-
-  <!-- White paper sections -->
-  <url><loc>https://xrbitcoincash.com/white-paper/</loc></url>
-  <url><loc>https://xrbitcoincash.com/fa/white-paper/</loc></url>
-  <url><loc>https://xrbitcoincash.com/white-paper/communitynftgallery/</loc></url>
-
-  <!-- Compliance / Well-Known Endpoints (keep if these files exist) -->
-  <url>
-    <loc>https://xrbitcoincash.com/.well-known/xrp-ledger.toml</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://xrbitcoincash.com/xrbc-ecosystem.html</loc>
   </url>
   <url>
-    <loc>https://xrbitcoincash.com/.well-known/security.txt</loc>
-    <lastmod>2025-08-22</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://xrbitcoincash.com/developers.html</loc>
   </url>
 
-  <!-- Exclusions for clarity:
-       - metadata.html is omitted (page is marked noindex)
-       - Diagnostics/test pages are omitted (all marked noindex in-page)
-       - Off-domain ping URLs are not valid sitemap entries -->
+  <!-- XRPL liquidity, market, risk and forensic tools -->
+  <url>
+    <loc>https://xrbitcoincash.com/liquidity-sentinel.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/sentinel-forensics.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/extended-audit.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/risk-lens.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/value-path.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/watchtower.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/xrpl-bridge-integrity-monitor.html</loc>
+  </url>
+
+  <!-- Tokenization and settlement -->
+  <url>
+    <loc>https://xrbitcoincash.com/asset-tokenization-auditor.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/asset-tokenization-auditor-advanced.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/xrbc-readiness.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/xrbc-settlement.html</loc>
+  </url>
+
+  <!-- Project provenance, policy and support -->
+  <url>
+    <loc>https://xrbitcoincash.com/ai-provenance.html</loc>
+    <lastmod>2026-08-25</lastmod>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/policy.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/terms.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/support.html</loc>
+    <lastmod>2026-08-24</lastmod>
+  </url>
+
+  <!-- Related public XRPL project pages hosted on the domain -->
+  <url>
+    <loc>https://xrbitcoincash.com/xrbitcoin-links.html</loc>
+  </url>
+  <url>
+    <loc>https://xrbitcoincash.com/creature-nft-links.html</loc>
+  </url>
+
 </urlset>
