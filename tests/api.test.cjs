@@ -13,6 +13,36 @@ function fixture(config={}){
   let clock=EPOCH,created,pingCalls=0,accountBalance=config.balance||'2500',rpcCalls=[];
   const pinned={validated:true,ledger_hash:HASH,ledger_index:INDEX};
   const fetch=async(url,init)=>{
+    if(url.startsWith('https://www.youtube.com/feeds/videos.xml?channel_id=')){
+      if(config.mediaFails)throw new Error('media unavailable');
+      const u=new URL(url),channel=u.searchParams.get('channel_id')||'';
+      const known=channel==='UC6zTJdNCBI-TKMt5ubNc_Gg'
+        ? {id:'XRPLFVID001',title:'XRPL Foundation validator update',author:'XRP Ledger Foundation'}
+        : channel==='UCjok1uTSBUgvRYQaASz6YWw'
+          ? {id:'RIPPLEVID01',title:'Ripple XRP ecosystem video update',author:'Ripple'}
+          : {id:'WENDYVIDEO1',title:'CryptoWendyO XRP market video',author:'CryptoWendyO'};
+      const xml='<?xml version="1.0"?><feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/"><entry>'+
+        '<yt:videoId>'+known.id+'</yt:videoId>'+
+        '<title>'+known.title+'</title>'+
+        '<published>'+new Date(clock-45000).toISOString()+'</published>'+
+        '<media:group><media:description>Video fixture description</media:description><media:thumbnail url="https://i.ytimg.com/vi/'+known.id+'/hqdefault.jpg"/></media:group>'+
+        '</entry></feed>';
+      return {ok:true,text:async()=>xml};
+    }
+    if(url==='https://www.coindesk.com/arc/outboundfeeds/rss/'||url==='https://decrypt.co/feed'||url==='https://cointelegraph.com/rss'){
+      if(config.mediaFails)throw new Error('media unavailable');
+      const source=url.includes('coindesk')?'CoinDesk':url.includes('decrypt')?'Decrypt':'Cointelegraph';
+      const slug=source.toLowerCase();
+      const xml='<?xml version="1.0"?><rss xmlns:media="http://search.yahoo.com/mrss/"><channel><item>'+
+        '<title>'+source+' rich media article</title>'+
+        '<link>https://example.com/'+slug+'/story</link>'+
+        '<pubDate>'+new Date(clock-55000).toUTCString()+'</pubDate>'+
+        '<source>'+source+'</source>'+
+        '<media:thumbnail url="https://images.example.com/'+slug+'.jpg"/>'+
+        '<description>&lt;p&gt;Fixture '+source+' summary&lt;/p&gt;&lt;img src="https://images.example.com/'+slug+'-inline.jpg"&gt;</description>'+
+        '</item></channel></rss>';
+      return {ok:true,text:async()=>xml};
+    }
     if(url.startsWith('https://news.google.com/rss/')){
       if(config.mediaFails)throw new Error('media unavailable');
       const u=new URL(url),query=(u.searchParams.get('q')||'').toLowerCase();
@@ -93,14 +123,20 @@ function fixture(config={}){
   return {request,signIn,rpcCalls,pingCount:()=>pingCalls,setBalance:v=>{accountBalance=v;},advance:ms=>{clock+=ms;}};
 }
 test('public discovery works with Express getter-only request properties',async()=>{const f=fixture();const r=await f.request('/');assert.equal(r.status,200);assert.equal(r.body.data.mode,'read_only');assert.equal(r.body.data.media,'https://xrbitcoincash-github-io.onrender.com/api/v1/media/news');assert.equal(r.headers['cache-control'],'no-store');});
-test('public media feed aggregates JSON and RSS XRPL sources before wider crypto without ledger calls',async()=>{
+test('public media feed aggregates JSON, rich publisher RSS, and YouTube video feeds without ledger calls',async()=>{
   const f=fixture(),r=await f.request('/media/news');
-  assert.equal(r.status,200);assert.equal(r.body.data.version,2);assert.equal(r.body.data.provider,'XRBC multi-source media');
+  assert.equal(r.status,200);assert.equal(r.body.data.version,2);assert.equal(r.body.data.provider,'XRBC rich multi-source media');
   assert(r.body.data.articles.some(a=>a.matchedBy==='xrp-ledger'));
   assert(r.body.data.articles.some(a=>a.matchedBy==='google-xrpl'));
   assert(r.body.data.articles.some(a=>a.matchedBy==='google-xrp'));
   assert(r.body.data.articles.some(a=>a.matchedBy==='latest'));
-  assert(r.body.data.articles.length>=10);
+  const publisher=r.body.data.articles.find(a=>a.matchedBy==='coindesk');
+  assert(publisher);assert.equal(publisher.image,'https://images.example.com/coindesk.jpg');
+  assert.equal(publisher.description,'Fixture CoinDesk summary');
+  const video=r.body.data.articles.find(a=>a.matchedBy==='yt-xrplf');
+  assert(video);assert.equal(video.kind,'video');assert.equal(video.videoId,'XRPLFVID001');
+  assert.match(video.image,/i\.ytimg\.com/);
+  assert(r.body.data.articles.length>=15);
   assert.equal(f.rpcCalls.length,0);
 });
 test('public media feed rejects query expansion and fails closed when every fixed upstream is unavailable',async()=>{
