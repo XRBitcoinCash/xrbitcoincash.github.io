@@ -9496,6 +9496,59 @@ body.xrbc-institutional .xrbc-media-independent-note{
   padding-top:11px;
   border-top:1px solid var(--ui-line);
 }
+body.xrbc-institutional .xrbc-media-source-card,
+body.xrbc-institutional .xrbc-media-story-open,
+body.xrbc-institutional #xrbc-media-card .xrbc-media-links button,
+body.xrbc-institutional #xrbc-media-latest{appearance:none;font:inherit;cursor:pointer}
+body.xrbc-institutional #xrbc-media-card .xrbc-media-links button,
+body.xrbc-institutional #xrbc-media-latest{
+  min-height:30px;padding:4px 8px;border:1px solid var(--ui-line);border-radius:7px;color:var(--ui-link);
+  background:var(--ui-input);font-size:10px;font-weight:800
+}
+body.xrbc-institutional .xrbc-media-source-strip>.xrbc-media-source-card{
+  min-width:0;min-height:94px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:11px 12px;
+  border:1px solid var(--ui-line);border-radius:10px;background:var(--ui-panel);color:var(--ui-ink);text-align:left
+}
+body.xrbc-institutional .xrbc-media-source-strip>.xrbc-media-source-card:hover,
+body.xrbc-institutional .xrbc-media-source-strip>.xrbc-media-source-card:focus-visible{border-color:var(--ui-accent);background:var(--ui-raised)}
+body.xrbc-institutional .xrbc-media-independent-links>.xrbc-media-source-card{
+  display:block;width:100%;padding:9px 10px;border:1px solid var(--ui-line);border-radius:9px;color:var(--ui-ink);
+  background:var(--ui-input);text-align:left
+}
+body.xrbc-institutional .xrbc-media-independent-links>.xrbc-media-source-card:hover{border-color:var(--ui-accent)}
+body.xrbc-institutional .xrbc-media-story-open{width:100%;padding:0;border:0;color:var(--ui-ink);background:transparent;text-align:left}
+body.xrbc-institutional .xrbc-media-lead-copy>.xrbc-media-story-open{font-size:clamp(1.2rem,2.1vw,1.7rem);font-weight:900;line-height:1.18;letter-spacing:-.025em}
+body.xrbc-institutional .xrbc-media-trending-list .xrbc-media-story-open{font-size:11px;font-weight:800;line-height:1.35}
+body.xrbc-institutional .xrbc-media-side-card>.xrbc-media-story-open{align-self:center;font-size:10px;font-weight:850;line-height:1.35}
+body.xrbc-institutional .xrbc-media-story-open:hover,
+body.xrbc-institutional .xrbc-media-story-open:focus-visible{text-decoration:underline}
+body.xrbc-institutional .xrbc-media-viewer{
+  width:min(760px,calc(100vw - 28px));max-height:min(84vh,760px);padding:0;overflow:auto;border:1px solid var(--ui-line);
+  border-radius:14px;color:var(--ui-ink);background:var(--ui-panel);box-shadow:0 28px 90px rgba(0,0,0,.48)
+}
+body.xrbc-institutional .xrbc-media-viewer::backdrop{background:rgba(2,8,16,.76);backdrop-filter:blur(3px)}
+body.xrbc-institutional .xrbc-media-viewer-shell{padding:18px}
+body.xrbc-institutional .xrbc-media-viewer-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+body.xrbc-institutional .xrbc-media-viewer-head h3{margin:7px 0 3px;font-size:clamp(1.25rem,3vw,1.8rem);line-height:1.18}
+body.xrbc-institutional .xrbc-media-viewer-head p{margin:0!important;color:var(--ui-muted)!important;font-size:10px!important}
+body.xrbc-institutional #xrbc-media-viewer-close{flex:0 0 36px;width:36px;height:36px;border:1px solid var(--ui-line);border-radius:50%;color:var(--ui-ink);background:var(--ui-input);font-size:22px;cursor:pointer}
+body.xrbc-institutional .xrbc-media-viewer-art{margin:14px 0 0;overflow:hidden;border-radius:10px;background:var(--ui-input)}
+body.xrbc-institutional .xrbc-media-viewer-art img{display:block;width:100%;max-height:310px;object-fit:cover}
+body.xrbc-institutional .xrbc-media-viewer-summary{margin:14px 0 0!important;color:var(--ui-muted)!important;font-size:12px!important;line-height:1.6}
+body.xrbc-institutional .xrbc-media-viewer-related{margin-top:16px;padding-top:14px;border-top:1px solid var(--ui-line)}
+body.xrbc-institutional .xrbc-media-viewer-related h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ui-muted)}
+body.xrbc-institutional #xrbc-media-viewer-related-list{display:grid;gap:6px}
+body.xrbc-institutional #xrbc-media-viewer-related-list button{width:100%;padding:8px 9px;border:1px solid var(--ui-line);border-radius:8px;color:var(--ui-ink);background:var(--ui-input);font-size:10px;font-weight:750;text-align:left;cursor:pointer}
+body.xrbc-institutional .xrbc-media-viewer-source{margin-top:16px;padding-top:14px;border-top:1px solid var(--ui-line)}
+body.xrbc-institutional .xrbc-media-viewer-source label{display:block;margin-bottom:6px;color:var(--ui-muted);font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+body.xrbc-institutional .xrbc-media-viewer-source>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+body.xrbc-institutional .xrbc-media-viewer-source input{min-width:0;width:100%;min-height:36px;border:1px solid var(--ui-line);border-radius:8px;padding:7px 9px;color:var(--ui-ink);background:var(--ui-input);font-size:10px}
+body.xrbc-institutional .xrbc-media-viewer-source button{min-height:36px;border:1px solid var(--ui-line);border-radius:8px;padding:7px 10px;color:var(--ui-ink);background:var(--ui-raised);font-size:10px;font-weight:800;cursor:pointer}
+body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top:6px;color:var(--ui-muted);font-size:9px;line-height:1.4}
+@media(max-width:640px){
+  body.xrbc-institutional .xrbc-media-source-strip>.xrbc-media-source-card{flex:0 0 170px;scroll-snap-align:start}
+  body.xrbc-institutional .xrbc-media-viewer-source>div{grid-template-columns:1fr}
+}
 @keyframes xrbcMediaShimmer{to{background-position:-220% 0}}
 @media(max-width:1180px){
   body.xrbc-institutional .xrbc-media-source-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -9533,8 +9586,8 @@ body.xrbc-institutional .xrbc-media-independent-note{
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="61278c5b5c9a9bda08a467da84069b39c45a6eaa">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="e8ef249ccbbe029d50229082fb8fbbbb46257eb7">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=e8ef249ccbbe029d50229082fb8fbbbb46257eb7">
 </head>
 
 <body class="xrbc-institutional">
@@ -10612,24 +10665,24 @@ body.xrbc-institutional .xrbc-media-independent-note{
   </div>
 
   <nav class="xrbc-media-source-strip" aria-label="XRPL and cryptocurrency media sources">
-    <a href="https://xrpl.org/blog" target="_blank" rel="noopener noreferrer">
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="XRPL Blog" data-media-source-type="Official" data-media-source-url="https://xrpl.org/blog" data-media-source-keywords="xrpl|xrp ledger|release|advisory|amendment|clio" data-media-source-summary="Official XRP Ledger protocol releases, advisories, amendments, development notes and ecosystem updates.">
       <span class="xrbc-media-source-type official">Official</span><strong>XRPL Blog</strong><small>Protocol releases · advisories · development</small>
-    </a>
-    <a href="https://ripple.com/insights/category/xrp/" target="_blank" rel="noopener noreferrer">
+    </button>
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="Ripple XRP Insights" data-media-source-type="Company" data-media-source-url="https://ripple.com/insights/category/xrp/" data-media-source-keywords="ripple|xrp|rlusd" data-media-source-summary="Ripple-published XRP, institutional use, payments and ecosystem material.">
       <span class="xrbc-media-source-type company">Company</span><strong>Ripple XRP Insights</strong><small>XRP · institutional use · ecosystem</small>
-    </a>
-    <a href="https://xaman.app/blog" target="_blank" rel="noopener noreferrer">
+    </button>
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="Xaman Blog" data-media-source-type="Wallet" data-media-source-url="https://xaman.app/blog" data-media-source-keywords="xaman|xumm|wallet|xrpl" data-media-source-summary="Xaman wallet releases, security information, XRPL access updates and product notices.">
       <span class="xrbc-media-source-type wallet">Wallet</span><strong>Xaman Blog</strong><small>Wallet releases · XRPL access · security</small>
-    </a>
-    <a href="https://www.coindesk.com/tag/xrp-ledger" target="_blank" rel="noopener noreferrer">
+    </button>
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="CoinDesk · XRPL" data-media-source-type="Newsroom" data-media-source-url="https://www.coindesk.com/tag/xrp-ledger" data-media-source-keywords="coindesk|xrp|xrpl|ripple" data-media-source-summary="Independent industry reporting covering XRP Ledger, XRP, markets, policy and related companies.">
       <span class="xrbc-media-source-type newsroom">Newsroom</span><strong>CoinDesk · XRPL</strong><small>Industry reporting · markets · policy</small>
-    </a>
-    <a href="https://decrypt.co/news" target="_blank" rel="noopener noreferrer">
+    </button>
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="Decrypt" data-media-source-type="Newsroom" data-media-source-url="https://decrypt.co/news" data-media-source-keywords="decrypt|crypto|bitcoin|ethereum|market" data-media-source-summary="Wider cryptocurrency reporting for technology, markets, industry and policy context.">
       <span class="xrbc-media-source-type newsroom">Newsroom</span><strong>Decrypt</strong><small>Crypto news · technology · markets</small>
-    </a>
-    <a href="https://xrpl.org/community" target="_blank" rel="noopener noreferrer">
+    </button>
+    <button type="button" class="xrbc-media-source-card" data-media-source-title="XRPL Community" data-media-source-type="Community" data-media-source-url="https://xrpl.org/community" data-media-source-keywords="xrpl|xrp ledger|community|developer|builder" data-media-source-summary="XRP Ledger builder, developer, event and community resources.">
       <span class="xrbc-media-source-type community">Community</span><strong>XRPL Community</strong><small>Builders · events · discussion</small>
-    </a>
+    </button>
   </nav>
 
   <div class="xrbc-media-filter-row">
@@ -10675,7 +10728,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
 
   <div class="xrbcv2-news-foot xrbc-media-desk-foot">
     <span id="xrbcv2-news-state">Connecting to public news feed…</span>
-    <span>Live path: XRBC read-only media proxy → cryptocurrency.cv · direct provider and publisher fallbacks available · publishers retain their own content and rights.</span>
+    <span>Live path: XRBC read-only media proxy → multi-source XRP/XRPL RSS + cryptocurrency.cv · on-page source widgets remain available during upstream gaps.</span>
   </div>
 
   <div class="xrbc-media-community-row">
@@ -10686,10 +10739,10 @@ body.xrbc-institutional .xrbc-media-independent-note{
           <h2 id="xrbc-media-heading">CryptoWendyO</h2>
           <p class="xrbc-media-caption">Independent cryptocurrency market commentary · YouTube</p>
         </div>
-        <nav class="xrbc-media-links" aria-label="CryptoWendyO on YouTube">
-          <a href="https://www.youtube.com/@CryptoWendyO" target="_blank" rel="noopener noreferrer">Channel</a>
-          <a href="https://www.youtube.com/@CryptoWendyO/shorts" target="_blank" rel="noopener noreferrer">Shorts</a>
-          <a href="https://www.youtube.com/@CryptoWendyO/videos" target="_blank" rel="noopener noreferrer">Videos</a>
+        <nav class="xrbc-media-links" aria-label="CryptoWendyO player modes">
+          <button type="button" data-xrbc-video-format="all">Channel feed</button>
+          <button type="button" data-xrbc-video-format="short">Latest Short</button>
+          <button type="button" data-xrbc-video-format="video">Latest video</button>
         </nav>
       </div>
       <div class="xrbc-media-body">
@@ -10707,14 +10760,14 @@ body.xrbc-institutional .xrbc-media-independent-note{
             <option value="short">Latest Short</option>
             <option value="video">Latest video</option>
           </select>
-          <p class="xrbc-media-latest"><a id="xrbc-media-latest" href="https://www.youtube.com/@CryptoWendyO" target="_blank" rel="noopener noreferrer">Browse the latest uploads on YouTube</a></p>
+          <p class="xrbc-media-latest"><button id="xrbc-media-latest" type="button">Load latest upload in this player</button></p>
           <p class="xrbc-media-caption" id="xrbc-media-published"></p>
           <button id="xrbc-media-play-latest" type="button" hidden>Play latest upload</button>
           <p class="xrbc-media-caption" id="xrbc-media-playing">Player: channel uploads</p>
         </div>
       </div>
       <p id="xrbc-media-state" class="xrbc-media-caption" role="status" aria-live="polite">Checking recent uploads…</p>
-      <noscript><p class="xrbc-media-caption">Use the player or channel links to browse uploads. Live post details require JavaScript.</p></noscript>
+      <noscript><p class="xrbc-media-caption">Use the embedded player to browse channel uploads. Live post details require JavaScript.</p></noscript>
     </article>
 
     <aside class="xrbc-media-independent-panel" aria-labelledby="xrbc-media-independent-title">
@@ -10722,13 +10775,37 @@ body.xrbc-institutional .xrbc-media-independent-note{
       <h3 id="xrbc-media-independent-title">Choose your own signal.</h3>
       <p>Community and independent sources can be useful for discovering themes before they reach larger newsrooms, but they can also contain speculation. Open the source, inspect the evidence, and separate reporting from opinion.</p>
       <div class="xrbc-media-independent-links">
-        <a href="https://www.youtube.com/results?search_query=XRP+Ledger" target="_blank" rel="noopener noreferrer"><strong>YouTube · XRP Ledger</strong><span>Broad community video search</span></a>
-        <a href="https://xrpl.org/community" target="_blank" rel="noopener noreferrer"><strong>XRPL Community</strong><span>Builders, events, Discord and ecosystem links</span></a>
-        <a href="https://www.coindesk.com/tag/xrp" target="_blank" rel="noopener noreferrer"><strong>CoinDesk · XRP</strong><span>Wider XRP markets and industry coverage</span></a>
+        <button type="button" class="xrbc-media-source-card" data-media-source-title="YouTube · XRP Ledger" data-media-source-type="Independent video" data-media-source-url="https://www.youtube.com/results?search_query=XRP+Ledger" data-media-source-keywords="youtube|xrp|xrpl|xrp ledger" data-media-source-summary="Broad independent and community XRP Ledger video discovery. Treat creator claims as commentary until verified against primary evidence."><strong>YouTube · XRP Ledger</strong><span>Broad community video discovery</span></button>
+        <button type="button" class="xrbc-media-source-card" data-media-source-title="XRPL Community" data-media-source-type="Community" data-media-source-url="https://xrpl.org/community" data-media-source-keywords="xrpl|xrp ledger|community|developer" data-media-source-summary="Builder, developer, event and community resources maintained around the XRP Ledger ecosystem."><strong>XRPL Community</strong><span>Builders, events and ecosystem resources</span></button>
+        <button type="button" class="xrbc-media-source-card" data-media-source-title="CoinDesk · XRP" data-media-source-type="Newsroom" data-media-source-url="https://www.coindesk.com/tag/xrp" data-media-source-keywords="coindesk|xrp|ripple" data-media-source-summary="Wider third-party XRP market, company and industry reporting."><strong>CoinDesk · XRP</strong><span>Wider XRP markets and industry coverage</span></button>
       </div>
       <p class="xrbc-media-independent-note">Source labels describe publisher type only. XRBitcoinCash does not rank a publisher as true, safe, unbiased, or authoritative merely because it appears here.</p>
     </aside>
   </div>
+
+  <dialog id="xrbc-media-viewer" class="xrbc-media-viewer" aria-labelledby="xrbc-media-viewer-title">
+    <div class="xrbc-media-viewer-shell">
+      <header class="xrbc-media-viewer-head">
+        <div>
+          <span id="xrbc-media-viewer-type" class="xrbc-media-story-badge">Media</span>
+          <h3 id="xrbc-media-viewer-title">Media viewer</h3>
+          <p id="xrbc-media-viewer-meta"></p>
+        </div>
+        <button id="xrbc-media-viewer-close" type="button" aria-label="Close media viewer">×</button>
+      </header>
+      <div id="xrbc-media-viewer-art" class="xrbc-media-viewer-art" hidden><img id="xrbc-media-viewer-image" alt="" /></div>
+      <p id="xrbc-media-viewer-summary" class="xrbc-media-viewer-summary"></p>
+      <section class="xrbc-media-viewer-related" aria-labelledby="xrbc-media-viewer-related-title">
+        <h4 id="xrbc-media-viewer-related-title">Related current items</h4>
+        <div id="xrbc-media-viewer-related-list"></div>
+      </section>
+      <div class="xrbc-media-viewer-source">
+        <label for="xrbc-media-viewer-url">Publisher/source address</label>
+        <div><input id="xrbc-media-viewer-url" type="text" readonly /><button id="xrbc-media-viewer-copy" type="button">Copy address</button></div>
+        <small>No external page opens from this media desk. The address is provided for verification or manual use.</small>
+      </div>
+    </div>
+  </dialog>
 </section>
 <section class="xrbcv2-ecosystem" aria-labelledby="xrbcv2-ecosystem-title">
   <div class="xrbcv2-section-head">
@@ -19912,7 +19989,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
     { id:'xaman', url:'https://cryptocurrency.cv/api/search?q=xaman' },
     { id:'latest', url:'https://cryptocurrency.cv/api/news?limit=40' }
   ]);
-  const NEWS_TTL = 300_000;
+  const NEWS_TTL = 120_000;
   const CACHE_KEY = 'xrbc.media.news.v3';
   const $ = id => document.getElementById(id);
   const filterButtons = () => Array.from(document.querySelectorAll('[data-xrbc-news-filter]'));
@@ -19923,6 +20000,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
   let feedMode = 'loading';
   let feedProvider = '';
   let feedStale = false;
+  let viewFallbackReason = '';
 
   const RX = Object.freeze({
     xrpl: /\b(xrp|xrpl|xrp ledger|ripple|ripplex|rlusd|xaman|xumm)\b/i,
@@ -20116,8 +20194,9 @@ body.xrbc-institutional .xrbc-media-independent-note{
   function relevance(article) {
     const text = articleText(article);
     let score = 0;
-    if (article.matchedBy === 'xrp-ledger') score += 180;
-    else if (['xrp','ripple','rlusd','xaman'].includes(article.matchedBy)) score += 130;
+    if (article.matchedBy === 'xrp-ledger' || article.matchedBy === 'google-xrpl') score += 180;
+    else if (['xrp','ripple','rlusd','xaman','google-xrp','google-ripple','google-xaman'].includes(article.matchedBy)) score += 130;
+    if (article.fallback) score -= 60;
     if (RX.xrpl.test(text)) score += 100;
     if (/\b(xrpl|xrp ledger)\b/i.test(text)) score += 35;
     if (/\b(xrp|ripple|rlusd|xaman|xumm)\b/i.test(text)) score += 18;
@@ -20156,20 +20235,31 @@ body.xrbc-institutional .xrbc-media-independent-note{
   }
 
   function viewRows() {
-    let fresh = dedupe(currentArticles);
+    const all = dedupe(currentArticles);
+    let fresh = all;
+    viewFallbackReason = '';
+
     if (searchQuery) {
       fresh = fresh.filter(article => articleText(article).includes(searchQuery));
     }
+
+    let rows;
     if (currentView === 'xrpl') {
-      return diversify(
-        fresh.slice().sort((a,b) => relevance(b)-relevance(a) || b.timeValue-a.timeValue),
-        2
-      );
+      rows = diversify(fresh.slice().sort((a,b) => relevance(b)-relevance(a) || b.timeValue-a.timeValue),2);
+    } else if (currentView === 'all') {
+      rows = diversify(fresh,2);
+    } else {
+      const matcher = RX[currentView];
+      rows = diversify(matcher ? fresh.filter(article => matcher.test(articleText(article))) : fresh,2);
     }
-    if (currentView === 'all') return diversify(fresh,2);
-    const matcher = RX[currentView];
-    const filtered = matcher ? fresh.filter(article => matcher.test(articleText(article))) : fresh;
-    return diversify(filtered,2);
+
+    if (!rows.length && all.length) {
+      viewFallbackReason = searchQuery
+        ? 'No exact search match · showing closest current XRPL desk items'
+        : 'No exact category match · showing closest current XRPL desk items';
+      rows = diversify(all.slice().sort((a,b) => relevance(b)-relevance(a) || b.timeValue-a.timeValue),2);
+    }
+    return rows;
   }
 
   function inferLabel(article) {
@@ -20224,9 +20314,109 @@ body.xrbc-institutional .xrbc-media-independent-note{
   }
 
   function emptyMessage() {
-    return searchQuery
-      ? 'No current items match this search.'
-      : 'No current items match this view.';
+    return 'Media sources are reconnecting. Source widgets remain available above.';
+  }
+
+  function sourceDirectoryArticles() {
+    return DIRECT_SOURCE_FALLBACK.map(normalize);
+  }
+
+  function closeMediaViewer() {
+    const viewer = $('xrbc-media-viewer');
+    if (viewer?.open) viewer.close();
+  }
+
+  function viewerRelated(article,keywords='') {
+    const host = $('xrbc-media-viewer-related-list');
+    if (!host) return;
+    host.replaceChildren();
+    const terms = clean(keywords,160).toLowerCase().split('|').map(value=>value.trim()).filter(Boolean);
+    const rows = dedupe(currentArticles)
+      .filter(item => item !== article && item.title !== article?.title)
+      .filter(item => !terms.length || terms.some(term => articleText(item).includes(term)))
+      .slice(0,5);
+    if (!rows.length) {
+      const note = document.createElement('span');
+      note.className = 'xrbc-media-caption';
+      note.textContent = 'No additional related item is loaded right now.';
+      host.append(note);
+      return;
+    }
+    for (const item of rows) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = item.title + ' · ' + item.source;
+      button.addEventListener('click',() => openMediaArticle(item));
+      host.append(button);
+    }
+  }
+
+  function showMediaViewer({title,type='Media',source='',time='',summary='',url='',image='',article=null,keywords=''}) {
+    const viewer = $('xrbc-media-viewer');
+    if (!viewer) return;
+    $('xrbc-media-viewer-title').textContent = clean(title,280) || 'Media viewer';
+    $('xrbc-media-viewer-type').textContent = clean(type,50) || 'Media';
+    $('xrbc-media-viewer-meta').textContent = [clean(source,90),clean(time,60)].filter(Boolean).join(' · ');
+    $('xrbc-media-viewer-summary').textContent = clean(summary,800) || 'No summary is available from the current feed.';
+
+    const safeUrl = safeLink(url);
+    const urlInput = $('xrbc-media-viewer-url');
+    if (urlInput) urlInput.value = safeUrl === '#' ? '' : safeUrl;
+
+    const art = $('xrbc-media-viewer-art');
+    const img = $('xrbc-media-viewer-image');
+    const safeImg = safeImage(image);
+    if (art && img) {
+      if (safeImg) {
+        img.src = safeImg;
+        art.hidden = false;
+      } else {
+        img.removeAttribute('src');
+        art.hidden = true;
+      }
+    }
+
+    viewerRelated(article,keywords);
+    if (typeof viewer.showModal === 'function') {
+      if (!viewer.open) viewer.showModal();
+    } else {
+      viewer.setAttribute('open','');
+    }
+  }
+
+  function openMediaArticle(article) {
+    showMediaViewer({
+      title:article.title,
+      type:inferLabel(article),
+      source:article.source,
+      time:article.time,
+      summary:article.description || 'This feed supplied a headline without a summary.',
+      url:article.link,
+      image:article.image,
+      article,
+      keywords:[article.source,article.matchedBy].filter(Boolean).join('|')
+    });
+  }
+
+  function openMediaSource(button) {
+    showMediaViewer({
+      title:button.dataset.mediaSourceTitle || 'Media source',
+      type:button.dataset.mediaSourceType || 'Source',
+      source:button.dataset.mediaSourceTitle || '',
+      time:'On-page source widget',
+      summary:button.dataset.mediaSourceSummary || '',
+      url:button.dataset.mediaSourceUrl || '',
+      keywords:button.dataset.mediaSourceKeywords || ''
+    });
+  }
+
+  function mediaStoryButton(article) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'xrbc-media-story-open';
+    button.textContent = article.title;
+    button.addEventListener('click',() => openMediaArticle(article));
+    return button;
   }
 
   function renderLead(article) {
@@ -20248,13 +20438,9 @@ body.xrbc-institutional .xrbc-media-independent-note{
     const top = document.createElement('div');
     top.className = 'xrbc-media-story-topline';
     top.append(makeBadge(article),makeMeta(article));
-    const title = document.createElement('a');
-    title.href = article.link;
-    title.target = '_blank';
-    title.rel = 'noopener noreferrer';
-    title.textContent = article.title;
+    const title = mediaStoryButton(article);
     const desc = document.createElement('p');
-    desc.textContent = article.description || 'Open the original publisher for the full report and supporting context.';
+    desc.textContent = article.description || 'Select the headline to inspect the loaded details inside this page.';
     body.append(top,title,desc);
     card.append(art,body);
     host.append(card);
@@ -20277,12 +20463,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
       rank.className = 'xrbc-media-rank';
       rank.textContent = String(index+1);
       const copy = document.createElement('div');
-      const link = document.createElement('a');
-      link.href = article.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = article.title;
-      copy.append(link,makeMeta(article));
+      copy.append(mediaStoryButton(article),makeMeta(article));
       li.append(rank,copy);
       host.append(li);
     });
@@ -20302,13 +20483,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
     rows.slice(0,3).forEach(article => {
       const card = document.createElement('article');
       card.className = 'xrbc-media-side-card';
-      card.append(makeArt(article,false),makeBadge(article));
-      const link = document.createElement('a');
-      link.href = article.link;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.textContent = article.title;
-      card.append(link,makeMeta(article));
+      card.append(makeArt(article,false),makeBadge(article),mediaStoryButton(article),makeMeta(article));
       host.append(card);
     });
   }
@@ -20340,13 +20515,15 @@ body.xrbc-institutional .xrbc-media-independent-note{
         ' · ' + currentArticles.length + ' available items' +
         ' · ' + rows.length + ' in view' +
         ' · ' + viewLabel() +
-        search;
+        search +
+        (viewFallbackReason ? ' · ' + viewFallbackReason : '');
     }
   }
 
   function applyFeed(result) {
     const articles = Array.isArray(result?.articles) ? result.articles : [];
-    currentArticles = articles.map(normalize).filter(article => article.title && article.link !== '#');
+    const live = articles.map(normalize).filter(article => article.title && article.link !== '#');
+    currentArticles = dedupe(live.concat(sourceDirectoryArticles()));
     feedMode = result?.mode || 'direct';
     feedProvider = clean(result?.provider || '',80);
     feedStale = result?.stale === true;
@@ -20471,6 +20648,27 @@ body.xrbc-institutional .xrbc-media-independent-note{
     $('xrbc-media-search')?.addEventListener('input',event => {
       searchQuery = clean(event.currentTarget?.value || '',80).toLowerCase();
       paint();
+    });
+    for (const button of document.querySelectorAll('.xrbc-media-source-card')) {
+      button.addEventListener('click',() => openMediaSource(button));
+    }
+    $('xrbc-media-viewer-close')?.addEventListener('click',closeMediaViewer);
+    $('xrbc-media-viewer')?.addEventListener('click',event => {
+      if (event.target === event.currentTarget) closeMediaViewer();
+    });
+    $('xrbc-media-viewer-copy')?.addEventListener('click',async() => {
+      const input = $('xrbc-media-viewer-url');
+      const value = input?.value || '';
+      if (!value) return;
+      try {
+        await navigator.clipboard.writeText(value);
+        const button = $('xrbc-media-viewer-copy');
+        if (button) button.textContent = 'Copied';
+        setTimeout(() => { const next=$('xrbc-media-viewer-copy'); if(next) next.textContent='Copy address'; },1200);
+      } catch (_) {
+        input.focus();
+        input.select();
+      }
     });
     loadNews(false);
     setInterval(() => {
@@ -21174,14 +21372,13 @@ body.xrbc-institutional .xrbc-media-independent-note{
       format.disabled = !items.length;
       if (latest) {
         latestLink.textContent = latest.title;
-        latestLink.href = latest.format === 'short' ? 'https://www.youtube.com/shorts/' + latest.id : 'https://www.youtube.com/watch?v=' + latest.id;
         published.textContent = 'Published ' + new Date(latest.publishedAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
       } else {
-        latestLink.textContent = kind === 'all' ? 'Browse the latest uploads on YouTube' : 'Open ' + (kind === 'short' ? 'Shorts' : 'videos') + ' on YouTube';
-        latestLink.href = 'https://www.youtube.com/@CryptoWendyO' + (kind === 'all' ? '' : kind === 'short' ? '/shorts' : '/videos');
+        latestLink.textContent = kind === 'all' ? 'Channel feed is available in this player' : 'This format is not listed in the current channel feed';
         published.textContent = items.length ? 'This format is not listed in the recent channel feed.' : '';
       }
       playLatest.hidden = !latest || activeId === latest.id;
+      latestLink.disabled = !latest;
     }
 
     async function refresh() {
@@ -21205,10 +21402,10 @@ body.xrbc-institutional .xrbc-media-independent-note{
       } catch (_) {
         if (stopped) return;
         if (items.length && Date.now() - lastFreshAt <= MAX_AGE_MS) {
-          status.textContent = 'Feed temporarily unavailable · showing saved details from ' + new Date(lastFreshAt).toLocaleString() + '. Channel links remain available.';
+          status.textContent = 'Feed temporarily unavailable · showing saved details from ' + new Date(lastFreshAt).toLocaleString() + '. The embedded player remains available.';
         } else {
           items = []; renderLatest();
-          status.textContent = 'Latest-post details are unavailable. Use the uploads player or open the channel on YouTube.';
+          status.textContent = 'Latest-post details are unavailable. The embedded channel player remains available on this page.';
         }
       } finally {
         clearTimeout(timeout); controller = null; inFlight = false;
@@ -21224,11 +21421,21 @@ body.xrbc-institutional .xrbc-media-independent-note{
       // A visitor can start the fallback using native iframe controls before JSON arrives.
       if (document.activeElement === player) noteInteraction();
     }
-    playLatest.addEventListener('click', () => {
+    const playSelectedLatest = () => {
       if (!latest) return;
       noteInteraction();
       embed(latest, true);
-    });
+    };
+    playLatest.addEventListener('click', playSelectedLatest);
+    latestLink.addEventListener('click', playSelectedLatest);
+    for (const button of document.querySelectorAll('[data-xrbc-video-format]')) {
+      button.addEventListener('click',() => {
+        if (format.disabled) return;
+        const kind = button.dataset.xrbcVideoFormat || 'all';
+        format.value = ['all','short','video'].includes(kind) ? kind : 'all';
+        format.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+    }
     format.addEventListener('change', () => {
       noteInteraction(); renderLatest();
       if (latest) embed(latest, true);
@@ -24118,7 +24325,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=e8ef249ccbbe029d50229082fb8fbbbb46257eb7" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=e8ef249ccbbe029d50229082fb8fbbbb46257eb7" defer></script>
 </body>
 </html>
