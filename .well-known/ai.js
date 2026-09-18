@@ -9,14 +9,15 @@
   const SANDBOX_GUIDE = "https://raw.githubusercontent.com/XRBitcoinCash/-ai-savepoint-protocol-checkpointai/main/ai/sandbox/README.md";
 
   const SAVEPOINT = Object.freeze({
-    version: "2026-09-14.2",
-    ts: "2026-09-14T00:00:00Z",
+    version: "2026-09-18.1",
+    ts: "2026-09-18T20:17:00Z",
     project: "XRBitcoinCash",
     domains: Object.freeze({
       site: "https://xrbitcoincash.com/",
       repo_site: "XRBitcoinCash/xrbitcoincash.github.io",
       repo_core: "XRBitcoinCash/xrbitcoincash-core",
-      repo_savepoints: "XRBitcoinCash/-ai-savepoint-protocol-checkpointai"
+      repo_savepoints: "XRBitcoinCash/-ai-savepoint-protocol-checkpointai",
+      repo_frontend_gitlab: "xrbitcoincash-group/xrbitcoincash-project"
     }),
 
     memory: Object.freeze({
@@ -47,7 +48,8 @@
     xrbitcoin: Object.freeze({
       issuer: "rGQaHbQHCsTLQtboQPwUBasXjLvk8uDbpT",
       currency_hex: "5852626974636F696E0000000000000000000000",
-      home: "https://xrbitcoincash.com/XRBitcoin/"
+      home: "https://xrbitcoincash.com/xrbitcoin-links.html",
+      security_reference: "https://xrbitcoincash.com/xrbitcoin-security.html"
     }),
 
     xrpl: Object.freeze({
