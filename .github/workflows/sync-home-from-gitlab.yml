@@ -63,11 +63,26 @@ jobs:
           fetch "$base/xrbc-home-compact.css?xrbc_sync=$stamp" xrbc-home-compact.css.next
           fetch "$base/xrbc-home-compact.js?xrbc_sync=$stamp" xrbc-home-compact.js.next
           fetch "$base/xrbc-liquidity-model.js?xrbc_sync=$stamp" xrbc-liquidity-model.js.next
+          mkdir -p .well-known
+          fetch "$base/.well-known/ai.json?xrbc_sync=$stamp" .well-known/ai.json.next
+          fetch "$base/.well-known/security.txt?xrbc_sync=$stamp" .well-known/security.txt.next
+          fetch "$base/.well-known/xrp-ledger.toml?xrbc_sync=$stamp" .well-known/xrp-ledger.toml.next
+          fetch "$base/universal-ai.json?xrbc_sync=$stamp" universal-ai.json.next
+          fetch "$base/xrbc-metadata.json?xrbc_sync=$stamp" xrbc-metadata.json.next
+          fetch "$base/robots.txt?xrbc_sync=$stamp" robots.txt.next
+          fetch "$base/sitemap.xml?xrbc_sync=$stamp" sitemap.xml.next
 
           test -s index.html.next
           test -s xrbc-home-compact.css.next
           test -s xrbc-home-compact.js.next
           test -s xrbc-liquidity-model.js.next
+          test -s .well-known/ai.json.next
+          test -s .well-known/security.txt.next
+          test -s .well-known/xrp-ledger.toml.next
+          test -s universal-ai.json.next
+          test -s xrbc-metadata.json.next
+          test -s robots.txt.next
+          test -s sitemap.xml.next
           grep -q 'data-xrbc-compact="style"' index.html.next
           grep -q 'data-xrbc-compact="script"' index.html.next
           grep -q 'data-xrbc-compact="liquidity-model"' index.html.next
@@ -81,6 +96,16 @@ jobs:
           info = json.loads(Path('build-info.json.next').read_text(encoding='utf-8'))
           if info.get('ref') != 'master':
               raise SystemExit('GitLab build is not from master')
+
+          ai = json.loads(Path('.well-known/ai.json.next').read_text(encoding='utf-8'))
+          universal = json.loads(Path('universal-ai.json.next').read_text(encoding='utf-8'))
+          metadata = json.loads(Path('xrbc-metadata.json.next').read_text(encoding='utf-8'))
+          if ai.get('url') != 'https://xrbitcoincash.com/':
+              raise SystemExit('unexpected canonical AI catalog')
+          if universal.get('name') != 'XRBitcoinCash Universal AI & Machine Discovery Manifest':
+              raise SystemExit('unexpected universal manifest')
+          if metadata.get('project', {}).get('name') != 'XRBitcoinCash':
+              raise SystemExit('unexpected XRBC metadata')
           print('Verified GitLab Pages build', info['commit'])
           PY
 
@@ -88,13 +113,22 @@ jobs:
           mv xrbc-home-compact.css.next xrbc-home-compact.css
           mv xrbc-home-compact.js.next xrbc-home-compact.js
           mv xrbc-liquidity-model.js.next xrbc-liquidity-model.js
+          mv .well-known/ai.json.next .well-known/ai.json
+          mv .well-known/security.txt.next .well-known/security.txt
+          mv .well-known/xrp-ledger.toml.next .well-known/xrp-ledger.toml
+          mv universal-ai.json.next universal-ai.json
+          mv xrbc-metadata.json.next xrbc-metadata.json
+          mv robots.txt.next robots.txt
+          mv sitemap.xml.next sitemap.xml
           mv build-info.json.next build-info.json
 
       - name: Commit production mirror only when changed
         shell: bash
         run: |
           set -euo pipefail
-          git add index.html xrbc-home-compact.css xrbc-home-compact.js xrbc-liquidity-model.js build-info.json
+          git add index.html xrbc-home-compact.css xrbc-home-compact.js xrbc-liquidity-model.js build-info.json \
+            .well-known/ai.json .well-known/security.txt .well-known/xrp-ledger.toml \
+            universal-ai.json xrbc-metadata.json robots.txt sitemap.xml
           if git diff --cached --quiet; then
             echo 'GitHub Pages homepage mirror is already synchronized.'
             exit 0
