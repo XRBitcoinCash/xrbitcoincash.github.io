@@ -9533,8 +9533,8 @@ body.xrbc-institutional .xrbc-media-independent-note{
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="d0cafa50d71bb737b37b2664d6211003d9737905">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=d0cafa50d71bb737b37b2664d6211003d9737905">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="008379f3d6b0caaf04350d54be39f3687aa29eb8">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=008379f3d6b0caaf04350d54be39f3687aa29eb8">
 </head>
 
 <body class="xrbc-institutional">
@@ -10675,7 +10675,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
 
   <div class="xrbcv2-news-foot xrbc-media-desk-foot">
     <span id="xrbcv2-news-state">Connecting to public news feed…</span>
-    <span>Live aggregation: cryptocurrency.cv · direct source links above · publishers retain their own content and rights.</span>
+    <span>Live path: XRBC read-only media proxy → cryptocurrency.cv · direct provider and publisher fallbacks available · publishers retain their own content and rights.</span>
   </div>
 
   <div class="xrbc-media-community-row">
@@ -19894,17 +19894,35 @@ body.xrbc-institutional .xrbc-media-independent-note{
 
 
 <script id="xrbc-market-experiment-v2-js">
-/* XRPL Media Desk: read-only public headline presentation. No wallet, trading or signing state. */
+/* XRPL Media Desk: resilient, read-only public headline presentation.
+ * Primary path: first-party Render media proxy.
+ * Secondary path: direct cryptocurrency.cv requests.
+ * Final fallback: verified publisher entry points, never fabricated headlines.
+ * No wallet, trading, signing, gate or XRPL transaction state is touched here.
+ */
 (() => {
   'use strict';
-  const NEWS_URL = 'https://cryptocurrency.cv/api/news?limit=30';
+
+  const PROXY_NEWS_URL = 'https://xrbitcoincash-github-io.onrender.com/api/v1/media/news';
+  const DIRECT_NEWS_SOURCES = Object.freeze([
+    { id:'xrp-ledger', url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger' },
+    { id:'xrp', url:'https://cryptocurrency.cv/api/search?q=xrp' },
+    { id:'ripple', url:'https://cryptocurrency.cv/api/search?q=ripple' },
+    { id:'rlusd', url:'https://cryptocurrency.cv/api/search?q=rlusd' },
+    { id:'xaman', url:'https://cryptocurrency.cv/api/search?q=xaman' },
+    { id:'latest', url:'https://cryptocurrency.cv/api/news?limit=40' }
+  ]);
   const NEWS_TTL = 300_000;
-  const CACHE_KEY = 'xrbc.media.news.v2';
+  const CACHE_KEY = 'xrbc.media.news.v3';
   const $ = id => document.getElementById(id);
   const filterButtons = () => Array.from(document.querySelectorAll('[data-xrbc-news-filter]'));
+
   let currentView = 'xrpl';
   let currentArticles = [];
   let searchQuery = '';
+  let feedMode = 'loading';
+  let feedProvider = '';
+  let feedStale = false;
 
   const RX = Object.freeze({
     xrpl: /\b(xrp|xrpl|xrp ledger|ripple|ripplex|rlusd|xaman|xumm)\b/i,
@@ -19912,6 +19930,81 @@ body.xrbc-institutional .xrbc-media-independent-note{
     security: /\b(security|hack|hacked|exploit|vulnerab|phishing|scam|fraud|attack|breach|drain|stolen|wallet|custody)\b/i,
     policy: /\b(sec|cftc|regulat|policy|law|court|congress|clarity|mica|license|legislat|enforcement|etf)\b/i
   });
+
+  const DIRECT_SOURCE_FALLBACK = Object.freeze([
+    {
+      title:'XRPL Blog · official protocol and ecosystem updates',
+      link:'https://xrpl.org/blog',
+      source:'XRPL Blog',
+      description:'Open the official XRP Ledger blog for protocol releases, development notes, ecosystem updates and technical announcements.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'Ripple XRP Insights · company and ecosystem updates',
+      link:'https://ripple.com/insights/category/xrp/',
+      source:'Ripple',
+      description:'Open Ripple’s XRP-focused insights for company-published material about XRP, institutional use and ecosystem developments.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'Xaman Blog · wallet, security and XRPL access updates',
+      link:'https://xaman.app/blog',
+      source:'Xaman',
+      description:'Open Xaman’s own blog for wallet releases, security notices and XRP Ledger access information.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'CoinDesk · XRP Ledger newsroom coverage',
+      link:'https://www.coindesk.com/tag/xrp-ledger',
+      source:'CoinDesk',
+      description:'Open current third-party reporting tagged for the XRP Ledger.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'Decrypt · wider cryptocurrency newsroom',
+      link:'https://decrypt.co/news',
+      source:'Decrypt',
+      description:'Open wider cryptocurrency reporting for market, technology and industry context.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'XRPL Community · builders, events and ecosystem links',
+      link:'https://xrpl.org/community',
+      source:'XRPL Community',
+      description:'Open the XRP Ledger community hub for developer, builder, event and discussion resources.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'YouTube · current XRP Ledger community videos',
+      link:'https://www.youtube.com/results?search_query=XRP+Ledger',
+      source:'YouTube',
+      description:'Browse current independent and community video results for XRP Ledger. Verify claims against primary sources.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'CoinDesk · broader XRP coverage',
+      link:'https://www.coindesk.com/tag/xrp',
+      source:'CoinDesk',
+      description:'Open broader XRP market and industry reporting beyond XRP Ledger-specific stories.',
+      timeAgo:'Direct source',
+      fallback:true
+    },
+    {
+      title:'Live Coin Watch · XRP market reference',
+      link:'https://www.livecoinwatch.com/price/XRP-XRP',
+      source:'Live Coin Watch',
+      description:'Open an independent XRP market reference when live news transport is unavailable.',
+      timeAgo:'Market reference',
+      fallback:true
+    }
+  ]);
 
   function safeLink(value) {
     try {
@@ -19928,7 +20021,11 @@ body.xrbc-institutional .xrbc-media-independent-note{
   }
 
   function clean(value, max=500) {
-    return String(value || '').replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g,' ').replace(/\s+/g,' ').trim().slice(0,max);
+    return String(value || '')
+      .replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g,' ')
+      .replace(/\s+/g,' ')
+      .trim()
+      .slice(0,max);
   }
 
   function timeValue(article) {
@@ -19950,12 +20047,19 @@ body.xrbc-institutional .xrbc-media-independent-note{
   function cacheGet() {
     try {
       const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-      if (value && Date.now() - value.ts < NEWS_TTL && Array.isArray(value.data)) return value.data;
+      if (
+        value &&
+        Date.now() - value.ts < NEWS_TTL &&
+        value.data &&
+        Array.isArray(value.data.articles) &&
+        value.data.articles.length
+      ) return value.data;
     } catch (_) {}
     return null;
   }
 
   function cacheSet(data) {
+    if (!data || data.mode === 'sources' || !Array.isArray(data.articles) || !data.articles.length) return;
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),data})); } catch (_) {}
   }
 
@@ -19963,10 +20067,17 @@ body.xrbc-institutional .xrbc-media-independent-note{
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(url,{headers:{accept:'application/json'},signal:controller.signal,cache:'no-store',credentials:'omit'});
+      const response = await fetch(url,{
+        headers:{accept:'application/json'},
+        signal:controller.signal,
+        cache:'no-store',
+        credentials:'omit'
+      });
       if (!response.ok) throw new Error('HTTP ' + response.status);
       return await response.json();
-    } finally { clearTimeout(timer); }
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   function normalize(article,index) {
@@ -19976,17 +20087,37 @@ body.xrbc-institutional .xrbc-media-independent-note{
     const link = safeLink(article?.link || article?.url);
     const image = safeImage(article?.image || article?.imageUrl || article?.urlToImage || article?.thumbnail || article?.image_url);
     const published = article?.pubDate || article?.publishedAt || article?.date || '';
-    const time = clean(article?.timeAgo || relativeTime(published) || 'Recent',40);
-    return {title,source,description,link,image,published,time,index,timeValue:timeValue(article)};
+    const fallback = article?.fallback === true;
+    const time = clean(
+      article?.timeAgo ||
+      relativeTime(published) ||
+      (fallback ? 'Direct source' : 'Recent'),
+      40
+    );
+    return {
+      title,
+      source,
+      description,
+      link,
+      image,
+      published,
+      time,
+      fallback,
+      matchedBy:clean(article?.matchedBy || '',40),
+      index,
+      timeValue:timeValue(article)
+    };
   }
 
   function articleText(article) {
-    return (article.title + ' ' + article.description + ' ' + article.source).toLowerCase();
+    return (article.title + ' ' + article.description + ' ' + article.source + ' ' + article.matchedBy).toLowerCase();
   }
 
   function relevance(article) {
     const text = articleText(article);
     let score = 0;
+    if (article.matchedBy === 'xrp-ledger') score += 180;
+    else if (['xrp','ripple','rlusd','xaman'].includes(article.matchedBy)) score += 130;
     if (RX.xrpl.test(text)) score += 100;
     if (/\b(xrpl|xrp ledger)\b/i.test(text)) score += 35;
     if (/\b(xrp|ripple|rlusd|xaman|xumm)\b/i.test(text)) score += 18;
@@ -19995,11 +20126,15 @@ body.xrbc-institutional .xrbc-media-independent-note{
   }
 
   function dedupe(rows) {
-    const seen = new Set();
+    const seenLinks = new Set();
+    const seenTitles = new Set();
     return rows.filter(article => {
-      const key = (article.link !== '#' ? article.link : article.title).toLowerCase();
-      if (!key || seen.has(key)) return false;
-      seen.add(key); return true;
+      const linkKey = article.link.toLowerCase();
+      const titleKey = article.title.toLowerCase();
+      if (!linkKey || linkKey === '#' || !titleKey || seenLinks.has(linkKey) || seenTitles.has(titleKey)) return false;
+      seenLinks.add(linkKey);
+      seenTitles.add(titleKey);
+      return true;
     });
   }
 
@@ -20013,7 +20148,9 @@ body.xrbc-institutional .xrbc-media-independent-note{
       if (count < maxPerSource) {
         counts.set(key,count+1);
         preferred.push(article);
-      } else overflow.push(article);
+      } else {
+        overflow.push(article);
+      }
     }
     return preferred.concat(overflow);
   }
@@ -20024,7 +20161,10 @@ body.xrbc-institutional .xrbc-media-independent-note{
       fresh = fresh.filter(article => articleText(article).includes(searchQuery));
     }
     if (currentView === 'xrpl') {
-      return diversify(fresh.slice().sort((a,b) => relevance(b)-relevance(a) || b.timeValue-a.timeValue),2);
+      return diversify(
+        fresh.slice().sort((a,b) => relevance(b)-relevance(a) || b.timeValue-a.timeValue),
+        2
+      );
     }
     if (currentView === 'all') return diversify(fresh,2);
     const matcher = RX[currentView];
@@ -20033,6 +20173,7 @@ body.xrbc-institutional .xrbc-media-independent-note{
   }
 
   function inferLabel(article) {
+    if (article.fallback) return article.time === 'Market reference' ? 'Market reference' : 'Direct source';
     const text = articleText(article);
     if (RX.xrpl.test(text)) return 'XRPL / XRP';
     if (RX.security.test(text)) return 'Security';
@@ -20068,13 +20209,24 @@ body.xrbc-institutional .xrbc-media-independent-note{
       img.alt = '';
       img.loading = 'lazy';
       img.referrerPolicy = 'no-referrer';
-      img.addEventListener('error',() => { img.remove(); art.classList.add('fallback'); },{once:true});
+      img.addEventListener('error',() => {
+        img.remove();
+        art.classList.add('fallback');
+      },{once:true});
       art.append(img);
-    } else art.classList.add('fallback');
+    } else {
+      art.classList.add('fallback');
+    }
     const monogram = document.createElement('span');
     monogram.textContent = article.source.slice(0,3).toUpperCase();
     art.append(monogram);
     return art;
+  }
+
+  function emptyMessage() {
+    return searchQuery
+      ? 'No current items match this search.'
+      : 'No current items match this view.';
   }
 
   function renderLead(article) {
@@ -20084,8 +20236,9 @@ body.xrbc-institutional .xrbc-media-independent-note{
     if (!article) {
       const empty = document.createElement('div');
       empty.className = 'xrbc-media-empty';
-      empty.textContent = 'No matching headline is available in the current feed.';
-      host.append(empty); return;
+      empty.textContent = emptyMessage();
+      host.append(empty);
+      return;
     }
     const card = document.createElement('article');
     card.className = 'xrbc-media-lead-card';
@@ -20096,12 +20249,15 @@ body.xrbc-institutional .xrbc-media-independent-note{
     top.className = 'xrbc-media-story-topline';
     top.append(makeBadge(article),makeMeta(article));
     const title = document.createElement('a');
-    title.href = article.link; title.target = '_blank'; title.rel = 'noopener noreferrer';
+    title.href = article.link;
+    title.target = '_blank';
+    title.rel = 'noopener noreferrer';
     title.textContent = article.title;
     const desc = document.createElement('p');
     desc.textContent = article.description || 'Open the original publisher for the full report and supporting context.';
     body.append(top,title,desc);
-    card.append(art,body); host.append(card);
+    card.append(art,body);
+    host.append(card);
   }
 
   function renderTrending(rows) {
@@ -20111,8 +20267,9 @@ body.xrbc-institutional .xrbc-media-independent-note{
     if (!rows.length) {
       const li = document.createElement('li');
       li.className = 'xrbc-media-empty';
-      li.textContent = 'No matching headlines in this category.';
-      host.append(li); return;
+      li.textContent = emptyMessage();
+      host.append(li);
+      return;
     }
     rows.slice(0,5).forEach((article,index) => {
       const li = document.createElement('li');
@@ -20121,9 +20278,13 @@ body.xrbc-institutional .xrbc-media-independent-note{
       rank.textContent = String(index+1);
       const copy = document.createElement('div');
       const link = document.createElement('a');
-      link.href = article.link; link.target='_blank'; link.rel='noopener noreferrer'; link.textContent=article.title;
+      link.href = article.link;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = article.title;
       copy.append(link,makeMeta(article));
-      li.append(rank,copy); host.append(li);
+      li.append(rank,copy);
+      host.append(li);
     });
   }
 
@@ -20134,18 +20295,35 @@ body.xrbc-institutional .xrbc-media-independent-note{
     if (!rows.length) {
       const empty = document.createElement('div');
       empty.className = 'xrbc-media-empty';
-      empty.textContent = 'No additional matching stories.';
-      host.append(empty); return;
+      empty.textContent = emptyMessage();
+      host.append(empty);
+      return;
     }
     rows.slice(0,3).forEach(article => {
       const card = document.createElement('article');
       card.className = 'xrbc-media-side-card';
       card.append(makeArt(article,false),makeBadge(article));
       const link = document.createElement('a');
-      link.href=article.link; link.target='_blank'; link.rel='noopener noreferrer'; link.textContent=article.title;
+      link.href = article.link;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = article.title;
       card.append(link,makeMeta(article));
       host.append(card);
     });
+  }
+
+  function viewLabel() {
+    if (currentView === 'xrpl') return 'XRPL first';
+    if (currentView === 'all') return 'All crypto';
+    return currentView.charAt(0).toUpperCase()+currentView.slice(1);
+  }
+
+  function feedLabel() {
+    if (feedMode === 'proxy') return feedStale ? 'Saved XRBC media proxy feed' : 'Connected through XRBC media proxy';
+    if (feedMode === 'direct') return 'Direct provider fallback';
+    if (feedMode === 'sources') return 'Live headlines unavailable · direct source access';
+    return feedProvider || 'Media feed';
   }
 
   function paint() {
@@ -20153,55 +20331,146 @@ body.xrbc-institutional .xrbc-media-independent-note{
     renderLead(rows[0]);
     renderTrending(rows.slice(1,6));
     renderSide(rows.slice(6,9));
+
     const st = $('xrbcv2-news-state');
-    if (st && currentArticles.length) {
-      const label = currentView === 'xrpl' ? 'XRPL first' : currentView === 'all' ? 'All crypto' : currentView.charAt(0).toUpperCase()+currentView.slice(1);
-      st.textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + ' · ' + currentArticles.length + ' current headlines · ' + label;
+    if (st) {
+      const search = searchQuery ? ' · search active' : '';
+      st.textContent =
+        feedLabel() +
+        ' · ' + currentArticles.length + ' available items' +
+        ' · ' + rows.length + ' in view' +
+        ' · ' + viewLabel() +
+        search;
     }
   }
 
-  function renderNews(articles) {
-    currentArticles = articles.map(normalize).filter(a => a.title && a.link !== '#');
+  function applyFeed(result) {
+    const articles = Array.isArray(result?.articles) ? result.articles : [];
+    currentArticles = articles.map(normalize).filter(article => article.title && article.link !== '#');
+    feedMode = result?.mode || 'direct';
+    feedProvider = clean(result?.provider || '',80);
+    feedStale = result?.stale === true;
     paint();
+  }
+
+  function extractArticles(data) {
+    const payload = data?.data && typeof data.data === 'object' ? data.data : data;
+    const rows = Array.isArray(payload?.articles)
+      ? payload.articles
+      : Array.isArray(payload?.results)
+        ? payload.results
+        : [];
+    return {payload,rows};
+  }
+
+  async function fetchProxyNews() {
+    const data = await fetchJSON(PROXY_NEWS_URL,12000);
+    const {payload,rows} = extractArticles(data);
+    if (!rows.length) throw new Error('Proxy returned no headlines');
+    return {
+      articles:rows,
+      provider:clean(payload?.provider || 'XRBC media proxy',80),
+      mode:'proxy',
+      stale:payload?.stale === true
+    };
+  }
+
+  async function fetchDirectNews() {
+    const settled = await Promise.allSettled(
+      DIRECT_NEWS_SOURCES.map(async source => {
+        const data = await fetchJSON(source.url,9000);
+        const {rows} = extractArticles(data);
+        return rows.slice(0,40).map(article => ({...article,matchedBy:article?.matchedBy || source.id}));
+      })
+    );
+
+    const merged = [];
+    const seenLinks = new Set();
+    const seenTitles = new Set();
+    for (const result of settled) {
+      if (result.status !== 'fulfilled') continue;
+      for (const article of result.value) {
+        const link = safeLink(article?.link || article?.url);
+        const title = clean(article?.title,280);
+        if (link === '#' || !title) continue;
+        const linkKey = link.toLowerCase();
+        const titleKey = title.toLowerCase();
+        if (seenLinks.has(linkKey) || seenTitles.has(titleKey)) continue;
+        seenLinks.add(linkKey);
+        seenTitles.add(titleKey);
+        merged.push(article);
+      }
+    }
+
+    if (!merged.length) throw new Error('Direct provider returned no usable headlines');
+    return {
+      articles:merged.slice(0,60),
+      provider:'cryptocurrency.cv',
+      mode:'direct',
+      stale:false
+    };
   }
 
   async function loadNews(force=false) {
     const cached = !force && cacheGet();
-    if (cached) { renderNews(cached); return; }
-    const st = $('xrbcv2-news-state');
-    if (st) st.textContent = 'Refreshing public crypto news feed…';
-    try {
-      const data = await fetchJSON(NEWS_URL,10000);
-      const articles = Array.isArray(data?.articles) ? data.articles.slice(0,30) : [];
-      if (!articles.length) throw new Error('No news articles');
-      cacheSet(articles); renderNews(articles);
-    } catch (error) {
-      console.warn('[XRBC Media Desk] news feed unavailable',error);
-      if (st) st.textContent = 'Live headline feed temporarily unavailable · direct publisher links and XRPL tools remain available.';
-      currentArticles = [];
-      renderLead(null); renderTrending([]); renderSide([]);
+    if (cached) {
+      applyFeed(cached);
+      return;
     }
+
+    const st = $('xrbcv2-news-state');
+    if (st) st.textContent = 'Connecting to XRPL media sources…';
+
+    let result = null;
+    try {
+      result = await fetchProxyNews();
+    } catch (proxyError) {
+      console.warn('[XRBC Media Desk] proxy feed unavailable; trying direct provider',proxyError);
+      try {
+        result = await fetchDirectNews();
+      } catch (directError) {
+        console.warn('[XRBC Media Desk] direct provider unavailable; showing publisher access',directError);
+        result = {
+          articles:DIRECT_SOURCE_FALLBACK,
+          provider:'Direct publisher links',
+          mode:'sources',
+          stale:true
+        };
+      }
+    }
+
+    cacheSet(result);
+    applyFeed(result);
   }
 
   function setView(view) {
     currentView = ['xrpl','all','markets','security','policy'].includes(view) ? view : 'xrpl';
-    for (const button of filterButtons()) button.setAttribute('aria-pressed',String(button.dataset.xrbcNewsFilter === currentView));
+    for (const button of filterButtons()) {
+      button.setAttribute('aria-pressed',String(button.dataset.xrbcNewsFilter === currentView));
+    }
     paint();
   }
 
   function start() {
     $('xrbcv2-news-refresh')?.addEventListener('click',() => loadNews(true));
-    for (const button of filterButtons()) button.addEventListener('click',() => setView(button.dataset.xrbcNewsFilter || 'xrpl'));
+    for (const button of filterButtons()) {
+      button.addEventListener('click',() => setView(button.dataset.xrbcNewsFilter || 'xrpl'));
+    }
     $('xrbc-media-search')?.addEventListener('input',event => {
       searchQuery = clean(event.currentTarget?.value || '',80).toLowerCase();
       paint();
     });
     loadNews(false);
-    setInterval(() => { if (!document.hidden) loadNews(false); },NEWS_TTL);
+    setInterval(() => {
+      if (!document.hidden) loadNews(false);
+    },NEWS_TTL);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',start,{once:true});
-  else start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  } else {
+    start();
+  }
 })();
 </script>
 <script id="xrbc-public-liquidity-index-js">
@@ -23837,7 +24106,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=d0cafa50d71bb737b37b2664d6211003d9737905" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=d0cafa50d71bb737b37b2664d6211003d9737905" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=008379f3d6b0caaf04350d54be39f3687aa29eb8" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=008379f3d6b0caaf04350d54be39f3687aa29eb8" defer></script>
 </body>
 </html>
