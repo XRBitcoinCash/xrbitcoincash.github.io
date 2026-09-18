@@ -9533,8 +9533,8 @@ body.xrbc-institutional .xrbc-media-independent-note{
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="008379f3d6b0caaf04350d54be39f3687aa29eb8">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=008379f3d6b0caaf04350d54be39f3687aa29eb8">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="61278c5b5c9a9bda08a467da84069b39c45a6eaa">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa">
 </head>
 
 <body class="xrbc-institutional">
@@ -20419,7 +20419,19 @@ body.xrbc-institutional .xrbc-media-independent-note{
     }
 
     const st = $('xrbcv2-news-state');
-    if (st) st.textContent = 'Connecting to XRPL media sources…';
+
+    // Never leave the Media Desk visually empty while network sources wake up.
+    // Existing live content stays in place during a manual refresh; on first load
+    // the verified publisher directory is useful immediately.
+    if (!currentArticles.length) {
+      applyFeed({
+        articles:DIRECT_SOURCE_FALLBACK,
+        provider:'Direct publisher links',
+        mode:'sources',
+        stale:true
+      });
+    }
+    if (st) st.textContent = 'Connecting to live XRPL media · direct source access is available now…';
 
     let result = null;
     try {
@@ -24106,7 +24118,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=008379f3d6b0caaf04350d54be39f3687aa29eb8" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=008379f3d6b0caaf04350d54be39f3687aa29eb8" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=61278c5b5c9a9bda08a467da84069b39c45a6eaa" defer></script>
 </body>
 </html>
