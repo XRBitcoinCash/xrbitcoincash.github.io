@@ -75,17 +75,22 @@ jobs:
           done
           [ -n "$source_commit" ] || { echo 'Unable to obtain a consistent GitLab Pages build.' >&2; exit 1; }
 
-          fetch "$base/xrbc-home-compact.css?xrbc_sync=$stamp" xrbc-home-compact.css.next
-          fetch "$base/xrbc-home-compact.js?xrbc_sync=$stamp" xrbc-home-compact.js.next
-          fetch "$base/xrbc-liquidity-model.js?xrbc_sync=$stamp" xrbc-liquidity-model.js.next
+          # The built homepage must come from Pages because deployment injects
+          # the build marker and commit-scoped asset URLs. Every source-owned
+          # companion file is pulled from the exact immutable GitLab commit so
+          # per-path CDN caches cannot mix old and new artifacts.
+          raw_base="https://gitlab.com/xrbitcoincash-group/xrbitcoincash-project/-/raw/$source_commit/public"
+          fetch "$raw_base/xrbc-home-compact.css" xrbc-home-compact.css.next
+          fetch "$raw_base/xrbc-home-compact.js" xrbc-home-compact.js.next
+          fetch "$raw_base/xrbc-liquidity-model.js" xrbc-liquidity-model.js.next
           mkdir -p .well-known
-          fetch "$base/.well-known/ai.json?xrbc_sync=$stamp" .well-known/ai.json.next
-          fetch "$base/.well-known/security.txt?xrbc_sync=$stamp" .well-known/security.txt.next
-          fetch "$base/.well-known/xrp-ledger.toml?xrbc_sync=$stamp" .well-known/xrp-ledger.toml.next
-          fetch "$base/universal-ai.json?xrbc_sync=$stamp" universal-ai.json.next
-          fetch "$base/xrbc-metadata.json?xrbc_sync=$stamp" xrbc-metadata.json.next
-          fetch "$base/robots.txt?xrbc_sync=$stamp" robots.txt.next
-          fetch "$base/sitemap.xml?xrbc_sync=$stamp" sitemap.xml.next
+          fetch "$raw_base/.well-known/ai.json" .well-known/ai.json.next
+          fetch "$raw_base/.well-known/security.txt" .well-known/security.txt.next
+          fetch "$raw_base/.well-known/xrp-ledger.toml" .well-known/xrp-ledger.toml.next
+          fetch "$raw_base/universal-ai.json" universal-ai.json.next
+          fetch "$raw_base/xrbc-metadata.json" xrbc-metadata.json.next
+          fetch "$raw_base/robots.txt" robots.txt.next
+          fetch "$raw_base/sitemap.xml" sitemap.xml.next
 
           test -s index.html.next
           test -s xrbc-home-compact.css.next
@@ -121,6 +126,10 @@ jobs:
               raise SystemExit('unexpected universal manifest')
           if metadata.get('project', {}).get('name') != 'XRBitcoinCash':
               raise SystemExit('unexpected XRBC metadata')
+
+          sitemap = Path('sitemap.xml.next').read_text(encoding='utf-8')
+          if '<loc>https://xrbitcoincash.com/</loc>' not in sitemap:
+              raise SystemExit('canonical homepage missing from sitemap')
           print('Verified GitLab Pages build', info['commit'])
           PY
 
