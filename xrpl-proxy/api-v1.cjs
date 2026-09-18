@@ -3,7 +3,7 @@
 const crypto = require('node:crypto');
 const core = require('./api-core.cjs');
 const {createSupply} = require('./supply.cjs');
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 const SITE = 'https://xrbitcoincash.com';
 const BASE = 'https://xrbitcoincash-github-io.onrender.com/api/v1';
 const XRBC = Object.freeze({currency:'5852626974636F696E6361736800000000000000',issuer:'rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw'});
@@ -195,12 +195,17 @@ function createApi(options={}){
   // Read-only XRPL Media Desk feed. Every upstream endpoint is fixed here;
   // the browser never supplies a fetch URL and returned links are sanitized.
   const MEDIA_NEWS_ENDPOINTS=Object.freeze([
-    {id:'xrp-ledger',priority:0,url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger'},
-    {id:'xrp',priority:1,url:'https://cryptocurrency.cv/api/search?q=xrp'},
-    {id:'ripple',priority:2,url:'https://cryptocurrency.cv/api/search?q=ripple'},
-    {id:'rlusd',priority:3,url:'https://cryptocurrency.cv/api/search?q=rlusd'},
-    {id:'xaman',priority:4,url:'https://cryptocurrency.cv/api/search?q=xaman'},
-    {id:'latest',priority:10,url:'https://cryptocurrency.cv/api/news?limit=40'}
+    {id:'xrp-ledger',priority:0,format:'json',url:'https://cryptocurrency.cv/api/search?q=xrp%20ledger'},
+    {id:'xrp',priority:1,format:'json',url:'https://cryptocurrency.cv/api/search?q=xrp'},
+    {id:'ripple',priority:2,format:'json',url:'https://cryptocurrency.cv/api/search?q=ripple'},
+    {id:'rlusd',priority:3,format:'json',url:'https://cryptocurrency.cv/api/search?q=rlusd'},
+    {id:'xaman',priority:4,format:'json',url:'https://cryptocurrency.cv/api/search?q=xaman'},
+    {id:'latest',priority:10,format:'json',url:'https://cryptocurrency.cv/api/news?limit=40'},
+    {id:'google-xrpl',priority:0,format:'rss',url:'https://news.google.com/rss/search?q=%22XRP%20Ledger%22&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-xrp',priority:1,format:'rss',url:'https://news.google.com/rss/search?q=XRP&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-ripple',priority:2,format:'rss',url:'https://news.google.com/rss/search?q=Ripple%20XRP&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-xaman',priority:4,format:'rss',url:'https://news.google.com/rss/search?q=Xaman%20XRP%20Ledger&hl=en-US&gl=US&ceid=US:en'},
+    {id:'google-crypto',priority:11,format:'rss',url:'https://news.google.com/rss/search?q=cryptocurrency&hl=en-US&gl=US&ceid=US:en'}
   ]);
   let mediaNewsSnapshot=null;
   const mediaClean=(value,max=500)=>String(value??'')
@@ -212,6 +217,50 @@ function createApi(options={}){
       if(image)return u.protocol==='https:'?u.href:null;
       return ['https:','http:'].includes(u.protocol)?u.href:null;
     }catch{return null;}
+  }
+  function mediaDecodeXml(value){
+    return String(value??'')
+      .replace(new RegExp('&#(\\d+);','g'),(_,n)=>String.fromCodePoint(Number(n)))
+      .replace(new RegExp('&#x([a-f0-9]+);','gi'),(_,n)=>String.fromCodePoint(parseInt(n,16)))
+      .replace(new RegExp('&quot;','g'),'"').replace(new RegExp('&apos;','g'),"'")
+      .replace(new RegExp('&lt;','g'),'<').replace(new RegExp('&gt;','g'),'>').replace(new RegExp('&amp;','g'),'&');
+  }
+  function mediaXmlText(value,max=500){
+    let raw=String(value??'');
+    if(raw.startsWith('<![CDATA[')&&raw.endsWith(']]>'))raw=raw.slice(9,-3);
+    raw=raw.replace(new RegExp('<[^>]*>','g'),' ');
+    return mediaClean(mediaDecodeXml(raw),max);
+  }
+  function mediaTag(block,tag){
+    const match=String(block||'').match(new RegExp('<'+tag+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+tag+'>','i'));
+    return match?match[1]:'';
+  }
+  function parseMediaRss(xml,endpoint){
+    if(typeof xml!=='string'||!xml.trim()||xml.length>2000000)throw new Error('media_invalid_rss');
+    const blocks=xml.match(new RegExp('<item\\b[\\s\\S]*?<\\/item>','gi'))||[];
+    const rows=[];
+    for(const block of blocks.slice(0,50)){
+      const source=mediaXmlText(mediaTag(block,'source'),90)||'News source';
+      let title=mediaXmlText(mediaTag(block,'title'),280);
+      const suffix=' - '+source;
+      if(title.endsWith(suffix))title=title.slice(0,-suffix.length).trim();
+      const link=mediaUrl(mediaXmlText(mediaTag(block,'link'),1000));
+      if(!title||!link)continue;
+      const rawDate=mediaXmlText(mediaTag(block,'pubDate'),100);
+      const parsed=Date.parse(rawDate);
+      rows.push({
+        title,
+        link,
+        description:mediaXmlText(mediaTag(block,'description'),420),
+        pubDate:Number.isFinite(parsed)&&parsed<=now()+300000?new Date(parsed).toISOString():null,
+        source,
+        timeAgo:'',
+        image:null,
+        matchedBy:endpoint.id,
+        priority:endpoint.priority
+      });
+    }
+    return rows;
   }
   function normalizeMediaArticle(row,endpoint){
     if(!row||typeof row!=='object')return null;
@@ -239,23 +288,31 @@ function createApi(options={}){
         try{
           response=await fetcher(endpoint.url,{
             method:'GET',
-            headers:{accept:'application/json','user-agent':'XRBitcoinCash-Media/1.0'},
+            headers:{
+              accept:endpoint.format==='rss'?'application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.5':'application/json',
+              'user-agent':'XRBitcoinCash-Media/1.1'
+            },
             signal:AbortSignal.timeout(9000),
             redirect:'error'
           });
         }catch{throw new Error('media_upstream_unavailable');}
         if(!response?.ok)throw new Error('media_upstream_unavailable');
+        if(endpoint.format==='rss'){
+          let xml;
+          try{xml=await response.text();}catch{throw new Error('media_invalid_rss');}
+          return {endpoint,rows:parseMediaRss(xml,endpoint),normalized:true};
+        }
         let data;
         try{data=await response.json();}catch{throw new Error('media_invalid_json');}
         const rows=Array.isArray(data?.articles)?data.articles:Array.isArray(data?.results)?data.results:[];
-        return {endpoint,rows};
+        return {endpoint,rows,normalized:false};
       }));
       const successful=settled.filter(item=>item.status==='fulfilled').map(item=>item.value);
       if(!successful.length)throw new ApiError(503,'media_unavailable','Live media sources are temporarily unavailable.');
       const seenLinks=new Set(),seenTitles=new Set(),articles=[];
       for(const group of successful){
         for(const row of group.rows.slice(0,50)){
-          const article=normalizeMediaArticle(row,group.endpoint);
+          const article=group.normalized?row:normalizeMediaArticle(row,group.endpoint);
           if(!article)continue;
           const linkKey=article.link.toLowerCase(),titleKey=article.title.toLowerCase();
           if(seenLinks.has(linkKey)||seenTitles.has(titleKey))continue;
@@ -265,8 +322,8 @@ function createApi(options={}){
       if(!articles.length)throw new ApiError(503,'media_empty','Live media sources returned no usable headlines.');
       articles.sort((a,b)=>a.priority-b.priority||(Date.parse(b.pubDate||0)-Date.parse(a.pubDate||0)));
       const result={
-        version:1,
-        provider:'cryptocurrency.cv',
+        version:2,
+        provider:successful.some(item=>item.endpoint.format==='rss')?'XRBC multi-source media':'cryptocurrency.cv',
         fetchedAt:new Date(now()).toISOString(),
         stale:false,
         successfulSources:successful.map(item=>item.endpoint.id),
