@@ -241,7 +241,7 @@ function createApi(options={}){
             method:'GET',
             headers:{accept:'application/json','user-agent':'XRBitcoinCash-Media/1.0'},
             signal:AbortSignal.timeout(9000),
-            redirect:'follow'
+            redirect:'error'
           });
         }catch{throw new Error('media_upstream_unavailable');}
         if(!response?.ok)throw new Error('media_upstream_unavailable');
