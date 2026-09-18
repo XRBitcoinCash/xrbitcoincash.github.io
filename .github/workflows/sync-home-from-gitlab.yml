@@ -7,7 +7,7 @@ on:
       - '.github/workflows/sync-home-from-gitlab.yml'
   workflow_dispatch:
   schedule:
-    # build-info.json is the deployment truth; the schedule keeps mirrors from drifting.
+    # build-info.json is the deployment truth; schedule/manual pushes keep mirrors from drifting.
     # GitLab is the frontend source of record. Poll off the hour to keep the
     # GitHub mirror current without creating a high-frequency background job.
     - cron: '17,47 * * * *'
