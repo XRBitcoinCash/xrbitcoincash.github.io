@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   schedule:
     # build-info.json is the deployment truth; schedule/manual pushes keep mirrors from drifting.
-    # Forced frontend sync target: GitLab build 76271b72d2f80a1a7d1b08eeeab1382c7e069315
+    # Forced frontend sync target: GitLab build b3c01cb9df17ca95a2536e45ec956f90a64bf536
     # GitLab is the frontend source of record. Poll off the hour and on bounded fixes to keep the
     # GitHub mirror current without creating a high-frequency background job.
     - cron: '17,47 * * * *'
@@ -84,6 +84,9 @@ jobs:
           fetch "$raw_base/xrbc-home-compact.css" xrbc-home-compact.css.next
           fetch "$raw_base/xrbc-home-compact.js" xrbc-home-compact.js.next
           fetch "$raw_base/xrbc-liquidity-model.js" xrbc-liquidity-model.js.next
+          fetch "$raw_base/ecosystem-jcs-card.webp" ecosystem-jcs-card.webp.next
+          fetch "$raw_base/ecosystem-creature-card.webp" ecosystem-creature-card.webp.next
+          fetch "$raw_base/ecosystem-xrbitcoin-card.webp" ecosystem-xrbitcoin-card.webp.next
           mkdir -p .well-known
           fetch "$raw_base/.well-known/ai.json" .well-known/ai.json.next
           fetch "$raw_base/.well-known/security.txt" .well-known/security.txt.next
@@ -97,6 +100,9 @@ jobs:
           test -s xrbc-home-compact.css.next
           test -s xrbc-home-compact.js.next
           test -s xrbc-liquidity-model.js.next
+          test -s ecosystem-jcs-card.webp.next
+          test -s ecosystem-creature-card.webp.next
+          test -s ecosystem-xrbitcoin-card.webp.next
           test -s .well-known/ai.json.next
           test -s .well-known/security.txt.next
           test -s .well-known/xrp-ledger.toml.next
@@ -138,6 +144,9 @@ jobs:
           mv xrbc-home-compact.css.next xrbc-home-compact.css
           mv xrbc-home-compact.js.next xrbc-home-compact.js
           mv xrbc-liquidity-model.js.next xrbc-liquidity-model.js
+          mv ecosystem-jcs-card.webp.next ecosystem-jcs-card.webp
+          mv ecosystem-creature-card.webp.next ecosystem-creature-card.webp
+          mv ecosystem-xrbitcoin-card.webp.next ecosystem-xrbitcoin-card.webp
           mv .well-known/ai.json.next .well-known/ai.json
           mv .well-known/security.txt.next .well-known/security.txt
           mv .well-known/xrp-ledger.toml.next .well-known/xrp-ledger.toml
@@ -152,6 +161,7 @@ jobs:
         run: |
           set -euo pipefail
           git add index.html xrbc-home-compact.css xrbc-home-compact.js xrbc-liquidity-model.js build-info.json \
+            ecosystem-jcs-card.webp ecosystem-creature-card.webp ecosystem-xrbitcoin-card.webp \
             .well-known/ai.json .well-known/security.txt .well-known/xrp-ledger.toml \
             universal-ai.json xrbc-metadata.json robots.txt sitemap.xml
           if git diff --cached --quiet; then
