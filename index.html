@@ -10264,8 +10264,8 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="da9cfbf98feaa82690a5fead35be1354a7f4503d">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=da9cfbf98feaa82690a5fead35be1354a7f4503d">
 </head>
 
 <body class="xrbc-institutional">
@@ -11178,7 +11178,7 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
             <th><span class="sentinel-th-reserve">Reserves</span><br><span class="small">XRP / IOU</span></th>
             <th><span class="sentinel-th-fee">Fee</span></th>
             <th><span class="sentinel-th-slip">Slippage</span><br><span class="small">10 / 100 XRP</span></th>
-            <th><span class="sentinel-th-score">Score</span></th>
+            <th><span class="sentinel-th-score">Risk score</span></th>
             <th><span class="sentinel-th-status">Status</span></th>
           </tr>
           </thead>
@@ -20018,7 +20018,8 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
     let cls = 'C', text = 'Caution';
     if (s >= 6) { cls = 'H'; text = 'Healthy'; }
     else if (s <= 2) { cls = 'R'; text = 'Risky'; }
-    return { score: s, cls, status: text };
+    s = Math.max(0, Math.min(7, s));
+    return { score: s, riskScore: Math.round((7 - s) * 100 / 7), cls, status: text };
   }
 
   function reserveTone(row) {
@@ -20245,7 +20246,7 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
             data-slip100="${Number(r.slip100Pct || 0)}"
             data-image="${imageResolved ? '1' : '0'}"
             data-changed="${changed ? '1' : '0'}"
-            data-score="${Number(r.score || 0)}"
+            data-score="${Number(r.riskScore ?? 0)}"
           >
             <td><span class="icon-star ${starOn}" aria-label="Toggle watch">★</span></td>
             <td>
@@ -20293,7 +20294,7 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
               </div>
               <i class="health-slip-track" aria-hidden="true"><span class="${r.slipTone}" style="width:${slipWidth.toFixed(1)}%"></span></i>
             </td>
-            <td><span class="health-score-badge health-tone-${r.cls}">${r.score}/7</span></td>
+            <td><span class="health-score-badge health-tone-${r.cls}">${r.riskScore}/100</span></td>
             <td>
               <span class="pill ${r.cls}">${escapeHtml(r.status)}</span>
               <span class="health-meta-state ${imageResolved ? 'ok' : 'issue'}">
@@ -25014,7 +25015,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=da9cfbf98feaa82690a5fead35be1354a7f4503d" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=da9cfbf98feaa82690a5fead35be1354a7f4503d" defer></script>
 </body>
 </html>
