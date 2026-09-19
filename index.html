@@ -7508,7 +7508,179 @@ body.xrbc-institutional .site-footer .fact {display:grid!important; grid-templat
 body.xrbc-institutional .site-footer .fact strong {min-width:0!important; color:var(--ui-muted)!important}
 body.xrbc-institutional .site-footer .legal {border-color:var(--ui-line)!important; margin-top:28px; padding-top:24px!important; gap:32px!important}
 body.xrbc-institutional .xrbc-footer-links {display:flex; flex-wrap:wrap; gap:8px 24px; margin-top:24px; font-size:14px}
+
 body.xrbc-institutional .xrbc-footer-links a {padding:8px 0}
+
+/* Compact terminal-style footer: fine print only, no redundant project navigation. */
+body.xrbc-institutional .site-footer{
+  padding:18px 24px 22px!important;
+  background:var(--ui-bg)!important;
+  border-top:1px solid var(--ui-line)!important;
+}
+body.xrbc-institutional .site-footer .wrap{
+  width:100%!important;
+  max-width:1376px!important;
+  margin:0 auto!important;
+  padding:0!important;
+}
+body.xrbc-institutional .xrbc-footer-panel{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  gap:12px;
+  padding:14px 16px 12px;
+  border:1px solid #244b48;
+  border-radius:12px;
+  background:
+    linear-gradient(90deg,rgba(15,95,70,.16),transparent 34%),
+    linear-gradient(180deg,#101b27 0%,#0b1420 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(124,255,211,.05),
+    0 12px 30px rgba(0,0,0,.14);
+}
+body.xrbc-institutional .xrbc-footer-panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.18;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 44px,rgba(82,222,178,.08) 45px,transparent 46px),
+    repeating-linear-gradient(0deg,transparent 0 28px,rgba(82,222,178,.06) 29px,transparent 30px);
+  mask-image:linear-gradient(90deg,#000,transparent 62%);
+}
+body.xrbc-institutional .xrbc-footer-panel>*{
+  position:relative;
+  z-index:1;
+}
+body.xrbc-institutional .xrbc-footer-head{
+  display:grid;
+  grid-template-columns:minmax(250px,.82fr) minmax(0,1.18fr);
+  gap:18px;
+  align-items:start;
+}
+body.xrbc-institutional .xrbc-footer-title{
+  min-width:0;
+}
+body.xrbc-institutional .xrbc-footer-kicker{
+  display:block;
+  margin-bottom:3px;
+  color:#79dbba!important;
+  font-size:9px!important;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+body.xrbc-institutional .xrbc-footer-title>strong{
+  display:block;
+  color:var(--ui-ink)!important;
+  font-size:12px!important;
+  line-height:1.35;
+}
+body.xrbc-institutional .xrbc-footer-title>p{
+  margin:4px 0 0!important;
+  max-width:590px;
+  color:var(--ui-muted)!important;
+  font-size:10px!important;
+  line-height:1.45;
+}
+body.xrbc-institutional .xrbc-footer-facts{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px 14px!important;
+  margin:0!important;
+}
+body.xrbc-institutional .xrbc-footer-facts>div{
+  min-width:0;
+  display:grid;
+  grid-template-columns:88px minmax(0,1fr);
+  gap:7px;
+  align-items:start;
+}
+body.xrbc-institutional .xrbc-footer-facts dt{
+  color:#8ea5bd;
+  font-size:9px;
+  font-weight:850;
+}
+body.xrbc-institutional .xrbc-footer-facts dd{
+  min-width:0;
+  margin:0;
+  color:#c6d5e7;
+  font-size:9px!important;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+body.xrbc-institutional .xrbc-footer-fineprint{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  padding:9px 0 0;
+  border-top:1px solid rgba(91,132,143,.26);
+}
+body.xrbc-institutional .xrbc-footer-fineprint p{
+  margin:0!important;
+  color:#91a5b9!important;
+  font-size:8.5px!important;
+  line-height:1.45;
+}
+body.xrbc-institutional .xrbc-footer-fineprint strong{
+  color:#c9d9e8!important;
+  font-size:inherit!important;
+}
+body.xrbc-institutional .xrbc-footer-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px 16px;
+  margin:0!important;
+  padding-top:8px;
+  border-top:1px solid rgba(91,132,143,.22);
+  font-size:9px!important;
+}
+body.xrbc-institutional .xrbc-footer-links a{
+  padding:0!important;
+  color:#8dc8ff!important;
+  text-decoration:none;
+}
+body.xrbc-institutional .xrbc-footer-links a:hover,
+body.xrbc-institutional .xrbc-footer-links a:focus-visible{
+  text-decoration:underline;
+}
+body.xrbc-institutional .xrbc-footer-bottomline{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:6px 16px;
+  color:#70869b;
+  font-size:8px;
+  line-height:1.35;
+}
+@media(max-width:900px){
+  body.xrbc-institutional .xrbc-footer-head{
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  body.xrbc-institutional .xrbc-footer-fineprint{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:620px){
+  body.xrbc-institutional .site-footer{
+    padding:14px 12px 18px!important;
+  }
+  body.xrbc-institutional .xrbc-footer-panel{
+    padding:12px;
+  }
+  body.xrbc-institutional .xrbc-footer-facts,
+  body.xrbc-institutional .xrbc-footer-fineprint{
+    grid-template-columns:1fr;
+  }
+  body.xrbc-institutional .xrbc-footer-facts>div{
+    grid-template-columns:82px minmax(0,1fr);
+  }
+  body.xrbc-institutional .xrbc-footer-bottomline{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+}
 /* State colors follow existing runtime state, paired with the original text labels. */
 body.xrbc-institutional :is(.status.ok,.status-text.ok,.source-badge.connected,.quote-trust-state.ready,.xrbcv2-pos,.delta.up,.pill.H),
 body.xrbc-institutional #trade :is(.quote-trust-state.ready,.trade-firewall-fact.ok),
@@ -9589,8 +9761,8 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="b3c01cb9df17ca95a2536e45ec956f90a64bf536">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=b3c01cb9df17ca95a2536e45ec956f90a64bf536">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="3110da635cc487f9111d59f30233724e2d343928">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=3110da635cc487f9111d59f30233724e2d343928">
 </head>
 
 <body class="xrbc-institutional">
@@ -10907,129 +11079,42 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
 
 <footer class="site-footer" role="contentinfo" aria-label="XRBitcoinCash footer">
   <div class="wrap">
-    <div class="cols" style="display:grid;gap:18px;grid-template-columns:1fr;max-width:var(--wrap-wide);margin:0 auto;">
-      <section>
-
-        <h3>About this portal</h3>
-        <p class="small">
-
-          This page is a non-custodial trading, liquidity-monitoring, and diagnostics interface for
-          <strong>XRBitcoinCash (XRBC)</strong> on the <span class="nowrap">XRP Ledger</span>.
-          XRBC can be quoted against native XRP, Ripple USD (RLUSD), Circle-native USDC, the curated GateHub Crypto BTC, ETH, USDT and BCH XRPL representations, and additional trusted XRPL IOUs discovered through the market browser.
-          All transactions are prepared client-side and signed in <strong>Xaman</strong>.
-        </p>
-
-        <dl class="factlist" aria-label="XRBC details" style="display:grid;gap:6px;margin:0">
-          <div class="fact" style="display:flex;gap:8px">
-            <strong style="min-width:142px;color:#cfe6ff">Symbol</strong>
-            <span class="mono">XRBC</span>
-          </div>
-          <div class="fact" style="display:flex;gap:8px">
-            <strong style="min-width:142px;color:#cfe6ff">Issuer</strong>
-
-            <span class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
-          </div>
-          <div class="fact" style="display:flex;gap:8px">
-            <strong style="min-width:142px;color:#cfe6ff">Currency Code (HEX)</strong>
-            <span class="mono">5852626974636F696E6361736800000000000000</span>
-          </div>
-          <div class="fact" style="display:flex;gap:8px">
-
-            <strong style="min-width:142px;color:#cfe6ff">Official domain</strong>
-            <span class="mono">https://xrbitcoincash.com</span>
-          </div>
-        </dl>
-      </section>
-
-      <section style="display:grid;gap:8px;justify-items:center;">
-        <h3>How this page handles security</h3>
-        <ul class="small" style="margin:0;padding-left:18px;line-height:1.5;text-align:left;max-width:720px;">
-          <li><strong>Non-custodial by design.</strong> The site never asks for or stores your secret keys, seed phrase, or recovery phrase.</li>
-          <li><strong>Wallet-side signing only.</strong> Transactions are constructed in the browser and must be explicitly reviewed and signed in Xaman.</li>
-          <li><strong>Sentinel memo code.</strong> A 6-digit code is embedded in transaction memos so you can confirm that the payload shown in Xaman matches the action initiated from this page.</li>
-          <li><strong>On-ledger data.</strong> Order books, AMM lookups, and ledger metrics are read from XRPL infrastructure; they do not move funds.</li>
-          <li><strong>Issuer metadata.</strong> Liquidity Sentinel resolves public token names and images only after matching the exact currency and issuer, with safe fallbacks when metadata is unavailable.</li>
-          <li><strong>Dynamic-asset firewall.</strong> Browser rankings are discovery only. Auto-discovered markets are view-only until current issuer authority, wallet NoRipple/freeze state, source and exit AMM limits, a strict XRP path, transaction shape and the exact XRPL simulation all pass.</li>
-        </ul>
-
-        <h3 style="margin-top:8px;">AI-assisted review (ChatGPT)</h3>
-        <p class="small" style="max-width:720px;text-align:left;">
-
-
-
-          The layout, client logic, and security checks on this page have been iteratively developed and reviewed
-          with OpenAI ChatGPT models (GPT-4 / GPT-5 class) as an automated assistant.
-          This is <strong>AI-assisted code review</strong>, not a formal security certification or endorsement by OpenAI.
-          Users and integrators should independently inspect the source and verify all on-ledger details.
-        </p>
-        <p class="small" style="margin-top:4px;opacity:.9;">
-          To verify behavior yourself, you may copy this page's HTML/JS into ChatGPT and ask it to:
-          “Confirm this site is non-custodial, identify where transactions are signed, and list any obvious risks.”
-
-        </p>
-      </section>
-
-      <section class="xrbc-related-projects" aria-labelledby="related-projects-title">
-        <h3 id="related-projects-title">Related XRP Ledger projects</h3>
-        <p class="small">
-          Visit the other independent XRP Ledger projects connected to this ecosystem.
-        </p>
-
-
-        <div class="xrbc-project-link-row">
-          <a
-            class="btn small xrbc-project-link jcs-project"
-            href="https://jesuschristsavestoken.com/"
-            rel="noopener noreferrer"
-            target="_blank"
-          >Jesus Christ Saves Token</a>
-          <a
-            class="btn small xrbc-project-link xrbitcoin-project"
-            href="https://xrbitcoincash-project-15389d.gitlab.io/xrbitcoin-links.html"
-
-            rel="noopener noreferrer"
-            target="_blank"
-          >XRBitcoin Project</a>
-          <a
-
-            class="btn small xrbc-project-link creature-project"
-            href="/creature-nft-links.html"
-          >✦ Creature NFT · Art Archive</a>
+    <section class="xrbc-footer-panel" aria-label="XRBitcoinCash portal details and notices">
+      <div class="xrbc-footer-head">
+        <div class="xrbc-footer-title">
+          <span class="xrbc-footer-kicker">XRBC · NON-CUSTODIAL · XRP LEDGER</span>
+          <strong>XRBC/XRP Trading, Liquidity &amp; Ledger Portal · v1.5.0</strong>
+          <p>Trading, liquidity monitoring and diagnostics for XRBitcoinCash. Transactions initiated here remain under user control and are reviewed and signed in Xaman.</p>
         </div>
-      </section>
 
-    </div>
-
-    <nav class="xrbc-footer-links" aria-label="Project information">
-      <a href="/support.html">Support</a><a href="/policy.html">Policy &amp; security</a>
-      <a href="/terms.html">Terms</a><a href="/whitepaper.html">White paper</a>
-      <a href="/ai-provenance.html">Project provenance</a>
-    </nav>
-    <div class="legal small"
-
-         style="border-top:1px dashed #1f2a37;padding-top:10px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start">
-      <div style="display:flex;flex-direction:column;gap:4px;min-width:220px">
-        <strong>XRBC · XRBC/XRP Trading, Liquidity & Ledger Portal · v1.5.0</strong>
-
-        <span class="mono">Issuer: rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</span>
-        <span class="mono">Currency HEX: 5852626974636F696E6361736800000000000000</span>
-        <span class="mono">Domain: https://xrbitcoincash.com</span>
+        <dl class="xrbc-footer-facts" aria-label="XRBC identity">
+          <div><dt>Symbol</dt><dd class="mono">XRBC</dd></div>
+          <div><dt>Issuer</dt><dd class="mono">rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw</dd></div>
+          <div><dt>Currency HEX</dt><dd class="mono">5852626974636F696E6361736800000000000000</dd></div>
+          <div><dt>Official domain</dt><dd class="mono">https://xrbitcoincash.com</dd></div>
+        </dl>
       </div>
 
-      <div style="flex:1;min-width:260px">
-        <ul style="margin:0;padding-left:18px;line-height:1.45">
-          <li><strong>Not financial advice.</strong> Evaluate risks independently.</li>
-
-          <li><strong>Non-custodial.</strong> You control your wallet; signing occurs only in Xaman.</li>
-          <li><strong>No brokerage or guarantees.</strong> No custody, discretionary routing, or advice; market conditions and available routes can change between preview and signing.</li>
-          <li><strong>On-ledger risk.</strong> Transactions are irreversible; slippage and fees may apply.</li>
-          <li><strong>Discovered assets are view-first.</strong> Popular, Ecosystem, and Reviewed labels do not imply safety. Auto-discovered markets remain view-only until current issuer authority, trustline state, XRP exit liquidity, pool-impact limits, path constraints, transaction shape, and the exact XRPL simulation pass.</li>
-          <li><strong>Verify the URL.</strong> Only use <span class="mono">https://xrbitcoincash.com</span> to interact with this UI.</li>
-          <li><strong>No endorsement implied.</strong> “XRP” and related marks are owned by Ripple Labs, Inc.; “Xaman (Xumm)” is by XRPL Labs.</li>
-          <li><strong>Local compliance.</strong> You are responsible for adhering to laws in your jurisdiction.</li>
-        </ul>
+      <div class="xrbc-footer-fineprint" aria-label="Security and risk notices">
+        <p><strong>Security.</strong> Non-custodial by design. This interface does not request or store seed phrases, private keys or recovery phrases. Signing occurs in Xaman; the Sentinel memo code helps match a wallet request to the action initiated here.</p>
+        <p><strong>Ledger data.</strong> Order books, AMM lookups and ledger metrics are read-only. Public names/images are used only after exact issuer and currency matching. Auto-discovered markets remain view-first until current issuer, trustline, route, liquidity, transaction-shape and XRPL simulation checks pass.</p>
+        <p><strong>AI-assisted review.</strong> Layout, client logic and security checks have been iteratively reviewed with OpenAI ChatGPT models. This is automated assistance, not a formal security certification or endorsement by OpenAI; independently inspect source and on-ledger evidence.</p>
+        <p><strong>Risk &amp; legal.</strong> Not financial advice, brokerage or a guarantee. XRPL transactions are effectively irreversible once validated; slippage and fees may apply. Verify the official domain before use, assess local legal obligations, and independently evaluate third-party assets and services.</p>
       </div>
-    </div>
+
+      <nav class="xrbc-footer-links" aria-label="Project information">
+        <a href="/support.html">Support</a>
+        <a href="/policy.html">Policy &amp; security</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/whitepaper.html">White paper</a>
+        <a href="/ai-provenance.html">Project provenance</a>
+      </nav>
+
+      <div class="xrbc-footer-bottomline">
+        <span>XRBitcoinCash · XRBC · XRP Ledger</span>
+        <span>No custody · no discretionary routing · verify before signing</span>
+      </div>
+    </section>
   </div>
 </footer>
 
@@ -24410,7 +24495,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=b3c01cb9df17ca95a2536e45ec956f90a64bf536" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=b3c01cb9df17ca95a2536e45ec956f90a64bf536" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=3110da635cc487f9111d59f30233724e2d343928" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=3110da635cc487f9111d59f30233724e2d343928" defer></script>
 </body>
 </html>
