@@ -9,6 +9,7 @@ on:
   schedule:
     # build-info.json is the deployment truth; schedule/manual pushes keep mirrors from drifting.
     # Forced frontend sync target: GitLab build b3c01cb9df17ca95a2536e45ec956f90a64bf536
+    # Retry after GitLab Pages asset propagation.
     # GitLab is the frontend source of record. Poll off the hour and on bounded fixes to keep the
     # GitHub mirror current without creating a high-frequency background job.
     - cron: '17,47 * * * *'
