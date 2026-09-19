@@ -16,6 +16,25 @@
 
   <title>XRBitcoinCash | XRPL Trading, Liquidity &amp; Markets</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script id="xrbc-home-scroll-policy">
+  (() => {
+    'use strict';
+    try {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      const isHomeLoad = () => !location.hash || location.hash === '#trade';
+      const resetHome = () => {
+        if (!isHomeLoad()) return;
+        if (location.hash === '#trade') {
+          history.replaceState(history.state, '', location.pathname + location.search);
+        }
+        window.scrollTo(0, 0);
+      };
+      resetHome();
+      addEventListener('pageshow', resetHome);
+      addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(resetHome)), { once: true });
+    } catch (_) {}
+  })();
+  </script>
   <meta name="xrbc-release" content="1.5.0" />
   <meta name="xrbc-source-of-record" content="GitLab xrbitcoincash-group/xrbitcoincash-project · master" />
   <meta http-equiv="Cache-Control" content="no-cache, max-age=0, must-revalidate" />
@@ -7830,6 +7849,490 @@ body.xrbc-institutional [hidden], body.xrbc-institutional #trade [hidden], body.
 }
 </style>
 <link rel="stylesheet" href="/xrbc-app-header.css">
+<style id="xrbc-home-hero-header">
+/* Homepage-only XRBC navigation shell. Existing anchors, theme state and transaction logic remain unchanged. */
+body.xrbc-institutional .xrbc-app-header.xrbc-hero-nav{
+  --xrbc-nav-accent:#18e3b1;
+  --xrbc-nav-accent-soft:rgba(24,227,177,.16);
+  --xrbc-nav-cyan:#34d9ff;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border-bottom:1px solid rgba(45,212,191,.46)!important;
+  background:
+    radial-gradient(ellipse at 92% 118%,rgba(31,195,255,.15),transparent 28%),
+    linear-gradient(180deg,#091725 0%,#07131f 100%)!important;
+  color:#f5f8fc!important;
+}
+body.xrbc-institutional .xrbc-app-header.xrbc-hero-nav::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.30;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 52px,rgba(29,219,192,.13) 53px,transparent 54px),
+    repeating-linear-gradient(0deg,transparent 0 38px,rgba(29,219,192,.09) 39px,transparent 40px);
+  mask-image:linear-gradient(90deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+}
+body.xrbc-institutional .xrbc-app-header.xrbc-hero-nav::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:320px;
+  height:320px;
+  right:-115px;
+  bottom:-250px;
+  border:1px solid rgba(52,217,255,.34);
+  border-radius:50%;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 45px rgba(52,217,255,.12),
+    0 0 70px rgba(24,227,177,.08);
+  background:
+    radial-gradient(circle at 45% 25%,rgba(52,217,255,.15),transparent 42%),
+    repeating-radial-gradient(circle at 50% 50%,rgba(52,217,255,.08) 0 1px,transparent 1px 7px);
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-app-header.xrbc-hero-nav{
+  background:
+    radial-gradient(ellipse at 92% 118%,rgba(14,165,233,.10),transparent 30%),
+    linear-gradient(180deg,#fbfdff 0%,#eef5f8 100%)!important;
+  border-bottom-color:rgba(13,148,136,.34)!important;
+  color:#102236!important;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-app-header.xrbc-hero-nav::before{
+  opacity:.16;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-header-inner{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:1600px;
+  min-height:96px;
+  margin:0 auto;
+  padding:16px 28px!important;
+  display:grid!important;
+  grid-template-columns:max-content minmax(0,1fr) max-content!important;
+  align-items:center!important;
+  gap:18px!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand{
+  min-width:0;
+  min-height:56px;
+  display:flex!important;
+  align-items:center;
+  gap:12px!important;
+  color:#f7fbff!important;
+  text-decoration:none!important;
+  white-space:nowrap;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand{
+  color:#102236!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand img{
+  width:50px!important;
+  height:50px!important;
+  flex:0 0 50px;
+  border-radius:50%;
+  filter:
+    drop-shadow(0 0 8px rgba(24,227,177,.48))
+    drop-shadow(0 0 20px rgba(24,227,177,.18));
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand-copy{
+  display:block;
+  min-width:0;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand-name{
+  display:block;
+  color:inherit!important;
+  font-size:20px;
+  font-weight:760;
+  line-height:1.1;
+  letter-spacing:-.04em;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand small{
+  display:block;
+  margin-top:5px;
+  color:#9fb5c8!important;
+  font-size:11px!important;
+  font-weight:500;
+  line-height:1.25;
+  letter-spacing:.01em;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand small{
+  color:#53677a!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav{
+  min-width:0;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center;
+  flex-wrap:nowrap!important;
+  gap:7px!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a{
+  min-height:46px!important;
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  flex:0 1 auto;
+  padding:8px 13px!important;
+  border:1px solid rgba(100,132,161,.38);
+  border-radius:11px!important;
+  background:rgba(7,19,31,.44)!important;
+  color:#c4d3e2!important;
+  font-size:13px!important;
+  font-weight:650!important;
+  line-height:1.2;
+  white-space:nowrap;
+  text-decoration:none!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.02),
+    0 7px 16px rgba(0,0,0,.08);
+  transition:border-color .15s ease,background .15s ease,color .15s ease;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a:hover{
+  border-color:rgba(52,217,255,.56);
+  color:#f5fbff!important;
+  background:rgba(13,34,51,.72)!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a[aria-current]{
+  border-color:rgba(24,227,177,.88)!important;
+  color:#f2fffb!important;
+  background:
+    linear-gradient(180deg,rgba(19,116,87,.60),rgba(9,64,52,.72))!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(72,255,204,.10),
+    0 0 20px rgba(24,227,177,.13)!important;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a{
+  border-color:rgba(70,99,127,.26);
+  background:rgba(255,255,255,.72)!important;
+  color:#40566d!important;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a:hover{
+  border-color:rgba(13,148,136,.50);
+  color:#122a3d!important;
+  background:#fff!important;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a[aria-current]{
+  color:#073a2e!important;
+  border-color:rgba(5,150,105,.62)!important;
+  background:rgba(16,185,129,.14)!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-app-utilities{
+  min-width:0;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end;
+  gap:10px!important;
+}
+body.xrbc-institutional .xrbc-hero-nav #themeToggle.xrbc-index-theme{
+  position:static!important;
+  width:48px!important;
+  min-width:48px!important;
+  height:46px!important;
+  min-height:46px!important;
+  display:grid!important;
+  place-items:center;
+  padding:0!important;
+  border:1px solid rgba(100,132,161,.42)!important;
+  border-radius:13px!important;
+  background:rgba(7,19,31,.62)!important;
+  color:#52e6ff!important;
+  box-shadow:none!important;
+  font-size:20px!important;
+}
+body.xrbc-institutional .xrbc-hero-nav #themeToggle:hover{
+  border-color:rgba(52,217,255,.60)!important;
+  background:rgba(13,34,51,.78)!important;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav #themeToggle.xrbc-index-theme{
+  border-color:rgba(70,99,127,.30)!important;
+  background:rgba(255,255,255,.88)!important;
+  color:#0f6f80!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta{
+  min-height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:10px 17px;
+  border:1px solid #19e6d2;
+  border-radius:13px;
+  color:#f7ffff!important;
+  background:
+    linear-gradient(180deg,rgba(11,65,78,.78),rgba(7,32,46,.88));
+  box-shadow:
+    inset 0 0 0 1px rgba(58,255,223,.12),
+    0 0 18px rgba(24,227,177,.13);
+  font-size:14px;
+  font-weight:760;
+  line-height:1.1;
+  white-space:nowrap;
+  text-decoration:none!important;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta:hover{
+  border-color:#68ffe8;
+  background:
+    linear-gradient(180deg,rgba(14,87,96,.88),rgba(8,46,57,.96));
+  box-shadow:
+    inset 0 0 0 1px rgba(104,255,232,.18),
+    0 0 24px rgba(24,227,177,.18);
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta{
+  color:#073b42!important;
+  border-color:rgba(13,148,136,.62);
+  background:linear-gradient(180deg,rgba(204,251,241,.92),rgba(240,253,250,.98));
+  box-shadow:0 6px 16px rgba(13,148,136,.08);
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-wallet-icon{
+  width:25px;
+  height:25px;
+  display:grid;
+  place-items:center;
+  color:#28eedb;
+  flex:0 0 25px;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-wallet-icon svg{
+  width:25px;
+  height:25px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-arrow{
+  margin-left:2px;
+  font-size:22px;
+  line-height:1;
+  font-weight:400;
+}
+@media(max-width:1220px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-header-inner{
+    gap:11px!important;
+    padding:14px 18px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand{
+    gap:9px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand img{
+    width:44px!important;
+    height:44px!important;
+    flex-basis:44px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand-name{
+    font-size:17px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand small{
+    font-size:10px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav{
+    gap:5px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a{
+    min-height:42px!important;
+    padding:7px 10px!important;
+    font-size:12px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav #themeToggle.xrbc-index-theme{
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    min-height:42px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta{
+    min-height:44px;
+    gap:8px;
+    padding:8px 13px;
+    font-size:13px;
+  }
+}
+@media(max-width:980px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-header-inner{
+    min-height:0;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto;
+    gap:10px 12px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand{
+    grid-column:1;
+    grid-row:1;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-utilities{
+    grid-column:2;
+    grid-row:1;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    justify-content:flex-start;
+    overflow-x:auto;
+    overscroll-behavior-inline:contain;
+    scrollbar-width:thin;
+    padding-bottom:2px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav a{
+    flex:0 0 auto;
+  }
+}
+@media(max-width:620px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-header-inner{
+    padding:11px 12px!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand img{
+    width:40px!important;
+    height:40px!important;
+    flex-basis:40px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand-name{
+    font-size:15px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand small{
+    display:none;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta{
+    padding:8px 10px;
+    font-size:12px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-wallet-icon{
+    display:none;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-arrow{
+    font-size:18px;
+  }
+}
+@media(max-width:460px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-header-inner{
+    grid-template-columns:1fr!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-brand{
+    grid-column:1;
+    grid-row:1;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-utilities{
+    grid-column:1;
+    grid-row:2;
+    justify-content:space-between;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-app-nav{
+    grid-column:1;
+    grid-row:3!important;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-xaman-swap-cta{
+    flex:1 1 auto;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.xrbc-institutional .xrbc-hero-nav :is(.xrbc-app-nav a,.xrbc-xaman-swap-cta){
+    transition:none;
+  }
+}
+</style>
+<style id="xrbc-header-acquisition-steps">
+/* Single first-party Xaman route for the exact XRBC issued currency. */
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta{
+  min-height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-width:0;
+  padding:8px 14px;
+  border:1px solid rgba(24,227,177,.88);
+  border-radius:13px;
+  background:linear-gradient(180deg,rgba(17,104,78,.82),rgba(7,57,47,.92));
+  color:#f4fffb!important;
+  text-decoration:none!important;
+  white-space:nowrap;
+  box-shadow:
+    inset 0 0 0 1px rgba(80,255,211,.10),
+    0 0 20px rgba(24,227,177,.12);
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta:hover{
+  border-color:#68ffe8;
+  background:linear-gradient(180deg,rgba(20,125,94,.90),rgba(8,71,58,.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(104,255,232,.15),
+    0 0 24px rgba(24,227,177,.17);
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-icon{
+  width:25px;
+  height:25px;
+  flex:0 0 25px;
+  display:grid;
+  place-items:center;
+  border:1px solid currentColor;
+  border-radius:8px;
+  color:#4ff0d7;
+  font-size:16px;
+  font-weight:900;
+  line-height:1;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy strong{
+  color:inherit!important;
+  font-size:13px!important;
+  font-weight:800;
+  line-height:1.1;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy small{
+  color:#9debd8!important;
+  font-size:9px!important;
+  font-weight:600;
+  line-height:1.1;
+  letter-spacing:.01em;
+}
+body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-arrow{
+  margin-left:2px;
+  font-size:20px;
+  line-height:1;
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta{
+  border-color:rgba(5,150,105,.62);
+  background:linear-gradient(180deg,rgba(209,250,229,.95),rgba(236,253,245,.98));
+  color:#073d31!important;
+  box-shadow:0 6px 16px rgba(13,148,136,.08);
+}
+html[data-theme="light"] body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy small{
+  color:#277260!important;
+}
+@media(max-width:1220px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta{
+    min-height:44px;
+    padding:7px 10px;
+    gap:7px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy strong{font-size:12px!important}
+}
+@media(max-width:620px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta{
+    padding:7px 9px;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-copy small{
+    display:none;
+  }
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-icon{
+    width:21px;
+    height:21px;
+    flex-basis:21px;
+    font-size:14px;
+  }
+}
+@media(max-width:460px){
+  body.xrbc-institutional .xrbc-hero-nav .xrbc-get-xrbc-cta{
+    flex:1 1 auto;
+  }
+}
+</style>
 <style id="xrbc-pulse-mount-style">#xrbc-pulse-workspace{display:block;min-width:0;width:100%;margin:0 0 28px}#xrbc-pair-details #xrbc-chart-workspace{margin:0 12px 8px}</style>
 <style id="xrbc-terminal-styles">
 /* Unified XRBC terminal. Existing controls and transaction state remain the owners. */
@@ -9761,34 +10264,51 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
   body.xrbc-institutional .xrbc-media-skeleton{animation:none}
 }
 </style>
-  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="3110da635cc487f9111d59f30233724e2d343928">
-  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=3110da635cc487f9111d59f30233724e2d343928">
+  <meta data-xrbc-build="artifact" name="xrbc-build-id" content="27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20">
+  <link data-xrbc-compact="style" rel="stylesheet" href="/xrbc-home-compact.css?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20">
 </head>
 
 <body class="xrbc-institutional">
 <a class="skip-link" href="#main-content">Skip to trading workspace</a>
-<header class="xrbc-app-header">
+<header class="xrbc-app-header xrbc-hero-nav">
   <div class="xrbc-app-header-inner">
     <a class="xrbc-app-brand" href="/" aria-label="XRBitcoinCash home">
-      <img src="/xrbitcoin-logo-128.png" width="36" height="36" alt="">
-      <span>XRBitcoinCash<small>XRP Ledger trading &amp; tools</small></span>
+      <img src="/xrbitcoin-logo-128.png" width="50" height="50" alt="">
+      <span class="xrbc-app-brand-copy">
+        <span class="xrbc-app-brand-name">XRBitcoinCash</span>
+        <small>XRP Ledger trading &amp; tools</small>
+      </span>
     </a>
+
     <nav class="xrbc-app-nav" aria-label="Primary navigation">
-      <a href="/#trade" aria-current="page">Trade</a>
-      <a href="#xrpl-liquidity" data-liq-jump title="Browse token pool status without connecting a wallet">XRPL Token Liquidity</a>
-      <a href="/xrbc-liquidity-pool.html">Liquidity</a>
+      <a href="/" aria-current="page">Trade</a>
+      <a href="/xrbc-liquidity-pool.html" title="Open the XRBC/XRP liquidity pool interface">XRBC Liquidity Pool</a>
       <a href="/#market-research">Research</a>
+      <a href="/xrbc-ecosystem.html">Tools</a>
       <a href="/developers.html">Developers</a>
     </nav>
+
     <div class="xrbc-app-utilities">
-      <a class="xrbcv3-tools-fab" href="/xrbc-ecosystem.html" aria-label="Open XRBitcoinCash ecosystem tools">
-        <span class="xrbcv3-tools-icon" aria-hidden="true">⌘</span>
-        <span>TOOLS</span><b aria-hidden="true">↗</b>
-      </a>
-      <button id="themeToggle" class="xrbc-index-theme" type="button" aria-label="Switch color theme" aria-pressed="false">
+      <button id="themeToggle" class="xrbc-index-theme" type="button" aria-label="Switch color theme" aria-pressed="false" title="Switch light / dark mode">
         <span class="xrbc-theme-sun" aria-hidden="true">☀</span>
         <span class="xrbc-theme-moon" aria-hidden="true">☾</span>
       </button>
+
+      <a
+        class="xrbc-get-xrbc-cta"
+        href="https://xaman.app/detect/xapp:xaman.swap?issuer=rEjwniYhYR5QDZzK1a1x2359j8j8N43Ypw&amp;asset=5852626974636F696E6361736800000000000000&amp;action=SWAP"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Get XRBC in Xaman using the exact XRBitcoinCash issuer and currency"
+        title="Open Xaman Swap with XRBitcoinCash selected"
+      >
+        <span class="xrbc-get-xrbc-icon" aria-hidden="true">↕</span>
+        <span class="xrbc-get-xrbc-copy">
+          <strong>Get XRBC in Xaman</strong>
+          <small>XRP → XRBC · first-party wallet route</small>
+        </span>
+        <span class="xrbc-get-xrbc-arrow" aria-hidden="true">→</span>
+      </a>
     </div>
   </div>
 </header>
@@ -9800,7 +10320,6 @@ body.xrbc-institutional .xrbc-media-viewer-source small{display:block;margin-top
   </div>
   <div class="xrbc-liquidity-intro-actions">
     <a class="btn xrbc-liquidity-jump" href="#xrpl-liquidity" data-liq-jump title="Browse tokens with and without a direct XRP pool; no wallet required">XRPL Token Liquidity <span aria-hidden="true">↓</span></a>
-  <a class="xrbc-intro-link" href="/xrbc-liquidity-pool.html">Open liquidity pool <span aria-hidden="true">↗</span></a>
   </div>
 </section>
 <noscript><p class="xrbc-static-notice">Trading, wallet connection and live market data require JavaScript. You can still read the security disclosures and follow the tool links below.</p></noscript>
@@ -24495,7 +25014,7 @@ const XRBCChartCore = (() => {
 
 
 </script>
-  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=3110da635cc487f9111d59f30233724e2d343928" defer></script>
-  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=3110da635cc487f9111d59f30233724e2d343928" defer></script>
+  <script data-xrbc-compact="script" src="/xrbc-home-compact.js?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20" defer></script>
+  <script data-xrbc-compact="liquidity-model" src="/xrbc-liquidity-model.js?v=27bd9a8fe1475806dc2bdcc5d29effa0ab6a5f20" defer></script>
 </body>
 </html>
